@@ -319,7 +319,7 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - 没有引入不必要的 SDK/Gradle 大版本升级；
 - 若不兼容，主分支保持不变。
 
-**状态：** 执行中：已完成 2.0.1 的 API 37 约束确认；Backdrop 1.0.6 正在 PR #4 的第三轮 Android CI 中验证。
+**状态：** 已完成（2026-11-01）。Backdrop 1.0.6 在 PR #4 的 CI Run #39 通过：Kotlin 编译、既有单元测试和 Debug 构建全部成功。正式合并后进入阶段 2。验证报告：[BACKDROP_COMPATIBILITY_SPIKE.md](./BACKDROP_COMPATIBILITY_SPIKE.md)。
 
 ### 阶段 2：建立连续的共享背景渲染源
 
