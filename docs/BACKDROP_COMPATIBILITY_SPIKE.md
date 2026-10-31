@@ -12,8 +12,9 @@
 - Kotlin compiler plugin probe: 2.4.21
 - AGP: 9.1.1 (unchanged)
 - Gradle Wrapper: 9.3.1 (unchanged)
-- compileSdk: 37
-- CI installs Android platform 37; build-tools remain 36.0.0 unless CI proves otherwise.
+- compileSdk: 36 (same as production baseline)
+- CI installs Android platform 36 and build-tools 36.0.0.
+- API 37 was attempted first, but the current GitHub Runner SDK repository returned `Failed to find package 'platforms;android-37'` before Gradle started. This is an SDK package availability issue, not evidence of Backdrop incompatibility. The spike therefore stays on API 36 to isolate the actual AAR/Compose compatibility question.
 
 Kotlin's compatibility table lists KGP 2.4.20–2.4.21 as fully supported with Gradle 7.6.3–9.7.0 and AGP 8.5.2–9.3.1. AGP 9.1.1 supports API 37. The purpose of this combination is to avoid a simultaneous AGP and Gradle upgrade while testing the Backdrop 2.0.1 metadata.
 
