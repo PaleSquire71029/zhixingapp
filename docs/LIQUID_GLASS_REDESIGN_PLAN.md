@@ -197,6 +197,23 @@
 
 **版本策略：** 先对 2.0.0 做最小兼容性试验，再决定是否测试 2.0.1。若必须升级，采用能通过完整 CI 的最小升级集合；不为追最新版本而无必要地整体升级全部构建工具。若该库无法在合理升级范围内稳定接入，则评估其他具有明确许可证、可复现构建和真实 Android 实现的方案，不仓促采用许可证不清楚或仅有展示效果的项目。
 
+### 4.2.1 Kotlin / AGP / Gradle 兼容矩阵补充（2026-11-01）
+
+官方 Kotlin Gradle Plugin 兼容表显示：
+
+- KGP 2.3.20–2.3.21 的完整支持范围为 Gradle 7.6.3–9.3.0、AGP 8.2.2–9.0.0；
+- KGP 2.4.0–2.4.10 的完整支持范围为 Gradle 7.6.3–9.5.0、AGP 8.5.2–9.1.0；
+- KGP 2.4.20–2.4.21 的完整支持范围为 Gradle 7.6.3–9.7.0、AGP 8.5.2–9.3.1。
+
+因此，Backdrop 2.0.0 使用的 Kotlin 2.3.21 与当前 AGP 9.1.1 不在官方完整支持范围内；Backdrop 2.0.1 所用的 Kotlin 2.4.10 也比当前 AGP 9.1.1 的完整支持上限低一个补丁版本。兼容性试验优先采用 KGP 2.4.21 作为候选，与当前 AGP 9.1.1 和 Gradle 9.3.1 配对验证；这三者在上述官方矩阵范围内。AGP 9.1.1 官方支持 Android API 37，因此如该库 AAR 的编译约束要求，可将 compileSdk / CI SDK 升级到 37，而不必同时升级 AGP 和 Gradle。
+
+另一个需要专门验证的风险：Backdrop 2.0.1 的 Android AAR POM 声明了 `org.jetbrains.compose.foundation:foundation-android`、`org.jetbrains.compose.ui:ui-android` 和 `ui-graphics-android` 1.12.0；知行 App 当前 UI 使用 AndroidX Compose BOM。必须检查 Gradle 变体选择、传递依赖和最终编译 classpath，不能仅因依赖能下载就认为与现有 Compose UI 没有冲突。
+
+参考：
+- [Kotlin Gradle Plugin compatibility](https://kotlinlang.org/docs/gradle-configure-project.html)
+- [AGP 9.1.1 release notes and API 37 support](https://developer.android.com/build/releases/agp-9-1-0-release-notes)
+- [Backdrop 2.0.1 Android artifact metadata](https://central.sonatype.com/artifact/io.github.kyant0/backdrop-android)
+
 ### 4.3 引入前检查清单
 
 - [ ] 源仓库、作者、许可证和许可证文本可核验；
@@ -252,7 +269,7 @@
 - 用户可以从实施状态账本找到本文；
 - 当前项目状态与未完成事项没有被误写为完成。
 
-**状态：** 执行中。
+**状态：** 已完成（2026-11-01，专项文档已提交至 main）。
 
 ### 阶段 1：开源库兼容性验证
 
@@ -281,7 +298,7 @@
 - 没有引入不必要的 SDK/Gradle 大版本升级；
 - 若不兼容，主分支保持不变。
 
-**状态：** 待执行。
+**状态：** 执行中：已完成项目版本/源代码/许可证审计，正在做 Android 依赖兼容性试验。
 
 ### 阶段 2：建立连续的共享背景渲染源
 
