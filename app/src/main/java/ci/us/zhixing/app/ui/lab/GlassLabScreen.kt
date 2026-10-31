@@ -10,6 +10,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.Canvas
@@ -81,15 +82,24 @@ internal fun GlassLabScreen(
     onBack: () -> Unit,
     lifecycle: Lifecycle,
 ) {
-    val blurSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    val refractionSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-    var blurEnabled by rememberSaveable { mutableStateOf(blurSupported) }
-    var refractionEnabled by rememberSaveable { mutableStateOf(refractionSupported) }
-    var edgeHighlightEnabled by rememberSaveable { mutableStateOf(refractionSupported) }
-    var chromaticDispersionEnabled by rememberSaveable { mutableStateOf(false) }
-    var chromaticDispersionStrength by rememberSaveable { mutableFloatStateOf(0.25f) }
-    var refractionStrength by rememberSaveable { mutableFloatStateOf(3.5f) }
-    var dynamicSamplingEnabled by rememberSaveable { mutableStateOf(false) }
+    val apiLevel = Build.VERSION.SDK_INT
+    val blurSupported = apiLevel >= Build.VERSION_CODES.S
+    val refractionSupported = apiLevel >= Build.VERSION_CODES.TIRAMISU
+    val initialConfig = remember {
+        resolveGlassPerformanceConfig(GlassPerformanceTier.STANDARD, apiLevel)
+    }
+    var selectedTier by rememberSaveable { mutableStateOf(GlassPerformanceTier.STANDARD) }
+    var blurEnabled by rememberSaveable { mutableStateOf(initialConfig.blurRadiusDp > 0f) }
+    var blurRadiusDp by rememberSaveable { mutableFloatStateOf(initialConfig.blurRadiusDp) }
+    var refractionEnabled by rememberSaveable { mutableStateOf(initialConfig.refractionEnabled) }
+    var edgeHighlightEnabled by rememberSaveable { mutableStateOf(initialConfig.edgeHighlightEnabled) }
+    var chromaticDispersionEnabled by rememberSaveable { mutableStateOf(initialConfig.chromaticDispersionEnabled) }
+    var chromaticDispersionStrength by rememberSaveable { mutableFloatStateOf(initialConfig.chromaticDispersionStrengthPx) }
+    var refractionStrength by rememberSaveable { mutableFloatStateOf(initialConfig.refractionStrengthPx) }
+    var dynamicSamplingEnabled by rememberSaveable { mutableStateOf(initialConfig.dynamicSamplingEnabled) }
+    var touchFeedbackEnabled by rememberSaveable { mutableStateOf(initialConfig.touchFeedbackEnabled) }
+    var backdropCaptureEnabled by rememberSaveable { mutableStateOf(initialConfig.backdropCaptureEnabled) }
+    var panelOverlayAlpha by rememberSaveable { mutableFloatStateOf(initialConfig.panelOverlayAlpha) }
     var isLifecycleStarted by remember(lifecycle) {
         mutableStateOf(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
     }
@@ -98,12 +108,42 @@ internal fun GlassLabScreen(
     var captureStatus by remember { mutableStateOf("正在准备背景快照…") }
     var refractionStatus by remember { mutableStateOf("AGSL 初始化中…") }
     var refractionReady by remember { mutableStateOf(false) }
-    val refraction = remember(refractionSupported) {
-        if (refractionSupported) runCatching { SingleChannelRefraction.create() }.getOrNull() else null
+    val shaderEffectsEnabled = refractionEnabled || edgeHighlightEnabled ||
+        chromaticDispersionEnabled || touchFeedbackEnabled
+    val refraction = remember(refractionSupported, shaderEffectsEnabled) {
+        if (refractionSupported && shaderEffectsEnabled) {
+            runCatching { SingleChannelRefraction.create() }.getOrNull()
+        } else {
+            null
+        }
     }
     var captureCount by remember { mutableIntStateOf(0) }
     var manualRefreshPending by remember { mutableStateOf(false) }
     val captureMutex = remember { Mutex() }
+
+    fun applyPerformanceTier(tier: GlassPerformanceTier) {
+        val config = resolveGlassPerformanceConfig(tier, apiLevel)
+        selectedTier = tier
+        dynamicSamplingEnabled = config.dynamicSamplingEnabled
+        blurRadiusDp = config.blurRadiusDp
+        blurEnabled = config.blurRadiusDp > 0f
+        refractionEnabled = config.refractionEnabled
+        refractionStrength = config.refractionStrengthPx
+        edgeHighlightEnabled = config.edgeHighlightEnabled
+        chromaticDispersionEnabled = config.chromaticDispersionEnabled
+        chromaticDispersionStrength = config.chromaticDispersionStrengthPx
+        touchFeedbackEnabled = config.touchFeedbackEnabled
+        backdropCaptureEnabled = config.backdropCaptureEnabled
+        panelOverlayAlpha = config.panelOverlayAlpha
+        if (!config.backdropCaptureEnabled) {
+            backdropImage = null
+        }
+    }
+
+    fun markCustom() {
+        selectedTier = GlassPerformanceTier.CUSTOM
+        backdropCaptureEnabled = true
+    }
 
     DisposableEffect(lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
@@ -121,7 +161,7 @@ internal fun GlassLabScreen(
 
     suspend fun captureBackdrop() {
         captureMutex.withLock {
-            if (!isLifecycleStarted) return@withLock
+            if (!isLifecycleStarted || !backdropCaptureEnabled) return@withLock
             captureStatus = "正在采集背景…"
             val result = try {
                 Result.success(backdropLayer.toImageBitmap())
@@ -141,8 +181,8 @@ internal fun GlassLabScreen(
         }
     }
 
-    LaunchedEffect(backdropLayer, isLifecycleStarted) {
-        if (isLifecycleStarted) {
+    LaunchedEffect(backdropLayer, isLifecycleStarted, backdropCaptureEnabled) {
+        if (isLifecycleStarted && backdropCaptureEnabled) {
             // Allow the background draw node to record its first frame.
             withFrameNanos { }
             withFrameNanos { }
@@ -150,15 +190,17 @@ internal fun GlassLabScreen(
         }
     }
 
-    LaunchedEffect(dynamicSamplingEnabled, isLifecycleStarted, backdropLayer) {
-        if (dynamicSamplingEnabled && isLifecycleStarted) {
+    LaunchedEffect(dynamicSamplingEnabled, isLifecycleStarted, backdropLayer, backdropCaptureEnabled) {
+        if (dynamicSamplingEnabled && isLifecycleStarted && backdropCaptureEnabled) {
             captureStatus = "动态采样已开启 · 每秒最多更新一次"
             while (true) {
                 delay(BACKDROP_SAMPLE_INTERVAL_MS)
                 if (isLifecycleStarted) captureBackdrop()
             }
-        } else if (dynamicSamplingEnabled) {
+        } else if (dynamicSamplingEnabled && !isLifecycleStarted) {
             captureStatus = "应用已暂停 · 动态采样已停止"
+        } else if (!backdropCaptureEnabled) {
+            captureStatus = "Off 模式 · 已关闭背景采样"
         }
     }
 
@@ -189,6 +231,7 @@ internal fun GlassLabScreen(
         } else {
             refractionStatus = when {
                 !refractionSupported -> "系统低于 Android 13，使用快照与模糊降级"
+                !shaderEffectsEnabled -> "当前性能档位不创建 AGSL Shader"
                 refraction == null -> "AGSL 初始化失败，使用快照与模糊降级"
                 else -> "等待背景快照"
             }
@@ -234,6 +277,55 @@ internal fun GlassLabScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
             Text(
+                text = "性能模式 · ${when (selectedTier) {
+                    GlassPerformanceTier.PREMIUM -> "Premium"
+                    GlassPerformanceTier.STANDARD -> "Standard"
+                    GlassPerformanceTier.LITE -> "Lite"
+                    GlassPerformanceTier.OFF -> "Off"
+                    GlassPerformanceTier.CUSTOM -> "自定义"
+                }}",
+                style = ZhixingTheme.type.screenTitle,
+                color = ZhixingTheme.colors.onBackground,
+            )
+            Text(
+                text = when (selectedTier) {
+                    GlassPerformanceTier.PREMIUM -> "高画质预设 · 1 Hz 动态快照与完整光学效果"
+                    GlassPerformanceTier.STANDARD -> "平衡预设 · 静态快照、适度模糊和折射"
+                    GlassPerformanceTier.LITE -> "轻量预设 · 保留静态快照，不运行 Shader"
+                    GlassPerformanceTier.OFF -> "关闭预设 · 不采样背景，使用近不透明浅色面板"
+                    GlassPerformanceTier.CUSTOM -> "自定义组合 · 已手动调整至少一项效果"
+                },
+                style = ZhixingTheme.type.body,
+                color = ZhixingTheme.colors.onSurfaceVariant,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                PerformanceTierChip(
+                    label = "Premium",
+                    selected = selectedTier == GlassPerformanceTier.PREMIUM,
+                    modifier = Modifier.weight(1f),
+                ) { applyPerformanceTier(GlassPerformanceTier.PREMIUM) }
+                PerformanceTierChip(
+                    label = "Standard",
+                    selected = selectedTier == GlassPerformanceTier.STANDARD,
+                    modifier = Modifier.weight(1f),
+                ) { applyPerformanceTier(GlassPerformanceTier.STANDARD) }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                PerformanceTierChip(
+                    label = "Lite",
+                    selected = selectedTier == GlassPerformanceTier.LITE,
+                    modifier = Modifier.weight(1f),
+                ) { applyPerformanceTier(GlassPerformanceTier.LITE) }
+                PerformanceTierChip(
+                    label = "Off",
+                    selected = selectedTier == GlassPerformanceTier.OFF,
+                    modifier = Modifier.weight(1f),
+                ) { applyPerformanceTier(GlassPerformanceTier.OFF) }
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
+            Text(
                 text = "前台动态背景采样",
                 style = ZhixingTheme.type.screenTitle,
                 color = ZhixingTheme.colors.onBackground,
@@ -251,12 +343,18 @@ internal fun GlassLabScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = if (blurEnabled && blurSupported) "模糊 · 10 dp" else "清晰快照",
+                text = if (blurEnabled && blurSupported) "模糊 · ${String.format(Locale.US, "%.0f", blurRadiusDp)} dp" else "清晰快照",
                 style = ZhixingTheme.type.sectionLabel,
                 color = ZhixingTheme.colors.secondary,
             )
             TextButton(
-                onClick = { blurEnabled = !blurEnabled },
+                onClick = {
+                    markCustom()
+                    if (!blurEnabled && blurRadiusDp <= 0f && blurSupported) {
+                        blurRadiusDp = 6f
+                    }
+                    blurEnabled = !blurEnabled
+                },
                 enabled = blurSupported,
             ) {
                 Text(
@@ -285,7 +383,11 @@ internal fun GlassLabScreen(
                 )
             }
             TextButton(
-                onClick = { dynamicSamplingEnabled = !dynamicSamplingEnabled },
+                onClick = {
+                    markCustom()
+                    backdropCaptureEnabled = true
+                    dynamicSamplingEnabled = !dynamicSamplingEnabled
+                },
                 enabled = isLifecycleStarted,
             ) {
                 Text(
@@ -298,7 +400,7 @@ internal fun GlassLabScreen(
 
         TextButton(
             onClick = { manualRefreshPending = true },
-            enabled = isLifecycleStarted && !manualRefreshPending,
+            enabled = isLifecycleStarted && backdropCaptureEnabled && !manualRefreshPending,
         ) {
             Text(
                 text = "重新采样背景",
@@ -325,7 +427,7 @@ internal fun GlassLabScreen(
                 )
             }
             TextButton(
-                onClick = { refractionEnabled = !refractionEnabled },
+                onClick = { markCustom(); refractionEnabled = !refractionEnabled },
                 enabled = refractionReady,
             ) {
                 Text(
@@ -344,7 +446,7 @@ internal fun GlassLabScreen(
             )
             Slider(
                 value = refractionStrength,
-                onValueChange = { refractionStrength = clampRefractionStrength(it) },
+                onValueChange = { markCustom(); refractionStrength = clampRefractionStrength(it) },
                 valueRange = 0f..8f,
                 steps = 15,
                 enabled = refractionReady && refractionEnabled,
@@ -373,7 +475,7 @@ internal fun GlassLabScreen(
                 )
             }
             TextButton(
-                onClick = { edgeHighlightEnabled = !edgeHighlightEnabled },
+                onClick = { markCustom(); edgeHighlightEnabled = !edgeHighlightEnabled },
                 enabled = refractionReady,
             ) {
                 Text(
@@ -406,7 +508,7 @@ internal fun GlassLabScreen(
                 )
             }
             TextButton(
-                onClick = { chromaticDispersionEnabled = !chromaticDispersionEnabled },
+                onClick = { markCustom(); chromaticDispersionEnabled = !chromaticDispersionEnabled },
                 enabled = refractionReady,
             ) {
                 Text(
@@ -425,7 +527,7 @@ internal fun GlassLabScreen(
             )
             Slider(
                 value = chromaticDispersionStrength,
-                onValueChange = { chromaticDispersionStrength = clampChromaticDispersionStrength(it) },
+                onValueChange = { markCustom(); chromaticDispersionStrength = clampChromaticDispersionStrength(it) },
                 valueRange = 0f..0.8f,
                 steps = 15,
                 enabled = refractionReady && chromaticDispersionEnabled,
@@ -471,7 +573,7 @@ internal fun GlassLabScreen(
 
             CapturedGlassPanel(
                 modifier = Modifier.align(Alignment.Center),
-                image = backdropImage,
+                image = if (backdropCaptureEnabled) backdropImage else null,
                 blurEnabled = blurEnabled && blurSupported,
                 refraction = refraction,
                 refractionReady = refractionReady,
@@ -480,6 +582,9 @@ internal fun GlassLabScreen(
                 chromaticDispersionEnabled = chromaticDispersionEnabled,
                 chromaticDispersionStrength = chromaticDispersionStrength,
                 refractionStrength = refractionStrength,
+                blurRadiusDp = blurRadiusDp,
+                panelOverlayAlpha = panelOverlayAlpha,
+                touchFeedbackEnabled = touchFeedbackEnabled,
                 panelInsetPx = panelInsetPx,
                 panelHeightPx = panelHeightPx,
                 shape = panelShape,
@@ -548,6 +653,36 @@ internal fun GlassLabScreen(
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
         }
+    }
+}
+
+
+@Composable
+private fun PerformanceTierChip(
+    label: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(
+                if (selected) {
+                    ZhixingTheme.colors.primary.copy(alpha = 0.14f)
+                } else {
+                    Color.White.copy(alpha = 0.72f)
+                },
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 6.dp, vertical = 10.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = label,
+            style = ZhixingTheme.type.supporting,
+            color = if (selected) ZhixingTheme.colors.primary else ZhixingTheme.colors.onSurfaceVariant,
+        )
     }
 }
 
@@ -623,6 +758,9 @@ private fun CapturedGlassPanel(
     chromaticDispersionEnabled: Boolean,
     chromaticDispersionStrength: Float,
     refractionStrength: Float,
+    blurRadiusDp: Float,
+    panelOverlayAlpha: Float,
+    touchFeedbackEnabled: Boolean,
     panelInsetPx: Int,
     panelHeightPx: Int,
     shape: Shape,
@@ -652,34 +790,40 @@ private fun CapturedGlassPanel(
             .padding(horizontal = 20.dp)
             .height(188.dp)
             .graphicsLayer {
-                scaleX = pressScale
-                scaleY = pressScale
+                scaleX = if (touchFeedbackEnabled) pressScale else 1f
+                scaleY = if (touchFeedbackEnabled) pressScale else 1f
             }
-            .pointerInput(Unit) {
-                awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = false)
-                    fun updateTouch(position: androidx.compose.ui.geometry.Offset) {
-                        touchXFraction = (
-                            position.x / size.width.coerceAtLeast(1).toFloat()
-                        ).coerceIn(0f, 1f)
-                        touchYFraction = (
-                            position.y / size.height.coerceAtLeast(1).toFloat()
-                        ).coerceIn(0f, 1f)
-                    }
+            .then(
+                if (touchFeedbackEnabled) {
+                    Modifier.pointerInput(Unit) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            fun updateTouch(position: androidx.compose.ui.geometry.Offset) {
+                                touchXFraction = (
+                                    position.x / size.width.coerceAtLeast(1).toFloat()
+                                ).coerceIn(0f, 1f)
+                                touchYFraction = (
+                                    position.y / size.height.coerceAtLeast(1).toFloat()
+                                ).coerceIn(0f, 1f)
+                            }
 
-                    isTouchPressed = true
-                    updateTouch(down.position)
-                    try {
-                        do {
-                            val event = awaitPointerEvent()
-                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
-                            updateTouch(change.position)
-                        } while (change.pressed)
-                    } finally {
-                        isTouchPressed = false
+                            isTouchPressed = true
+                            updateTouch(down.position)
+                            try {
+                                do {
+                                    val event = awaitPointerEvent()
+                                    val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                                    updateTouch(change.position)
+                                } while (change.pressed)
+                            } finally {
+                                isTouchPressed = false
+                            }
+                        }
                     }
-                }
-            },
+                } else {
+                    Modifier
+                },
+            ),
         color = Color.Transparent,
         shape = shape,
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.96f)),
@@ -690,9 +834,9 @@ private fun CapturedGlassPanel(
                     modifier = Modifier
                         .fillMaxSize()
                         .then(
-                            if (blurEnabled) {
+                            if (blurEnabled && blurRadiusDp > 0f) {
                                 Modifier.blur(
-                                    radius = 10.dp,
+                                    radius = blurRadiusDp.dp,
                                     edgeTreatment = BlurredEdgeTreatment(shape),
                                 )
                             } else {
@@ -727,7 +871,7 @@ private fun CapturedGlassPanel(
                             touchXpx = touchXFraction * size.width,
                             touchYpx = touchYFraction * size.height,
                             touchRadiusPx = touchRadiusPx,
-                            touchHighlightStrength = touchGlowStrength,
+                            touchHighlightStrength = if (touchFeedbackEnabled) touchGlowStrength else 0f,
                         )
                         drawRect(brush = refraction.brush)
                     } else if (crop != null) {
@@ -747,7 +891,7 @@ private fun CapturedGlassPanel(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White.copy(alpha = 0.54f)),
+                    .background(Color.White.copy(alpha = panelOverlayAlpha)),
             )
 
             Column(
