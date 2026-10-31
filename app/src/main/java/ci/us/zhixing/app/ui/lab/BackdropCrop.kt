@@ -14,7 +14,7 @@ internal data class BackdropCropRect(
  * 根据居中面板位置，从完整背景快照中计算安全的源裁切区域。
  *
  * 输入尺寸无效时返回 null；其他情况下保证源区域至少为 1×1，
- * 且不会越过快照边界。
+ * 并在图像小于面板时使用可用完整区域，且不越过快照边界。
  */
 internal fun calculateBackdropCrop(
     imageWidth: Int,
@@ -24,15 +24,14 @@ internal fun calculateBackdropCrop(
 ): BackdropCropRect? {
     if (imageWidth <= 0 || imageHeight <= 0 || panelHeight <= 0) return null
 
-    val safeInset = panelInset.coerceAtLeast(0)
-    val left = safeInset.coerceIn(0, imageWidth - 1)
-    val top = ((imageHeight - panelHeight) / 2).coerceIn(0, imageHeight - 1)
-    val width = (imageWidth - safeInset * 2)
-        .coerceAtLeast(1)
-        .coerceAtMost(imageWidth - left)
-    val height = panelHeight
-        .coerceAtLeast(1)
-        .coerceAtMost(imageHeight - top)
+    val safeInset = panelInset
+        .coerceAtLeast(0)
+        .coerceAtMost((imageWidth - 1) / 2)
+    val left = safeInset
+    val width = (imageWidth - safeInset * 2).coerceAtLeast(1)
+
+    val height = panelHeight.coerceAtMost(imageHeight)
+    val top = (imageHeight - height) / 2
 
     return BackdropCropRect(
         left = left,

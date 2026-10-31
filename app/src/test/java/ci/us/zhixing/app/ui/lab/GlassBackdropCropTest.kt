@@ -19,16 +19,18 @@ class GlassBackdropCropTest {
     }
 
     @Test
-    fun cropRemainsInsideVerySmallSnapshot() {
+    fun cropStaysInsideVerySmallSnapshotAndUsesAvailablePixels() {
         val crop = calculateBackdropCrop(
             imageWidth = 20,
             imageHeight = 14,
             panelInset = 100,
             panelHeight = 188,
-        )
+        ) ?: error("A positive image should produce a crop")
 
-        assertEquals(BackdropCropRect(left = 19, top = 13, width = 1, height = 1), crop)
-        assertTrue(crop!!.left + crop.width <= 20)
+        assertEquals(BackdropCropRect(left = 9, top = 0, width = 2, height = 14), crop)
+        assertTrue(crop.left >= 0)
+        assertTrue(crop.top >= 0)
+        assertTrue(crop.left + crop.width <= 20)
         assertTrue(crop.top + crop.height <= 14)
     }
 
