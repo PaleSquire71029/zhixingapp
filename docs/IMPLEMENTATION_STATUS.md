@@ -25,13 +25,13 @@
 | 浅色主题基线 | 已提交 | 仅浅色，不含深色主题 |
 | 系统栏与安全区 | 代码已提交，待验收 | Edge-to-edge、浅色系统图标、Scaffold 安全区与 adjustResize 已配置 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
-| GitHub Actions 构建 | 修复版本待验证 | CI 新增图片完整性检查；修复后 APK 必须重新构建并在真机启动验收 |
+| GitHub Actions 构建 | 修复版本待验证 | PR #3 已合并；CI 会先检查 WebP / PNG / JPEG 完整性，再执行单测与 APK 打包；新包尚待验证 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | 液态玻璃渲染 | 未开始 | 下一小步单独建立 Glass Lab |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
-| Debug APK | 上一版已归档；修复版待构建 | 修复通过后 CI 将覆盖 `artifacts/zhixingapp-preview.apk` |
+| Debug APK | 上一版已归档；0.1.1 修复版待构建 | 主分支 CI 成功后自动覆盖 `artifacts/zhixingapp-preview.apk` |
 | Release AAB | 未开始 | 尚未配置正式签名与发布构建 |
 
 ## 2. 已完成提交
@@ -115,6 +115,18 @@
 - [ ] 在用户 Android 真机安装、启动并确认桌面图标显示。
 
 **判断：** 资源截断是两个问题的共同明确原因；最终是否彻底解决闪退仍以修复版真机启动为准。
+
+## 3.5 修复合入主分支（2026-10-31）
+
+- PR：[#3 修复启动闪退与图标](https://github.com/PaleSquire71029/zhixingapp/pull/3)，已合并。
+- 合并提交：`7bdedf7ff1c4259166be75ac75588f83c46c2fca`
+- 修复资源：`app/src/main/res/drawable-nodpi/zhixing_logo.webp`
+- Git blob SHA：`ceebc900762d478fae30eebd68dcc1f7b1a57893`
+- GitHub 树中资源大小：4,728 bytes；拉取后逐字节复核 RIFF 声明长度 4,728 bytes，WebP chunk 遍历完整。
+- 新版本：0.1.1 / versionCode 2。
+- CI 资源校验脚本：`scripts/verify_android_resources.py`。
+- [ ] 主分支 Build 对该合并版本完成资源检查、单元测试、Debug APK 构建与自动归档。
+- [ ] 用户手机确认可以启动且桌面图标显示。
 
 ## 4. 下一步拆分（一次只做一个小项）
 
