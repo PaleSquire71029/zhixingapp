@@ -11,7 +11,7 @@
 
 ## 1. 当前项目状态
 
-**第 1 小步已提交；知行图标已加入；第 2 小步 Gradle Wrapper 已补齐。为适配当前可安装的 Android SDK，Compose BOM 回退到 2026.06.00，compileSdk 保持 API 36；最新 CI 待验证。**
+**小步 1（原生工程骨架）、小步 2（Gradle Wrapper）已提交；知行图标已加入。小步 3（系统栏、安全区与输入法窗口）已完成代码修改，构建与真机验收仍待验证。当前使用 Compose BOM 2026.06.00 / compileSdk 36。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -22,6 +22,7 @@
 | Android 工程配置 | 已提交 | AGP 9.1.1、Gradle 9.3.1、JDK 17 |
 | 最小原生首页 | 已提交 | 四个主入口可切换，当前均为占位内容；顶部已显示用户提供的知行图标 |
 | 浅色主题基线 | 已提交 | 仅浅色，不含深色主题 |
+| 系统栏与安全区 | 代码已提交，待验收 | Edge-to-edge、浅色系统图标、Scaffold 安全区与 adjustResize 已配置 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
 | GitHub Actions 构建 | 已配置 | Android SDK 安装成功；首次 Gradle 构建因 Compose 要求 compileSdk 37 而失败，已将 compileSdk / CI SDK 安装修正为 37，待新运行验证 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
@@ -58,6 +59,21 @@
 - Gradle Wrapper：`57eb45f4552b8db3a05e637b861767c7ebbeadad`
 - API 37 SDK 包不可安装后的依赖回退与 CI 修复：本次提交完成后补录。
 
+## 3.1 小步 3：系统栏、安全区与输入法窗口（2026-10-31）
+
+- [x] 使用 AndroidX Activity 的 edge-to-edge 配置；状态栏与导航栏保持透明，让浅色 App 背景自然延伸到系统栏区域。
+- [x] 使用 light system-bar style，状态栏和导航栏使用深色系统图标，匹配浅色主题。
+- [x] 关闭 Android 10+ 系统栏自动对比度 scrim，避免系统额外覆盖一层不受控的灰色底色。
+- [x] 在 Activity 与 Manifest 中设置 adjustResize，作为后续输入框、AI 对话和自定义键盘的基础。
+- [x] 继续由 Material 3 Scaffold / NavigationBar 处理 safe drawing 与导航栏 Insets，不在页面中重复叠加状态栏高度。
+- [ ] GitHub Actions 构建通过。
+- [ ] 真机检查状态栏、手势导航、三键导航、横竖屏与键盘弹出/收起。
+- 当前只记录代码落地，不将未执行的构建或真机测试标记为通过。
+
+修改文件：
+- `app/src/main/java/ci/us/zhixing/app/MainActivity.kt`
+- `app/src/main/AndroidManifest.xml`
+
 ## 4. 下一步拆分（一次只做一个小项）
 
 ### 第 2 小步：补齐 Gradle Wrapper
@@ -68,10 +84,10 @@
 
 ### 第 3 小步：整理系统窗口与安全区
 
-- [ ] 设置浅色状态栏图标。
-- [ ] 检查导航栏和手势区域的颜色。
-- [ ] 处理键盘弹出时的页面高度。
-- [ ] 不加入玻璃效果。
+- [x] 已提交 edge-to-edge、浅色系统图标与 adjustResize 配置。
+- [x] 使用 Compose Scaffold 的 safe drawing insets，避免重复计算系统栏空间。
+- [ ] 等 CI 与目标真机验收通过后关闭本小步。
+- [ ] 本小步不加入玻璃效果。
 
 ### 第 4 小步：把首页占位样式拆成设计组件
 
@@ -178,8 +194,8 @@
 
 ## 5. 当前阻断项
 
-- [ ] 修正 setup-android 版本后，重新确认 GitHub Actions Android 构建成功。
-- [ ] 标准 Gradle Wrapper 待补齐。
+- [ ] 确认当前 API 36 / Compose BOM 2026.06.00 配置下 GitHub Actions Android 构建成功。
+- [x] 标准 Gradle Wrapper 已补齐；当前 Wrapper 版本为 Gradle 9.3.1。
 - [ ] 目标真机和 Android API 版本待确认/实测。
 - [ ] 液态玻璃库的正式引入仍未决定。
 - [ ] Worker 的 calculator-ai app_id 分流仍未修复。
