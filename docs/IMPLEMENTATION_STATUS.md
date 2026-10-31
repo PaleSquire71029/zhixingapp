@@ -11,7 +11,7 @@
 
 ## 1. 当前项目状态
 
-**第 1 小步已提交：原生 Compose 工程骨架与最小首页。CI 构建结果待确认。**
+**第 1 小步已提交；知行图标已加入；第 2 小步 Gradle Wrapper 已补齐。CI 的 compileSdk 门槛正在修正，最终构建结果待确认。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -20,11 +20,11 @@
 | 旧 AI 交接文档 | 已阅读 | 项目总览、遗漏需求补充 |
 | 技术路线 | 已确定 | Android 原生 Kotlin + Jetpack Compose |
 | Android 工程配置 | 已提交 | AGP 9.1.1、Gradle 9.3.1、JDK 17 |
-| 最小原生首页 | 已提交 | 四个主入口可切换，当前均为占位内容 |
+| 最小原生首页 | 已提交 | 四个主入口可切换，当前均为占位内容；顶部已显示用户提供的知行图标 |
 | 浅色主题基线 | 已提交 | 仅浅色，不含深色主题 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
-| GitHub Actions 构建 | 已配置 | 首次工作流执行结果待核实 |
-| Gradle Wrapper | 待补齐 | 当前 CI 使用 setup-gradle 安装 Gradle；后续补充标准 wrapper 文件 |
+| GitHub Actions 构建 | 已配置 | Android SDK 安装成功；首次 Gradle 构建因 Compose 要求 compileSdk 37 而失败，已将 compileSdk / CI SDK 安装修正为 37，待新运行验证 |
+| Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | 液态玻璃渲染 | 未开始 | 下一小步单独建立 Glass Lab |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
@@ -43,7 +43,22 @@
 - Commit：`7d20f87ec4cbd34be3ad3e28eafacd427760116c`。
 - 未完成：标准 Gradle Wrapper 文件尚未加入；需要在后续小步骤补齐。
 
-## 3. 下一步拆分（一次只做一个小项）
+## 3. 本轮新增与修复记录（2026-10-31）
+
+- [x] 将用户提供的知行蓝紫渐变标识加入 drawable-nodpi，并配置 adaptive launcher icon（普通与圆形）。
+- [x] 首页品牌区显示同一图标。
+- [x] 补齐标准 Gradle Wrapper 9.3.1：JAR、properties、gradlew、gradlew.bat。
+- [x] 从 GitHub Actions 日志定位真实失败原因：Compose 1.12.1 要求 compileSdk 37，而项目原来编译到 API 36。
+- [x] 将 compileSdk 和 CI 安装平台调整为 API 37；targetSdk 暂时保持 36，避免同时改变运行时行为。
+- [ ] 等待本次提交触发的 CI 结果；若失败，只修这一处，不叠加 Glass Lab。
+
+提交：
+- 图标：`148ac1cbf77f9a3b1cdab76d93daa6aca33620bb`
+- 首页品牌区：`8d5c0319383a98ad59f7ff3480acdb29efe91e4f`
+- Gradle Wrapper：`57eb45f4552b8db3a05e637b861767c7ebbeadad`
+- 本轮 CI 修复：提交完成后补录。
+
+## 4. 下一步拆分（一次只做一个小项）
 
 ### 第 2 小步：补齐 Gradle Wrapper
 

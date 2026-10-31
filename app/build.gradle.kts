@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "ci.us.zhixing.app"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "ci.us.zhixing.app"
