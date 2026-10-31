@@ -25,13 +25,14 @@
 | 浅色主题基线 | 已提交 | 仅浅色，不含深色主题 |
 | 系统栏与安全区 | 代码已提交，待验收 | Edge-to-edge、浅色系统图标、Scaffold 安全区与 adjustResize 已配置 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
-| GitHub Actions 构建 | 已通过（Run #15）；自动仓库归档待验证 | 当前配置已增加主分支构建成功后提交 `artifacts/zhixingapp-preview.apk` 的步骤；待新一轮 CI 验证 |
+| GitHub Actions 构建 | 已通过（Run #22） | 单元测试、assembleDebug、Artifact 上传和主分支 APK 自动提交均成功；真机安装待验收 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | 液态玻璃渲染 | 未开始 | 下一小步单独建立 Glass Lab |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
-| APK / AAB | 待 CI | 工作流成功后可下载 Debug APK artifact |
+| Debug APK | 已归档到仓库 | `artifacts/zhixingapp-preview.apk`，约 11 MB，可直接下载 |
+| Release AAB | 未开始 | 尚未配置正式签名与发布构建 |
 
 ## 2. 已完成提交
 
@@ -89,6 +90,17 @@
 - Actions 页面：[查看 Android Build #15](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41206049511)
 - APK 是 Debug 预览包；测试通过不等于已在实际手机上完成启动、系统栏和键盘验收。
 - 验收清单：[docs/APK_TEST_CHECKLIST.md](./APK_TEST_CHECKLIST.md)
+
+## 3.3 主分支 APK 自动归档（2026-10-31）
+
+- [x] 主分支 CI 在单元测试和 Debug APK 构建成功后自动复制 APK 到 `artifacts/zhixingapp-preview.apk`。
+- [x] APK 已随自动化构建提交到 main。
+- [x] GitHub 仓库 Git Tree 已确认该路径存在，文件大小 11,491,233 bytes。
+- Git blob SHA：`a86068d623390ea92c9d5a09c7b25a2d938b80d9`
+- 直接下载：<https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk>
+- 对 `artifacts/**` 配置 paths-ignore，避免归档提交再次触发 CI 循环。
+- Actions Run：[#22](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41206736514)
+- 注意：这是 Debug 预览版，真机安装与视觉验收仍待用户进行。
 
 ## 4. 下一步拆分（一次只做一个小项）
 
