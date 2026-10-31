@@ -37,9 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import ci.us.zhixing.app.ui.theme.ZhixingType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import ci.us.zhixing.app.navigation.AppDestinations
 import ci.us.zhixing.app.ui.theme.ZhixingLightColors
 import ci.us.zhixing.app.ui.theme.ZhixingSpacing
@@ -95,8 +94,7 @@ private fun ZhixingApp() {
                             icon = {
                                 Text(
                                     text = destination.symbol,
-                                    fontSize = 19.sp,
-                                    fontWeight = FontWeight.Medium,
+                                    style = ZhixingType.navigationSymbol,
                                 )
                             },
                             label = { Text(destination.label) },
@@ -140,14 +138,12 @@ private fun ZhixingApp() {
                         Column(verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.tight)) {
                             Text(
                                 text = "知行",
-                                style = MaterialTheme.typography.headlineLarge,
-                                fontWeight = FontWeight.Bold,
+                                style = ZhixingType.brandTitle,
                                 color = ZhixingLightColors.onBackground,
                             )
                             Text(
                                 text = "CALCULATOR  ×  AI",
-                                style = MaterialTheme.typography.labelSmall,
-                                letterSpacing = 1.5.sp,
+                                style = ZhixingType.brandCaption,
                                 color = ZhixingLightColors.onSurfaceVariant,
                             )
                         }
@@ -160,7 +156,7 @@ private fun ZhixingApp() {
                         Text(
                             text = "原生预览",
                             modifier = Modifier.padding(horizontal = ZhixingSpacing.badgeHorizontal, vertical = ZhixingSpacing.badgeVertical),
-                            style = MaterialTheme.typography.labelMedium,
+                            style = ZhixingType.badge,
                             color = ZhixingLightColors.onPrimaryContainer,
                         )
                     }
@@ -178,26 +174,23 @@ private fun ZhixingApp() {
                     ) {
                         Text(
                             text = selectedDestination.label,
-                            style = MaterialTheme.typography.labelLarge,
+                            style = ZhixingType.sectionLabel,
                             color = ZhixingLightColors.secondary,
-                            fontWeight = FontWeight.SemiBold,
                         )
                         Text(
                             text = selectedDestination.title,
-                            style = MaterialTheme.typography.headlineSmall,
+                            style = ZhixingType.screenTitle,
                             color = ZhixingLightColors.onSurface,
-                            fontWeight = FontWeight.Bold,
                         )
                         Text(
                             text = selectedDestination.description,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = ZhixingType.body,
                             color = ZhixingLightColors.onSurfaceVariant,
-                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight,
                         )
                         Spacer(modifier = Modifier.height(ZhixingSpacing.hairlineGap))
                         Text(
                             text = "基础界面已建立 · 功能按小步迁移",
-                            style = MaterialTheme.typography.labelMedium,
+                            style = ZhixingType.badge,
                             color = ZhixingLightColors.primary,
                         )
                     }
@@ -206,9 +199,8 @@ private fun ZhixingApp() {
                 Column(verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.groupGap)) {
                     Text(
                         text = "本阶段先完成基础",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = ZhixingType.sectionTitle,
                         color = ZhixingLightColors.onBackground,
-                        fontWeight = FontWeight.SemiBold,
                     )
                     FeatureLine(title = "原生 Android 工程", detail = "Kotlin + Jetpack Compose")
                     FeatureLine(title = "知行浅色设计基线", detail = "先稳定布局与文字层级")
@@ -233,13 +225,12 @@ private fun FeatureLine(title: String, detail: String) {
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium,
+                style = ZhixingType.featureTitle,
                 color = ZhixingLightColors.onSurface,
-                fontWeight = FontWeight.SemiBold,
             )
             Text(
                 text = detail,
-                style = MaterialTheme.typography.bodySmall,
+                style = ZhixingType.supporting,
                 color = ZhixingLightColors.onSurfaceVariant,
             )
         }
