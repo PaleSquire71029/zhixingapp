@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Build
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
@@ -29,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -38,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestinations
+import ci.us.zhixing.app.ui.lab.GlassLabScreen
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import ci.us.zhixing.app.R
 
@@ -72,11 +75,18 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun ZhixingApp() {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    var showGlassLab by rememberSaveable { mutableStateOf(false) }
     val destinations = AppDestinations.all
     val selectedDestination = destinations[selectedIndex]
 
     ZhixingTheme {
-        Scaffold(
+        BackHandler(enabled = showGlassLab) {
+            showGlassLab = false
+        }
+        if (showGlassLab) {
+            GlassLabScreen(onBack = { showGlassLab = false })
+        } else {
+            Scaffold(
             containerColor = ZhixingTheme.colors.background,
             bottomBar = {
                 NavigationBar(
@@ -202,7 +212,16 @@ private fun ZhixingApp() {
                     FeatureLine(title = "知行浅色设计基线", detail = "先稳定布局与文字层级")
                     FeatureLine(title = "逐步迁移", detail = "液态玻璃、计算和 AI 分别验收")
                 }
+
+                androidx.compose.material3.TextButton(onClick = { showGlassLab = true }) {
+                    Text(
+                        text = "打开材质实验室",
+                        style = ZhixingTheme.type.featureTitle,
+                        color = ZhixingTheme.colors.primary,
+                    )
+                }
             }
+        }
         }
     }
 }

@@ -66,6 +66,7 @@
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/ShapeTokens.kt` | 首页圆角形状 | 统一管理 28.dp / 18.dp 两种圆角 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/TypeTokens.kt` | 首页文字样式角色 | 统一管理字号、行高、字重和字距；不绑定额外字体文件 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/ZhixingTheme.kt` | 知行统一主题入口 | 暴露 colors / type / spacing / shapes，并应用浅色 Material 3 主题 |
+| `app/src/main/java/ci/us/zhixing/app/ui/lab/GlassLabScreen.kt` | Glass Lab 静态材质实验页 | 独立浅色页面；只示意透明叠层，不包含实时光学渲染 |
 | `app/src/main/java/ci/us/zhixing/app/navigation/AppDestination.kt` | 四个底部导航目的地及占位描述 | 未来与真实页面路由连接 |
 | `app/src/test/java/ci/us/zhixing/app/navigation/AppDestinationTest.kt` | 导航数据契约的 JVM 单元测试 | 未来逐步增加状态和导航测试 |
 | `app/src/main/res/drawable-nodpi/zhixing_logo.webp` | 用户提供的蓝紫渐变图标 | 不随意裁切、重绘或改变比例 |
@@ -368,17 +369,20 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 ### 第 2 步：Glass Lab 静态实验页
 
-**目标：** 只验证实验入口和基础构图，不马上做折射。
+**状态：静态页面代码已提交，构建与真机验收待进行。**
 
-操作：
+已完成：
 
-1. 新建独立实验页面，不覆盖主首页；
-2. 添加一块浅色画布和一个半透明样本容器；
-3. 放置简单彩色背景图形，便于观察后续采样；
-4. 增加关闭/返回入口；
-5. 明确标注实验页面，不让实验效果冒充已经完成的正式组件。
+1. [x] 新建独立实验页面，不覆盖主首页和四个主导航入口；
+2. [x] 添加浅色渐变画布、彩色背景形状与半透明样本容器；
+3. [x] 提供首页入口、页面内返回和 Android 系统返回键；
+4. [x] 明确标注当前仅是静态透明叠层示意，不代表真实 Liquid Glass。
 
-完成条件：可以进入和退出实验页；主导航仍正常；没有深色面板或复杂动画。
+尚未实现：实时背景采样、模糊、折射、色散、动态高光和触摸形变。
+
+完成条件：后续编译通过；真机可进入和退出实验页；主导航仍正常；窄屏滚动无裁切；不出现深色面板。
+
+本次按要求跳过 CI，不生成 APK，以上状态仅代表代码已提交。
 
 ### 第 3 步：背景采样和模糊
 
