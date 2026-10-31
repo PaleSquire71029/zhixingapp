@@ -576,3 +576,14 @@
 - [x] Backdrop 1.0.6 的依赖解析、Kotlin 编译、单元测试和 Debug 构建已通过 PR #4 的 CI Run #39（2026-10-31）：https://github.com/PaleSquire71029/zhixingapp/actions/runs/41226739564。
 - [ ] 将已验证的 Backdrop 1.0.6 与 Kotlin Compose 插件 2.4.21 基线正式合并到 main（PR #4）。
 - [ ] 未修改 MainActivity/生产导航；未向 main 提交 APK。
+
+### 实时 Backdrop 阶段进度（2026-11-01）
+
+- [x] 修正 Android Build 工作流：日常 push/PR 仍执行测试和构建，但只有手动触发 \`workflow_dispatch\` 才会把新 APK 提交到 \`artifacts/zhixingapp-preview.apk\`。
+- [x] 已确认 PR #4 合并后的既有 push 工作流 Run #40 曾自动更新仓库预览 APK（提交 \`57f63a382207e3d34284f48e214829c0b9cbca6a\`）；之后的工作流已更改为手动更新，避免常规源码提交重写 APK。
+- [x] 已在 \`feature/live-backdrop-host\` 分支将 GlassLab 由每秒一次 Bitmap 快照改为 Backdrop 1.0.6 的共享实时背景层。
+- [x] 已移除 GlassLab 的 \`toImageBitmap()\`、1 秒定时采样循环和旧位图绑定 Shader 路径；背景与玻璃面板改为同一 Compose 绘制链路。
+- [x] 已把透明程度（0–100%）与模糊半径（0–24 dp）做成独立控制；Off 档使用普通浅色表面；API 26–30、31–32、33+ 有不同降级行为。
+- [x] 已更新性能档位单元测试，验证 Premium / Standard / Lite / Off 与 API 降级规则。
+- [ ] PR CI 构建、测试和运行结果待验证；未合并 Stage 2 实现。
+- [ ] 当前尚未将液态玻璃底栏集成到 MainActivity；底栏属于后续阶段。
