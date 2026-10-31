@@ -234,11 +234,11 @@
 7. 将 `app/build/outputs/apk/debug/app-debug.apk` 上传为 `zhixingapp-debug` Artifact。
 8. 主分支 push 构建成功后，将 APK 复制到仓库 `artifacts/zhixingapp-preview.apk` 并提交；Artifact 路径被设置为 push 触发忽略项，避免自动提交 APK 后再次触发构建循环。
 
-日常直接下载入口：<https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk>。该链接在首次自动归档步骤完成前可能尚无文件。
+**已验证：** Android Build #22 已成功执行上述归档，仓库 Git Tree 中存在 `artifacts/zhixingapp-preview.apk`（11,491,233 bytes）。日常直接下载入口：<https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk>。
 
 ### 5.2 如何在 GitHub 手机上找到 APK
 
-优先直接打开仓库中的 APK：<https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk>。这是主分支自动归档的最新 Debug 包；若链接暂时 404，说明最新主分支构建还没有完成 APK 归档，请使用下面的 Actions Artifact 备用流程。
+优先直接打开仓库中的 APK：<https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk>。该文件现已存在于主分支，是 CI 自动归档的最新 Debug 包；后续主分支构建成功会自动更新它。
 
 1. 打开仓库：<https://github.com/PaleSquire71029/zhixingapp>。
 2. 进入 **Actions**。
@@ -252,7 +252,7 @@
 
 不要把 Artifact ZIP 当作 APK 安装；需要先解压。若 GitHub 运行没有 Artifact，通常表示构建或测试没有成功到上传步骤。
 
-本次已成功生成首份 APK。GitHub Actions Artifact 中的 `app-debug.apk` 与本会话提供的预览副本内容一致，SHA-256 为 `218fe484bffe249e39b02006184512f4a4a837ee37809b527aed712b0fde7785`。长期获取时请从对应 Actions 运行下载 Artifact，并按上面的 ZIP 解压步骤取得 APK。
+Debug APK 现已直接存入仓库：`artifacts/zhixingapp-preview.apk`。建议通过仓库 README 的下载入口获取最新文件；也可以打开该文件的 Raw 链接。每次主分支构建成功后，CI 会自动更新该文件。
 
 ### 5.3 Debug APK 的限制
 
