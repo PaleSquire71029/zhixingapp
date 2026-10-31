@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**截至 2026-10-31：小步 1（原生工程骨架）、小步 2（Gradle Wrapper）已提交；知行图标已加入；小步 3（系统栏、安全区与输入法窗口）代码已提交。当前项目仍是原生 UI 骨架，业务功能尚未迁移。API 36 / Compose BOM 2026.06.00 配置下的 CI 构建、Debug APK 产出和真机验收仍待确认。**
+**截至 2026-10-31：小步 1（原生工程骨架）、小步 2（Gradle Wrapper）已提交；知行图标已加入；小步 3（系统栏、安全区与输入法窗口）代码已提交。GitHub Actions Android Build #15 已成功完成单元测试与 Debug APK 打包并上传 Artifact。当前项目仍是原生 UI 骨架，业务功能尚未迁移；目标真机安装和系统栏验收仍待用户执行。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -25,7 +25,7 @@
 | 浅色主题基线 | 已提交 | 仅浅色，不含深色主题 |
 | 系统栏与安全区 | 代码已提交，待验收 | Edge-to-edge、浅色系统图标、Scaffold 安全区与 adjustResize 已配置 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
-| GitHub Actions 构建 | 已配置，结果待确认 | 当前工作流安装 Android API 36 / Build Tools 36.0.0，运行单元测试和 assembleDebug，成功后上传 zhixingapp-debug Artifact |
+| GitHub Actions 构建 | 已通过（Run #15） | Android API 36 / Build Tools 36.0.0；导航单元测试与 assembleDebug 成功；Artifact zhixingapp-debug 已上传；真机安装待验收 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | 液态玻璃渲染 | 未开始 | 下一小步单独建立 Glass Lab |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
@@ -67,13 +67,28 @@
 - [x] 关闭 Android 10+ 系统栏自动对比度 scrim，避免系统额外覆盖一层不受控的灰色底色。
 - [x] 在 Activity 与 Manifest 中设置 adjustResize，作为后续输入框、AI 对话和自定义键盘的基础。
 - [x] 继续由 Material 3 Scaffold / NavigationBar 处理 safe drawing 与导航栏 Insets，不在页面中重复叠加状态栏高度。
-- [ ] GitHub Actions 构建通过。
+- [x] GitHub Actions Run #15 的单元测试和 Debug APK 构建通过。
+- [x] zhixingapp-debug Artifact 已上传并取回；APK 文件 SHA-256 已核对。
 - [ ] 真机检查状态栏、手势导航、三键导航、横竖屏与键盘弹出/收起。
 - 当前只记录代码落地，不将未执行的构建或真机测试标记为通过。
 
 修改文件：
 - `app/src/main/java/ci/us/zhixing/app/MainActivity.kt`
 - `app/src/main/AndroidManifest.xml`
+
+## 3.2 小步 3 构建验收结果（2026-10-31）
+
+- GitHub Actions：Android Build #15
+- Run ID：`41206049511`
+- 结果：`success`
+- 检查项：JDK 17、Android SDK API 36、Build Tools 36.0.0、Gradle Wrapper、导航单元测试、Debug APK assemble、Artifact 上传，全部成功。
+- PR 验证提交：`5f9a75de1a33cf267855e1547d6d8830ce41517d`
+- Artifact：`zhixingapp-debug`，Artifact ID `13044483076`
+- APK：`app-debug.apk`，11,491,233 bytes
+- SHA-256：`218fe484bffe249e39b02006184512f4a4a837ee37809b527aed712b0fde7785`
+- Actions 页面：[查看 Android Build #15](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41206049511)
+- APK 是 Debug 预览包；测试通过不等于已在实际手机上完成启动、系统栏和键盘验收。
+- 验收清单：[docs/APK_TEST_CHECKLIST.md](./APK_TEST_CHECKLIST.md)
 
 ## 4. 下一步拆分（一次只做一个小项）
 
@@ -196,7 +211,7 @@
 
 ## 5. 当前阻断项
 
-- [ ] 确认当前 API 36 / Compose BOM 2026.06.00 配置下 GitHub Actions Android 构建成功。
+- [x] 已确认 API 36 / Compose BOM 2026.06.00 配置下 GitHub Actions Android 构建成功（Run #15）。
 - [x] 标准 Gradle Wrapper 已补齐；当前 Wrapper 版本为 Gradle 9.3.1。
 - [ ] 目标真机和 Android API 版本待确认/实测。
 - [ ] 液态玻璃库的正式引入仍未决定。
