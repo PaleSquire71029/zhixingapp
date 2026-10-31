@@ -60,7 +60,7 @@
 | `gradle/wrapper/gradle-wrapper.properties` | Gradle 9.3.1 下载地址 | 始终使用 Wrapper |
 | `gradlew` / `gradlew.bat` | Linux/macOS 与 Windows 构建入口 | CI 和本地统一使用 |
 | `app/src/main/AndroidManifest.xml` | App 声明、启动 Activity、键盘窗口模式 | 新增权限前说明理由 |
-| `app/src/main/java/ci/us/zhixing/app/MainActivity.kt` | 当前主界面、主题、系统栏基础设置 | 文件目前偏集中，设计系统阶段再拆分 |
+| `app/src/main/java/ci/us/zhixing/app/MainActivity.kt` | 当前主界面、系统栏与页面布局 | 颜色方案已移动到 ui/theme/ColorTokens.kt |\n| `app/src/main/java/ci/us/zhixing/app/ui/theme/ColorTokens.kt` | 知行浅色 Material 3 配色方案 | 当前只集中管理颜色；形状、间距、字体尚未抽取 |
 | `app/src/main/java/ci/us/zhixing/app/navigation/AppDestination.kt` | 四个底部导航目的地及占位描述 | 未来与真实页面路由连接 |
 | `app/src/test/java/ci/us/zhixing/app/navigation/AppDestinationTest.kt` | 导航数据契约的 JVM 单元测试 | 未来逐步增加状态和导航测试 |
 | `app/src/main/res/drawable-nodpi/zhixing_logo.webp` | 用户提供的蓝紫渐变图标 | 不随意裁切、重绘或改变比例 |
@@ -336,6 +336,8 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 ### 第 1 步：建立知行设计 Tokens
 
+**当前进度：颜色 Tokens 已完成代码拆分；字体、圆角和间距尚未处理。**
+
 **目标：** 让颜色、字体、圆角和间距有单一来源。
 
 建议新增：
@@ -348,13 +350,15 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 操作指引：
 
-1. 从现有 `ZhixingLightColors` 抽取颜色，先保持现有界面外观，不趁机大改页面；
+1. [x] 已从 `MainActivity.kt` 将 `ZhixingLightColors` 抽取到 `ui/theme/ColorTokens.kt`；颜色值保持不变；
 2. 把常用圆角、间距提取为常量；
 3. 定义中文正文、标题、辅助文字和等宽数字的字体角色；
 4. 字体先用可靠系统回退，不要直接把 22.7 MB 的 OPPO Sans 完整文件打进 APK；
 5. 主 Activity 只保留调用 `ZhixingTheme`，不再自己定义整套颜色。
 
-完成条件：外观没有意外变化；首页和导航测试通过；所有页面只从统一 Tokens 读取基础样式。
+剩余操作：把常用圆角、间距和字体角色分别迁移到独立文件。完成条件：外观没有意外变化；首页和导航测试通过；所有页面只从统一 Tokens 读取基础样式。
+
+本次颜色拆分提交有意跳过 CI，避免生成 APK；因此编译和测试状态保持“待验证”。
 
 ### 第 2 步：Glass Lab 静态实验页
 
@@ -493,4 +497,4 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 ---
 
-**一句话交接：现在有原生 Android 项目骨架、品牌图标、四个占位导航、浅色基础主题、Gradle Wrapper、系统栏与键盘窗口适配代码以及 CI 工作流；没有完整计算器、AI、化学、历史、账号、云同步或真实液态玻璃效果。下一件事是先确认 CI 产出 Debug APK 并在真机安装，再抽取设计 Tokens。**
+**一句话交接：现在有原生 Android 项目骨架、品牌图标、四个占位导航、浅色基础主题和首个颜色 Tokens 文件；颜色数值未改变。本轮未创建 APK、未运行 CI。接下来只应继续抽取一个小项（例如间距 Tokens），完成后再统一安排编译验证。完整计算器、AI、化学、历史、账号、云同步和真实液态玻璃效果仍未迁移。**

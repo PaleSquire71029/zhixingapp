@@ -28,7 +28,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -43,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ci.us.zhixing.app.navigation.AppDestinations
+import ci.us.zhixing.app.ui.theme.ZhixingLightColors
 import ci.us.zhixing.app.R
 
 class MainActivity : ComponentActivity() {
@@ -72,22 +72,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-private val ZhixingLightColors = lightColorScheme(
-    primary = Color(0xFF4D7187),
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFDCEAF1),
-    onPrimaryContainer = Color(0xFF1E3948),
-    secondary = Color(0xFF92775B),
-    onSecondary = Color.White,
-    background = Color(0xFFF5F8FB),
-    onBackground = Color(0xFF202D37),
-    surface = Color(0xFFFFFFFF),
-    onSurface = Color(0xFF202D37),
-    surfaceVariant = Color(0xFFEDF2F6),
-    onSurfaceVariant = Color(0xFF687985),
-    outline = Color(0xFFD6E0E7),
-)
 
 @Composable
 private fun ZhixingApp() {
