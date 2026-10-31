@@ -66,7 +66,7 @@
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/ShapeTokens.kt` | 首页圆角形状 | 统一管理 28.dp / 18.dp 两种圆角 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/TypeTokens.kt` | 首页文字样式角色 | 统一管理字号、行高、字重和字距；不绑定额外字体文件 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/ZhixingTheme.kt` | 知行统一主题入口 | 暴露 colors / type / spacing / shapes，并应用浅色 Material 3 主题 |
-| `app/src/main/java/ci/us/zhixing/app/ui/lab/GlassLabScreen.kt` | Glass Lab 静态材质实验页 | 独立浅色页面；只示意透明叠层，不包含实时光学渲染 |
+| `app/src/main/java/ci/us/zhixing/app/ui/lab/GlassLabScreen.kt` | Glass Lab 局部背景快照实验 | GraphicsLayer 捕获受控背景 Composable；局部裁切、模糊与手动刷新，不采集窗口内容 |
 | `app/src/main/java/ci/us/zhixing/app/navigation/AppDestination.kt` | 四个底部导航目的地及占位描述 | 未来与真实页面路由连接 |
 | `app/src/test/java/ci/us/zhixing/app/navigation/AppDestinationTest.kt` | 导航数据契约的 JVM 单元测试 | 未来逐步增加状态和导航测试 |
 | `app/src/main/res/drawable-nodpi/zhixing_logo.webp` | 用户提供的蓝紫渐变图标 | 不随意裁切、重绘或改变比例 |
@@ -386,20 +386,19 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 ### 第 3 步：背景采样和模糊
 
-**当前进度：独立背景层 10.dp 模糊 / 清晰对照代码已提交；构建与真机验收待进行。**
+**当前进度：GraphicsLayer 局部背景快照、面板区域裁切、10.dp 模糊 / 清晰对照及手动重新采样代码已提交；构建与真机验收待进行。**
 
 已完成：
 
-1. [x] 在 Glass Lab 中把彩色背景图形作为独立绘制层；
-2. [x] 增加 10.dp 模糊开关，前景半透明样本与文字保持清晰；
-3. [x] API 31 以下自动降级为清晰背景；
-4. [x] 记录 Compose `Modifier.blur` 的边界：它模糊目标组件自身内容，不自动捕获任意兄弟组件或窗口画面。
+1. [x] 使用 `rememberGraphicsLayer()` 和 `drawWithContent` 录制实验背景 Composable 的实际绘制内容；
+2. [x] 使用 `toImageBitmap()` 自动生成初始快照，并支持手动重新采样；
+3. [x] 按面板在背景画布中的位置裁切快照，再放入玻璃面板；
+4. [x] 支持 10.dp 模糊 / 清晰切换，文字与浅色叠层独立保持清晰；
+5. [x] API 31 以下显示原始快照但关闭系统模糊。
 
-尚未实现：真正的跨组件 / 窗口 backdrop capture，以及生产级滚动内容实时采样。
+技术边界：这是真实的局部 Composable 绘制快照，但它不会读取整个窗口、任意其他页面或任意兄弟组件，也不会随背景每帧自动刷新。后续如需动态 backdrop，需要另行设计可控的共享绘制树或平台渲染方案。
 
-下一次单独核验 backdrop capture 技术路线，不能把本轮的局部背景层模糊误称为完整背景采样。
-
-验收还需检查模糊边缘、圆角裁切、滚动性能、系统栏与设备温度；本轮跳过 CI，不生成 APK。
+验收还需检查图像裁切坐标、圆角、滚动性能、截图内存、系统栏与设备温度；本轮跳过 CI，不生成 APK。
 
 ### 第 4 步：单通道 AGSL 折射
 

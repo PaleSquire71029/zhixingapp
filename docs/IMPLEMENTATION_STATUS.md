@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**截至 2026-10-31：首版 APK 的图标截断问题已在 PR #3 修复；0.1.1 已通过 Android Build #32 并归档。用户真机安装与启动仍待验收。设计系统的颜色、间距、形状与文字 Tokens 已集中到 ZhixingTheme 统一入口；Glass Lab 已加入独立背景层模糊开关，真机观感与编译仍待验收；真正的跨组件实时背景捕获尚未实现。本轮按要求未触发 CI、未创建新 APK。计算器、AI 等业务功能仍未迁移。**
+**截至 2026-10-31：首版 APK 的图标截断问题已在 PR #3 修复；0.1.1 已通过 Android Build #32 并归档。用户真机安装与启动仍待验收。设计系统的颜色、间距、形状与文字 Tokens 已集中到 ZhixingTheme 统一入口；Glass Lab 已加入 GraphicsLayer 局部背景快照：采集实验画布实际绘制结果、裁切出玻璃面板覆盖区域，并支持 10.dp 模糊与手动重新采样；窗口级/跨页面实时捕获尚未实现。编译与真机观感仍待验收。本轮按要求未触发 CI、未创建新 APK。计算器、AI 等业务功能仍未迁移。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -32,7 +32,7 @@
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
 | GitHub Actions 构建 | 已通过（Run #32） | 图片资源完整性检查、导航单测、assembleDebug、Artifact 上传、APK 自动归档全部成功；真机待验收 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
-| Glass Lab 背景层模糊 | 代码已提交，待构建与真机验收 | 实验区域的独立背景层支持 10.dp 模糊开关；前景玻璃与文字保持清晰；不等于跨组件实时 backdrop capture |
+| Glass Lab 局部背景快照 | 代码已提交，待构建与真机验收 | GraphicsLayer 捕获实验画布绘制结果，按玻璃面板位置裁切快照；支持 10.dp 模糊 / 清晰切换及手动刷新；非窗口级实时 backdrop |
 | 液态玻璃光学渲染 | 未开始 | 后续先单独验证背景采样与模糊，再分步加入折射等效果 |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
@@ -391,3 +391,19 @@
 参考：[Android Developers — Blurring in Compose](https://developer.android.com/develop/ui/compose/graphics/blur/overview)。
 
 本项验证的是独立背景层模糊与前景清晰度，不应宣称已经实现真正的跨组件实时背景采样。
+
+
+### 3.14 Glass Lab 第 3 小项：GraphicsLayer 局部背景快照（2026-10-31）
+
+- [x] 使用 `rememberGraphicsLayer()` 与 `Modifier.drawWithContent` 录制实验背景 Composable 的实际绘制结果。
+- [x] 使用 `GraphicsLayer.toImageBitmap()` 导出快照；首次进入时自动采集，并提供“重新采样背景”手动刷新。
+- [x] 按玻璃面板在样本画布中的位置裁切图像源区域，使显示内容对应面板背后的图形，而不是把整张背景压缩进面板。
+- [x] 快照图像作为玻璃面板底层，可切换 10.dp 模糊 / 清晰状态；白色浅色叠层和文字单独绘制，避免文字被模糊。
+- [x] API 31 以下仍展示背景快照，但禁用系统模糊，不引入 CPU 每帧处理或第三方依赖。
+- [x] 明确记录边界：只采集此实验 Composable，快照按需刷新，不捕获其他页面、任意兄弟组件、系统窗口或连续实时画面。
+- [x] 本轮使用 `[skip ci]`，不触发构建、不生成 APK。
+- [ ] 待编译验证图形层 API 与裁切代码；真机检查采样位置、圆角边缘、滚动性能、内存与温度。
+
+参考：[Android 官方 Compose GraphicsLayer 位图捕获示例](https://developer.android.com/develop/ui/compose/graphics/draw/modifiers#write-contents-of-a-composable-to-a-bitmap)。
+
+这是一项受控区域的真实绘制快照实验，不应标记为全窗口、跨组件或实时动态 backdrop。
