@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -60,7 +59,7 @@ import ci.us.zhixing.app.ui.theme.ZhixingTheme
 @Composable
 internal fun GlassLabScreen(onBack: () -> Unit) {
     val blurSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    var blurEnabled by rememberSaveable { mutableStateOf(true) }
+    var blurEnabled by rememberSaveable { mutableStateOf(blurSupported) }
     val backdropLayer = rememberGraphicsLayer()
     var backdropImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var captureStatus by remember { mutableStateOf("正在准备背景快照…") }
