@@ -3,15 +3,16 @@
 > 最后更新：2026-10-31  
 > 当前仓库：PaleSquire71029/zhixingapp  
 > 当前分支：main  
+> 项目接手指南：[docs/PROJECT_STATUS_AND_GUIDE.md](./PROJECT_STATUS_AND_GUIDE.md)  
 > 总规划：[docs/ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md)
 
-本文件是项目状态账本。每次开发结束必须更新，不能只在聊天中报告进度。
+本文件是项目状态账本。每次开发结束必须更新，不能只在聊天中报告进度。详细操作步骤、APK 获取和排错方法见 [项目现状与操作指南](./PROJECT_STATUS_AND_GUIDE.md)。
 
 ---
 
 ## 1. 当前项目状态
 
-**小步 1（原生工程骨架）、小步 2（Gradle Wrapper）已提交；知行图标已加入。小步 3（系统栏、安全区与输入法窗口）已完成代码修改，构建与真机验收仍待验证。当前使用 Compose BOM 2026.06.00 / compileSdk 36。**
+**截至 2026-10-31：小步 1（原生工程骨架）、小步 2（Gradle Wrapper）已提交；知行图标已加入；小步 3（系统栏、安全区与输入法窗口）代码已提交。当前项目仍是原生 UI 骨架，业务功能尚未迁移。API 36 / Compose BOM 2026.06.00 配置下的 CI 构建、Debug APK 产出和真机验收仍待确认。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -24,7 +25,7 @@
 | 浅色主题基线 | 已提交 | 仅浅色，不含深色主题 |
 | 系统栏与安全区 | 代码已提交，待验收 | Edge-to-edge、浅色系统图标、Scaffold 安全区与 adjustResize 已配置 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
-| GitHub Actions 构建 | 已配置 | Android SDK 安装成功；首次 Gradle 构建因 Compose 要求 compileSdk 37 而失败，已将 compileSdk / CI SDK 安装修正为 37，待新运行验证 |
+| GitHub Actions 构建 | 已配置，结果待确认 | 当前工作流安装 Android API 36 / Build Tools 36.0.0，运行单元测试和 assembleDebug，成功后上传 zhixingapp-debug Artifact |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | 液态玻璃渲染 | 未开始 | 下一小步单独建立 Glass Lab |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
@@ -42,7 +43,7 @@
 - UI：浅色知行首页，四个导航入口：计算、知行AI、工具、历史。此时页面只是原生骨架，不代表功能已迁移。
 - 测试：配置两个导航契约单元测试。首次 CI 在 Android SDK 初始化阶段失败，原因是 setup-android@v3 请求已下架的 tools 包；尚未运行 Gradle 编译。
 - Commit：`7d20f87ec4cbd34be3ad3e28eafacd427760116c`。
-- 未完成：标准 Gradle Wrapper 文件尚未加入；需要在后续小步骤补齐。
+- 后续补充：标准 Gradle Wrapper 已在第 2 小步补齐（见提交 SHA）。
 
 ## 3. 本轮新增与修复记录（2026-10-31）
 
@@ -57,7 +58,7 @@
 - 图标：`148ac1cbf77f9a3b1cdab76d93daa6aca33620bb`
 - 首页品牌区：`8d5c0319383a98ad59f7ff3480acdb29efe91e4f`
 - Gradle Wrapper：`57eb45f4552b8db3a05e637b861767c7ebbeadad`
-- API 37 SDK 包不可安装后的依赖回退与 CI 修复：本次提交完成后补录。
+- API 37 SDK 包不可安装后的依赖回退与 CI 修复：`2ef20471f186835b37096b18fc8e6968e26d5792`。
 
 ## 3.1 小步 3：系统栏、安全区与输入法窗口（2026-10-31）
 
@@ -78,15 +79,16 @@
 
 ### 第 2 小步：补齐 Gradle Wrapper
 
-- [ ] 加入 wrapper properties、gradlew、gradlew.bat 和 wrapper JAR。
-- [ ] 将 CI 切换为 ./gradlew。
-- [ ] 验证 wrapper 与 Gradle 9.3.1 一致。
+- [x] 加入 wrapper properties、gradlew、gradlew.bat 和 wrapper JAR。
+- [x] 将 CI 切换为 ./gradlew。
+- [x] Wrapper 配置指向 Gradle 9.3.1；本地/CI 实际执行结果仍以构建日志为准。
 
 ### 第 3 小步：整理系统窗口与安全区
 
 - [x] 已提交 edge-to-edge、浅色系统图标与 adjustResize 配置。
-- [x] 使用 Compose Scaffold 的 safe drawing insets，避免重复计算系统栏空间。
-- [ ] 等 CI 与目标真机验收通过后关闭本小步。
+- [x] 使用 Compose Scaffold 组织窗口内容与底部导航。
+- [ ] 通过 CI 构建与单元测试。
+- [ ] 在目标真机检查状态栏、手势/三键导航、键盘弹出和横竖屏。
 - [ ] 本小步不加入玻璃效果。
 
 ### 第 4 小步：把首页占位样式拆成设计组件
