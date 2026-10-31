@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -44,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import ci.us.zhixing.app.navigation.AppDestinations
 import ci.us.zhixing.app.ui.theme.ZhixingLightColors
 import ci.us.zhixing.app.ui.theme.ZhixingSpacing
+import ci.us.zhixing.app.ui.theme.ZhixingShapes
 import ci.us.zhixing.app.R
 
 class MainActivity : ComponentActivity() {
@@ -169,7 +169,7 @@ private fun ZhixingApp() {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = Color.White,
-                    shape = RoundedCornerShape(28.dp),
+                    shape = ZhixingShapes.hero,
                     border = BorderStroke(1.dp, ZhixingLightColors.outline.copy(alpha = 0.7f)),
                 ) {
                     Column(
@@ -224,7 +224,7 @@ private fun FeatureLine(title: String, detail: String) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = Color.White.copy(alpha = 0.78f),
-        shape = RoundedCornerShape(18.dp),
+        shape = ZhixingShapes.feature,
         border = BorderStroke(1.dp, ZhixingLightColors.outline.copy(alpha = 0.5f)),
     ) {
         Column(
