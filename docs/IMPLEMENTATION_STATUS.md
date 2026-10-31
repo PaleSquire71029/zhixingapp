@@ -565,7 +565,7 @@
 - [ ] 阶段 8：完成性能档位和 API 降级。
 - [ ] 阶段 9：完成 CI、Debug 编译与目标真机验收。
 
-**当前状态：** 仅专项文档和技术基线审计已完成；尚未引入 Backdrop 依赖，尚未修改主界面导航，也未生成 APK。
+**当前状态：** 专项计划与兼容性验证已完成；Backdrop 1.0.6 已在隔离 PR 的 CI 中通过编译/单测/Debug 构建，正在整理为正式依赖基线。生产主界面导航尚未修改；没有生成提交到 main 的 APK。
 
 ### 液态玻璃专项进度补充（2026-11-01）
 
@@ -573,5 +573,6 @@
 - [x] 试验确认 2.0.1 Android artifact 与 Compose 1.12.0 依赖要求 compileSdk 37。
 - [x] 记录 CI 环境限制：当前 Runner SDK 仓库无法找到 \`platforms;android-37\`；API 36 安装成功后，AAR Metadata 检查因 minCompileSdk=37 失败。
 - [x] 已找到 Backdrop 1.0.6 作为更适合当前工程的候选：上游 Android 项目使用 AndroidX Compose 1.10.3 和 compileSdk 36。
-- [ ] Backdrop 1.0.6 的依赖解析、Kotlin 编译、单元测试和 Debug 构建仍待 PR #4 第三轮 CI 验证。
-- [ ] 未合并任何 Backdrop 依赖到 main；未修改 MainActivity/生产导航；未生成 APK。
+- [x] Backdrop 1.0.6 的依赖解析、Kotlin 编译、单元测试和 Debug 构建已通过 PR #4 的 CI Run #39（2026-10-31）：https://github.com/PaleSquire71029/zhixingapp/actions/runs/41226739564。
+- [ ] 将已验证的 Backdrop 1.0.6 与 Kotlin Compose 插件 2.4.21 基线正式合并到 main（PR #4）。
+- [ ] 未修改 MainActivity/生产导航；未向 main 提交 APK。
