@@ -17,7 +17,8 @@
 
 1. [项目现状、操作指南与后续开发手册](docs/PROJECT_STATUS_AND_GUIDE.md)（新对话接续优先阅读）
 2. [实施状态与下一步清单](docs/IMPLEMENTATION_STATUS.md)
-3. [Android App 总体规划与迁移蓝图](docs/ANDROID_APP_MASTER_PLAN.md)
+3. [APK 首次真机验收清单](docs/APK_TEST_CHECKLIST.md)
+4. [Android App 总体规划与迁移蓝图](docs/ANDROID_APP_MASTER_PLAN.md)
 
 开始任何实现前，先检查这两份文件和仓库当前 commit。每次只推进一个小步骤；构建或测试失败时先修复，不继续叠加新功能。
 
@@ -26,7 +27,8 @@
 - [x] 第 1 小步：原生 Compose 工程骨架、浅色首页和四个导航占位入口。
 - [x] 第 2 小步：补齐标准 Gradle Wrapper 9.3.1。
 - [x] 第 3 小步：系统栏、edge-to-edge、安全区与键盘窗口适配代码已提交（构建和真机验收待确认）。
-- [ ] 当前门槛：确认 GitHub Actions 测试和 Debug APK 构建成功，并在 Android 真机安装检查。
+- [x] GitHub Actions Run #15：导航单元测试与 Debug APK 构建成功，Artifact 已取回。
+- [ ] 当前门槛：在 Android 真机安装并检查状态栏、底部导航和横竖屏。
 - [ ] 后续：抽取设计 Tokens，建立独立 Liquid Glass 实验室，再逐项迁移计算器与 AI。
 
 > 当前 APK 定位为原生 UI 框架预览版；计算器、AI、化学、历史和云同步功能尚未迁移。
