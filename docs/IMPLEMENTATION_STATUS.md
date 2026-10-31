@@ -11,7 +11,7 @@
 
 ## 1. 当前项目状态
 
-**第 1 小步已提交；知行图标已加入；第 2 小步 Gradle Wrapper 已补齐。CI 的 compileSdk 门槛正在修正，最终构建结果待确认。**
+**第 1 小步已提交；知行图标已加入；第 2 小步 Gradle Wrapper 已补齐。为适配当前可安装的 Android SDK，Compose BOM 回退到 2026.06.00，compileSdk 保持 API 36；最新 CI 待验证。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -37,7 +37,7 @@
 
 - 目标：让仓库成为一个清晰、最小、可持续扩展的原生 Android 项目。
 - 文件：settings.gradle.kts、build.gradle.kts、gradle.properties、app/build.gradle.kts、AndroidManifest.xml、strings.xml、MainActivity.kt、AppDestination.kt、AppDestinationTest.kt、.gitignore、GitHub Actions workflow。
-- 技术：AGP 9.1.1、Gradle 9.3.1、JDK 17、Compose BOM 2026.09.00、compileSdk/targetSdk 36、minSdk 26。
+- 技术：AGP 9.1.1、Gradle 9.3.1、JDK 17、Compose BOM 2026.06.00、compileSdk/targetSdk 36、minSdk 26。
 - UI：浅色知行首页，四个导航入口：计算、知行AI、工具、历史。此时页面只是原生骨架，不代表功能已迁移。
 - 测试：配置两个导航契约单元测试。首次 CI 在 Android SDK 初始化阶段失败，原因是 setup-android@v3 请求已下架的 tools 包；尚未运行 Gradle 编译。
 - Commit：`7d20f87ec4cbd34be3ad3e28eafacd427760116c`。
@@ -49,14 +49,14 @@
 - [x] 首页品牌区显示同一图标。
 - [x] 补齐标准 Gradle Wrapper 9.3.1：JAR、properties、gradlew、gradlew.bat。
 - [x] 从 GitHub Actions 日志定位真实失败原因：Compose 1.12.1 要求 compileSdk 37，而项目原来编译到 API 36。
-- [x] 将 compileSdk 和 CI 安装平台调整为 API 37；targetSdk 暂时保持 36，避免同时改变运行时行为。
+- [x] 最初尝试 API 37，但 GitHub Actions sdkmanager 返回 Failed to find package platforms;android-37。官方资料确认 Compose 1.12 要求 API 37，Compose 1.11.3 对应 2026.06 稳定 BOM，因此本阶段改用 2026.06.00 / API 36，先保证工程能在当前 SDK 仓库构建；targetSdk 保持 36。
 - [ ] 等待本次提交触发的 CI 结果；若失败，只修这一处，不叠加 Glass Lab。
 
 提交：
 - 图标：`148ac1cbf77f9a3b1cdab76d93daa6aca33620bb`
 - 首页品牌区：`8d5c0319383a98ad59f7ff3480acdb29efe91e4f`
 - Gradle Wrapper：`57eb45f4552b8db3a05e637b861767c7ebbeadad`
-- 本轮 CI 修复：提交完成后补录。
+- API 37 SDK 包不可安装后的依赖回退与 CI 修复：本次提交完成后补录。
 
 ## 4. 下一步拆分（一次只做一个小项）
 
