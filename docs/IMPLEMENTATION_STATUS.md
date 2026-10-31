@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**截至 2026-10-31：小步 1（原生工程骨架）、小步 2（Gradle Wrapper）已提交；知行图标已加入；小步 3（系统栏、安全区与输入法窗口）代码已提交。GitHub Actions Android Build #15 已成功完成单元测试与 Debug APK 打包并上传 Artifact。当前项目仍是原生 UI 骨架，业务功能尚未迁移；目标真机安装和系统栏验收仍待用户执行。**
+**截至 2026-10-31：已收到用户反馈首版 APK 启动闪退且桌面图标缺失。检查发现 APK 中的 `zhixing_logo.webp` 文件头长度与实际长度不一致（截断），该资源同时被首页和 adaptive launcher icon 引用。已在修复分支替换为重新编码的有效透明 WebP，并加入构建前资源校验；修复 APK 仍待 CI 和真机验收。小步 1、2 已完成，小步 3 代码已提交。GitHub Actions Android Build #15 已成功完成单元测试与 Debug APK 打包并上传 Artifact。当前项目仍是原生 UI 骨架，业务功能尚未迁移；目标真机安装和系统栏验收仍待用户执行。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -21,17 +21,17 @@
 | 旧 AI 交接文档 | 已阅读 | 项目总览、遗漏需求补充 |
 | 技术路线 | 已确定 | Android 原生 Kotlin + Jetpack Compose |
 | Android 工程配置 | 已提交 | AGP 9.1.1、Gradle 9.3.1、JDK 17 |
-| 最小原生首页 | 已提交 | 四个主入口可切换，当前均为占位内容；顶部已显示用户提供的知行图标 |
+| 最小原生首页 | 已提交；图标资源修复待验收 | 四个主入口仍为占位内容；首页和桌面启动图标共用有效的知行透明资源 |
 | 浅色主题基线 | 已提交 | 仅浅色，不含深色主题 |
 | 系统栏与安全区 | 代码已提交，待验收 | Edge-to-edge、浅色系统图标、Scaffold 安全区与 adjustResize 已配置 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
-| GitHub Actions 构建 | 已通过（Run #22） | 单元测试、assembleDebug、Artifact 上传和主分支 APK 自动提交均成功；真机安装待验收 |
+| GitHub Actions 构建 | 修复版本待验证 | CI 新增图片完整性检查；修复后 APK 必须重新构建并在真机启动验收 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | 液态玻璃渲染 | 未开始 | 下一小步单独建立 Glass Lab |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
-| Debug APK | 已归档到仓库 | `artifacts/zhixingapp-preview.apk`，约 11 MB，可直接下载 |
+| Debug APK | 上一版已归档；修复版待构建 | 修复通过后 CI 将覆盖 `artifacts/zhixingapp-preview.apk` |
 | Release AAB | 未开始 | 尚未配置正式签名与发布构建 |
 
 ## 2. 已完成提交
@@ -101,6 +101,20 @@
 - 对 `artifacts/**` 配置 paths-ignore，避免归档提交再次触发 CI 循环。
 - Actions Run：[#22](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41206736514)
 - 注意：这是 Debug 预览版，真机安装与视觉验收仍待用户进行。
+
+## 3.4 启动闪退与图标缺失修复（2026-10-31）
+
+- [x] 从已归档 APK 中提取 `res/drawable-nodpi-v4/zhixing_logo.webp` 检查文件头。
+- [x] 确认旧文件长度为 5,193 bytes，但 RIFF 声明的总长度为 9,614 bytes；PIL 无法解码该图片。
+- [x] 确认该图片同时被首页 `painterResource(R.drawable.zhixing_logo)` 和 launcher adaptive icon XML 引用。
+- [x] 从用户原始图标重新提取透明背景并编码为有效 WebP；替换同一资源路径，保持 Kotlin 与 XML 资源名称不变。
+- [x] 将 versionCode 提升至 2、versionName 提升至 0.1.1，避免与上一版混淆。
+- [x] 增加 `scripts/verify_android_resources.py`，在 Gradle 编译前验证 WebP RIFF 长度、PNG chunk CRC、JPEG 首尾标记和 launcher 资源引用。
+- [ ] 修复分支 CI 通过。
+- [ ] 合并后重新构建并自动覆盖仓库 APK。
+- [ ] 在用户 Android 真机安装、启动并确认桌面图标显示。
+
+**判断：** 资源截断是两个问题的共同明确原因；最终是否彻底解决闪退仍以修复版真机启动为准。
 
 ## 4. 下一步拆分（一次只做一个小项）
 
@@ -225,7 +239,7 @@
 
 - [x] 已确认 API 36 / Compose BOM 2026.06.00 配置下 GitHub Actions Android 构建成功（Run #15）。
 - [x] 标准 Gradle Wrapper 已补齐；当前 Wrapper 版本为 Gradle 9.3.1。
-- [ ] 目标真机和 Android API 版本待确认/实测。
+- [ ] 目标真机和 Android API 版本待确认/实测；当前用户反馈首版 APK 启动即闪退。
 - [ ] 液态玻璃库的正式引入仍未决定。
 - [ ] Worker 的 calculator-ai app_id 分流仍未修复。
 - [ ] 云历史 app_id SQL 约束仍未迁移。

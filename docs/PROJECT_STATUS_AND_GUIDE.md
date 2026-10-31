@@ -29,7 +29,7 @@
 - 默认分支：`main`
 - Android applicationId：`ci.us.zhixing.app`
 - App 显示名称：`知行`
-- 当前版本：`0.1.0`，versionCode 为 `1`
+- 首版版本：`0.1.0`，versionCode 为 `1`；图标资源修复分支计划提升为 `0.1.1` / versionCode `2`。
 - 当前 Gradle 工程只有一个 `:app` 模块；暂时不拆成很多独立 Gradle module，避免早期维护成本。
 
 ### 2.2 已核对的构建配置
@@ -89,7 +89,11 @@
 
 ### 3.2 知行品牌图标
 
-**状态：已实现并提交。**
+**首版状态：资源有损坏，修复中。**
+
+已确认首版 APK 内 WebP 资源被截断：文件实际 5,193 bytes，而 RIFF 头部声明总长度 9,614 bytes。首页和启动器图标共用该资源，因此可能导致首页启动解码崩溃，同时使桌面图标无法正常显示。修复分支已经替换为从原图重新编码的有效透明 WebP，并在 CI 增加二进制完整性校验。新 APK 尚待构建与真机验收。
+
+**原始资源的设计内容与用户图标一致；仅重新编码，不重画图形。**
 
 - 用户提供的蓝紫渐变抽象标志已经纳入 Android 资源。
 - 已配置 launcher adaptive icon 的普通和圆形入口。
@@ -134,6 +138,7 @@
 - 使用 Gradle Wrapper 执行：
   - `./gradlew --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug`
 - 成功后上传名为 `zhixingapp-debug` 的工作流 Artifact。
+- 先运行 `python3 scripts/verify_android_resources.py`，验证 PNG / WebP / JPEG 资源结构和 launcher 引用，防止 Gradle 将损坏图片静默打包。
 - 已实际完成一次完整 CI：Android Build #15（Run ID 41206049511）结果为 success；导航单元测试、assembleDebug 和 Artifact 上传步骤均成功。
 - Artifact 名称：`zhixingapp-debug`；APK 名称：`app-debug.apk`；APK 大小：11,491,233 bytes。
 - APK SHA-256：`218fe484bffe249e39b02006184512f4a4a837ee37809b527aed712b0fde7785`。
@@ -309,9 +314,9 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 每个小步骤都要独立提交、执行构建，并更新 `docs/IMPLEMENTATION_STATUS.md`。不要跳过前面的构建门槛，也不要把一轮塞进多个大功能。
 
-### 第 0 步：确认当前基线能构建
+### 第 0 步：修复损坏图标并重新验收
 
-**状态：CI 已通过；真机安装待验收。**
+**状态：修复代码已在分支，CI 与真机待验证。**
 
 **目标：** 先让最小工程通过 CI，并产出第一份预览 APK。GitHub Actions Run #15 已完成这一部分，真实手机安装与界面验收仍待进行。
 
@@ -322,7 +327,9 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 3. 确认两个导航测试通过；
 4. 确认 Debug APK 成功生成并上传；
 5. 在至少一台 Android 真机安装；
-6. 截图记录首页、四个导航、系统状态栏和底部区域。
+6. 确认应用可以启动、首页图标能正常显示、桌面图标出现；
+7. 若仍闪退，记录 Android 系统弹出的错误或从开发者选项/Logcat 获取 FATAL EXCEPTION；
+8. 截图记录首页、四个导航、系统状态栏和底部区域。
 
 完成条件：CI 绿灯、有 Debug Artifact、真机可安装启动；系统栏无严重遮挡。未完成前不引入新依赖。
 
