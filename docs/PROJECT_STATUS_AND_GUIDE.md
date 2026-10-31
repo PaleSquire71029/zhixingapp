@@ -232,8 +232,13 @@
 5. 运行导航单元测试；
 6. 运行 `:app:assembleDebug`；
 7. 将 `app/build/outputs/apk/debug/app-debug.apk` 上传为 `zhixingapp-debug` Artifact。
+8. 主分支 push 构建成功后，将 APK 复制到仓库 `artifacts/zhixingapp-preview.apk` 并提交；Artifact 路径被设置为 push 触发忽略项，避免自动提交 APK 后再次触发构建循环。
+
+日常直接下载入口：<https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk>。该链接在首次自动归档步骤完成前可能尚无文件。
 
 ### 5.2 如何在 GitHub 手机上找到 APK
+
+优先直接打开仓库中的 APK：<https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk>。这是主分支自动归档的最新 Debug 包；若链接暂时 404，说明最新主分支构建还没有完成 APK 归档，请使用下面的 Actions Artifact 备用流程。
 
 1. 打开仓库：<https://github.com/PaleSquire71029/zhixingapp>。
 2. 进入 **Actions**。

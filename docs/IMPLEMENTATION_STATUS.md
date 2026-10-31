@@ -25,7 +25,7 @@
 | 浅色主题基线 | 已提交 | 仅浅色，不含深色主题 |
 | 系统栏与安全区 | 代码已提交，待验收 | Edge-to-edge、浅色系统图标、Scaffold 安全区与 adjustResize 已配置 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
-| GitHub Actions 构建 | 已通过（Run #15） | Android API 36 / Build Tools 36.0.0；导航单元测试与 assembleDebug 成功；Artifact zhixingapp-debug 已上传；真机安装待验收 |
+| GitHub Actions 构建 | 已通过（Run #15）；自动仓库归档待验证 | 当前配置已增加主分支构建成功后提交 `artifacts/zhixingapp-preview.apk` 的步骤；待新一轮 CI 验证 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | 液态玻璃渲染 | 未开始 | 下一小步单独建立 Glass Lab |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
