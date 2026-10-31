@@ -247,7 +247,7 @@
 
 不要把 Artifact ZIP 当作 APK 安装；需要先解压。若 GitHub 运行没有 Artifact，通常表示构建或测试没有成功到上传步骤。
 
-本次已成功生成一份 APK：本会话文件 [zhixingapp-preview.apk](sandbox:/mnt/data/zhixingapp-preview.apk)。该副本与 GitHub Artifact 中的 `app-debug.apk` 内容一致，SHA-256 为 `218fe484bffe249e39b02006184512f4a4a837ee37809b527aed712b0fde7785`。如果从 GitHub 重新下载，按上面的 ZIP 解压步骤取得 APK。
+本次已成功生成首份 APK。GitHub Actions Artifact 中的 `app-debug.apk` 与本会话提供的预览副本内容一致，SHA-256 为 `218fe484bffe249e39b02006184512f4a4a837ee37809b527aed712b0fde7785`。长期获取时请从对应 Actions 运行下载 Artifact，并按上面的 ZIP 解压步骤取得 APK。
 
 ### 5.3 Debug APK 的限制
 
@@ -306,7 +306,7 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 ### 第 0 步：确认当前基线能构建
 
-<badge>CI 已通过</badge>
+**状态：CI 已通过；真机安装待验收。**
 
 **目标：** 先让最小工程通过 CI，并产出第一份预览 APK。GitHub Actions Run #15 已完成这一部分，真实手机安装与界面验收仍待进行。
 
