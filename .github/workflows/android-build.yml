@@ -3,12 +3,18 @@ name: Android Build
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'artifacts/**'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - 'artifacts/**'
   workflow_dispatch:
 
+# The main-branch build stores the generated preview APK in the repository.
+# Pull-request builds remain read-only because the upload step is push-only.
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -36,10 +42,25 @@ jobs:
       - name: Run unit tests and assemble Debug APK
         run: ./gradlew --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug
 
-      - name: Upload Debug APK
+      - name: Upload Debug APK as workflow artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: zhixingapp-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Commit installable preview APK to main repository
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p artifacts
+          cp app/build/outputs/apk/debug/app-debug.apk artifacts/zhixingapp-preview.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add artifacts/zhixingapp-preview.apk
+          if git diff --cached --quiet; then
+            echo "The repository APK is already up to date."
+          else
+            git commit -m "build: update Android preview APK [skip ci]"
+            git push
+          fi
