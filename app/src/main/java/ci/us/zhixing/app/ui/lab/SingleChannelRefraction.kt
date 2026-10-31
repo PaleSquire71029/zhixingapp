@@ -46,6 +46,7 @@ internal class SingleChannelRefraction private constructor(
         rimWidthPx: Float,
         rimSoftnessPx: Float,
         rimStrength: Float,
+        dispersionPx: Float,
     ) {
         runtimeShader.setFloatUniform("resolution", widthPx, heightPx)
         runtimeShader.setFloatUniform(
@@ -55,6 +56,10 @@ internal class SingleChannelRefraction private constructor(
         runtimeShader.setFloatUniform("rimWidthPx", rimWidthPx.coerceAtLeast(0.1f))
         runtimeShader.setFloatUniform("rimSoftnessPx", rimSoftnessPx.coerceAtLeast(0.1f))
         runtimeShader.setFloatUniform("rimStrength", rimStrength.coerceIn(0f, 0.46f))
+        runtimeShader.setFloatUniform(
+            "dispersionPx",
+            clampChromaticDispersionStrength(dispersionPx),
+        )
     }
 
     companion object {
@@ -72,6 +77,7 @@ uniform float refractionPx;
 uniform float rimWidthPx;
 uniform float rimSoftnessPx;
 uniform float rimStrength;
+uniform float dispersionPx;
 
 half4 main(float2 fragCoord) {
     float2 safeResolution = float2(
@@ -92,7 +98,20 @@ half4 main(float2 fragCoord) {
     float2 displacedPoint = fragCoord - direction * edge * refractionPx;
     float2 samplePoint = sourceOrigin
         + (displacedPoint / safeResolution) * sourceSize;
-    half4 color = backdrop.eval(samplePoint);
+
+    // Dispersion is intentionally sub-pixel and edge-masked. The red and blue
+    // samples move in opposite directions; green remains on the refracted point.
+    half4 color;
+    if (dispersionPx > 0.001) {
+        float2 dispersionSampleOffset =
+            (direction * edge * dispersionPx / safeResolution) * sourceSize;
+        half4 redSample = backdrop.eval(samplePoint + dispersionSampleOffset);
+        half4 greenSample = backdrop.eval(samplePoint);
+        half4 blueSample = backdrop.eval(samplePoint - dispersionSampleOffset);
+        color = half4(redSample.r, greenSample.g, blueSample.b, greenSample.a);
+    } else {
+        color = backdrop.eval(samplePoint);
+    }
 
     // A restrained, directional white rim: strongest on the top and left.
     // The clip shape applied by Compose trims the rectangular mask to rounded corners.

@@ -94,3 +94,47 @@ internal fun calculateEdgeHighlightIntensity(
             rimAt(rightDistance) * 0.12f
         ).coerceIn(0f, 1f)
 }
+
+
+internal fun clampChromaticDispersionStrength(value: Float): Float =
+    if (value.isFinite()) value.coerceIn(0f, 0.8f) else 0f
+
+/**
+ * Mirrors the AGSL sub-pixel chromatic offset in local panel pixels.
+ * Red samples move along this vector and blue samples move along its inverse.
+ */
+internal fun calculateChromaticDispersionOffset(
+    fragX: Float,
+    fragY: Float,
+    width: Float,
+    height: Float,
+    strengthPx: Float,
+): RefractionOffset {
+    if (
+        !fragX.isFinite() || !fragY.isFinite() ||
+        !width.isFinite() || !height.isFinite() ||
+        width <= 0f || height <= 0f
+    ) {
+        return RefractionOffset(0f, 0f)
+    }
+
+    val strength = clampChromaticDispersionStrength(strengthPx)
+    if (strength == 0f) return RefractionOffset(0f, 0f)
+
+    val lensX = (fragX / width) * 2f - 1f
+    val lensY = (fragY / height) * 2f - 1f
+    val radius = sqrt(lensX * lensX + lensY * lensY)
+    val edge = smoothStep(0.48f, 1.15f, radius)
+    if (edge <= 0f) return RefractionOffset(0f, 0f)
+
+    val pixelX = fragX - width * 0.5f
+    val pixelY = fragY - height * 0.5f
+    val pixelRadius = sqrt(pixelX * pixelX + pixelY * pixelY)
+    if (pixelRadius <= 0f) return RefractionOffset(0f, 0f)
+
+    val displacement = edge * strength
+    return RefractionOffset(
+        x = (pixelX / pixelRadius) * displacement,
+        y = (pixelY / pixelRadius) * displacement,
+    )
+}

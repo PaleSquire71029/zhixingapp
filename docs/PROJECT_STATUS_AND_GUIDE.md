@@ -565,3 +565,14 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 - 低于 API 33 时不使用 RuntimeShader，按钮不可用，面板继续走快照 / 模糊路径。
 - 新增 Kotlin 数学镜像与 JVM 测试，不代表 AGSL 编译或渲染已经通过设备验收。
 - 本轮跳过 CI、不生成 APK；编译、JVM 测试、真机观感和 GPU 性能仍待验证。
+
+
+### Glass Lab 微量 RGB 色散实验（2026-11-01）
+
+- 在单一 AGSL RuntimeShader 中加入可选子像素 RGB 采样偏移，不新增 RuntimeShader 或 BitmapShader 输入。
+- 使用同一背景快照采样源：红通道向径向外侧轻微偏移，蓝通道向相反方向偏移，绿通道保持当前折射采样位置。
+- 色散受边缘 mask 控制，中心区域偏移为 0；最大偏移限制为 0.8 px，默认预设 0.25 px，开关默认关闭。
+- 采样偏移由面板本地像素换算到源快照像素，使用 sourceSize / resolution 比例，保持截图缩放变化时的位移幅度稳定。AGSL 的 child shader 通过 eval() 读取，坐标为 Shader 的局部 Canvas 坐标；实现参考 Android RuntimeShader API 文档。
+- 关闭色散时走单次背景 eval() 分支，避免不必要的三路颜色采样。
+- 新增纯 Kotlin 偏移镜像函数和 JVM 测试；测试不能证明 RuntimeShader 语法、采样结果或手机 GPU 表现已验证。
+- 本轮跳过 CI、不生成 APK；Android 编译、AGSL 编译、真机视觉与性能验收待后续进行。

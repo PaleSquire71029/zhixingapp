@@ -81,6 +81,8 @@ internal fun GlassLabScreen(
     var blurEnabled by rememberSaveable { mutableStateOf(blurSupported) }
     var refractionEnabled by rememberSaveable { mutableStateOf(refractionSupported) }
     var edgeHighlightEnabled by rememberSaveable { mutableStateOf(refractionSupported) }
+    var chromaticDispersionEnabled by rememberSaveable { mutableStateOf(false) }
+    var chromaticDispersionStrength by rememberSaveable { mutableFloatStateOf(0.25f) }
     var refractionStrength by rememberSaveable { mutableFloatStateOf(3.5f) }
     var dynamicSamplingEnabled by rememberSaveable { mutableStateOf(false) }
     var isLifecycleStarted by remember(lifecycle) {
@@ -377,6 +379,54 @@ internal fun GlassLabScreen(
             }
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
+                Text(
+                    text = when {
+                        !refractionSupported -> "微量色散 · 需 Android 13+"
+                        chromaticDispersionEnabled && refractionReady -> "微量色散 · 开启"
+                        else -> "微量色散 · 关闭"
+                    },
+                    style = ZhixingTheme.type.sectionLabel,
+                    color = ZhixingTheme.colors.secondary,
+                )
+                Text(
+                    text = "红 / 蓝通道反向微移 · 默认关闭",
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.onSurfaceVariant,
+                )
+            }
+            TextButton(
+                onClick = { chromaticDispersionEnabled = !chromaticDispersionEnabled },
+                enabled = refractionReady,
+            ) {
+                Text(
+                    text = if (chromaticDispersionEnabled) "关闭色散" else "开启色散",
+                    style = ZhixingTheme.type.featureTitle,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
+            Text(
+                text = "色散强度 · ${String.format(Locale.US, "%.2f", clampChromaticDispersionStrength(chromaticDispersionStrength))} px",
+                style = ZhixingTheme.type.supporting,
+                color = ZhixingTheme.colors.onSurfaceVariant,
+            )
+            Slider(
+                value = chromaticDispersionStrength,
+                onValueChange = { chromaticDispersionStrength = clampChromaticDispersionStrength(it) },
+                valueRange = 0f..0.8f,
+                steps = 15,
+                enabled = refractionReady && chromaticDispersionEnabled,
+            )
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -422,6 +472,8 @@ internal fun GlassLabScreen(
                 refractionReady = refractionReady,
                 refractionEnabled = refractionEnabled,
                 edgeHighlightEnabled = edgeHighlightEnabled,
+                chromaticDispersionEnabled = chromaticDispersionEnabled,
+                chromaticDispersionStrength = chromaticDispersionStrength,
                 refractionStrength = refractionStrength,
                 panelInsetPx = panelInsetPx,
                 panelHeightPx = panelHeightPx,
@@ -553,6 +605,8 @@ private fun CapturedGlassPanel(
     refractionReady: Boolean,
     refractionEnabled: Boolean,
     edgeHighlightEnabled: Boolean,
+    chromaticDispersionEnabled: Boolean,
+    chromaticDispersionStrength: Float,
     refractionStrength: Float,
     panelInsetPx: Int,
     panelHeightPx: Int,
@@ -598,7 +652,7 @@ private fun CapturedGlassPanel(
                         crop != null &&
                         refractionReady &&
                         refraction != null &&
-                        (refractionEnabled || edgeHighlightEnabled)
+                        (refractionEnabled || edgeHighlightEnabled || chromaticDispersionEnabled)
                     ) {
                         refraction.updateUniforms(
                             widthPx = size.width,
@@ -607,6 +661,11 @@ private fun CapturedGlassPanel(
                             rimWidthPx = rimWidthPx,
                             rimSoftnessPx = rimSoftnessPx,
                             rimStrength = if (edgeHighlightEnabled) 0.46f else 0f,
+                            dispersionPx = if (chromaticDispersionEnabled) {
+                                clampChromaticDispersionStrength(chromaticDispersionStrength)
+                            } else {
+                                0f
+                            },
                         )
                         drawRect(brush = refraction.brush)
                     } else if (crop != null) {
