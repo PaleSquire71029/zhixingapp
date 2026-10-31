@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**截至 2026-10-31：首版 APK 的图标截断问题已在 PR #3 修复；0.1.1 已通过 Android Build #32 并归档。用户真机安装与启动仍待验收。设计系统的颜色、间距、形状与文字 Tokens 已集中到 ZhixingTheme 统一入口；Glass Lab 已加入 GraphicsLayer 局部背景快照及默认关闭的前台动态采样模式（每秒最多一次）；采样在 Activity STOPPED 或页面离开组合时暂停。窗口级/跨页面实时捕获尚未实现，编译与真机观感仍待验收。本轮按要求未触发 CI、未创建新 APK。计算器、AI 等业务功能仍未迁移。**
+**截至 2026-10-31：首版 APK 的图标截断问题已在 PR #3 修复；0.1.1 已通过 Android Build #32 并归档。用户真机安装与启动仍待验收。设计系统的颜色、间距、形状与文字 Tokens 已集中到 ZhixingTheme 统一入口；Glass Lab 已加入 GraphicsLayer 局部背景快照、默认关闭的前台动态采样（每秒最多一次）和 API 33+ AGSL 单通道边缘折射实验；低版本使用快照/模糊回退。折射只作用于实验样本，不含 RGB 色散或窗口级 backdrop。编译与真机观感仍待验收。本轮按要求未触发 CI、未创建新 APK。计算器、AI 等业务功能仍未迁移。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -32,7 +32,7 @@
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
 | GitHub Actions 构建 | 已通过（Run #32） | 图片资源完整性检查、导航单测、assembleDebug、Artifact 上传、APK 自动归档全部成功；真机待验收 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
-| Glass Lab 动态局部背景快照 | 代码已提交，待构建与真机验收 | 可选前台动态模式，最多每秒采样一次；背景轻微移动；Activity STOPPED / 页面离开时暂停；仍非窗口级实时 backdrop |
+| Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃光学渲染 | 未开始 | 后续先单独验证背景采样与模糊，再分步加入折射等效果 |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
@@ -434,3 +434,19 @@
 参考：[LifecycleEventObserver](https://developer.android.com/reference/kotlin/androidx/lifecycle/LifecycleEventObserver)、[Compose side-effects](https://developer.android.com/develop/ui/compose/side-effects)。
 
 动态采样只演示受控实验 Composable 的离散快照更新，仍不等于整个 App 的实时 backdrop。
+
+
+### 3.17 Glass Lab 第 6 小项：AGSL 单通道边缘折射（2026-11-01）
+
+- [x] 新增独立 `SingleChannelRefraction.kt`，将 RuntimeShader、BitmapShader 输入和 AGSL 源码隔离在实验模块。
+- [x] API 33+（Android 13）创建 RuntimeShader；API 26–32 不创建 Shader，沿用局部快照和可用的模糊回退。
+- [x] AGSL 只对采样坐标做轻微径向边缘位移；所有 RGB 通道共享同一采样点，不含色散或颜色分离。
+- [x] 折射强度限制在 0–8 px，提供 Slider；折射开关可独立启用/关闭。
+- [x] 复用已编译 RuntimeShader，通过 BitmapShader 更新局部快照输入；不在每次绘制时重新编译 AGSL 源码。
+- [x] AGSL 初始化失败时退回普通快照绘制，并显示状态信息。
+- [x] 本轮使用 `[skip ci]`，不触发构建、不生成 APK。
+- [ ] 待执行 Android 编译与 JUnit；真机检查折射方向、边缘连续性、圆角裁切、Shader 发热与掉帧。
+
+参考：[Android 官方 AGSL + Compose ShaderBrush 示例](https://developer.android.com/develop/ui/views/graphics/agsl/using-agsl#using-runtime-shader-with-jetpack-compose)、[RuntimeShader API（API 33+）](https://developer.android.com/reference/android/graphics/RuntimeShader)。
+
+当前实验只实现单通道采样坐标位移，不包含色散、高光、触摸形变或正式界面组件。

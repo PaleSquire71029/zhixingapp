@@ -25,12 +25,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,7 +76,10 @@ internal fun GlassLabScreen(
     lifecycle: Lifecycle,
 ) {
     val blurSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    val refractionSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
     var blurEnabled by rememberSaveable { mutableStateOf(blurSupported) }
+    var refractionEnabled by rememberSaveable { mutableStateOf(refractionSupported) }
+    var refractionStrength by rememberSaveable { mutableFloatStateOf(3.5f) }
     var dynamicSamplingEnabled by rememberSaveable { mutableStateOf(false) }
     var isLifecycleStarted by remember(lifecycle) {
         mutableStateOf(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
@@ -82,6 +87,11 @@ internal fun GlassLabScreen(
     val backdropLayer = rememberGraphicsLayer()
     var backdropImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var captureStatus by remember { mutableStateOf("正在准备背景快照…") }
+    var refractionStatus by remember { mutableStateOf("AGSL 初始化中…") }
+    var refractionReady by remember { mutableStateOf(false) }
+    val refraction = remember(refractionSupported) {
+        if (refractionSupported) runCatching { SingleChannelRefraction.create() }.getOrNull() else null
+    }
     var captureCount by remember { mutableIntStateOf(0) }
     var manualRefreshPending by remember { mutableStateOf(false) }
     val captureMutex = remember { Mutex() }
@@ -143,6 +153,39 @@ internal fun GlassLabScreen(
         }
     }
 
+    val density = LocalDensity.current
+    val panelInsetPx = with(density) { 20.dp.roundToPx() }
+    val panelHeightPx = with(density) { 188.dp.roundToPx() }
+    val backdropCrop = backdropImage?.let { image ->
+        calculateBackdropCrop(
+            imageWidth = image.width,
+            imageHeight = image.height,
+            panelInset = panelInsetPx,
+            panelHeight = panelHeightPx,
+        )
+    }
+
+    LaunchedEffect(backdropImage, backdropCrop, refraction) {
+        refractionReady = false
+        if (refraction != null && backdropImage != null && backdropCrop != null) {
+            val result = runCatching {
+                refraction.bindBackdrop(backdropImage!!, backdropCrop!!)
+            }
+            refractionReady = result.isSuccess
+            refractionStatus = if (result.isSuccess) {
+                "AGSL 单通道折射已启用"
+            } else {
+                "AGSL 初始化失败，已回退为快照显示"
+            }
+        } else {
+            refractionStatus = when {
+                !refractionSupported -> "系统低于 Android 13，使用快照与模糊降级"
+                refraction == null -> "AGSL 初始化失败，使用快照与模糊降级"
+                else -> "等待背景快照"
+            }
+        }
+    }
+
     LaunchedEffect(manualRefreshPending, isLifecycleStarted) {
         if (manualRefreshPending && isLifecycleStarted) {
             captureBackdrop()
@@ -150,9 +193,6 @@ internal fun GlassLabScreen(
         }
     }
 
-    val density = LocalDensity.current
-    val panelInsetPx = with(density) { 20.dp.roundToPx() }
-    val panelHeightPx = with(density) { 188.dp.roundToPx() }
     val panelShape = ZhixingTheme.shapes.hero
 
     Column(
@@ -258,6 +298,50 @@ internal fun GlassLabScreen(
             )
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
+                Text(
+                    text = if (refractionEnabled && refractionReady) "单通道折射 · 开启" else "单通道折射 · 关闭",
+                    style = ZhixingTheme.type.sectionLabel,
+                    color = ZhixingTheme.colors.secondary,
+                )
+                Text(
+                    text = "RGB 共用采样坐标 · 不做色散",
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.onSurfaceVariant,
+                )
+            }
+            TextButton(
+                onClick = { refractionEnabled = !refractionEnabled },
+                enabled = refractionReady,
+            ) {
+                Text(
+                    text = if (refractionEnabled) "关闭折射" else "开启折射",
+                    style = ZhixingTheme.type.featureTitle,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
+            Text(
+                text = "折射强度 · ${clampRefractionStrength(refractionStrength).toInt()} px",
+                style = ZhixingTheme.type.supporting,
+                color = ZhixingTheme.colors.onSurfaceVariant,
+            )
+            Slider(
+                value = refractionStrength,
+                onValueChange = { refractionStrength = clampRefractionStrength(it) },
+                valueRange = 0f..8f,
+                steps = 7,
+                enabled = refractionReady && refractionEnabled,
+            )
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -299,6 +383,10 @@ internal fun GlassLabScreen(
                 modifier = Modifier.align(Alignment.Center),
                 image = backdropImage,
                 blurEnabled = blurEnabled && blurSupported,
+                refraction = refraction,
+                refractionReady = refractionReady,
+                refractionEnabled = refractionEnabled,
+                refractionStrength = refractionStrength,
                 panelInsetPx = panelInsetPx,
                 panelHeightPx = panelHeightPx,
                 shape = panelShape,
@@ -334,6 +422,11 @@ internal fun GlassLabScreen(
             )
             Text(
                 text = "成功快照：$captureCount 次",
+                style = ZhixingTheme.type.supporting,
+                color = ZhixingTheme.colors.onSurfaceVariant,
+            )
+            Text(
+                text = refractionStatus,
                 style = ZhixingTheme.type.supporting,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
@@ -420,6 +513,10 @@ private fun CapturedGlassPanel(
     modifier: Modifier = Modifier,
     image: ImageBitmap?,
     blurEnabled: Boolean,
+    refraction: SingleChannelRefraction?,
+    refractionReady: Boolean,
+    refractionEnabled: Boolean,
+    refractionStrength: Float,
     panelInsetPx: Int,
     panelHeightPx: Int,
     shape: Shape,
@@ -456,7 +553,14 @@ private fun CapturedGlassPanel(
                         panelInset = panelInsetPx,
                         panelHeight = panelHeightPx,
                     )
-                    if (crop != null) {
+                    if (crop != null && refractionEnabled && refractionReady && refraction != null) {
+                        refraction.updateUniforms(
+                            widthPx = size.width,
+                            heightPx = size.height,
+                            strengthPx = refractionStrength,
+                        )
+                        drawRect(brush = refraction.brush)
+                    } else if (crop != null) {
                         drawImage(
                             image = image,
                             srcOffset = androidx.compose.ui.unit.IntOffset(crop.left, crop.top),
