@@ -46,3 +46,12 @@ The probe is intentionally not called by MainActivity and does not affect the vi
 - If a dependency conflict or toolchain error occurs, record the exact cause and test the smallest correction.
 - Do not merge this draft PR before results are reviewed.
 - Do not copy the test configuration to main before compatibility is proven.
+
+
+## Retry after SDK package lookup failure
+
+The first PR check (run #36, 2026-10-31) stopped before Gradle because the runner could not find `platforms;android-37`. No dependency or Kotlin compilation took place in that run.
+
+The test branch has now been adjusted to compile against SDK 36, matching the app's stable baseline. This keeps the test focused on the Backdrop AAR's actual metadata, Compose dependencies, Kotlin compiler compatibility and public API.
+
+The next PR check is the first meaningful compile attempt for Backdrop 2.0.1.
