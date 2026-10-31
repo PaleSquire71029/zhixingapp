@@ -4,7 +4,7 @@
 > 规划基准日期：2026-10-31  
 > 目标仓库：PaleSquire71029/zhixingapp  
 > 默认分支：main  
-> 文档状态：**技术规划基线，尚未开始 App 工程实现**  
+> 文档状态：**长期技术规划基线；原生工程已启动，具体完成情况以 IMPLEMENTATION_STATUS.md 和 PROJECT_STATUS_AND_GUIDE.md 为准**  
 > 本文适用范围：知行计算器 + 知行AI 主产品的全新 Android 原生 App
 
 ---
@@ -62,9 +62,11 @@
 - 所有者：PaleSquire71029
 - 默认分支：main
 - 可访问性：公开仓库
-- 当前文件：只有 LICENSE
-- 当前没有 Gradle Wrapper、settings.gradle.kts、build.gradle.kts、app 模块、Kotlin 源码、AndroidManifest.xml、测试或 CI 构建工作流。
-- 因此应从干净的原生 Android 工程开始，不需要清理旧页面或迁就旧前端目录。
+- 当前已存在原生 Android 工程：根 Gradle 配置、`:app` 模块、Kotlin / Compose 启动页、AndroidManifest、导航目的地与单元测试。
+- 已加入 Gradle Wrapper 9.3.1、JDK 17 构建配置、Android API 36 / Compose BOM 2026.06.00，以及 GitHub Actions Debug 构建工作流。
+- 已纳入用户提供的知行蓝紫渐变图标，并建立基础浅色首页、四个底部导航占位入口。
+- 已提交 edge-to-edge 系统栏与 adjustResize 键盘窗口代码；构建成功与真机显示仍须按实施状态账本验证。
+- 当前仍是工程骨架，不代表计算器、AI、化学、历史、账号或玻璃效果已完成。具体文件路径与操作方法见 `docs/PROJECT_STATUS_AND_GUIDE.md`。
 
 ### 1.2 旧计算器仓库：calculator
 
@@ -1532,7 +1534,7 @@ GitHub Actions 至少执行：
 - **迁移：分阶段、逐项对照、每阶段测试，不整体复制旧网页；**
 - **仓库：所有新 App 文件放在 PaleSquire71029/zhixingapp。**
 
-当前已经建立最小原生 Compose 工程骨架和四个主导航占位入口。液态玻璃、计算器算法、AI、账号和云历史仍未迁移。本文件是长期需求和架构基线，真实实施进度以 docs/IMPLEMENTATION_STATUS.md 为准。
+当前已经建立最小原生 Compose 工程骨架和四个主导航占位入口，用户图标、Gradle Wrapper 与系统窗口适配代码已加入。液态玻璃、计算器算法、AI、账号和云历史仍未迁移。本文件是长期需求和架构基线；真实实施进度以 `docs/IMPLEMENTATION_STATUS.md` 为准，详细接手步骤见 `docs/PROJECT_STATUS_AND_GUIDE.md`。
 
 ## 21. 小步开发规则（强制）
 
