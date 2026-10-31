@@ -1,6 +1,6 @@
 # 首次 APK 真机验收清单
 
-> 适用版本：知行 Android App 0.1.0 Debug 预览版  
+> 适用版本：知行 Android App 0.1.1 Debug 预览版  
 > 当前阶段：原生 UI 骨架，不是完整计算器。
 
 ## 安装前

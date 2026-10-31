@@ -534,7 +534,12 @@
 - [x] 确认四个底部导航入口仍在，Glass Lab 入口仍在主界面。
 - [x] 确认 Gradle Wrapper、AGP / Kotlin Compose 插件配置、Android SDK 36、JDK 17、资源完整性脚本及原有测试文件均存在。
 - [x] 确认 Android Build 工作流同时执行资源校验、`:app:testDebugUnitTest` 和 `:app:assembleDebug`，成功后上传 Artifact 并更新仓库内 APK。
-- [ ] 当前提交将启动主分支 CI；等待确认资源校验、JUnit 与 Debug APK 构建结果。
-- [ ] 构建成功后检查 Artifact 和 `artifacts/zhixingapp-preview.apk` 是否为本次提交产生的新包。
+- [x] GitHub Actions Android Build #35（Run ID `41222655740`，构建源提交 `54fb057954f62aadec3f9751c5becc2f4d16c80d`）完整成功。
+- [x] Android 图片资源完整性校验通过。
+- [x] `:app:testDebugUnitTest` 通过；`:app:assembleDebug` 通过。
+- [x] `zhixingapp-debug` Artifact 上传成功（Artifact ID `13050204041`）；本次生成 `app-debug.apk` 为 11,589,185 bytes。
+- [x] 工作流已将新 APK 提交到 `artifacts/zhixingapp-preview.apk`；主分支文件大小与本次 Artifact 中提取的 APK 一致。
+- [x] 提取 APK 后检查 ZIP 结构，确认 `AndroidManifest.xml`、`resources.arsc` 及 8 个 DEX 文件存在；SHA-256：`1b0cd79c2aabf914c1c8bcd0f4ff8d1d61b42a4bed726c14bf2af93d7ccc6c8e`。
+- [ ] 待用户在目标 Android 真机安装，检查启动、Glass Lab 四档切换、触摸、滚动、发热和耗电。
 
 本节是仓库源码与配置的静态核对记录，不代表 APK 已经构建或真机运行通过。
