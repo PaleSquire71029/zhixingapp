@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ci.us.zhixing.app.navigation.AppDestinations
 import ci.us.zhixing.app.ui.theme.ZhixingLightColors
+import ci.us.zhixing.app.ui.theme.ZhixingSpacing
 import ci.us.zhixing.app.R
 
 class MainActivity : ComponentActivity() {
@@ -117,9 +118,9 @@ private fun ZhixingApp() {
                     .fillMaxSize()
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 22.dp)
-                    .padding(top = 28.dp, bottom = 28.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                    .padding(horizontal = ZhixingSpacing.pageHorizontal)
+                    .padding(top = ZhixingSpacing.pageVertical, bottom = ZhixingSpacing.pageVertical),
+                verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.section),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -128,7 +129,7 @@ private fun ZhixingApp() {
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(ZhixingSpacing.headerGap),
                     ) {
                         Image(
                             painter = painterResource(R.drawable.zhixing_logo),
@@ -136,7 +137,7 @@ private fun ZhixingApp() {
                             modifier = Modifier.height(54.dp),
                             contentScale = ContentScale.Fit,
                         )
-                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.tight)) {
                             Text(
                                 text = "知行",
                                 style = MaterialTheme.typography.headlineLarge,
@@ -158,7 +159,7 @@ private fun ZhixingApp() {
                     ) {
                         Text(
                             text = "原生预览",
-                            modifier = Modifier.padding(horizontal = 13.dp, vertical = 8.dp),
+                            modifier = Modifier.padding(horizontal = ZhixingSpacing.badgeHorizontal, vertical = ZhixingSpacing.badgeVertical),
                             style = MaterialTheme.typography.labelMedium,
                             color = ZhixingLightColors.onPrimaryContainer,
                         )
@@ -172,8 +173,8 @@ private fun ZhixingApp() {
                     border = BorderStroke(1.dp, ZhixingLightColors.outline.copy(alpha = 0.7f)),
                 ) {
                     Column(
-                        modifier = Modifier.padding(24.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp),
+                        modifier = Modifier.padding(ZhixingSpacing.cardPadding),
+                        verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.cardContentGap),
                     ) {
                         Text(
                             text = selectedDestination.label,
@@ -193,7 +194,7 @@ private fun ZhixingApp() {
                             color = ZhixingLightColors.onSurfaceVariant,
                             lineHeight = MaterialTheme.typography.bodyLarge.lineHeight,
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
+                        Spacer(modifier = Modifier.height(ZhixingSpacing.hairlineGap))
                         Text(
                             text = "基础界面已建立 · 功能按小步迁移",
                             style = MaterialTheme.typography.labelMedium,
@@ -202,7 +203,7 @@ private fun ZhixingApp() {
                     }
                 }
 
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.groupGap)) {
                     Text(
                         text = "本阶段先完成基础",
                         style = MaterialTheme.typography.titleMedium,
@@ -227,8 +228,8 @@ private fun FeatureLine(title: String, detail: String) {
         border = BorderStroke(1.dp, ZhixingLightColors.outline.copy(alpha = 0.5f)),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 13.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp),
+            modifier = Modifier.padding(horizontal = ZhixingSpacing.featureHorizontal, vertical = ZhixingSpacing.featureVertical),
+            verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.tight),
         ) {
             Text(
                 text = title,
