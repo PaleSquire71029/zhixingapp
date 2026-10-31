@@ -60,3 +60,6 @@ The next PR check is the first meaningful compile attempt for Backdrop 2.0.1.
 ## Candidate change: Backdrop 1.0.6
 
 The 2.x line was not suitable for this immediate integration because its published Android artifacts require compileSdk 37 and JetBrains Compose 1.12.0. The 1.0.6 release source instead uses AndroidX Compose 1.10.3 and compileSdk 36. The test branch now switches to 1.0.6 while retaining the Kotlin 2.4.21 / AGP 9.1.1 / Gradle 9.3.1 app toolchain. This is a better-fit candidate for the current application, subject to CI compilation and tests.
+
+ 
+Retrying compatibility validation against the published AndroidX-based 1.0.6 artifact. This commit intentionally triggers the PR workflow.
