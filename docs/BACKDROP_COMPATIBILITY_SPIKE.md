@@ -14,6 +14,7 @@
 - Gradle Wrapper: 9.3.1 (unchanged)
 - compileSdk: 36 (same as production baseline)
 - CI installs Android platform 36 and build-tools 36.0.0.
+- Candidate 1.0.6 source configures compileSdk 36, uses AndroidX Compose 1.10.3 and is built as a native Android library.
 - API 37 was attempted first, but the current GitHub Runner SDK repository returned `Failed to find package 'platforms;android-37'` before Gradle started. This is an SDK package availability issue, not evidence of Backdrop incompatibility. The spike therefore stays on API 36 to isolate the actual AAR/Compose compatibility question.
 
 Kotlin's compatibility table lists KGP 2.4.20–2.4.21 as fully supported with Gradle 7.6.3–9.7.0 and AGP 8.5.2–9.3.1. AGP 9.1.1 supports API 37. The purpose of this combination is to avoid a simultaneous AGP and Gradle upgrade while testing the Backdrop 2.0.1 metadata.
@@ -55,3 +56,7 @@ The first PR check (run #36, 2026-10-31) stopped before Gradle because the runne
 The test branch has now been adjusted to compile against SDK 36, matching the app's stable baseline. This keeps the test focused on the Backdrop AAR's actual metadata, Compose dependencies, Kotlin compiler compatibility and public API.
 
 The next PR check is the first meaningful compile attempt for Backdrop 2.0.1.
+
+## Candidate change: Backdrop 1.0.6
+
+The 2.x line was not suitable for this immediate integration because its published Android artifacts require compileSdk 37 and JetBrains Compose 1.12.0. The 1.0.6 release source instead uses AndroidX Compose 1.10.3 and compileSdk 36. The test branch now switches to 1.0.6 while retaining the Kotlin 2.4.21 / AGP 9.1.1 / Gradle 9.3.1 app toolchain. This is a better-fit candidate for the current application, subject to CI compilation and tests.
