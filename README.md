@@ -28,7 +28,7 @@
 - [x] 第 2 小步：补齐标准 Gradle Wrapper 9.3.1。
 - [x] 第 3 小步：系统栏、edge-to-edge、安全区与键盘窗口适配代码已提交（构建和真机验收待确认）。
 - [x] GitHub Actions Run #15：导航单元测试与 Debug APK 构建成功，Artifact 已取回。
-- [ ] 正在增加主分支自动保存 APK：成功构建后写入 `artifacts/zhixingapp-preview.apk`，后续可直接从仓库下载。
+- [x] 主分支自动保存 APK 已验证：`artifacts/zhixingapp-preview.apk` 已进入仓库，后续构建成功会自动更新。
 - [ ] 当前门槛：在 Android 真机安装并检查状态栏、底部导航和横竖屏。
 - [ ] 后续：抽取设计 Tokens，建立独立 Liquid Glass 实验室，再逐项迁移计算器与 AI。
 
@@ -36,7 +36,7 @@
 
 ## APK 下载
 
-- [最新 Debug APK（构建成功后自动更新）](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)
+- [下载最新 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)（已存入仓库，后续构建成功会自动更新）
 - [GitHub Actions 构建记录与备用 Artifact](https://github.com/PaleSquire71029/zhixingapp/actions/workflows/android-build.yml)
 
 ## 旧项目参考
