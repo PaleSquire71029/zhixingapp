@@ -214,6 +214,27 @@
 - [AGP 9.1.1 release notes and API 37 support](https://developer.android.com/build/releases/agp-9-1-0-release-notes)
 - [Backdrop 2.0.1 Android artifact metadata](https://central.sonatype.com/artifact/io.github.kyant0/backdrop-android)
 
+
+
+#### 4.2.2 Backdrop 1.0.6：当前优先兼容候选
+
+2026-11-01 的隔离 CI 试验已确认 2.0.1 的 Android AAR / 传递 Compose 组件要求 `compileSdk 37`。而 CI Runner 的 SDK 仓库返回 `Failed to find package 'platforms;android-37'`，暂时无法在当前流水线中安装该平台包。第二轮 API 36 试验虽成功完成 SDK 安装和 Gradle 配置，但在 `checkDebugAarMetadata` 阶段因要求 API 37 而失败；没有进入 Kotlin 源码编译，也没有证明 2.0.1 的源代码本身不兼容。
+
+因此转测 **Backdrop 1.0.6**：
+
+- 上游 tag `1.0.6` 的 Android 工程使用 Android Gradle Plugin 9.0.0、Kotlin Compose 插件 2.3.10、AndroidX Compose 1.10.3 和 `compileSdk 36`；
+- 发布制品为 Android 原生 Jetpack Compose 库，不是 2.x 新版 Compose Multiplatform Android variant；
+- 仍包含 `rememberLayerBackdrop`、`Modifier.layerBackdrop`、`Modifier.drawBackdrop`、`blur` 和 `lens` 等此次所需 API；
+- 许可证仍为 Apache-2.0；
+- 试验分支暂时使用 KGP 2.4.21 与现有 AGP 9.1.1 / Gradle 9.3.1，以满足当前 Kotlin 官方兼容矩阵，最终仍以 CI 编译结果为准。
+
+Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第三轮 CI 正在测试它。若通过，仍需进一步进行真实界面渲染、帧连续性、内存与设备性能测试；若失败，保留 main，不合并试验配置。
+
+参考：
+- [Backdrop 1.0.6 release](https://github.com/Kyant0/AndroidLiquidGlass/releases/tag/1.0.6)
+- [Backdrop 1.0.6 发布信息与许可证](https://mvnrepository.com/artifact/io.github.kyant0/backdrop/1.0.6)
+- [Backdrop 上游源码](https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6)
+
 ### 4.3 引入前检查清单
 
 - [ ] 源仓库、作者、许可证和许可证文本可核验；
@@ -298,7 +319,7 @@
 - 没有引入不必要的 SDK/Gradle 大版本升级；
 - 若不兼容，主分支保持不变。
 
-**状态：** 执行中：已完成项目版本/源代码/许可证审计，正在做 Android 依赖兼容性试验。
+**状态：** 执行中：已完成 2.0.1 的 API 37 约束确认；Backdrop 1.0.6 正在 PR #4 的第三轮 Android CI 中验证。
 
 ### 阶段 2：建立连续的共享背景渲染源
 
