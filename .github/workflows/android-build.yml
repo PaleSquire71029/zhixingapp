@@ -56,14 +56,32 @@ jobs:
       - name: Commit installable preview APK to main repository
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          mkdir -p artifacts
-          cp app/build/outputs/apk/debug/app-debug.apk artifacts/zhixingapp-preview.apk
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add artifacts/zhixingapp-preview.apk
-          if git diff --cached --quiet; then
-            echo "The repository APK is already up to date."
-          else
+
+          # Other documentation/source pushes may advance main while this APK
+          # is building. Re-sync before each push attempt to avoid losing the
+          # generated APK or failing with a non-fast-forward update.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p artifacts
+            cp app/build/outputs/apk/debug/app-debug.apk artifacts/zhixingapp-preview.apk
+            git add artifacts/zhixingapp-preview.apk
+
+            if git diff --cached --quiet; then
+              echo "The repository APK is already up to date."
+              exit 0
+            fi
+
             git commit -m "build: update Android preview APK [skip ci]"
-            git push
-          fi
+            if git push origin HEAD:main; then
+              echo "Preview APK committed successfully."
+              exit 0
+            fi
+
+            echo "Push attempt ${attempt} failed; syncing with main and retrying."
+          done
+
+          echo "Could not update preview APK after three attempts."
+          exit 1
