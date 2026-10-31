@@ -9,9 +9,10 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.asAndroidBitmap
 
 /**
- * 单通道边缘折射：RGB 共享同一采样坐标，不做色散。
+ * 单通道折射与轻量边缘高光。
  *
- * 只采样 Glass Lab 提供的局部快照，不涉及窗口级 backdrop。
+ * RGB 共享同一采样坐标，不做色散。高光使用独立 uniform 控制，
+ * 即使折射强度设为 0，也可以单独显示边缘高光。
  */
 @RequiresApi(33)
 internal class SingleChannelRefraction private constructor(
@@ -38,12 +39,22 @@ internal class SingleChannelRefraction private constructor(
         )
     }
 
-    fun updateUniforms(widthPx: Float, heightPx: Float, strengthPx: Float) {
+    fun updateUniforms(
+        widthPx: Float,
+        heightPx: Float,
+        strengthPx: Float,
+        rimWidthPx: Float,
+        rimSoftnessPx: Float,
+        rimStrength: Float,
+    ) {
         runtimeShader.setFloatUniform("resolution", widthPx, heightPx)
         runtimeShader.setFloatUniform(
             "refractionPx",
             clampRefractionStrength(strengthPx),
         )
+        runtimeShader.setFloatUniform("rimWidthPx", rimWidthPx.coerceAtLeast(0.1f))
+        runtimeShader.setFloatUniform("rimSoftnessPx", rimSoftnessPx.coerceAtLeast(0.1f))
+        runtimeShader.setFloatUniform("rimStrength", rimStrength.coerceIn(0f, 0.46f))
     }
 
     companion object {
@@ -58,6 +69,9 @@ uniform float2 resolution;
 uniform float2 sourceOrigin;
 uniform float2 sourceSize;
 uniform float refractionPx;
+uniform float rimWidthPx;
+uniform float rimSoftnessPx;
+uniform float rimStrength;
 
 half4 main(float2 fragCoord) {
     float2 safeResolution = float2(
@@ -78,6 +92,46 @@ half4 main(float2 fragCoord) {
     float2 displacedPoint = fragCoord - direction * edge * refractionPx;
     float2 samplePoint = sourceOrigin
         + (displacedPoint / safeResolution) * sourceSize;
-    return backdrop.eval(samplePoint);
+    half4 color = backdrop.eval(samplePoint);
+
+    // A restrained, directional white rim: strongest on the top and left.
+    // The clip shape applied by Compose trims the rectangular mask to rounded corners.
+    float leftDistance = max(fragCoord.x, 0.0);
+    float rightDistance = max(safeResolution.x - fragCoord.x, 0.0);
+    float topDistance = max(fragCoord.y, 0.0);
+    float bottomDistance = max(safeResolution.y - fragCoord.y, 0.0);
+
+    float leftRim = 1.0 - smoothstep(
+        rimWidthPx,
+        rimWidthPx + rimSoftnessPx,
+        leftDistance
+    );
+    float rightRim = 1.0 - smoothstep(
+        rimWidthPx,
+        rimWidthPx + rimSoftnessPx,
+        rightDistance
+    );
+    float topRim = 1.0 - smoothstep(
+        rimWidthPx,
+        rimWidthPx + rimSoftnessPx,
+        topDistance
+    );
+    float bottomRim = 1.0 - smoothstep(
+        rimWidthPx,
+        rimWidthPx + rimSoftnessPx,
+        bottomDistance
+    );
+
+    float rim = clamp(
+        topRim * 0.92 +
+        leftRim * 0.68 +
+        bottomRim * 0.16 +
+        rightRim * 0.12,
+        0.0,
+        1.0
+    );
+    half rimOpacity = half(clamp(rim * rimStrength, 0.0, 0.46));
+    color.rgb = mix(color.rgb, half3(1.0), rimOpacity);
+    return color;
 }
 """

@@ -80,6 +80,7 @@ internal fun GlassLabScreen(
     val refractionSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
     var blurEnabled by rememberSaveable { mutableStateOf(blurSupported) }
     var refractionEnabled by rememberSaveable { mutableStateOf(refractionSupported) }
+    var edgeHighlightEnabled by rememberSaveable { mutableStateOf(refractionSupported) }
     var refractionStrength by rememberSaveable { mutableFloatStateOf(3.5f) }
     var dynamicSamplingEnabled by rememberSaveable { mutableStateOf(false) }
     var isLifecycleStarted by remember(lifecycle) {
@@ -343,6 +344,39 @@ internal fun GlassLabScreen(
             )
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
+                Text(
+                    text = when {
+                        !refractionSupported -> "边缘高光 · 需 Android 13+"
+                        edgeHighlightEnabled && refractionReady -> "边缘高光 · 开启"
+                        else -> "边缘高光 · 关闭"
+                    },
+                    style = ZhixingTheme.type.sectionLabel,
+                    color = ZhixingTheme.colors.secondary,
+                )
+                Text(
+                    text = "上沿与左缘为主 · 柔和白色轮廓",
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.onSurfaceVariant,
+                )
+            }
+            TextButton(
+                onClick = { edgeHighlightEnabled = !edgeHighlightEnabled },
+                enabled = refractionReady,
+            ) {
+                Text(
+                    text = if (edgeHighlightEnabled) "关闭高光" else "开启高光",
+                    style = ZhixingTheme.type.featureTitle,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -387,6 +421,7 @@ internal fun GlassLabScreen(
                 refraction = refraction,
                 refractionReady = refractionReady,
                 refractionEnabled = refractionEnabled,
+                edgeHighlightEnabled = edgeHighlightEnabled,
                 refractionStrength = refractionStrength,
                 panelInsetPx = panelInsetPx,
                 panelHeightPx = panelHeightPx,
@@ -517,12 +552,17 @@ private fun CapturedGlassPanel(
     refraction: SingleChannelRefraction?,
     refractionReady: Boolean,
     refractionEnabled: Boolean,
+    edgeHighlightEnabled: Boolean,
     refractionStrength: Float,
     panelInsetPx: Int,
     panelHeightPx: Int,
     shape: Shape,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
 ) {
+    val density = LocalDensity.current.density
+    val rimWidthPx = density * 1.2f
+    val rimSoftnessPx = density * 1.8f
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -554,11 +594,19 @@ private fun CapturedGlassPanel(
                         panelInset = panelInsetPx,
                         panelHeight = panelHeightPx,
                     )
-                    if (crop != null && refractionEnabled && refractionReady && refraction != null) {
+                    if (
+                        crop != null &&
+                        refractionReady &&
+                        refraction != null &&
+                        (refractionEnabled || edgeHighlightEnabled)
+                    ) {
                         refraction.updateUniforms(
                             widthPx = size.width,
                             heightPx = size.height,
-                            strengthPx = refractionStrength,
+                            strengthPx = if (refractionEnabled) refractionStrength else 0f,
+                            rimWidthPx = rimWidthPx,
+                            rimSoftnessPx = rimSoftnessPx,
+                            rimStrength = if (edgeHighlightEnabled) 0.46f else 0f,
                         )
                         drawRect(brush = refraction.brush)
                     } else if (crop != null) {
