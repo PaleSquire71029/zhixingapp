@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
@@ -64,7 +65,13 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
 
     suspend fun captureBackdrop() {
         captureStatus = "正在采集背景…"
-        val result = runCatching { backdropLayer.toImageBitmap() }
+        val result = try {
+            Result.success(backdropLayer.toImageBitmap())
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            Result.failure<ImageBitmap>(IllegalStateException("Backdrop snapshot failed"))
+        }
         backdropImage = result.getOrNull()
         captureStatus = if (result.isSuccess) {
             "已采集局部背景快照"
