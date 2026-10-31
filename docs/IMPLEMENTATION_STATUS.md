@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**截至 2026-10-31：首版 APK 的图标截断问题已在 PR #3 修复；0.1.1 已通过 Android Build #32 并归档。用户真机安装与启动仍待验收。设计系统的颜色、间距、形状与文字 Tokens 已集中到 ZhixingTheme 统一入口；Glass Lab 已加入 GraphicsLayer 局部背景快照：采集实验画布实际绘制结果、裁切出玻璃面板覆盖区域，并支持 10.dp 模糊与手动重新采样；窗口级/跨页面实时捕获尚未实现。编译与真机观感仍待验收。本轮按要求未触发 CI、未创建新 APK。计算器、AI 等业务功能仍未迁移。**
+**截至 2026-10-31：首版 APK 的图标截断问题已在 PR #3 修复；0.1.1 已通过 Android Build #32 并归档。用户真机安装与启动仍待验收。设计系统的颜色、间距、形状与文字 Tokens 已集中到 ZhixingTheme 统一入口；Glass Lab 已加入 GraphicsLayer 局部背景快照及默认关闭的前台动态采样模式（每秒最多一次）；采样在 Activity STOPPED 或页面离开组合时暂停。窗口级/跨页面实时捕获尚未实现，编译与真机观感仍待验收。本轮按要求未触发 CI、未创建新 APK。计算器、AI 等业务功能仍未迁移。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -32,7 +32,7 @@
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
 | GitHub Actions 构建 | 已通过（Run #32） | 图片资源完整性检查、导航单测、assembleDebug、Artifact 上传、APK 自动归档全部成功；真机待验收 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
-| Glass Lab 局部背景快照 | 代码已提交，待构建与真机验收 | GraphicsLayer 捕获实验画布绘制结果，按玻璃面板位置裁切快照；支持 10.dp 模糊 / 清晰切换及手动刷新；非窗口级实时 backdrop |
+| Glass Lab 动态局部背景快照 | 代码已提交，待构建与真机验收 | 可选前台动态模式，最多每秒采样一次；背景轻微移动；Activity STOPPED / 页面离开时暂停；仍非窗口级实时 backdrop |
 | 液态玻璃光学渲染 | 未开始 | 后续先单独验证背景采样与模糊，再分步加入折射等效果 |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
@@ -418,3 +418,19 @@
 - [ ] 后续统一运行 JVM 单测和 Android 编译；测试代码当前仅已提交，未声称已通过。
 
 本项只保护背景快照的像素裁切计算，不改变 Glass Lab 的视觉参数。
+
+
+### 3.16 Glass Lab 第 5 小项：前台限频动态背景快照（2026-11-01）
+
+- [x] 新增默认关闭的动态采样开关；启用后以轻微移动的背景形状验证快照更新。
+- [x] 动态快照频率限制为每 1 秒最多一次，避免以每帧导出位图的方式持续占用内存与图形资源。
+- [x] 通过 Activity `Lifecycle` / `LifecycleEventObserver` 监听 `ON_START` 与 `ON_STOP`；App 停止时取消动态采样循环。
+- [x] 页面离开组合时，`LaunchedEffect` 和组合级 CoroutineScope 会随 Composition 生命周期取消。
+- [x] 使用互斥锁串行化手动与动态采样，避免同一 GraphicsLayer 上并发导出快照。
+- [x] 显示采样成功次数与暂停状态；手动采样入口仍保留。
+- [x] 本轮使用 `[skip ci]`，不触发构建、不生成 APK。
+- [ ] 待编译与 JUnit 验证 Lifecycle / Compose API；真机检查 1 Hz 采样的帧率、内存、温度和后台暂停行为。
+
+参考：[LifecycleEventObserver](https://developer.android.com/reference/kotlin/androidx/lifecycle/LifecycleEventObserver)、[Compose side-effects](https://developer.android.com/develop/ui/compose/side-effects)。
+
+动态采样只演示受控实验 Composable 的离散快照更新，仍不等于整个 App 的实时 backdrop。

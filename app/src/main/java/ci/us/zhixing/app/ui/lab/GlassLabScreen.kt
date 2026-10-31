@@ -1,6 +1,12 @@
 package ci.us.zhixing.app.ui.lab
 
 import android.os.Build
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -21,9 +27,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -42,49 +51,97 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.math.roundToInt
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 
+private const val BACKDROP_SAMPLE_INTERVAL_MS = 1_000L
+
 /**
- * Glass Lab 第 3 阶段：受控 Composable 背景快照。
+ * Glass Lab 第 4 阶段：前台限频动态快照实验。
  *
- * GraphicsLayer 只录制本实验的背景子层，再导出为 ImageBitmap；
- * 快照裁切为玻璃面板实际覆盖的区域，面板叠在同一背景画布之上。
- * 快照不会自动捕获窗口或其他 Composable，也不是连续实时采样。
+ * GraphicsLayer 只录制指定背景子层。动态模式默认关闭，启用后每秒最多导出一次
+ * 局部快照，并在 Activity 进入 STOPPED 状态或页面离开组合时停止。
  */
 @Composable
-internal fun GlassLabScreen(onBack: () -> Unit) {
+internal fun GlassLabScreen(
+    onBack: () -> Unit,
+    lifecycle: Lifecycle,
+) {
     val blurSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     var blurEnabled by rememberSaveable { mutableStateOf(blurSupported) }
+    var dynamicSamplingEnabled by rememberSaveable { mutableStateOf(false) }
+    var isLifecycleStarted by remember(lifecycle) {
+        mutableStateOf(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
+    }
     val backdropLayer = rememberGraphicsLayer()
     var backdropImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var captureStatus by remember { mutableStateOf("正在准备背景快照…") }
+    var captureCount by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
+    val captureMutex = remember { Mutex() }
 
-    suspend fun captureBackdrop() {
-        captureStatus = "正在采集背景…"
-        val result = try {
-            Result.success(backdropLayer.toImageBitmap())
-        } catch (cancelled: CancellationException) {
-            throw cancelled
-        } catch (_: Exception) {
-            Result.failure<ImageBitmap>(IllegalStateException("Backdrop snapshot failed"))
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> isLifecycleStarted = true
+                Lifecycle.Event.ON_STOP -> isLifecycleStarted = false
+                else -> Unit
+            }
         }
-        backdropImage = result.getOrNull()
-        captureStatus = if (result.isSuccess) {
-            "已采集局部背景快照"
-        } else {
-            "采集失败，可重新尝试"
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
         }
     }
 
-    LaunchedEffect(backdropLayer) {
-        // Ensure the background layer has recorded at least one draw pass.
-        withFrameNanos { }
-        withFrameNanos { }
-        captureBackdrop()
+    suspend fun captureBackdrop() {
+        captureMutex.withLock {
+            if (!isLifecycleStarted) return@withLock
+            captureStatus = "正在采集背景…"
+            val result = try {
+                Result.success(backdropLayer.toImageBitmap())
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                Result.failure<ImageBitmap>(IllegalStateException("Backdrop snapshot failed"))
+            }
+            val image = result.getOrNull()
+            if (image != null) {
+                backdropImage = image
+                captureCount += 1
+                captureStatus = "已更新局部背景快照"
+            } else {
+                captureStatus = "采集失败，可重新尝试"
+            }
+        }
+    }
+
+    LaunchedEffect(backdropLayer, isLifecycleStarted) {
+        if (isLifecycleStarted) {
+            // Allow the background draw node to record its first frame.
+            withFrameNanos { }
+            withFrameNanos { }
+            if (backdropImage == null) captureBackdrop()
+        }
+    }
+
+    LaunchedEffect(dynamicSamplingEnabled, isLifecycleStarted, backdropLayer) {
+        if (dynamicSamplingEnabled && isLifecycleStarted) {
+            captureStatus = "动态采样已开启 · 每秒最多更新一次"
+            while (true) {
+                delay(BACKDROP_SAMPLE_INTERVAL_MS)
+                if (isLifecycleStarted) captureBackdrop()
+            }
+        } else if (dynamicSamplingEnabled) {
+            captureStatus = "应用已暂停 · 动态采样已停止"
+        }
     }
 
     val density = LocalDensity.current
@@ -113,7 +170,7 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
                 )
             }
             Text(
-                text = "GLASS LAB / 03",
+                text = "GLASS LAB / 04",
                 modifier = Modifier.weight(1f),
                 style = ZhixingTheme.type.brandCaption,
                 color = ZhixingTheme.colors.onSurfaceVariant,
@@ -122,12 +179,12 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
             Text(
-                text = "局部背景采样",
+                text = "前台动态背景采样",
                 style = ZhixingTheme.type.screenTitle,
                 color = ZhixingTheme.colors.onBackground,
             )
             Text(
-                text = "捕获实验画布实际绘制结果，再裁出玻璃面板正下方的像素区域。",
+                text = "背景图形轻微移动，快照按固定间隔更新；动态采样默认关闭。",
                 style = ZhixingTheme.type.body,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
@@ -155,8 +212,38 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
             }
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
+                Text(
+                    text = if (dynamicSamplingEnabled) "动态采样 · 开启" else "动态采样 · 关闭",
+                    style = ZhixingTheme.type.sectionLabel,
+                    color = ZhixingTheme.colors.secondary,
+                )
+                Text(
+                    text = "每秒最多刷新 1 次",
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.onSurfaceVariant,
+                )
+            }
+            TextButton(
+                onClick = { dynamicSamplingEnabled = !dynamicSamplingEnabled },
+                enabled = isLifecycleStarted,
+            ) {
+                Text(
+                    text = if (dynamicSamplingEnabled) "停止动态" else "开启动态",
+                    style = ZhixingTheme.type.featureTitle,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
+        }
+
         TextButton(
             onClick = { coroutineScope.launch { captureBackdrop() } },
+            enabled = isLifecycleStarted,
         ) {
             Text(
                 text = "重新采样背景",
@@ -171,7 +258,7 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
                 .height(320.dp)
                 .clip(panelShape),
         ) {
-            // Only this child is recorded. The glass panel is deliberately a sibling layer.
+            // The glass panel remains a sibling and is never included in this recording layer.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -195,27 +282,11 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
                             ),
                         ),
                 )
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .offset(x = (-32).dp, y = 26.dp)
-                        .size(188.dp)
-                        .background(Color(0xFF86BFE3).copy(alpha = 0.92f), CircleShape),
-                )
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .offset(x = 34.dp, y = 22.dp)
-                        .size(214.dp)
-                        .background(Color(0xFFA99AE5).copy(alpha = 0.88f), CircleShape),
-                )
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .offset(x = 22.dp, y = (-48).dp)
-                        .size(128.dp)
-                        .background(Color(0xFFE9B995).copy(alpha = 0.94f), CircleShape),
-                )
+                if (dynamicSamplingEnabled && isLifecycleStarted) {
+                    AnimatedBackdropShapes()
+                } else {
+                    StaticBackdropShapes()
+                }
             }
 
             CapturedGlassPanel(
@@ -227,17 +298,17 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
                 shape = panelShape,
             ) {
                 Text(
-                    text = "LIGHT / CAPTURE 03",
+                    text = "LIGHT / DYNAMIC 04",
                     style = ZhixingTheme.type.brandCaption,
                     color = ZhixingTheme.colors.secondary,
                 )
                 Text(
-                    text = "背景进入玻璃",
+                    text = "背景持续变化",
                     style = ZhixingTheme.type.sectionTitle,
                     color = ZhixingTheme.colors.onBackground,
                 )
                 Text(
-                    text = "面板下方的像素来自上方彩色形状，文字仍单独保持清晰。",
+                    text = "快照更新受频率限制，前景文字保持清晰。",
                     style = ZhixingTheme.type.body,
                     color = ZhixingTheme.colors.onSurface,
                 )
@@ -256,21 +327,86 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
             Text(
-                text = if (blurSupported) {
-                    "当前 Android 版本支持 10 dp 图层模糊。快照只在页面初次显示及点击“重新采样背景”时更新。"
+                text = "成功快照：$captureCount 次",
+                style = ZhixingTheme.type.supporting,
+                color = ZhixingTheme.colors.onSurfaceVariant,
+            )
+            Text(
+                text = if (isLifecycleStarted) {
+                    "当前页面处于前台。离开实验页或 App 进入后台后，自动采样协程会停止。"
                 } else {
-                    "当前 Android 版本低于 12：仍会显示局部背景快照，但不启用系统模糊。"
+                    "当前 App 不在前台，采样已暂停。"
                 },
                 style = ZhixingTheme.type.supporting,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
             Text(
-                text = "范围限制：仅采集 Glass Lab 指定的背景 Composable，不读取其他页面、兄弟组件或系统窗口；它是手动刷新的局部快照，不是连续实时 backdrop。",
+                text = "范围限制：仅采集 Glass Lab 指定的背景 Composable，不读取其他页面、兄弟组件或系统窗口；每秒一次的快照仍是离散采样，不是原生连续实时 backdrop。",
                 style = ZhixingTheme.type.supporting,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
         }
     }
+}
+
+@Composable
+private fun StaticBackdropShapes() {
+    Box(
+        modifier = Modifier
+            .align(Alignment.TopStart)
+            .offset(x = (-32).dp, y = 26.dp)
+            .size(188.dp)
+            .background(Color(0xFF86BFE3).copy(alpha = 0.92f), CircleShape),
+    )
+    Box(
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .offset(x = 34.dp, y = 22.dp)
+            .size(214.dp)
+            .background(Color(0xFFA99AE5).copy(alpha = 0.88f), CircleShape),
+    )
+    Box(
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .offset(x = 22.dp, y = (-48).dp)
+            .size(128.dp)
+            .background(Color(0xFFE9B995).copy(alpha = 0.94f), CircleShape),
+    )
+}
+
+@Composable
+private fun AnimatedBackdropShapes() {
+    val transition = rememberInfiniteTransition(label = "glassLabBackdrop")
+    val drift by transition.animateFloat(
+        initialValue = -16f,
+        targetValue = 16f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 4_000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "backdropDrift",
+    )
+    Box(
+        modifier = Modifier
+            .align(Alignment.TopStart)
+            .offset(x = (-32 + drift).dp, y = 26.dp)
+            .size(188.dp)
+            .background(Color(0xFF86BFE3).copy(alpha = 0.92f), CircleShape),
+    )
+    Box(
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .offset(x = (34 - drift).dp, y = (22 - drift / 2).dp)
+            .size(214.dp)
+            .background(Color(0xFFA99AE5).copy(alpha = 0.88f), CircleShape),
+    )
+    Box(
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .offset(x = (22 + drift / 2).dp, y = (-48 - drift / 2).dp)
+            .size(128.dp)
+            .background(Color(0xFFE9B995).copy(alpha = 0.94f), CircleShape),
+    )
 }
 
 @Composable
