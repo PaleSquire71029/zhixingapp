@@ -102,7 +102,7 @@ half4 main(float2 fragCoord) {
     // Dispersion is intentionally sub-pixel and edge-masked. The red and blue
     // samples move in opposite directions; green remains on the refracted point.
     half4 color;
-    if (dispersionPx > 0.001) {
+    if (dispersionPx > 0.001 && edge > 0.001) {
         float2 dispersionSampleOffset =
             (direction * edge * dispersionPx / safeResolution) * sourceSize;
         half4 redSample = backdrop.eval(samplePoint + dispersionSampleOffset);
