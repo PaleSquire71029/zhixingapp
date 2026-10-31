@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
@@ -56,7 +55,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.math.roundToInt
@@ -85,7 +83,7 @@ internal fun GlassLabScreen(
     var backdropImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var captureStatus by remember { mutableStateOf("正在准备背景快照…") }
     var captureCount by remember { mutableIntStateOf(0) }
-    val coroutineScope = rememberCoroutineScope()
+    var manualRefreshPending by remember { mutableStateOf(false) }
     val captureMutex = remember { Mutex() }
 
     DisposableEffect(lifecycle) {
@@ -142,6 +140,13 @@ internal fun GlassLabScreen(
             }
         } else if (dynamicSamplingEnabled) {
             captureStatus = "应用已暂停 · 动态采样已停止"
+        }
+    }
+
+    LaunchedEffect(manualRefreshPending, isLifecycleStarted) {
+        if (manualRefreshPending && isLifecycleStarted) {
+            captureBackdrop()
+            manualRefreshPending = false
         }
     }
 
@@ -243,8 +248,8 @@ internal fun GlassLabScreen(
         }
 
         TextButton(
-            onClick = { coroutineScope.launch { captureBackdrop() } },
-            enabled = isLifecycleStarted,
+            onClick = { manualRefreshPending = true },
+            enabled = isLifecycleStarted && !manualRefreshPending,
         ) {
             Text(
                 text = "重新采样背景",
