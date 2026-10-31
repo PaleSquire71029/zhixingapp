@@ -39,8 +39,8 @@
 - 文件：settings.gradle.kts、build.gradle.kts、gradle.properties、app/build.gradle.kts、AndroidManifest.xml、strings.xml、MainActivity.kt、AppDestination.kt、AppDestinationTest.kt、.gitignore、GitHub Actions workflow。
 - 技术：AGP 9.1.1、Gradle 9.3.1、JDK 17、Compose BOM 2026.09.00、compileSdk/targetSdk 36、minSdk 26。
 - UI：浅色知行首页，四个导航入口：计算、知行AI、工具、历史。此时页面只是原生骨架，不代表功能已迁移。
-- 测试：配置两个导航契约单元测试；首次 GitHub Actions 构建仍需读取实际运行结果。
-- Commit：待提交 SHA 回填。
+- 测试：配置两个导航契约单元测试。首次 CI 在 Android SDK 初始化阶段失败，原因是 setup-android@v3 请求已下架的 tools 包；尚未运行 Gradle 编译。
+- Commit：`7d20f87ec4cbd34be3ad3e28eafacd427760116c`。
 - 未完成：标准 Gradle Wrapper 文件尚未加入；需要在后续小步骤补齐。
 
 ## 3. 下一步拆分（一次只做一个小项）
@@ -163,7 +163,7 @@
 
 ## 5. 当前阻断项
 
-- [ ] 首次 GitHub Actions Android 构建需确认成功。
+- [ ] 修正 setup-android 版本后，重新确认 GitHub Actions Android 构建成功。
 - [ ] 标准 Gradle Wrapper 待补齐。
 - [ ] 目标真机和 Android API 版本待确认/实测。
 - [ ] 液态玻璃库的正式引入仍未决定。
