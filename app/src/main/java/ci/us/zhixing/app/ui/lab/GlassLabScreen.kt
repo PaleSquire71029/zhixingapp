@@ -38,22 +38,23 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.drawImage
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.graphics.drawscope.drawImage
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.roundToInt
-import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
+import ci.us.zhixing.app.ui.theme.ZhixingTheme
 
 /**
  * Glass Lab 第 3 阶段：受控 Composable 背景快照。
  *
- * GraphicsLayer 录制本实验画布的背景绘制，再导出为 ImageBitmap；
- * 玻璃样本只显示它覆盖区域的裁剪图像，并在其上应用模糊与浅色叠层。
+ * GraphicsLayer 只录制本实验的背景子层，再导出为 ImageBitmap；
+ * 快照裁切为玻璃面板实际覆盖的区域，面板叠在同一背景画布之上。
  * 快照不会自动捕获窗口或其他 Composable，也不是连续实时采样。
  */
 @Composable
@@ -77,7 +78,7 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
     }
 
     LaunchedEffect(backdropLayer) {
-        // Give Compose time to record the first background draw before snapshotting.
+        // Ensure the background layer has recorded at least one draw pass.
         withFrameNanos { }
         withFrameNanos { }
         captureBackdrop()
@@ -123,7 +124,7 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
                 color = ZhixingTheme.colors.onBackground,
             )
             Text(
-                text = "从实验画布实际绘制结果生成快照，再裁出玻璃面板下方的区域。",
+                text = "捕获实验画布实际绘制结果，再裁出玻璃面板正下方的像素区域。",
                 style = ZhixingTheme.type.body,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
@@ -165,72 +166,79 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(320.dp)
-                .clip(panelShape)
-                .drawWithContent {
-                    backdropLayer.record {
-                        this@drawWithContent.drawContent()
-                    }
-                    drawLayer(backdropLayer)
-                },
+                .clip(panelShape),
         ) {
+            // Only this child is recorded. The glass panel is deliberately a sibling layer.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xFFE6F1F8),
-                                Color(0xFFEDEAF8),
-                                Color(0xFFF8EEE5),
+                    .drawWithContent {
+                        backdropLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+                        drawLayer(backdropLayer)
+                    },
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFFE6F1F8),
+                                    Color(0xFFEDEAF8),
+                                    Color(0xFFF8EEE5),
+                                ),
                             ),
                         ),
-                    ),
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .offset(x = (-32).dp, y = 26.dp)
-                    .size(188.dp)
-                    .background(Color(0xFF86BFE3).copy(alpha = 0.92f), CircleShape),
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 34.dp, y = 22.dp)
-                    .size(214.dp)
-                    .background(Color(0xFFA99AE5).copy(alpha = 0.88f), CircleShape),
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = 22.dp, y = (-48).dp)
-                    .size(128.dp)
-                    .background(Color(0xFFE9B995).copy(alpha = 0.94f), CircleShape),
-            )
-        }
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .offset(x = (-32).dp, y = 26.dp)
+                        .size(188.dp)
+                        .background(Color(0xFF86BFE3).copy(alpha = 0.92f), CircleShape),
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 34.dp, y = 22.dp)
+                        .size(214.dp)
+                        .background(Color(0xFFA99AE5).copy(alpha = 0.88f), CircleShape),
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 22.dp, y = (-48).dp)
+                        .size(128.dp)
+                        .background(Color(0xFFE9B995).copy(alpha = 0.94f), CircleShape),
+                )
+            }
 
-        CapturedGlassPanel(
-            image = backdropImage,
-            blurEnabled = blurEnabled && blurSupported,
-            panelInsetPx = panelInsetPx,
-            panelHeightPx = panelHeightPx,
-            shape = panelShape,
-        ) {
-            Text(
-                text = "LIGHT / CAPTURE 03",
-                style = ZhixingTheme.type.brandCaption,
-                color = ZhixingTheme.colors.secondary,
-            )
-            Text(
-                text = "背景进入玻璃",
-                style = ZhixingTheme.type.sectionTitle,
-                color = ZhixingTheme.colors.onBackground,
-            )
-            Text(
-                text = "前景保留清晰，背景像素来自上方实际绘制的彩色形状。",
-                style = ZhixingTheme.type.body,
-                color = ZhixingTheme.colors.onSurface,
-            )
+            CapturedGlassPanel(
+                modifier = Modifier.align(Alignment.Center),
+                image = backdropImage,
+                blurEnabled = blurEnabled && blurSupported,
+                panelInsetPx = panelInsetPx,
+                panelHeightPx = panelHeightPx,
+                shape = panelShape,
+            ) {
+                Text(
+                    text = "LIGHT / CAPTURE 03",
+                    style = ZhixingTheme.type.brandCaption,
+                    color = ZhixingTheme.colors.secondary,
+                )
+                Text(
+                    text = "背景进入玻璃",
+                    style = ZhixingTheme.type.sectionTitle,
+                    color = ZhixingTheme.colors.onBackground,
+                )
+                Text(
+                    text = "面板下方的像素来自上方彩色形状，文字仍单独保持清晰。",
+                    style = ZhixingTheme.type.body,
+                    color = ZhixingTheme.colors.onSurface,
+                )
+            }
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.groupGap)) {
@@ -264,15 +272,16 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
 
 @Composable
 private fun CapturedGlassPanel(
+    modifier: Modifier = Modifier,
     image: ImageBitmap?,
     blurEnabled: Boolean,
     panelInsetPx: Int,
     panelHeightPx: Int,
-    shape: androidx.compose.ui.graphics.Shape,
+    shape: Shape,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
 ) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
             .height(188.dp),
