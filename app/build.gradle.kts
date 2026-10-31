@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "ci.us.zhixing.app"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "ci.us.zhixing.app"
@@ -33,6 +33,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("io.github.kyant0:backdrop:2.0.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 
