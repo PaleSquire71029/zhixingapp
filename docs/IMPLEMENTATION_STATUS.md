@@ -566,3 +566,12 @@
 - [ ] 阶段 9：完成 CI、Debug 编译与目标真机验收。
 
 **当前状态：** 仅专项文档和技术基线审计已完成；尚未引入 Backdrop 依赖，尚未修改主界面导航，也未生成 APK。
+
+### 液态玻璃专项进度补充（2026-11-01）
+
+- [x] Backdrop 2.0.1 开源库审计完成，确认 Apache-2.0 及其 GraphicsLayer / Modifier Node 背景绘制实现。
+- [x] 试验确认 2.0.1 Android artifact 与 Compose 1.12.0 依赖要求 compileSdk 37。
+- [x] 记录 CI 环境限制：当前 Runner SDK 仓库无法找到 \`platforms;android-37\`；API 36 安装成功后，AAR Metadata 检查因 minCompileSdk=37 失败。
+- [x] 已找到 Backdrop 1.0.6 作为更适合当前工程的候选：上游 Android 项目使用 AndroidX Compose 1.10.3 和 compileSdk 36。
+- [ ] Backdrop 1.0.6 的依赖解析、Kotlin 编译、单元测试和 Debug 构建仍待 PR #4 第三轮 CI 验证。
+- [ ] 未合并任何 Backdrop 依赖到 main；未修改 MainActivity/生产导航；未生成 APK。
