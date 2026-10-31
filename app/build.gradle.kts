@@ -33,6 +33,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("io.github.kyant0:backdrop:1.0.6")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 
