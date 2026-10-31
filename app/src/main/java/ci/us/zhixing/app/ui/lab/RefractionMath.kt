@@ -138,3 +138,36 @@ internal fun calculateChromaticDispersionOffset(
         y = (pixelY / pixelRadius) * displacement,
     )
 }
+
+
+internal fun clampTouchHighlightStrength(value: Float): Float =
+    if (value.isFinite()) value.coerceIn(0f, 0.36f) else 0f
+
+/**
+ * Radial falloff for the pointer-following specular glow.
+ * The AGSL implementation uses the same smoothstep profile.
+ */
+internal fun calculateTouchHighlightIntensity(
+    fragX: Float,
+    fragY: Float,
+    touchX: Float,
+    touchY: Float,
+    radiusPx: Float,
+): Float {
+    if (
+        !fragX.isFinite() || !fragY.isFinite() ||
+        !touchX.isFinite() || !touchY.isFinite() ||
+        !radiusPx.isFinite() || radiusPx <= 0f
+    ) {
+        return 0f
+    }
+
+    val dx = fragX - touchX
+    val dy = fragY - touchY
+    val distance = kotlin.math.sqrt(dx * dx + dy * dy)
+    return 1f - smoothStep(
+        radiusPx * 0.12f,
+        radiusPx,
+        distance,
+    )
+}

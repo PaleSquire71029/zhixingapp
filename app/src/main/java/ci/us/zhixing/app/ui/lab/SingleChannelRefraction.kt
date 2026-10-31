@@ -47,6 +47,10 @@ internal class SingleChannelRefraction private constructor(
         rimSoftnessPx: Float,
         rimStrength: Float,
         dispersionPx: Float,
+        touchXpx: Float,
+        touchYpx: Float,
+        touchRadiusPx: Float,
+        touchHighlightStrength: Float,
     ) {
         runtimeShader.setFloatUniform("resolution", widthPx, heightPx)
         runtimeShader.setFloatUniform(
@@ -59,6 +63,12 @@ internal class SingleChannelRefraction private constructor(
         runtimeShader.setFloatUniform(
             "dispersionPx",
             clampChromaticDispersionStrength(dispersionPx),
+        )
+        runtimeShader.setFloatUniform("touchPosition", touchXpx, touchYpx)
+        runtimeShader.setFloatUniform("touchRadiusPx", touchRadiusPx.coerceIn(8f, 256f))
+        runtimeShader.setFloatUniform(
+            "touchHighlightStrength",
+            touchHighlightStrength.coerceIn(0f, 0.36f),
         )
     }
 
@@ -78,6 +88,9 @@ uniform float rimWidthPx;
 uniform float rimSoftnessPx;
 uniform float rimStrength;
 uniform float dispersionPx;
+uniform float2 touchPosition;
+uniform float touchRadiusPx;
+uniform float touchHighlightStrength;
 
 half4 main(float2 fragCoord) {
     float2 safeResolution = float2(
@@ -151,6 +164,19 @@ half4 main(float2 fragCoord) {
     );
     half rimOpacity = half(clamp(rim * rimStrength, 0.0, 0.46));
     color.rgb = mix(color.rgb, half3(1.0), rimOpacity);
+
+    // A soft local highlight follows the active pointer; its strength fades
+    // smoothly after release and remains independent of edge/rim settings.
+    float touchDistance = length(fragCoord - touchPosition);
+    float touchGlow = 1.0 - smoothstep(
+        touchRadiusPx * 0.12,
+        touchRadiusPx,
+        touchDistance
+    );
+    half touchOpacity = half(
+        clamp(touchGlow * touchHighlightStrength, 0.0, 0.36)
+    );
+    color.rgb = mix(color.rgb, half3(1.0), touchOpacity);
     return color;
 }
 """

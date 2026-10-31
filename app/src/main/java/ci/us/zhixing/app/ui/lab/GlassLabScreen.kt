@@ -2,6 +2,7 @@ package ci.us.zhixing.app.ui.lab
 
 import android.os.Build
 import java.util.Locale
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -9,6 +10,8 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,11 +52,13 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.CancellationException
@@ -497,6 +502,16 @@ internal fun GlassLabScreen(
             }
         }
 
+        Text(
+            text = if (refractionReady) {
+                "触摸样本 · 移动高光跟随指尖，按住时轻微收缩"
+            } else {
+                "触摸样本 · 按住时面板轻微收缩"
+            },
+            style = ZhixingTheme.type.supporting,
+            color = ZhixingTheme.colors.onSurfaceVariant,
+        )
+
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.groupGap)) {
             Text(
                 text = "采样状态",
@@ -616,12 +631,55 @@ private fun CapturedGlassPanel(
     val density = LocalDensity.current.density
     val rimWidthPx = density * 1.2f
     val rimSoftnessPx = density * 1.8f
+    val touchRadiusPx = density * 68f
+    var isTouchPressed by remember { mutableStateOf(false) }
+    var touchXFraction by remember { mutableFloatStateOf(0.5f) }
+    var touchYFraction by remember { mutableFloatStateOf(0.5f) }
+    val pressScale by animateFloatAsState(
+        targetValue = if (isTouchPressed) 0.992f else 1f,
+        animationSpec = tween(durationMillis = if (isTouchPressed) 90 else 180),
+        label = "glassPressScale",
+    )
+    val touchGlowStrength by animateFloatAsState(
+        targetValue = if (isTouchPressed) 0.34f else 0f,
+        animationSpec = tween(durationMillis = if (isTouchPressed) 70 else 220),
+        label = "glassTouchGlow",
+    )
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
-            .height(188.dp),
+            .height(188.dp)
+            .graphicsLayer {
+                scaleX = pressScale
+                scaleY = pressScale
+            }
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    fun updateTouch(position: androidx.compose.ui.geometry.Offset) {
+                        touchXFraction = (
+                            position.x / size.width.coerceAtLeast(1).toFloat()
+                        ).coerceIn(0f, 1f)
+                        touchYFraction = (
+                            position.y / size.height.coerceAtLeast(1).toFloat()
+                        ).coerceIn(0f, 1f)
+                    }
+
+                    isTouchPressed = true
+                    updateTouch(down.position)
+                    try {
+                        do {
+                            val event = awaitPointerEvent()
+                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                            updateTouch(change.position)
+                        } while (change.pressed)
+                    } finally {
+                        isTouchPressed = false
+                    }
+                }
+            },
         color = Color.Transparent,
         shape = shape,
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.96f)),
@@ -652,7 +710,7 @@ private fun CapturedGlassPanel(
                         crop != null &&
                         refractionReady &&
                         refraction != null &&
-                        (refractionEnabled || edgeHighlightEnabled || chromaticDispersionEnabled)
+                        (refractionEnabled || edgeHighlightEnabled || chromaticDispersionEnabled || touchGlowStrength > 0.001f)
                     ) {
                         refraction.updateUniforms(
                             widthPx = size.width,
@@ -666,6 +724,10 @@ private fun CapturedGlassPanel(
                             } else {
                                 0f
                             },
+                            touchXpx = touchXFraction * size.width,
+                            touchYpx = touchYFraction * size.height,
+                            touchRadiusPx = touchRadiusPx,
+                            touchHighlightStrength = touchGlowStrength,
                         )
                         drawRect(brush = refraction.brush)
                     } else if (crop != null) {
