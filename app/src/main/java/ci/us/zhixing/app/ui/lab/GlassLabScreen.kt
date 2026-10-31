@@ -1,6 +1,7 @@
 package ci.us.zhixing.app.ui.lab
 
 import android.os.Build
+import java.util.Locale
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -329,7 +330,7 @@ internal fun GlassLabScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
             Text(
-                text = "折射强度 · ${clampRefractionStrength(refractionStrength).toInt()} px",
+                text = "折射强度 · ${String.format(Locale.US, "%.1f", clampRefractionStrength(refractionStrength))} px",
                 style = ZhixingTheme.type.supporting,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
@@ -337,7 +338,7 @@ internal fun GlassLabScreen(
                 value = refractionStrength,
                 onValueChange = { refractionStrength = clampRefractionStrength(it) },
                 valueRange = 0f..8f,
-                steps = 7,
+                steps = 15,
                 enabled = refractionReady && refractionEnabled,
             )
         }

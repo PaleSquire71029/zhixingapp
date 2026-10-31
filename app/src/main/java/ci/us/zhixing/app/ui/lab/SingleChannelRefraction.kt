@@ -75,5 +75,3 @@ half4 main(float2 fragCoord) {
 }
 """
 
-internal fun clampRefractionStrength(value: Float): Float =
-    if (value.isFinite()) value.coerceIn(0f, 8f) else 0f
