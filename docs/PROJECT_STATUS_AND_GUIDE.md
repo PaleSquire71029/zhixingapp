@@ -65,6 +65,7 @@
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/SpacingTokens.kt` | 首页常用间距 | 统一管理既有 dp 间距，不改数值 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/ShapeTokens.kt` | 首页圆角形状 | 统一管理 28.dp / 18.dp 两种圆角 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/TypeTokens.kt` | 首页文字样式角色 | 统一管理字号、行高、字重和字距；不绑定额外字体文件 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/ZhixingTheme.kt` | 知行统一主题入口 | 暴露 colors / type / spacing / shapes，并应用浅色 Material 3 主题 |
 | `app/src/main/java/ci/us/zhixing/app/navigation/AppDestination.kt` | 四个底部导航目的地及占位描述 | 未来与真实页面路由连接 |
 | `app/src/test/java/ci/us/zhixing/app/navigation/AppDestinationTest.kt` | 导航数据契约的 JVM 单元测试 | 未来逐步增加状态和导航测试 |
 | `app/src/main/res/drawable-nodpi/zhixing_logo.webp` | 用户提供的蓝紫渐变图标 | 不随意裁切、重绘或改变比例 |
@@ -340,7 +341,7 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 ### 第 1 步：建立知行设计 Tokens
 
-**当前进度：颜色、间距、形状与文字 Tokens 均已完成代码拆分；统一主题包装器 ZhixingTheme 尚未建立。**
+**当前进度：颜色、间距、形状与文字 Tokens 已完成抽取；ZhixingTheme 统一入口已建立，编译和 UI 验证待安排。**
 
 **目标：** 让颜色、字体、圆角和间距有单一来源。
 
@@ -359,11 +360,11 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 3. [x] 已将首页两种既有圆角抽取到 `ui/theme/ShapeTokens.kt`；28.dp 与 18.dp 数值未改变；
 4. [x] 已定义品牌标题、页面标题、正文、辅助文字、徽标与导航符号样式角色；
 5. [x] 暂不绑定字体文件，沿用 Compose / Android 默认字体回退；不把 22.7 MB 的 OPPO Sans 完整文件打进 APK；
-6. 后续单独建立 `ZhixingTheme`，再将颜色、文字、形状和间距统一接入主题入口。
+6. [x] 已建立 `ZhixingTheme`，统一暴露颜色、文字、形状与间距，并接入 Material 3 浅色主题。
 
-剩余操作：建立 `ZhixingTheme` 统一主题入口，并安排一次构建与 UI 验证。完成条件：外观没有意外变化；首页和导航测试通过；所有页面只从统一 Tokens 读取基础样式。
+剩余操作：安排一次构建、导航单测与 UI 验证。完成条件：外观没有意外变化；首页和导航测试通过；所有页面只从统一 Tokens 读取基础样式。
 
-本次颜色、间距、形状与文字 Tokens 拆分提交均有意跳过 CI，避免生成 APK；因此编译和测试状态保持“待验证”。
+本次颜色、间距、形状、文字 Tokens 与统一主题入口的提交均有意跳过 CI，避免生成 APK；因此编译和测试状态保持“待验证”。
 
 ### 第 2 步：Glass Lab 静态实验页
 

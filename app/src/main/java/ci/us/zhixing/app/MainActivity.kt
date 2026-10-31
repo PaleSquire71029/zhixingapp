@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -37,12 +36,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import ci.us.zhixing.app.ui.theme.ZhixingType
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestinations
-import ci.us.zhixing.app.ui.theme.ZhixingLightColors
-import ci.us.zhixing.app.ui.theme.ZhixingSpacing
-import ci.us.zhixing.app.ui.theme.ZhixingShapes
+import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import ci.us.zhixing.app.R
 
 class MainActivity : ComponentActivity() {
@@ -79,9 +75,9 @@ private fun ZhixingApp() {
     val destinations = AppDestinations.all
     val selectedDestination = destinations[selectedIndex]
 
-    MaterialTheme(colorScheme = ZhixingLightColors) {
+    ZhixingTheme {
         Scaffold(
-            containerColor = ZhixingLightColors.background,
+            containerColor = ZhixingTheme.colors.background,
             bottomBar = {
                 NavigationBar(
                     containerColor = Color.White,
@@ -94,17 +90,17 @@ private fun ZhixingApp() {
                             icon = {
                                 Text(
                                     text = destination.symbol,
-                                    style = ZhixingType.navigationSymbol,
+                                    style = ZhixingTheme.type.navigationSymbol,
                                 )
                             },
                             label = { Text(destination.label) },
                             alwaysShowLabel = true,
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = ZhixingLightColors.primary,
-                                selectedTextColor = ZhixingLightColors.primary,
-                                unselectedIconColor = ZhixingLightColors.onSurfaceVariant,
-                                unselectedTextColor = ZhixingLightColors.onSurfaceVariant,
-                                indicatorColor = ZhixingLightColors.primaryContainer,
+                                selectedIconColor = ZhixingTheme.colors.primary,
+                                selectedTextColor = ZhixingTheme.colors.primary,
+                                unselectedIconColor = ZhixingTheme.colors.onSurfaceVariant,
+                                unselectedTextColor = ZhixingTheme.colors.onSurfaceVariant,
+                                indicatorColor = ZhixingTheme.colors.primaryContainer,
                             ),
                         )
                     }
@@ -116,9 +112,9 @@ private fun ZhixingApp() {
                     .fillMaxSize()
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = ZhixingSpacing.pageHorizontal)
-                    .padding(top = ZhixingSpacing.pageVertical, bottom = ZhixingSpacing.pageVertical),
-                verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.section),
+                    .padding(horizontal = ZhixingTheme.spacing.pageHorizontal)
+                    .padding(top = ZhixingTheme.spacing.pageVertical, bottom = ZhixingTheme.spacing.pageVertical),
+                verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.section),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -127,7 +123,7 @@ private fun ZhixingApp() {
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(ZhixingSpacing.headerGap),
+                        horizontalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.headerGap),
                     ) {
                         Image(
                             painter = painterResource(R.drawable.zhixing_logo),
@@ -135,29 +131,29 @@ private fun ZhixingApp() {
                             modifier = Modifier.height(54.dp),
                             contentScale = ContentScale.Fit,
                         )
-                        Column(verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.tight)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
                             Text(
                                 text = "知行",
-                                style = ZhixingType.brandTitle,
-                                color = ZhixingLightColors.onBackground,
+                                style = ZhixingTheme.type.brandTitle,
+                                color = ZhixingTheme.colors.onBackground,
                             )
                             Text(
                                 text = "CALCULATOR  ×  AI",
-                                style = ZhixingType.brandCaption,
-                                color = ZhixingLightColors.onSurfaceVariant,
+                                style = ZhixingTheme.type.brandCaption,
+                                color = ZhixingTheme.colors.onSurfaceVariant,
                             )
                         }
                     }
 
                     Surface(
-                        color = ZhixingLightColors.primaryContainer,
+                        color = ZhixingTheme.colors.primaryContainer,
                         shape = CircleShape,
                     ) {
                         Text(
                             text = "原生预览",
-                            modifier = Modifier.padding(horizontal = ZhixingSpacing.badgeHorizontal, vertical = ZhixingSpacing.badgeVertical),
-                            style = ZhixingType.badge,
-                            color = ZhixingLightColors.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = ZhixingTheme.spacing.badgeHorizontal, vertical = ZhixingTheme.spacing.badgeVertical),
+                            style = ZhixingTheme.type.badge,
+                            color = ZhixingTheme.colors.onPrimaryContainer,
                         )
                     }
                 }
@@ -165,42 +161,42 @@ private fun ZhixingApp() {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = Color.White,
-                    shape = ZhixingShapes.hero,
-                    border = BorderStroke(1.dp, ZhixingLightColors.outline.copy(alpha = 0.7f)),
+                    shape = ZhixingTheme.shapes.hero,
+                    border = BorderStroke(1.dp, ZhixingTheme.colors.outline.copy(alpha = 0.7f)),
                 ) {
                     Column(
-                        modifier = Modifier.padding(ZhixingSpacing.cardPadding),
-                        verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.cardContentGap),
+                        modifier = Modifier.padding(ZhixingTheme.spacing.cardPadding),
+                        verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.cardContentGap),
                     ) {
                         Text(
                             text = selectedDestination.label,
-                            style = ZhixingType.sectionLabel,
-                            color = ZhixingLightColors.secondary,
+                            style = ZhixingTheme.type.sectionLabel,
+                            color = ZhixingTheme.colors.secondary,
                         )
                         Text(
                             text = selectedDestination.title,
-                            style = ZhixingType.screenTitle,
-                            color = ZhixingLightColors.onSurface,
+                            style = ZhixingTheme.type.screenTitle,
+                            color = ZhixingTheme.colors.onSurface,
                         )
                         Text(
                             text = selectedDestination.description,
-                            style = ZhixingType.body,
-                            color = ZhixingLightColors.onSurfaceVariant,
+                            style = ZhixingTheme.type.body,
+                            color = ZhixingTheme.colors.onSurfaceVariant,
                         )
-                        Spacer(modifier = Modifier.height(ZhixingSpacing.hairlineGap))
+                        Spacer(modifier = Modifier.height(ZhixingTheme.spacing.hairlineGap))
                         Text(
                             text = "基础界面已建立 · 功能按小步迁移",
-                            style = ZhixingType.badge,
-                            color = ZhixingLightColors.primary,
+                            style = ZhixingTheme.type.badge,
+                            color = ZhixingTheme.colors.primary,
                         )
                     }
                 }
 
-                Column(verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.groupGap)) {
+                Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.groupGap)) {
                     Text(
                         text = "本阶段先完成基础",
-                        style = ZhixingType.sectionTitle,
-                        color = ZhixingLightColors.onBackground,
+                        style = ZhixingTheme.type.sectionTitle,
+                        color = ZhixingTheme.colors.onBackground,
                     )
                     FeatureLine(title = "原生 Android 工程", detail = "Kotlin + Jetpack Compose")
                     FeatureLine(title = "知行浅色设计基线", detail = "先稳定布局与文字层级")
@@ -216,22 +212,22 @@ private fun FeatureLine(title: String, detail: String) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = Color.White.copy(alpha = 0.78f),
-        shape = ZhixingShapes.feature,
-        border = BorderStroke(1.dp, ZhixingLightColors.outline.copy(alpha = 0.5f)),
+        shape = ZhixingTheme.shapes.feature,
+        border = BorderStroke(1.dp, ZhixingTheme.colors.outline.copy(alpha = 0.5f)),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = ZhixingSpacing.featureHorizontal, vertical = ZhixingSpacing.featureVertical),
-            verticalArrangement = Arrangement.spacedBy(ZhixingSpacing.tight),
+            modifier = Modifier.padding(horizontal = ZhixingTheme.spacing.featureHorizontal, vertical = ZhixingTheme.spacing.featureVertical),
+            verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight),
         ) {
             Text(
                 text = title,
-                style = ZhixingType.featureTitle,
-                color = ZhixingLightColors.onSurface,
+                style = ZhixingTheme.type.featureTitle,
+                color = ZhixingTheme.colors.onSurface,
             )
             Text(
                 text = detail,
-                style = ZhixingType.supporting,
-                color = ZhixingLightColors.onSurfaceVariant,
+                style = ZhixingTheme.type.supporting,
+                color = ZhixingTheme.colors.onSurfaceVariant,
             )
         }
     }

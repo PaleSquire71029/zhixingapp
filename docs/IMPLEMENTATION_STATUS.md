@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**截至 2026-10-31：首版 APK 的图标截断问题已在 PR #3 修复；0.1.1 已通过 Android Build #32 并归档。用户真机安装与启动仍待验收。设计系统的颜色、间距、形状与文字 Tokens 已完成代码抽取，既有颜色、尺寸、字重和文字层级保持不变；本轮按要求未触发 CI、未创建新 APK。计算器、AI 等业务功能仍未迁移。**
+**截至 2026-10-31：首版 APK 的图标截断问题已在 PR #3 修复；0.1.1 已通过 Android Build #32 并归档。用户真机安装与启动仍待验收。设计系统的颜色、间距、形状与文字 Tokens 已集中到 ZhixingTheme 统一入口；Material 3 未显式设置的默认文字与形状样式保持原样。本轮按要求未触发 CI、未创建新 APK。计算器、AI 等业务功能仍未迁移。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -27,6 +27,7 @@
 | 间距 Tokens | 代码已抽取，待构建验证 | 常用页面留白、模块间距和内部 padding 集中管理；数值保持不变；本轮不生成 APK |
 | 形状 Tokens | 代码已抽取，待构建验证 | 首页两种既有圆角集中管理；28.dp、18.dp 数值不变；本轮不生成 APK |
 | 文字 Tokens | 代码已抽取，待构建验证 | 首页现有字号、行高、字重和字距集中管理；不引入字体文件、不改变字体族；本轮不生成 APK |
+| 统一主题入口 | 代码已提交，待构建验证 | ZhixingTheme 统一暴露 colors、type、spacing、shapes，并承载 Material 3 浅色主题 |
 | 系统栏与安全区 | 代码已提交，待验收 | Edge-to-edge、浅色系统图标、Scaffold 安全区与 adjustResize 已配置 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
 | GitHub Actions 构建 | 已通过（Run #32） | 图片资源完整性检查、导航单测、assembleDebug、Artifact 上传、APK 自动归档全部成功；真机待验收 |
@@ -347,3 +348,16 @@
 - [ ] 后续统一安排编译与 UI 验证；在用户允许生成 APK 前不执行构建。
 
 本项只集中管理当前首页实际使用的文字层级；颜色、间距、形状和页面布局不变。
+
+
+### 3.11 设计系统第 5 小项：建立 ZhixingTheme 统一主题入口（2026-10-31）
+
+- [x] 新建 `app/src/main/java/ci/us/zhixing/app/ui/theme/ZhixingTheme.kt`。
+- [x] 统一暴露 `colors`、`type`、`spacing`、`shapes` 四组 Tokens。
+- [x] `MainActivity.kt` 改为通过 `ZhixingTheme { ... }` 应用主题，并通过 `ZhixingTheme.*` 访问四组设计 Tokens。
+- [x] 保留 Material 3 未显式设置的默认 typography / shapes，避免影响导航标签等组件原有外观。
+- [x] 对照原 Material 3 样式修正文字角色：品牌副标题与徽标保留 Medium 字重；功能项标题保留 bodyMedium 的 0.25.sp 字距。
+- [x] 本轮使用 `[skip ci]`，不触发构建、不生成 APK。
+- [ ] 后续安排一次编译、导航单测与 UI 检查；真机验收仍单独记录。
+
+本项只统一主题访问入口并校准文字样式映射，不增加页面、依赖或玻璃特效。
