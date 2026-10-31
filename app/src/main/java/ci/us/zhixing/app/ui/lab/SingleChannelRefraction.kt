@@ -64,14 +64,20 @@ half4 main(float2 fragCoord) {
         max(resolution.x, 1.0),
         max(resolution.y, 1.0)
     );
+
+    // Keep the edge mask relative to the panel dimensions, but calculate the
+    // displacement direction in pixel space so wide/tall panels stay isotropic.
     float2 lens = (fragCoord / safeResolution) * 2.0 - 1.0;
     float radius = length(lens);
     float edge = smoothstep(0.48, 1.15, radius);
-    float2 direction = lens / max(radius, 0.0001);
+
+    float2 pixelDirection = fragCoord - safeResolution * 0.5;
+    float pixelRadius = length(pixelDirection);
+    float2 direction = pixelDirection / max(pixelRadius, 0.0001);
+
     float2 displacedPoint = fragCoord - direction * edge * refractionPx;
     float2 samplePoint = sourceOrigin
         + (displacedPoint / safeResolution) * sourceSize;
     return backdrop.eval(samplePoint);
 }
 """
-
