@@ -30,15 +30,16 @@
 - [x] GitHub Actions Run #15：导航单元测试与 Debug APK 构建成功，Artifact 已取回。
 - [x] 主分支自动保存 APK 已配置。
 - [x] 首版图标 WebP 截断问题已在 PR #3 修复并合并到 main。
-- [ ] 0.1.1 修复 APK 正在等待主分支 CI 构建；旧版请勿继续安装。
+- [x] Android Build #32：资源校验、单元测试、APK 打包和仓库归档成功。
+- [x] 0.1.1 / versionCode 2 已发布到仓库 APK 路径；请安装新包，不要继续使用 0.1.0。
 - [ ] 当前门槛：在 Android 真机安装并检查状态栏、底部导航和横竖屏。
 - [ ] 后续：抽取设计 Tokens，建立独立 Liquid Glass 实验室，再逐项迁移计算器与 AI。
 
-> 当前 APK 定位为原生 UI 框架预览版；首版存在启动图标资源损坏，修复版正在构建。计算器、AI、化学、历史和云同步功能尚未迁移。
+> 当前 APK 定位为原生 UI 框架预览版。0.1.1 已修复损坏的图标资源并通过 CI 构建；真机启动仍待用户确认。计算器、AI、化学、历史和云同步功能尚未迁移。
 
 ## APK 下载
 
-- [下载最新 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)（已存入仓库，后续构建成功会自动更新）
+- [下载知行 Android 0.1.1 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)（已存入仓库，后续构建成功会自动更新）
 - [GitHub Actions 构建记录与备用 Artifact](https://github.com/PaleSquire71029/zhixingapp/actions/workflows/android-build.yml)
 
 ## 旧项目参考

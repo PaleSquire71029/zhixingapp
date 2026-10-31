@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**截至 2026-10-31：已收到用户反馈首版 APK 启动闪退且桌面图标缺失。检查发现 APK 中的 `zhixing_logo.webp` 文件头长度与实际长度不一致（截断），该资源同时被首页和 adaptive launcher icon 引用。已在修复分支替换为重新编码的有效透明 WebP，并加入构建前资源校验；修复 APK 仍待 CI 和真机验收。小步 1、2 已完成，小步 3 代码已提交。GitHub Actions Android Build #15 已成功完成单元测试与 Debug APK 打包并上传 Artifact。当前项目仍是原生 UI 骨架，业务功能尚未迁移；目标真机安装和系统栏验收仍待用户执行。**
+**截至 2026-10-31：首版 APK 因共享的 `zhixing_logo.webp` 资源截断，出现启动闪退和桌面图标缺失。PR #3 已修复并合并；Android Build #32 的图片资源校验、导航单测、Debug APK 构建、Artifact 上传和主分支 APK 归档全部成功。0.1.1 / versionCode 2 已保存到仓库。用户真机安装和启动仍待验收，不能仅凭 CI 通过宣称设备端已完全解决。计算器、AI 等业务功能仍未迁移。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -21,17 +21,17 @@
 | 旧 AI 交接文档 | 已阅读 | 项目总览、遗漏需求补充 |
 | 技术路线 | 已确定 | Android 原生 Kotlin + Jetpack Compose |
 | Android 工程配置 | 已提交 | AGP 9.1.1、Gradle 9.3.1、JDK 17 |
-| 最小原生首页 | 已提交；图标资源修复待验收 | 四个主入口仍为占位内容；首页和桌面启动图标共用有效的知行透明资源 |
+| 最小原生首页 | 已提交；修复版待真机验收 | 四个主入口仍为占位内容；首页与桌面图标引用重新编码并经 CI 验证的知行透明资源 |
 | 浅色主题基线 | 已提交 | 仅浅色，不含深色主题 |
 | 系统栏与安全区 | 代码已提交，待验收 | Edge-to-edge、浅色系统图标、Scaffold 安全区与 adjustResize 已配置 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
-| GitHub Actions 构建 | 修复版本待验证 | PR #3 已合并；CI 会先检查 WebP / PNG / JPEG 完整性，再执行单测与 APK 打包；新包尚待验证 |
+| GitHub Actions 构建 | 已通过（Run #32） | 图片资源完整性检查、导航单测、assembleDebug、Artifact 上传、APK 自动归档全部成功；真机待验收 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | 液态玻璃渲染 | 未开始 | 下一小步单独建立 Glass Lab |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
-| Debug APK | 上一版已归档；0.1.1 修复版待构建 | 主分支 CI 成功后自动覆盖 `artifacts/zhixingapp-preview.apk` |
+| Debug APK | 0.1.1 已归档 | `artifacts/zhixingapp-preview.apk`，11,490,765 bytes；后续主分支成功构建会自动更新 |
 | Release AAB | 未开始 | 尚未配置正式签名与发布构建 |
 
 ## 2. 已完成提交
@@ -110,11 +110,13 @@
 - [x] 从用户原始图标重新提取透明背景并编码为有效 WebP；替换同一资源路径，保持 Kotlin 与 XML 资源名称不变。
 - [x] 将 versionCode 提升至 2、versionName 提升至 0.1.1，避免与上一版混淆。
 - [x] 增加 `scripts/verify_android_resources.py`，在 Gradle 编译前验证 WebP RIFF 长度、PNG chunk CRC、JPEG 首尾标记和 launcher 资源引用。
-- [ ] 修复分支 CI 通过。
-- [ ] 合并后重新构建并自动覆盖仓库 APK。
+- [x] PR #3 已合并到 main（合并提交：`7bdedf7ff1c4259166be75ac75588f83c46c2fca`）。
+- [x] Android Build #32 的图片资源校验、单元测试和 APK 构建通过。
+- [x] `artifacts/zhixingapp-preview.apk` 已被 0.1.1 修复版覆盖（11,490,765 bytes）。
+- [x] APK 内部检查确认 launcher XML 与新的 WebP 资源均存在，WebP RIFF 长度完整。
 - [ ] 在用户 Android 真机安装、启动并确认桌面图标显示。
 
-**判断：** 资源截断是两个问题的共同明确原因；最终是否彻底解决闪退仍以修复版真机启动为准。
+**判断：** 资源截断是两个问题的共同明确原因。修复版 CI 已通过且新 APK 已归档；最终是否彻底解决闪退仍以用户真机启动为准。
 
 ## 3.5 修复合入主分支（2026-10-31）
 
@@ -127,6 +129,22 @@
 - CI 资源校验脚本：`scripts/verify_android_resources.py`。
 - [ ] 主分支 Build 对该合并版本完成资源检查、单元测试、Debug APK 构建与自动归档。
 - [ ] 用户手机确认可以启动且桌面图标显示。
+
+## 3.6 0.1.1 修复版构建与归档结果（2026-10-31）
+
+- GitHub Actions：Android Build #32
+- Run ID：`41208283410`
+- 结果：`success`
+- 检查步骤：JDK 17、Android SDK API 36、图片资源完整性校验、Gradle、导航单元测试、Debug APK 打包、Artifact 上传、主分支 APK 自动归档，全部成功。
+- Actions：[查看 Build #32](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41208283410)
+- Artifact ID：`13045686024`
+- APK：`app-debug.apk`，11,490,765 bytes
+- APK SHA-256：`d20ff37aaa0b6eb54d19dff1d2bcb5ea3c9f69bd17ffc6d38572bf0e2643d9ba`
+- 仓库文件：`artifacts/zhixingapp-preview.apk`
+- Git blob SHA：`684074dbd41938feef7ff871f86abea3c4a2ea72`
+- 版本：`0.1.1`，versionCode `2`
+- [直接下载 0.1.1 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)
+- 设备端安装、首次启动、桌面图标呈现仍待用户验收。
 
 ## 4. 下一步拆分（一次只做一个小项）
 

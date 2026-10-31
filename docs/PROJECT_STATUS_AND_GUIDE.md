@@ -29,7 +29,7 @@
 - 默认分支：`main`
 - Android applicationId：`ci.us.zhixing.app`
 - App 显示名称：`知行`
-- 首版版本：`0.1.0`，versionCode 为 `1`；图标资源修复分支计划提升为 `0.1.1` / versionCode `2`。
+- 当前版本：`0.1.1`，versionCode 为 `2`；首版 `0.1.0` / versionCode `1` 因 WebP 图标资源损坏，不再建议使用。
 - 当前 Gradle 工程只有一个 `:app` 模块；暂时不拆成很多独立 Gradle module，避免早期维护成本。
 
 ### 2.2 已核对的构建配置
@@ -89,9 +89,9 @@
 
 ### 3.2 知行品牌图标
 
-**首版状态：资源有损坏，修复中。**
+**0.1.1 状态：图标资源已修复并通过 CI；真机启动待用户验收。**
 
-已确认首版 APK 内 WebP 资源被截断：文件实际 5,193 bytes，而 RIFF 头部声明总长度 9,614 bytes。首页和启动器图标共用该资源，因此可能导致首页启动解码崩溃，同时使桌面图标无法正常显示。修复已合并至 main（PR #3）：替换为 160×160 透明 WebP。GitHub 远端文件实际 4,728 bytes，与 RIFF 声明长度一致，WebP 分块完整。版本为 0.1.1 / versionCode 2。CI 已加入二进制完整性校验；修复版 APK 尚待主分支重新构建，且真机启动仍待验收。
+已确认首版 APK 内 WebP 资源被截断：文件实际 5,193 bytes，而 RIFF 头部声明总长度 9,614 bytes。首页和启动器图标共用该资源，因此可能导致首页启动解码崩溃，同时使桌面图标无法正常显示。修复已合并至 main（PR #3）：替换为 160×160 透明 WebP。GitHub 远端文件实际 4,728 bytes，与 RIFF 声明长度一致，WebP 分块完整。版本为 0.1.1 / versionCode 2。Android Build #32 已通过资源校验、单元测试和 APK 构建，且已将修复版自动归档到仓库 `artifacts/zhixingapp-preview.apk`。真机启动仍待用户验收。
 
 **原始资源的设计内容与用户图标一致；仅重新编码，不重画图形。**
 
@@ -139,10 +139,11 @@
   - `./gradlew --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug`
 - 成功后上传名为 `zhixingapp-debug` 的工作流 Artifact。
 - 先运行 `python3 scripts/verify_android_resources.py`，验证 PNG / WebP / JPEG 资源结构和 launcher 引用，防止 Gradle 将损坏图片静默打包。
-- 已实际完成一次完整 CI：Android Build #15（Run ID 41206049511）结果为 success；导航单元测试、assembleDebug 和 Artifact 上传步骤均成功。
-- Artifact 名称：`zhixingapp-debug`；APK 名称：`app-debug.apk`；APK 大小：11,491,233 bytes。
-- APK SHA-256：`218fe484bffe249e39b02006184512f4a4a837ee37809b527aed712b0fde7785`。
-- [查看本次成功构建](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41206049511)。
+- 首个工程骨架构建：Android Build #15（Run ID 41206049511）成功。
+- 图标修复版构建：Android Build #32（Run ID 41208283410）成功；资源完整性、导航单测、assembleDebug、Artifact 上传与仓库 APK 归档全部成功。
+- 修复版 Artifact：`zhixingapp-debug`；APK 名称：`app-debug.apk`；APK 大小：11,490,765 bytes。
+- 修复版 APK SHA-256：`d20ff37aaa0b6eb54d19dff1d2bcb5ea3c9f69bd17ffc6d38572bf0e2643d9ba`。
+- [查看修复版成功构建](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41208283410)。
 - 这只证明构建与当前自动化测试成功，不证明真实设备的安装、渲染和交互已经验收。
 
 ## 4. 明确还没有做什么
@@ -316,9 +317,9 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 ### 第 0 步：修复损坏图标并重新验收
 
-**状态：修复代码已在分支，CI 与真机待验证。**
+**状态：修复版 CI 已通过，真机待验收。**
 
-**目标：** 先让最小工程通过 CI，并产出第一份预览 APK。GitHub Actions Run #15 已完成这一部分，真实手机安装与界面验收仍待进行。
+**目标：** 确认修复后的 APK 可以在真机启动，桌面图标能够显示。GitHub Actions Run #32 已完成资源校验、单元测试和 APK 打包，真实设备安装与界面验收仍待进行。
 
 操作：
 
