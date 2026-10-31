@@ -1,5 +1,6 @@
 package ci.us.zhixing.app.ui.lab
 
+import android.os.Build
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,21 +20,39 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 
 /**
- * Glass Lab 第 1 阶段：静态材质构图。
+ * Glass Lab 第 2 阶段：独立背景层柔化实验。
  *
- * 这里只演示彩色背景与半透明前景层叠，不声称实现实时背景采样、模糊或折射。
+ * Blur 只作用于本实验区域内单独绘制的背景层；前景玻璃样本与文字保持清晰。
+ * 这不是跨组件或整屏的实时 backdrop capture。
  */
 @Composable
 internal fun GlassLabScreen(onBack: () -> Unit) {
+    val blurSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    var blurEnabled by rememberSaveable { mutableStateOf(blurSupported) }
+    val backgroundEffect = if (blurEnabled && blurSupported) {
+        Modifier.blur(
+            radius = 10.dp,
+            edgeTreatment = BlurredEdgeTreatment.Unbounded,
+        )
+    } else {
+        Modifier
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -55,7 +74,7 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
                 )
             }
             Text(
-                text = "GLASS LAB / 01",
+                text = "GLASS LAB / 02",
                 modifier = Modifier.weight(1f),
                 style = ZhixingTheme.type.brandCaption,
                 color = ZhixingTheme.colors.onSurfaceVariant,
@@ -64,15 +83,37 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
             Text(
-                text = "静态材质样本",
+                text = "背景层模糊实验",
                 style = ZhixingTheme.type.screenTitle,
                 color = ZhixingTheme.colors.onBackground,
             )
             Text(
-                text = "先确认透明叠层、轮廓与文字可读性，再逐步加入真实光学效果。",
+                text = "单独柔化玻璃后方的实验背景，前景样本与文字不参与模糊。",
                 style = ZhixingTheme.type.body,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = if (blurEnabled && blurSupported) "背景模糊 · 10 dp" else "背景清晰对照",
+                style = ZhixingTheme.type.sectionLabel,
+                color = ZhixingTheme.colors.secondary,
+            )
+            TextButton(
+                onClick = { blurEnabled = !blurEnabled },
+                enabled = blurSupported,
+            ) {
+                Text(
+                    text = if (blurEnabled) "关闭模糊" else "开启模糊",
+                    style = ZhixingTheme.type.featureTitle,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
         }
 
         Box(
@@ -92,25 +133,31 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
         ) {
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .offset(x = (-32).dp, y = 26.dp)
-                    .size(188.dp)
-                    .background(Color(0xFFB6D8EF).copy(alpha = 0.88f), CircleShape),
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 34.dp, y = 22.dp)
-                    .size(214.dp)
-                    .background(Color(0xFFC9C0F0).copy(alpha = 0.82f), CircleShape),
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = 22.dp, y = (-48).dp)
-                    .size(128.dp)
-                    .background(Color(0xFFF1D7C4).copy(alpha = 0.9f), CircleShape),
-            )
+                    .fillMaxSize()
+                    .then(backgroundEffect),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .offset(x = (-32).dp, y = 26.dp)
+                        .size(188.dp)
+                        .background(Color(0xFF86BFE3).copy(alpha = 0.92f), CircleShape),
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 34.dp, y = 22.dp)
+                        .size(214.dp)
+                        .background(Color(0xFFA99AE5).copy(alpha = 0.88f), CircleShape),
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 22.dp, y = (-48).dp)
+                        .size(128.dp)
+                        .background(Color(0xFFE9B995).copy(alpha = 0.94f), CircleShape),
+                )
+            }
 
             Surface(
                 modifier = Modifier
@@ -118,26 +165,26 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
                     .padding(horizontal = 20.dp)
                     .fillMaxWidth()
                     .height(188.dp),
-                color = Color.White.copy(alpha = 0.66f),
+                color = Color.White.copy(alpha = 0.62f),
                 shape = ZhixingTheme.shapes.hero,
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.92f)),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.96f)),
             ) {
                 Column(
                     modifier = Modifier.padding(ZhixingTheme.spacing.cardPadding),
                     verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.cardContentGap),
                 ) {
                     Text(
-                        text = "LIGHT / LAYER 01",
+                        text = "LIGHT / LAYER 02",
                         style = ZhixingTheme.type.brandCaption,
                         color = ZhixingTheme.colors.secondary,
                     )
                     Text(
-                        text = "轻透叠层",
+                        text = "柔化背景，保留焦点",
                         style = ZhixingTheme.type.sectionTitle,
                         color = ZhixingTheme.colors.onBackground,
                     )
                     Text(
-                        text = "让背景色彩透过浅色表层，主体文字仍保持清晰。",
+                        text = "色彩位于后层，玻璃表面的文字依然清晰锐利。",
                         style = ZhixingTheme.type.body,
                         color = ZhixingTheme.colors.onSurface,
                     )
@@ -147,17 +194,21 @@ internal fun GlassLabScreen(onBack: () -> Unit) {
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.groupGap)) {
             Text(
-                text = "本轮观察重点",
+                text = "实验说明",
                 style = ZhixingTheme.type.sectionTitle,
                 color = ZhixingTheme.colors.onBackground,
             )
             Text(
-                text = "透明度 · 边缘轮廓 · 内容可读性",
+                text = if (blurSupported) {
+                    "当前系统支持硬件模糊。按钮可切换 10 dp 背景层模糊与清晰状态。"
+                } else {
+                    "当前 Android 版本低于 12，已回退为清晰背景；透明叠层仍可正常显示。"
+                },
                 style = ZhixingTheme.type.body,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
             Text(
-                text = "说明：当前仅为静态透明叠层示意，不包含实时背景采样、模糊、折射、色散或动态效果。",
+                text = "技术边界：Compose Modifier.blur 只模糊该组件自身绘制的内容，不会自动采集任意兄弟组件或窗口背景。当前验证的是分离背景层的柔化与清晰前景，不是真正的实时 backdrop blur。",
                 style = ZhixingTheme.type.supporting,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
