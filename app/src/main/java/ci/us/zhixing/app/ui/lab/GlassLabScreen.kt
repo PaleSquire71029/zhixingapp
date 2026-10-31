@@ -42,8 +42,6 @@ import androidx.compose.ui.graphics.drawscope.drawImage
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -304,24 +302,23 @@ private fun CapturedGlassPanel(
                             },
                         ),
                 ) {
-                    val srcLeft = panelInsetPx.coerceIn(0, (image.width - 1).coerceAtLeast(0))
-                    val srcTop = ((image.height - panelHeightPx) / 2)
-                        .coerceIn(0, (image.height - 1).coerceAtLeast(0))
-                    val srcWidth = (image.width - panelInsetPx * 2)
-                        .coerceAtLeast(1)
-                        .coerceAtMost(image.width - srcLeft)
-                    val srcHeight = panelHeightPx
-                        .coerceAtLeast(1)
-                        .coerceAtMost(image.height - srcTop)
-                    drawImage(
-                        image = image,
-                        srcOffset = IntOffset(srcLeft, srcTop),
-                        srcSize = IntSize(srcWidth, srcHeight),
-                        dstSize = IntSize(
-                            width = size.width.roundToInt().coerceAtLeast(1),
-                            height = size.height.roundToInt().coerceAtLeast(1),
-                        ),
+                    val crop = calculateBackdropCrop(
+                        imageWidth = image.width,
+                        imageHeight = image.height,
+                        panelInset = panelInsetPx,
+                        panelHeight = panelHeightPx,
                     )
+                    if (crop != null) {
+                        drawImage(
+                            image = image,
+                            srcOffset = androidx.compose.ui.unit.IntOffset(crop.left, crop.top),
+                            srcSize = androidx.compose.ui.unit.IntSize(crop.width, crop.height),
+                            dstSize = androidx.compose.ui.unit.IntSize(
+                                width = size.width.roundToInt().coerceAtLeast(1),
+                                height = size.height.roundToInt().coerceAtLeast(1),
+                            ),
+                        )
+                    }
                 }
             }
 

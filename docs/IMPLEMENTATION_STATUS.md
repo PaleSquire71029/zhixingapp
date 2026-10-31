@@ -407,3 +407,14 @@
 参考：[Android 官方 Compose GraphicsLayer 位图捕获示例](https://developer.android.com/develop/ui/compose/graphics/draw/modifiers#write-contents-of-a-composable-to-a-bitmap)。
 
 这是一项受控区域的真实绘制快照实验，不应标记为全窗口、跨组件或实时动态 backdrop。
+
+
+### 3.15 Glass Lab 第 4 小项：背景快照裁切边界测试（2026-10-31）
+
+- [x] 将面板源区域计算抽取为纯函数 `calculateBackdropCrop`，返回明确的像素矩形。
+- [x] 新增 `GlassBackdropCropTest`，覆盖正常居中裁切、极小图像边界和无效输入。
+- [x] 绘制层只在裁切矩形有效时执行 `drawImage`，避免零尺寸或越界输入。
+- [x] 不引入新依赖；本轮仍使用 `[skip ci]`，不触发构建、不生成 APK。
+- [ ] 后续统一运行 JVM 单测和 Android 编译；测试代码当前仅已提交，未声称已通过。
+
+本项只保护背景快照的像素裁切计算，不改变 Glass Lab 的视觉参数。

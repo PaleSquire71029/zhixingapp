@@ -67,6 +67,8 @@
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/TypeTokens.kt` | 首页文字样式角色 | 统一管理字号、行高、字重和字距；不绑定额外字体文件 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/ZhixingTheme.kt` | 知行统一主题入口 | 暴露 colors / type / spacing / shapes，并应用浅色 Material 3 主题 |
 | `app/src/main/java/ci/us/zhixing/app/ui/lab/GlassLabScreen.kt` | Glass Lab 局部背景快照实验 | GraphicsLayer 捕获受控背景 Composable；局部裁切、模糊与手动刷新，不采集窗口内容 |
+| `app/src/main/java/ci/us/zhixing/app/ui/lab/BackdropCrop.kt` | 背景快照源区域计算 | 纯函数计算居中面板裁切区域，非法尺寸返回 null |
+| `app/src/test/java/ci/us/zhixing/app/ui/lab/GlassBackdropCropTest.kt` | 背景快照裁切单元测试 | 正常、极小和无效输入覆盖；当前待执行 |
 | `app/src/main/java/ci/us/zhixing/app/navigation/AppDestination.kt` | 四个底部导航目的地及占位描述 | 未来与真实页面路由连接 |
 | `app/src/test/java/ci/us/zhixing/app/navigation/AppDestinationTest.kt` | 导航数据契约的 JVM 单元测试 | 未来逐步增加状态和导航测试 |
 | `app/src/main/res/drawable-nodpi/zhixing_logo.webp` | 用户提供的蓝紫渐变图标 | 不随意裁切、重绘或改变比例 |
@@ -398,7 +400,7 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 技术边界：这是真实的局部 Composable 绘制快照，但它不会读取整个窗口、任意其他页面或任意兄弟组件，也不会随背景每帧自动刷新。后续如需动态 backdrop，需要另行设计可控的共享绘制树或平台渲染方案。
 
-验收还需检查图像裁切坐标、圆角、滚动性能、截图内存、系统栏与设备温度；本轮跳过 CI，不生成 APK。
+已补充裁切源区域纯函数和 JVM 单元测试，覆盖常规尺寸、极小尺寸与无效尺寸；但测试尚未执行。真机还需检查图像裁切坐标、圆角、滚动性能、截图内存、系统栏与设备温度；本轮跳过 CI，不生成 APK。
 
 ### 第 4 步：单通道 AGSL 折射
 
