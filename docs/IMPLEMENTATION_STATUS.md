@@ -524,3 +524,17 @@
 - [ ] 待执行 JUnit / Android 编译；真机测量各档位帧率、内存、温度、耗电与滑动响应。
 
 这四档是 Glass Lab 的资源策略预设，非系统自动性能检测；Premium 不代表保证满帧，最终档位需根据目标设备实测调整。
+
+
+### 3.23 主分支完整性复核与 APK 构建验收（2026-11-01）
+
+- [x] 核对 main 当前 HEAD 为 `a3f21e3af6a68bf7acba254fc07f9f67f0f834d2`。
+- [x] 与上一稳定节点 `15b38eb8b6f9601f48633628b1d32f1ab20f6dbb` 比较最近 6 个提交：均为新增 / 修改，没有删除文件。
+- [x] 确认 `MainActivity.kt`、`AppDestination.kt`、`ZhixingTheme.kt`、四个主题 Tokens、用户提供的 `zhixing_logo.webp`、Manifest 启动图标引用均保留。
+- [x] 确认四个底部导航入口仍在，Glass Lab 入口仍在主界面。
+- [x] 确认 Gradle Wrapper、AGP / Kotlin Compose 插件配置、Android SDK 36、JDK 17、资源完整性脚本及原有测试文件均存在。
+- [x] 确认 Android Build 工作流同时执行资源校验、`:app:testDebugUnitTest` 和 `:app:assembleDebug`，成功后上传 Artifact 并更新仓库内 APK。
+- [ ] 当前提交将启动主分支 CI；等待确认资源校验、JUnit 与 Debug APK 构建结果。
+- [ ] 构建成功后检查 Artifact 和 `artifacts/zhixingapp-preview.apk` 是否为本次提交产生的新包。
+
+本节是仓库源码与配置的静态核对记录，不代表 APK 已经构建或真机运行通过。
