@@ -127,14 +127,18 @@
 
 ### 3.6 单元测试与 CI
 
-**状态：测试代码和 CI 工作流已提交；最近一次实际运行结果仍待确认。**
+**状态：测试代码、CI 工作流和首次 Debug APK 构建均已成功。真机验收仍未执行。**
 
 - 已有两个导航契约测试，检查入口数量、路由唯一性和文案非空。
 - GitHub Actions 配置为安装 JDK 17 和 Android SDK API 36。
 - 使用 Gradle Wrapper 执行：
   - `./gradlew --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug`
 - 成功后上传名为 `zhixingapp-debug` 的工作流 Artifact。
-- 当前不能仅凭工作流文件存在就认定 APK 已成功产出。
+- 已实际完成一次完整 CI：Android Build #15（Run ID 41206049511）结果为 success；导航单元测试、assembleDebug 和 Artifact 上传步骤均成功。
+- Artifact 名称：`zhixingapp-debug`；APK 名称：`app-debug.apk`；APK 大小：11,491,233 bytes。
+- APK SHA-256：`218fe484bffe249e39b02006184512f4a4a837ee37809b527aed712b0fde7785`。
+- [查看本次成功构建](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41206049511)。
+- 这只证明构建与当前自动化测试成功，不证明真实设备的安装、渲染和交互已经验收。
 
 ## 4. 明确还没有做什么
 
@@ -243,6 +247,8 @@
 
 不要把 Artifact ZIP 当作 APK 安装；需要先解压。若 GitHub 运行没有 Artifact，通常表示构建或测试没有成功到上传步骤。
 
+本次已成功生成一份 APK：本会话文件 [zhixingapp-preview.apk](sandbox:/mnt/data/zhixingapp-preview.apk)。该副本与 GitHub Artifact 中的 `app-debug.apk` 内容一致，SHA-256 为 `218fe484bffe249e39b02006184512f4a4a837ee37809b527aed712b0fde7785`。如果从 GitHub 重新下载，按上面的 ZIP 解压步骤取得 APK。
+
 ### 5.3 Debug APK 的限制
 
 - 这是调试构建，适合预览、测试，不是 Play Store 正式发布包。
@@ -300,7 +306,9 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 ### 第 0 步：确认当前基线能构建
 
-**目标：** 先让最小工程通过 CI，并产出第一份预览 APK。
+<badge>CI 已通过</badge>
+
+**目标：** 先让最小工程通过 CI，并产出第一份预览 APK。GitHub Actions Run #15 已完成这一部分，真实手机安装与界面验收仍待进行。
 
 操作：
 
@@ -464,7 +472,9 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 - 系统栏与输入法代码提交：`ba4eb6f8c8ed69f75641f3309694db6027ea28a8`
 - Manifest 键盘窗口配置提交：`4fab50db2a64b9eb0a8736381bf44f92d363ed9d`
-- 实施状态账本提交：`d6eec54b5042a290f2046285ab421d26dd5224ca`
+- 成功构建验证：Android Build #15 / `41206049511`
+- APK 测试清单已合并到 main：`docs/APK_TEST_CHECKLIST.md`
+- 文档与 APK 验收记录已继续提交；接手时仍应重新检查 main 最新 SHA。
 
 以上 SHA 是核对时的参考点；后续开发必须重新检查 main 分支的最新 SHA。构建是否通过、APK 是否生成、真机是否启动，需要以对应的 Actions 运行记录和实际设备验证为准。
 
