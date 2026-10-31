@@ -22,7 +22,8 @@
 | 技术路线 | 已确定 | Android 原生 Kotlin + Jetpack Compose |
 | Android 工程配置 | 已提交 | AGP 9.1.1、Gradle 9.3.1、JDK 17 |
 | 最小原生首页 | 已提交；修复版待真机验收 | 四个主入口仍为占位内容；首页与桌面图标引用重新编码并经 CI 验证的知行透明资源 |
-| 浅色主题基线 | 已提交 | 仅浅色，不含深色主题；颜色方案已集中到 ColorTokens.kt |\n| 颜色 Tokens | 代码已抽取，待构建验证 | 仅移动既有 lightColorScheme，颜色值没有变化；本轮不生成 APK |
+| 浅色主题基线 | 已提交 | 仅浅色，不含深色主题；颜色方案已集中到 ColorTokens.kt |
+| 颜色 Tokens | 代码已抽取，待构建验证 | 仅移动既有 lightColorScheme，颜色值没有变化；本轮不生成 APK |
 | 系统栏与安全区 | 代码已提交，待验收 | Edge-to-edge、浅色系统图标、Scaffold 安全区与 adjustResize 已配置 |
 | 导航契约单元测试 | 已提交 | 四个入口、路由唯一性和文案完整性 |
 | GitHub Actions 构建 | 已通过（Run #32） | 图片资源完整性检查、导航单测、assembleDebug、Artifact 上传、APK 自动归档全部成功；真机待验收 |

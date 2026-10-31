@@ -60,7 +60,8 @@
 | `gradle/wrapper/gradle-wrapper.properties` | Gradle 9.3.1 下载地址 | 始终使用 Wrapper |
 | `gradlew` / `gradlew.bat` | Linux/macOS 与 Windows 构建入口 | CI 和本地统一使用 |
 | `app/src/main/AndroidManifest.xml` | App 声明、启动 Activity、键盘窗口模式 | 新增权限前说明理由 |
-| `app/src/main/java/ci/us/zhixing/app/MainActivity.kt` | 当前主界面、系统栏与页面布局 | 颜色方案已移动到 ui/theme/ColorTokens.kt |\n| `app/src/main/java/ci/us/zhixing/app/ui/theme/ColorTokens.kt` | 知行浅色 Material 3 配色方案 | 当前只集中管理颜色；形状、间距、字体尚未抽取 |
+| `app/src/main/java/ci/us/zhixing/app/MainActivity.kt` | 当前主界面、系统栏与页面布局 | 颜色方案已移动到 ui/theme/ColorTokens.kt |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/ColorTokens.kt` | 知行浅色 Material 3 配色方案 | 当前只集中管理颜色；形状、间距、字体尚未抽取 |
 | `app/src/main/java/ci/us/zhixing/app/navigation/AppDestination.kt` | 四个底部导航目的地及占位描述 | 未来与真实页面路由连接 |
 | `app/src/test/java/ci/us/zhixing/app/navigation/AppDestinationTest.kt` | 导航数据契约的 JVM 单元测试 | 未来逐步增加状态和导航测试 |
 | `app/src/main/res/drawable-nodpi/zhixing_logo.webp` | 用户提供的蓝紫渐变图标 | 不随意裁切、重绘或改变比例 |
