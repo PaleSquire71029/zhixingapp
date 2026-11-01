@@ -848,3 +848,16 @@
 - [ ] Off 时单个玻璃表面不采样，但宿主级 `BackdropHost` 目前仍会创建共享 `LayerBackdrop`；后续可在整层宿主 Off 时跳过创建。
 
 **S6 阶段状态：** S6.1–S6.5 代码与 CI 均已完成；真机功能 / 视觉 / 性能验收仍未完成。
+
+### 10.22 S6.6 边缘高光接入正式玻璃材质（2026-11-01）
+
+- [x] 将 `edgeHighlightEnabled` 加入统一 `GlassMaterialState`，默认开启。
+- [x] 将边缘高光状态加入 `GlassMaterialSettingsStore`，DataStore 现保存六项材质属性。
+- [x] 正式 `ZhixingGlassSurface` 根据共享开关绘制 `Highlight.Default`；关闭时返回空高光，不叠加额外白边。
+- [x] Glass Lab 从首页当前状态初始化边缘高光开关；切换时实时预览并立即持久化。
+- [x] 重置材质参数时，边缘高光恢复默认开启；性能预设继续决定各自高光状态。
+- [x] 扩展材质状态默认值和 DataStore 往返保存测试，覆盖关闭高光后的持久化。
+- [ ] 本步 PR 的资源校验、JUnit、androidTest 源码编译和 Debug APK 构建待 CI。
+- [ ] 真机上检查上沿/侧缘高光是否自然、白边是否过强、不同背景亮度下的可见度与 GPU 帧率。
+
+本步只把已有 Highlight 效果的开关正式接入生产材质；高光形状/强度曲线与环境反射仍待后续设计和真机校准。
