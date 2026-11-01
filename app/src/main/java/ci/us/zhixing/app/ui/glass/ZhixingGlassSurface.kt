@@ -22,8 +22,10 @@ import com.kyant.backdrop.highlight.Highlight
  *
  * The parent owns and provides the Backdrop so multiple surfaces can sample
  * the same background instead of creating independent recording layers.
- * A null Backdrop uses a lightweight light-surface fallback for disabled or
- * unavailable glass rendering.
+ * A null Backdrop or glassEnabled = false uses a lightweight light-surface
+ * fallback. The disabled path does not attach a drawBackdrop sampling node.
+ * If the whole host is Off, its owner should also avoid creating the shared
+ * Backdrop layer when there are no other consumers.
  *
  * Transparency and blur are independent: transparency controls only the
  * white surface overlay, while blur controls only the backdrop blur effect.
@@ -34,20 +36,23 @@ internal fun ZhixingGlassSurface(
     material: GlassMaterialState,
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(26.dp),
+    glassEnabled: Boolean = true,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val overlayAlpha = (100 - material.transparencyPercent) / 100f
+    val capabilities = resolveGlassSurfaceCapabilities(
+        apiLevel = Build.VERSION.SDK_INT,
+        enabled = glassEnabled,
+        blurRadiusDp = material.blurRadiusDp,
+    )
 
-    if (backdrop != null) {
+    if (backdrop != null && capabilities.useBackdropSampling) {
         Box(
             modifier = modifier.drawBackdrop(
                 backdrop = backdrop,
                 shape = { shape },
                 effects = {
-                    if (
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                        material.blurRadiusDp > 0f
-                    ) {
+                    if (capabilities.useBlur) {
                         blur(material.blurRadiusDp.dp.toPx())
                     }
                 },
