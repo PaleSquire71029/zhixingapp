@@ -4,7 +4,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
@@ -41,10 +40,10 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
     @Test
     fun homepageGlassContainersKeepTheirContentAccessible() {
         composeRule.onAllNodes(hasTabRole()).assertCountEquals(4)
-        composeRule.onNodeWithText("基础界面已建立 · 功能按小步迁移").assertExists()
-        composeRule.onNodeWithText("原生 Android 工程").assertExists()
-        composeRule.onNodeWithText("知行浅色设计基线").assertExists()
-        composeRule.onNodeWithText("逐步迁移").assertExists()
+        composeRule.onAllNodes(hasText("基础界面已建立 · 功能按小步迁移")).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("原生 Android 工程")).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("知行浅色设计基线")).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("逐步迁移")).assertCountEquals(1)
     }
 
     private fun hasTabRole() =
