@@ -56,6 +56,7 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
+import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import java.util.Locale
@@ -203,6 +204,25 @@ internal fun GlassLabScreen(
                 style = ZhixingTheme.type.body,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = "材质参数",
+                style = ZhixingTheme.type.sectionLabel,
+                color = ZhixingTheme.colors.secondary,
+            )
+            TextButton(onClick = { resetMaterial() }) {
+                Text(
+                    text = "重置材质参数",
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
