@@ -545,7 +545,7 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 | S5.3 | 处理悬浮位置与系统 Insets | 新增 ZhixingLiquidBottomBarPlacement.kt | ✅ 完成：避开导航/手势区域，可选避开 IME，保持独立水平与底部间距；尚未接入 MainActivity |
 | S5.4 | 单独添加选中胶囊的连续位移动画 | ZhixingLiquidBottomBarItems.kt | ✅ 已实现并通过 CI：单个共享胶囊使用无过冲弹簧并可重新定目标；快速连点实机 / 仪器验证仍待做 |
 | S5.5 | 单独添加图标/标签过渡 | ZhixingLiquidBottomBarItems.kt | ✅ 完成：图标轻微缩放 / 透明度，标签淡入；仅绘制层变化，不改变测量和点击范围 |
-| S5.6 | 单独添加按压高光与回弹 | 底栏文件 | 手势取消后状态复位；不影响点击和滚动 |
+| S5.6 | 单独添加按压高光与回弹 | ZhixingLiquidBottomBarItems.kt | ✅ 完成：按压高光和内容轻微弹压，释放后弹簧恢复；触控容器尺寸保持不变 |
 
 ### S6：替换主导航并开放材质设置
 
@@ -724,3 +724,15 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] 图标 / 标签在连续快速点击时的实际视觉流畅度和触控命中仍需 Compose 仪器或真机验收。
 
 **下一小步：** S5.6，单独添加按压高光与轻微回弹；不添加拖动手势，不改触控区域和导航回调。
+
+## 19. S5.6 按压高光与轻微回弹（2026-11-01）
+
+- [x] 每个导航项通过独立 `MutableInteractionSource` 读取按压状态。
+- [x] 按压时显示低透明度白色圆角高光，释放时 Alpha 回到 0。
+- [x] 只对导航图标 / 标签所在的内层视觉内容做 0.975 倍缩放，使用无过冲弹簧恢复到 1.0。
+- [x] 外层 `selectable` 容器不缩放，测量尺寸与触摸命中范围保持原值；没有引入拖动手势。
+- [x] PR [#17](https://github.com/PaleSquire71029/zhixingapp/pull/17) 已通过 CI 并 squash 合并；合并提交：`75babe9b963df3225fc67270c6eb94c112c9d8d8`。
+- [x] Android Build #66（Run ID `41262910437`）资源检查、Gradle、JUnit、Kotlin 编译、Debug APK 构建和 Artifact 上传均成功。
+- [ ] 真实按压取消、快速连点、滚动冲突和物理设备触控仍待仪器 / 真机验收。
+
+**下一小步：** S6.1，在 MainActivity 中把原 Material 3 NavigationBar 替换为新的玻璃底栏；使用共享 Backdrop 和 Insets 定位容器，保留原四个导航目的地及受控选中索引；本步不加入 DataStore 或材质设置面板。
