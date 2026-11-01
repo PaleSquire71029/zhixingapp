@@ -10,6 +10,8 @@ internal data class GlassMaterialState(
     val transparencyPercent: Int = DEFAULT_TRANSPARENCY_PERCENT,
     val blurRadiusDp: Float = DEFAULT_BLUR_RADIUS_DP,
     val enabled: Boolean = true,
+    val refractionEnabled: Boolean = DEFAULT_REFRACTION_ENABLED,
+    val refractionStrengthDp: Float = DEFAULT_REFRACTION_STRENGTH_DP,
 ) {
     init {
         require(transparencyPercent in MIN_TRANSPARENCY_PERCENT..MAX_TRANSPARENCY_PERCENT) {
@@ -17,6 +19,11 @@ internal data class GlassMaterialState(
         }
         require(blurRadiusDp.isFinite() && blurRadiusDp in MIN_BLUR_RADIUS_DP..MAX_BLUR_RADIUS_DP) {
             "Blur radius must be finite and between 0 and 24 dp."
+        }
+        require(refractionStrengthDp.isFinite() &&
+            refractionStrengthDp in MIN_REFRACTION_STRENGTH_DP..MAX_REFRACTION_STRENGTH_DP
+        ) {
+            "Refraction strength must be finite and between 0 and 8 dp."
         }
     }
 
@@ -28,5 +35,9 @@ internal data class GlassMaterialState(
         const val MIN_BLUR_RADIUS_DP = 0f
         const val MAX_BLUR_RADIUS_DP = 24f
         const val DEFAULT_BLUR_RADIUS_DP = 12f
+        const val MIN_REFRACTION_STRENGTH_DP = 0f
+        const val MAX_REFRACTION_STRENGTH_DP = 8f
+        const val DEFAULT_REFRACTION_ENABLED = true
+        const val DEFAULT_REFRACTION_STRENGTH_DP = 1.8f
     }
 }
