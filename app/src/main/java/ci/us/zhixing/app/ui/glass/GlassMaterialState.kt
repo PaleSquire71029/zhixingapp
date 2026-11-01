@@ -13,6 +13,7 @@ internal data class GlassMaterialState(
     val refractionEnabled: Boolean = DEFAULT_REFRACTION_ENABLED,
     val refractionStrengthDp: Float = DEFAULT_REFRACTION_STRENGTH_DP,
     val edgeHighlightEnabled: Boolean = DEFAULT_EDGE_HIGHLIGHT_ENABLED,
+    val environmentReflectionEnabled: Boolean = DEFAULT_ENVIRONMENT_REFLECTION_ENABLED,
 ) {
     init {
         require(transparencyPercent in MIN_TRANSPARENCY_PERCENT..MAX_TRANSPARENCY_PERCENT) {
@@ -41,5 +42,6 @@ internal data class GlassMaterialState(
         const val DEFAULT_REFRACTION_ENABLED = true
         const val DEFAULT_REFRACTION_STRENGTH_DP = 1.8f
         const val DEFAULT_EDGE_HIGHLIGHT_ENABLED = true
+        const val DEFAULT_ENVIRONMENT_REFLECTION_ENABLED = true
     }
 }

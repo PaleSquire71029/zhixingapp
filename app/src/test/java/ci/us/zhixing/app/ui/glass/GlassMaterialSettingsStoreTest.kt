@@ -30,7 +30,7 @@ class GlassMaterialSettingsStoreTest {
     }
 
     @Test
-    fun savePersistsAllSixMaterialProperties() = runBlocking {
+    fun savePersistsAllSevenMaterialProperties() = runBlocking {
         val store = createStore()
         val expected = GlassMaterialState(
             transparencyPercent = 43,
@@ -39,12 +39,14 @@ class GlassMaterialSettingsStoreTest {
             refractionEnabled = false,
             refractionStrengthDp = 6.5f,
             edgeHighlightEnabled = false,
+            environmentReflectionEnabled = false,
         )
 
         store.save(expected)
 
         assertEquals(expected, store.material.first())
         assertEquals(false, store.material.first().edgeHighlightEnabled)
+        assertEquals(false, store.material.first().environmentReflectionEnabled)
     }
 
     @Test

@@ -74,6 +74,9 @@ internal fun ZhixingGlassSurface(
                 },
                 onDrawSurface = {
                     drawRect(Color.White.copy(alpha = overlayAlpha))
+                    if (material.environmentReflectionEnabled) {
+                        drawEnvironmentReflection()
+                    }
                 },
             ),
             content = content,
