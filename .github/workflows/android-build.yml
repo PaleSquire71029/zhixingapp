@@ -46,6 +46,7 @@ jobs:
         run: ./gradlew --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug
 
       - name: Run Backdrop host interaction test on Android emulator
+        timeout-minutes: 8
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -55,7 +56,7 @@ jobs:
           emulator-boot-timeout: 300
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -no-audio -no-boot-anim -camera-back none
           disable-animations: true
-          script: ./gradlew --no-daemon --stacktrace :app:connectedDebugAndroidTest
+          script: ./gradlew --no-daemon --stacktrace --info :app:connectedDebugAndroidTest
 
       - name: Upload Debug APK as workflow artifact
         if: success()
