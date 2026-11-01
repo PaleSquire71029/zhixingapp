@@ -345,7 +345,7 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - 自动化构建通过；
 - 真机上观察动画连续性、触控、滚动和发热。
 
-**状态：** 执行中（2026-11-01）。已在独立分支 `feature/live-backdrop-host` 将 GlassLab 改为 Backdrop 实时采样，并移除 1 Hz Bitmap 快照链路；待 PR CI 验证后再合并。
+**状态：** 代码与 CI 已完成（2026-11-01）；目标真机验收待执行。PR #5 已 squash 合并到 main，合并提交 `a71acf50a07e6a0c4d992e0e2f6664120a05cdd2`。Android Build #45（Run ID `41256336581`）通过资源校验、`:app:testDebugUnitTest`、`:app:assembleDebug` 和 Artifact 上传。CI 只证明构建与单元测试通过；真机连续性、滚动、触控、发热仍未验收。
 
 ### 阶段 3：实现知行玻璃基础组件
 
