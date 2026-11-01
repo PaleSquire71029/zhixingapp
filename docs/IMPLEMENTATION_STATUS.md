@@ -1268,3 +1268,13 @@
 - [x] 未修改生产 Insets 辅助函数、MainActivity、导航状态或依赖；本步骤只新增 instrumentation tests。
 - [ ] Android CI 待验证；工作流只编译 `androidTest` 源码，不会在 Hosted 模拟器执行这些设备相关用例。
 - [ ] 真实导航栏高度、输入法窗口行为、横竖屏视觉和窄屏触控仍需目标设备验收。
+
+
+### 10.56 P2.4.3b–P2.4.3c 底栏连续性与静止材质细化（2026-11-01）
+
+- [x] PR [#60](https://github.com/PaleSquire71029/zhixingapp/pull/60) 的 IME / Insets 与横竖屏测试源码已合并；Android Build #221（Run ID `41288408310`）成功。CI 只编译仪器测试源码，不等同于在目标设备执行。
+- [x] PR [#62](https://github.com/PaleSquire71029/zhixingapp/pull/62) 修复选中索引回调身份不稳定引起的动画状态重置；新增胶囊位置变化回归测试；Android Build #223（Run ID `41289697114`）成功。
+- [x] PR [#63](https://github.com/PaleSquire71029/zhixingapp/pull/63) 增加选中胶囊静止态基础折射、边缘高光和内外阴影；按压时继续增强；Android Build #224（Run ID `41289997437`）成功。
+- [x] PR #63 合并 commit：`2a1a553697229e7c2b485e891425a6595d965470`。
+- [ ] P2.4.3c 真机视觉与性能验收待完成；不能把 CI 编译成功表述为真机表现已通过。
+- [ ] 旧 `ZhixingLiquidBottomBar` 继续保留，直到用户完成 P2.4.3c 验收，之后才进入 P2.5 清理。
