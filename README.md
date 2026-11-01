@@ -7,7 +7,7 @@
 - 平台：仅 Android
 - 技术：Kotlin + Jetpack Compose
 - 视觉：知行 Light Liquid，全浅色设计，借鉴 iOS 26 Liquid Glass 的光学材质与交互特征
-- 玻璃：AGSL / RuntimeShader 为核心，先进行独立真机实验
+- 玻璃：固定使用 Backdrop 1.0.6，直接移植官方 Catalog 液态玻璃组件源码；自研 AGSL 仅保留为实验，不作为主材质引擎
 - 迁移：全新 App UI，原有功能逐步迁移，保留可验证的算法与后端能力
 - 本地计算：不强制登录
 - AI：通过受保护的知行 Worker 接入
@@ -19,6 +19,7 @@
 2. [实施状态与下一步清单](docs/IMPLEMENTATION_STATUS.md)
 3. [APK 首次真机验收清单](docs/APK_TEST_CHECKLIST.md)
 4. [Android App 总体规划与迁移蓝图](docs/ANDROID_APP_MASTER_PLAN.md)
+5. [液态玻璃参考 APK 直接移植计划](docs/LIQUID_GLASS_REDESIGN_PLAN.md)
 
 开始任何实现前，先检查这两份文件和仓库当前 commit。每次只推进一个小步骤；构建或测试失败时先修复，不继续叠加新功能。
 
@@ -47,7 +48,7 @@
 - [ ] 当前门槛：在 Android 真机安装并检查状态栏、底部导航和横竖屏。
 - [ ] 当前门槛：对四档策略执行 Android 编译与真机性能验收；之后再单独研究更广范围的共享绘制树 backdrop，最后逐项迁移计算器与 AI。
 
-> 当前 APK 定位为原生 UI 框架预览版。0.1.1 已修复损坏的图标资源并通过 CI 构建；真机启动仍待用户确认。计算器、AI、化学、历史和云同步功能尚未迁移。
+> 当前 APK 仍是原生 UI 框架预览版。液态玻璃主界面此前使用的是基于 Backdrop 原语的自研原型，与用户提供的官方 Catalog APK 差距明显；2026-11-01 起已将路线改为直接移植 Kyant0/AndroidLiquidGlass tag 1.0.6 的 Catalog 组件，详见专项计划第 25 节。计算器、AI、化学、历史和云同步功能尚未迁移。
 
 ## APK 下载
 
