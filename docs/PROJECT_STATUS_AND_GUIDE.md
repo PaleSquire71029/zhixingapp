@@ -11,7 +11,7 @@
 
 目前项目已经从空仓库变成一个**原生 Android + Kotlin + Jetpack Compose 的最小可启动工程骨架**。用户提供的蓝紫渐变知行图标已经进入 App 资源，并配置为应用图标和首页品牌标识。首页具有四个底部导航入口，系统栏和键盘窗口的基础适配代码也已经写入。
 
-但目前还**不是一个能完成计算的计算器 App**。四个入口主要是占位页面，尚未迁移旧计算器算法、数学键盘、AI 对话、账号、云端历史、函数图像、化学工具或真实液态玻璃折射效果。
+但目前还**不是一个能完成计算的计算器 App**。四个入口主要是占位页面，尚未迁移旧计算器算法、数学键盘、AI 对话、账号、云端历史、函数图像或化学工具。液态玻璃已接入 Backdrop 1.0.6，但此前主界面是自研原型，并未达到用户提供的官方 Catalog APK 效果；2026-11-01 起改为直接移植官方 tag 1.0.6 的 Catalog 组件源码，避免继续重复自研。
 
 必须区分三种状态：
 
@@ -40,7 +40,7 @@
 | UI | Jetpack Compose + Material 3 | 组件样式由知行自行设计 |
 | Android Gradle Plugin | 9.1.1 | 根目录 build.gradle.kts |
 | Gradle Wrapper | 9.3.1 | gradle/wrapper/gradle-wrapper.properties |
-| Kotlin Compose 插件 | 2.2.10 | 根目录 build.gradle.kts |
+| Kotlin Compose 插件 | 2.4.21 | 根目录 build.gradle.kts |
 | Compose BOM | 2026.06.00 | 与当前 API 36 编译目标匹配 |
 | compileSdk | 36 | 编译 SDK |
 | targetSdk | 36 | 当前目标 SDK |
@@ -78,6 +78,8 @@
 品牌图标具体资源文件名以仓库实际文件为准；不要把旧网页的书本图标或其他项目图标替换进来。
 
 ## 3. 已经做了什么
+
+**液态玻璃专项执行路线已于 2026-11-01 重置：** 以用户上传的 Backdrop Catalog APK 为视觉 / 交互基准，锁定上游 tag 1.0.6，直接移植官方 LiquidBottomTabs、DampedDragAnimation、InteractiveHighlight、LiquidButton、LiquidSlider、LiquidToggle 等源码；不升级 Backdrop 2.x，不复制整套 Demo App。详细步骤见 [LIQUID_GLASS_REDESIGN_PLAN.md 第 25 节](./LIQUID_GLASS_REDESIGN_PLAN.md)。
 
 ### 3.1 原生工程骨架
 
