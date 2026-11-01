@@ -967,9 +967,9 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 6. P2.4.1b 已完成并合入 main（PR #56，merge commit `25057905dbbe76881f9f7d77e7e62b156ccbd14b`）；Android Build #206 成功。
 7. P2.4.2 已完成并合入 main（PR #57，merge commit `3ac995fd7069148bea56cb8baaf11ab794987cdd`）；Android Build #209 成功。
 8. P2.4.3a 已完成并合入 main（PR #58，merge commit `9286a44ddc41eaad18413d098dfd939847ca5945`）；Android Build #214 成功。
-9. 当前分支 `port/catalog-1.0.6-p2-4-3b-insets-ime-orientation-tests` 正在执行 P2.4.3b：测试 IME 出现时底栏上移和横竖屏切换后四个入口仍可用。
-10. P2.4.3b 完成后进入 P2.4.3c 真机视觉与性能验收。当前 CI 只编译 `androidTest` 源码，不会在 Hosted 模拟器执行仪器测试；折射、拖动、TalkBack、帧率和耗电必须标注为真实设备验收。
-11. 旧 `ZhixingLiquidBottomBar` 代码暂留，P2.5 单独清理；不要在 P2.4.3 之前删除回滚路径。
+9. P2.4.3b 已完成：PR [#60](https://github.com/PaleSquire71029/zhixingapp/pull/60) 合并提交 `690cdaa7147213803620f55410081e1a47acf325`；Android Build #221 成功。
+10. 当前进入 P2.4.3c 真机视觉与性能验收。必须在目标 Android 设备上检查：底栏透明度与模糊是否独立生效、背景折射 / 色散 / 边缘高光是否自然、按压与拖动动画是否连续、IME 抬升与横竖屏是否正确、四个入口是否可用，以及帧率 / 温升 / 耗电。CI 仅编译仪器测试源码，不会替代这些设备验收。
+11. P2.4.3c 验收通过后，才进入 P2.5 清理旧 `ZhixingLiquidBottomBar` 及重复手势 / 装饰代码；在用户确认新底栏效果前保留回滚路径。
 12. 所有步骤继续固定官方 1.0.6 源码、Apache-2.0 归属和固定依赖版本。
 
 **当前生产底栏已切换到官方适配层；旧底栏实现保留待 P2.5 清理。**
@@ -985,4 +985,5 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 - [x] P2.4.2 PR #57 合并，commit `3ac995fd7069148bea56cb8baaf11ab794987cdd`；Android Build #209 全部成功。
 - [x] P2.4.3a PR #58 合并，commit `9286a44ddc41eaad18413d098dfd939847ca5945`；Android Build #214 全部成功。
 - [x] Glass Lab 测试覆盖 Off → Standard 档位切换、重置默认与回到首页后四入口可用；结束时恢复 DataStore 默认值。
-- [ ] 当前 P2.4.3b 分支新增 IME 上移与横竖屏回归测试，等待 CI。
+- [x] P2.4.3b PR #60 合并，commit `690cdaa7147213803620f55410081e1a47acf325`；Android Build #221 全部成功。
+- [ ] P2.4.3c 真机视觉与性能验收尚未完成；验收通过前保留旧底栏回滚代码。
