@@ -10,14 +10,16 @@ internal data class GlassSurfaceCapabilities(
     val useBackdropSampling: Boolean,
     val useBlur: Boolean,
     val useRefraction: Boolean,
+    val useVibrancy: Boolean,
 )
 
 /**
  * Resolves the features that are safe and useful on the current Android API.
  *
  * Backdrop sampling remains available on API 26+; blur is enabled only on
- * API 31+, and lens refraction only on API 33+. Disabling glass turns off all
- * backdrop effects so the composable can avoid attaching drawBackdrop.
+ * API 31+, lens refraction only on API 33+, and vibrancy on API 31+ when
+ * at least one optical backdrop effect is active. Disabling glass turns off
+ * all backdrop effects so the composable can avoid attaching drawBackdrop.
  */
 internal fun resolveGlassSurfaceCapabilities(
     apiLevel: Int,
@@ -43,6 +45,7 @@ internal fun resolveGlassSurfaceCapabilities(
             useBackdropSampling = false,
             useBlur = false,
             useRefraction = false,
+            useVibrancy = false,
         )
     }
 
@@ -50,5 +53,9 @@ internal fun resolveGlassSurfaceCapabilities(
         useBackdropSampling = true,
         useBlur = apiLevel >= 31 && blurRadiusDp > 0f,
         useRefraction = apiLevel >= 33 && refractionEnabled && refractionStrengthDp > 0f,
+        useVibrancy = apiLevel >= 31 && (
+            blurRadiusDp > 0f ||
+                (refractionEnabled && refractionStrengthDp > 0f)
+            ),
     )
 }
