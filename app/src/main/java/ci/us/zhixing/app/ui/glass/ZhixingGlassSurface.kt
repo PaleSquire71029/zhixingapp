@@ -82,7 +82,16 @@ internal fun ZhixingGlassSurface(
                 },
                 highlight = {
                     if (material.edgeHighlightEnabled) {
-                        Highlight.Default.copy(alpha = 0.42f)
+                        Highlight.Default.copy(
+                            alpha = resolveGlassHighlightAlpha(
+                                transparencyPercent = material.transparencyPercent,
+                                pressProgress = if (material.touchFeedbackEnabled) {
+                                    refractionPressProgress.coerceIn(0f, 1f)
+                                } else {
+                                    0f
+                                },
+                            ),
+                        )
                     } else {
                         null
                     }
