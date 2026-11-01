@@ -33,7 +33,7 @@
 | GitHub Actions 构建 | 已通过（Run #32） | 图片资源完整性检查、导航单测、assembleDebug、Artifact 上传、APK 自动归档全部成功；真机待验收 |
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
-| 液态玻璃光学渲染 | 未开始 | 后续先单独验证背景采样与模糊，再分步加入折射等效果 |
+| 液态玻璃导航 | 部分实现，官方移植中 | 当前主分支底栏仍为旧实现；官方 Backdrop Catalog 1.0.6 辅助类已合并，LiquidBottomTabs 源码正在 P2.1 PR 中隔离编译 |
 | 计算迁移 | 未开始 | 尚无旧算法迁移 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
@@ -1134,3 +1134,23 @@
 - [ ] 后续依次完成 P2–P9：官方底栏、背景源、材质层级、官方控件、首页广泛覆盖、动画系统、业务页规范和真机对照。
 
 **当前下一步：** 下次会话从专项计划第 25.8 节直接进入 P1，不再重新讨论路线。
+
+
+### 10.44 P1 官方 Catalog 1.0.6 辅助类移植完成（2026-11-01）
+
+- [x] 固定上游仓库 `Kyant0/AndroidLiquidGlass`、tag `1.0.6`、commit `896a94a3ade1cc1a940b92365f942a34971fecda`。
+- [x] 移植 `DampedDragAnimation.kt`、`InteractiveHighlight.kt`、`DragGestureInspector.kt` 至 `ui/glass/backdrop106`。
+- [x] 逐文件去除知行包名适配后，与上游源码逐字一致。
+- [x] 添加完整 Apache-2.0 LICENSE 与 `THIRD_PARTY_NOTICES.md` 来源说明。
+- [x] PR [#49](https://github.com/PaleSquire71029/zhixingapp/pull/49) 已 squash 合并；合并提交 `52c97bb1c4be64e5709ade87477b428d881fda36`。
+- [x] Android Build #180（Run ID `41280383296`）成功：资源校验、JUnit、Android 测试源码编译、Debug APK 构建和 Artifact 上传全部通过。
+- [ ] 该步骤没有连接生产 UI；真机触摸和 Shader 呈现需要后续 P2 / P9 验收。
+
+### 10.45 P2.1 官方 LiquidBottomTabs 源码隔离移植（进行中，2026-11-01）
+
+- [x] 从固定上游 tag 1.0.6 获取 `LiquidBottomTabs.kt` 与 `LiquidBottomTab.kt`。
+- [x] 移植到 `ui/glass/backdrop106/components`，将 helper 引用重定向到已合并的隔离包；保留官方布局、手势、透镜参数与色散配置。
+- [x] 按上游 Catalog 的依赖声明添加固定版本 `io.github.kyant0:shapes:1.2.0`；没有升级 Backdrop / Compose / AGP / Kotlin。
+- [x] 更新第三方来源说明，扩展已移植文件清单。
+- [ ] P2.1 Android CI 尚未完成；当前不接入 MainActivity、不替换原有底栏。
+- [ ] CI 通过后再建立 Zhixing 包装层（P2.2）；不得跳步删除现有导航代码。
