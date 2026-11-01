@@ -15,7 +15,7 @@ class GlassPerformanceTierTest {
         assertTrue(config.refractionEnabled)
         assertEquals(3.5f, config.refractionStrengthPx, 0f)
         assertTrue(config.edgeHighlightEnabled)
-        assertFalse(config.chromaticDispersionEnabled)
+        assertTrue(config.chromaticDispersionEnabled)
         assertTrue(config.touchFeedbackEnabled)
         assertEquals(0.22f, config.panelOverlayAlpha, 0f)
     }
@@ -68,5 +68,8 @@ class GlassPerformanceTierTest {
         assertFalse(api32.refractionEnabled)
         assertEquals(6f, api32.blurRadiusDp, 0f)
         assertTrue(api32.backdropEnabled)
+        assertFalse(api30.chromaticDispersionEnabled)
+        assertFalse(api31.chromaticDispersionEnabled)
+        assertFalse(api32.chromaticDispersionEnabled)
     }
 }

@@ -12,6 +12,7 @@ internal data class GlassMaterialState(
     val enabled: Boolean = true,
     val refractionEnabled: Boolean = DEFAULT_REFRACTION_ENABLED,
     val refractionStrengthDp: Float = DEFAULT_REFRACTION_STRENGTH_DP,
+    val chromaticDispersionEnabled: Boolean = DEFAULT_CHROMATIC_DISPERSION_ENABLED,
     val edgeHighlightEnabled: Boolean = DEFAULT_EDGE_HIGHLIGHT_ENABLED,
     val environmentReflectionEnabled: Boolean = DEFAULT_ENVIRONMENT_REFLECTION_ENABLED,
     val touchFeedbackEnabled: Boolean = DEFAULT_TOUCH_FEEDBACK_ENABLED,
@@ -42,6 +43,7 @@ internal data class GlassMaterialState(
         const val MAX_REFRACTION_STRENGTH_DP = 8f
         const val DEFAULT_REFRACTION_ENABLED = true
         const val DEFAULT_REFRACTION_STRENGTH_DP = 1.8f
+        const val DEFAULT_CHROMATIC_DISPERSION_ENABLED = false
         const val DEFAULT_EDGE_HIGHLIGHT_ENABLED = true
         const val DEFAULT_ENVIRONMENT_REFLECTION_ENABLED = true
         const val DEFAULT_TOUCH_FEEDBACK_ENABLED = true

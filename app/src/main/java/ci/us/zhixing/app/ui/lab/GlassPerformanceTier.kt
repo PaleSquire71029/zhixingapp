@@ -37,7 +37,7 @@ internal fun resolveGlassPerformanceConfig(
             refractionEnabled = shaderSupported,
             refractionStrengthPx = if (shaderSupported) 3.5f else 0f,
             edgeHighlightEnabled = shaderSupported,
-            chromaticDispersionEnabled = false,
+            chromaticDispersionEnabled = shaderSupported,
             chromaticDispersionStrengthPx = 0.25f,
             touchFeedbackEnabled = true,
             panelOverlayAlpha = 0.22f,
