@@ -55,6 +55,7 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
@@ -704,6 +705,9 @@ private fun GlassPreviewCard(
                         backdrop = activeBackdrop,
                         shape = { shape },
                         effects = {
+                            if (blurRadiusDp > 0f || (refractionEnabled && refractionStrength > 0f)) {
+                                vibrancy()
+                            }
                             if (blurRadiusDp > 0f) blur(blurRadiusDp.dp.toPx())
                             if (refractionEnabled && refractionStrength > 0f) {
                                 lens(
