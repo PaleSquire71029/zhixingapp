@@ -809,43 +809,32 @@
 
 ### 10.19 S6.2 首页独立材质设置入口（2026-11-01）
 
-- [x] 将首页右上角原“原生预览”静态标记改为可点击的“材质设置”入口。
-- [x] 入口直接打开现有 `GlassLabScreen`，不新建重复设置页面。
-- [x] 删除首页下方重复的“打开材质实验室”按钮，避免两个入口表达同一功能。
-- [x] 使用按钮语义标注点击区域；没有添加新的图标依赖。
-- [x] 保留底部四个导航目的地、选中状态与原回调，不增加第五个导航项。
-- [x] 未添加新的滑块、材质状态或 DataStore 持久化；现有实验室调节逻辑保持不变。
-- [x] PR [#19](https://github.com/PaleSquire71029/zhixingapp/pull/19) 已创建，分支为 `feature/material-settings-entry-s62`。
-- [ ] PR #19 的资源校验、JVM 单测、Kotlin 编译与 Debug APK 构建待 CI 结果。
-- [ ] 真实设备上的入口位置、触控面积与 TalkBack 朗读待验收。
-
-本步只增加一个容易找到的材质设置入口；底部导航和玻璃渲染逻辑不在本步修改。
-
-### 10.20 S6.2 首页独立材质设置入口（2026-11-01）
-
 - [x] 首页右上角入口由静态“原生预览”标记改为可点击的“材质设置”。
-- [x] 点击后打开现有 `GlassLabScreen`，避免复制一套重复材质页面。
+- [x] 点击后复用现有 `GlassLabScreen`，没有创建重复材质页面。
 - [x] 删除首页下方重复的“打开材质实验室”按钮。
-- [x] 保留四个玻璃底栏入口与选中逻辑，不增加第五个导航目的地。
+- [x] 保留四个玻璃底栏目的地、选中状态和导航回调。
 - [x] PR [#19](https://github.com/PaleSquire71029/zhixingapp/pull/19) 已 squash 合并；合并提交：`afadc577c4bd7e6b3a69719a58bfcb7c1d3e2161`。
 - [x] Android Build（Run ID `41263447325`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41263447325)。
-- [ ] 真机入口触控区域、TalkBack 朗读与小屏顶部布局尚待验收。
-- [ ] 现有 GlassLab 滑块尚未与首页底栏材质状态绑定；DataStore 保存与恢复仍未实现。
+- [ ] 真机入口触控面积、TalkBack 朗读和小屏顶部布局仍待验收。
 
-**下一小步：** S6.3，增加透明度单独滑块并绑定首页底栏材质；透明度调整不得改变模糊半径。
-### 10.20 S6.3 材质设置同步首页底栏（2026-11-01）
+本步只添加材质设置入口，未增加新的滑块或持久化。
 
-- [x] 将首页玻璃材质状态提升到 `ZhixingApp`，使用 `rememberSaveable` 保存透明度和模糊半径。
-- [x] 将统一的 `GlassMaterialState` 传入 `ZhixingLiquidBottomBar`，不再只依赖底栏组件内部的固定默认值。
-- [x] Glass Lab 打开时读取首页当前材质参数；透明度和模糊滑块变化时实时回传到首页状态。
-- [x] 选择 Premium / Standard / Lite / Off 档时，同步对应透明度、模糊值；Off 档将玻璃采样表面切换为浅色回退表面。
-- [x] `GlassMaterialState.enabled` 控制 `ZhixingGlassSurface` 是否添加 Backdrop 采样修饰符；Off 表面不再执行前景采样。
-- [x] 保持当前四项底部导航、入口和选择动画不变；未增加新依赖。
-- [ ] PR #22 的资源校验、JVM 单测、Kotlin 编译和 Debug APK 构建待 CI。
-- [ ] 真机检查滑块操作后返回首页的即时效果、低版本模糊回退、滚动与帧率。
-- [ ] 当前只同步透明度、模糊与 Off 开关；折射强度、边缘高光、触摸光效和色散尚未接入首页共享材质状态。
+### 10.20 S6.3–S6.4 材质参数实时同步与合并验收（2026-11-01）
 
-本步打通设置到首页底栏的参数链路，不代表完整液态玻璃已完成。
+- [x] 在 `ZhixingApp` 提升透明度 / 模糊状态，使用 `rememberSaveable`，并构造统一 `GlassMaterialState`。
+- [x] 将共享材质状态传给生产 `ZhixingLiquidBottomBar`；玻璃表面实时响应状态。
+- [x] 打开 Glass Lab 时从首页读取当前透明度与模糊值；滑块每次变化即时回传到首页状态。
+- [x] 透明度与模糊滑块分别更新自己的字段，互不覆盖对方。
+- [x] Premium / Standard / Lite / Off 预设同步对应参数；Off 将 `enabled` 设为 false，单个玻璃表面走浅色回退且不挂载 Backdrop 采样节点。
+- [x] `GlassMaterialState.enabled` 默认 true；新增单测验证默认开启以及关闭时仍保留透明度 / 模糊值。
+- [x] PR [#22](https://github.com/PaleSquire71029/zhixingapp/pull/22) 已 squash 合并；合并提交：`c473d29d4fb28b1a9c49d46fff79a6c78be3ba86`。
+- [x] Android Build（Run ID `41264097084`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41264097084)。
+- [ ] 当前 `rememberSaveable` 可处理配置变更 / 保存状态，但 DataStore 跨进程重启持久化尚未实现。
+- [ ] Off 时单个玻璃表面不采样；首页宿主目前仍会创建共享 LayerBackdrop，宿主级 Off 优化待后续处理。
+- [ ] 真机连续调节、低版本模糊回退、滚动、帧率、温度和功耗仍待验收。
+
+**下一小步：** S6.5，使用 DataStore 保存并恢复透明度、模糊半径与 Off 开关，支持重置默认值。
+
 ### 10.21 S6.4 将透镜折射接入共享玻璃表面（2026-11-01）
 
 - [x] 扩展 `GlassMaterialState`：增加独立的折射开关与 0–8 dp 折射强度，默认 1.8 dp。
