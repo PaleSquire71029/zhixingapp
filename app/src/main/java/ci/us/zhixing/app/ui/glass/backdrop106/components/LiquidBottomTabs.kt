@@ -4,9 +4,9 @@
  * Ported from Kyant0/AndroidLiquidGlass, Catalog tag 1.0.6
  * (commit 896a94a3ade1cc1a940b92365f942a34971fecda).
  *
- * Modified for Zhixing: package namespace relocated and references to the
- * three ported helper classes redirected to the isolated backdrop106 package.
- * The upstream component layout, gestures and material parameters are retained.
+ * Modified for Zhixing: package namespace and helper references are adapted
+ * to the isolated backdrop106 package. Upstream layout and gesture physics are
+ * retained; material settings are routed through Zhixing's tested parameter map.
  * Source: https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6/catalog
  * SPDX-License-Identifier: Apache-2.0
  */
