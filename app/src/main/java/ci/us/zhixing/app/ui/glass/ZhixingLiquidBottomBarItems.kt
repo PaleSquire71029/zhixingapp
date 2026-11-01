@@ -277,6 +277,9 @@ internal fun ZhixingLiquidBottomBar(
                         drawRect(
                             ZhixingTheme.colors.primaryContainer.copy(alpha = 0.20f),
                         )
+                        if (material.environmentReflectionEnabled) {
+                            drawEnvironmentReflection()
+                        }
                     },
                 )
             } else {
