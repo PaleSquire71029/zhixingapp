@@ -7,52 +7,49 @@ import org.junit.Test
 
 class GlassPerformanceTierTest {
     @Test
-    fun premiumEnablesFullEffectsOnApi33() {
+    fun premiumUsesLiveBackdropAndFullEffectsOnApi33() {
         val config = resolveGlassPerformanceConfig(GlassPerformanceTier.PREMIUM, 33)
 
-        assertTrue(config.dynamicSamplingEnabled)
+        assertTrue(config.backdropEnabled)
         assertEquals(10f, config.blurRadiusDp, 0f)
         assertTrue(config.refractionEnabled)
         assertEquals(3.5f, config.refractionStrengthPx, 0f)
         assertTrue(config.edgeHighlightEnabled)
         assertFalse(config.chromaticDispersionEnabled)
         assertTrue(config.touchFeedbackEnabled)
-        assertTrue(config.backdropCaptureEnabled)
+        assertEquals(0.22f, config.panelOverlayAlpha, 0f)
     }
 
     @Test
-    fun standardUsesModerateEffectsAndStaticSampling() {
+    fun standardUsesModerateLiveGlassEffects() {
         val config = resolveGlassPerformanceConfig(GlassPerformanceTier.STANDARD, 33)
 
-        assertFalse(config.dynamicSamplingEnabled)
+        assertTrue(config.backdropEnabled)
         assertEquals(6f, config.blurRadiusDp, 0f)
         assertTrue(config.refractionEnabled)
         assertEquals(1.8f, config.refractionStrengthPx, 0f)
         assertTrue(config.edgeHighlightEnabled)
         assertFalse(config.chromaticDispersionEnabled)
-        assertTrue(config.backdropCaptureEnabled)
     }
 
     @Test
-    fun liteKeepsOnlyStaticSnapshotAndLightOverlay() {
+    fun liteKeepsLiveBackgroundButDisablesExpensiveEffects() {
         val config = resolveGlassPerformanceConfig(GlassPerformanceTier.LITE, 33)
 
-        assertFalse(config.dynamicSamplingEnabled)
+        assertTrue(config.backdropEnabled)
         assertEquals(0f, config.blurRadiusDp, 0f)
         assertFalse(config.refractionEnabled)
         assertFalse(config.edgeHighlightEnabled)
         assertFalse(config.chromaticDispersionEnabled)
         assertFalse(config.touchFeedbackEnabled)
-        assertTrue(config.backdropCaptureEnabled)
-        assertEquals(0.78f, config.panelOverlayAlpha, 0f)
+        assertEquals(0.52f, config.panelOverlayAlpha, 0f)
     }
 
     @Test
-    fun offDoesNotCaptureOrRunGlassEffects() {
+    fun offUsesOrdinaryLightSurfaceWithoutBackdrop() {
         val config = resolveGlassPerformanceConfig(GlassPerformanceTier.OFF, 35)
 
-        assertFalse(config.backdropCaptureEnabled)
-        assertFalse(config.dynamicSamplingEnabled)
+        assertFalse(config.backdropEnabled)
         assertFalse(config.refractionEnabled)
         assertFalse(config.edgeHighlightEnabled)
         assertFalse(config.chromaticDispersionEnabled)
@@ -70,6 +67,6 @@ class GlassPerformanceTierTest {
         assertEquals(0f, api31.refractionStrengthPx, 0f)
         assertFalse(api32.refractionEnabled)
         assertEquals(6f, api32.blurRadiusDp, 0f)
-        assertTrue(api32.backdropCaptureEnabled)
+        assertTrue(api32.backdropEnabled)
     }
 }

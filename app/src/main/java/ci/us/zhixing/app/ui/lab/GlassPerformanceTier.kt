@@ -1,8 +1,8 @@
 package ci.us.zhixing.app.ui.lab
 
 /**
- * Glass Lab performance presets. CUSTOM is selected after a user changes any
- * individual control; it is not shown as a fifth preset.
+ * Glass Lab performance presets.
+ * CUSTOM is selected after a user changes any individual control.
  */
 internal enum class GlassPerformanceTier {
     PREMIUM,
@@ -13,7 +13,6 @@ internal enum class GlassPerformanceTier {
 }
 
 internal data class GlassPerformanceConfig(
-    val dynamicSamplingEnabled: Boolean,
     val blurRadiusDp: Float,
     val refractionEnabled: Boolean,
     val refractionStrengthPx: Float,
@@ -22,7 +21,7 @@ internal data class GlassPerformanceConfig(
     val chromaticDispersionStrengthPx: Float,
     val touchFeedbackEnabled: Boolean,
     val panelOverlayAlpha: Float,
-    val backdropCaptureEnabled: Boolean,
+    val backdropEnabled: Boolean,
 )
 
 internal fun resolveGlassPerformanceConfig(
@@ -34,7 +33,6 @@ internal fun resolveGlassPerformanceConfig(
 
     return when (tier) {
         GlassPerformanceTier.PREMIUM -> GlassPerformanceConfig(
-            dynamicSamplingEnabled = true,
             blurRadiusDp = if (blurSupported) 10f else 0f,
             refractionEnabled = shaderSupported,
             refractionStrengthPx = if (shaderSupported) 3.5f else 0f,
@@ -42,12 +40,11 @@ internal fun resolveGlassPerformanceConfig(
             chromaticDispersionEnabled = false,
             chromaticDispersionStrengthPx = 0.25f,
             touchFeedbackEnabled = true,
-            panelOverlayAlpha = 0.48f,
-            backdropCaptureEnabled = true,
+            panelOverlayAlpha = 0.22f,
+            backdropEnabled = true,
         )
 
         GlassPerformanceTier.STANDARD -> GlassPerformanceConfig(
-            dynamicSamplingEnabled = false,
             blurRadiusDp = if (blurSupported) 6f else 0f,
             refractionEnabled = shaderSupported,
             refractionStrengthPx = if (shaderSupported) 1.8f else 0f,
@@ -55,12 +52,11 @@ internal fun resolveGlassPerformanceConfig(
             chromaticDispersionEnabled = false,
             chromaticDispersionStrengthPx = 0.25f,
             touchFeedbackEnabled = true,
-            panelOverlayAlpha = 0.60f,
-            backdropCaptureEnabled = true,
+            panelOverlayAlpha = 0.30f,
+            backdropEnabled = true,
         )
 
         GlassPerformanceTier.LITE -> GlassPerformanceConfig(
-            dynamicSamplingEnabled = false,
             blurRadiusDp = 0f,
             refractionEnabled = false,
             refractionStrengthPx = 0f,
@@ -68,12 +64,11 @@ internal fun resolveGlassPerformanceConfig(
             chromaticDispersionEnabled = false,
             chromaticDispersionStrengthPx = 0f,
             touchFeedbackEnabled = false,
-            panelOverlayAlpha = 0.78f,
-            backdropCaptureEnabled = true,
+            panelOverlayAlpha = 0.52f,
+            backdropEnabled = true,
         )
 
         GlassPerformanceTier.OFF -> GlassPerformanceConfig(
-            dynamicSamplingEnabled = false,
             blurRadiusDp = 0f,
             refractionEnabled = false,
             refractionStrengthPx = 0f,
@@ -82,11 +77,10 @@ internal fun resolveGlassPerformanceConfig(
             chromaticDispersionStrengthPx = 0f,
             touchFeedbackEnabled = false,
             panelOverlayAlpha = 0.96f,
-            backdropCaptureEnabled = false,
+            backdropEnabled = false,
         )
 
         GlassPerformanceTier.CUSTOM -> GlassPerformanceConfig(
-            dynamicSamplingEnabled = false,
             blurRadiusDp = 0f,
             refractionEnabled = false,
             refractionStrengthPx = 0f,
@@ -94,8 +88,8 @@ internal fun resolveGlassPerformanceConfig(
             chromaticDispersionEnabled = false,
             chromaticDispersionStrengthPx = 0f,
             touchFeedbackEnabled = false,
-            panelOverlayAlpha = 0.96f,
-            backdropCaptureEnabled = false,
+            panelOverlayAlpha = 0.30f,
+            backdropEnabled = true,
         )
     }
 }
