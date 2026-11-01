@@ -220,7 +220,7 @@ internal fun LiquidSlider(
 
             Box(
                 Modifier
-                    .align(if (isLtr) Alignment.CenterStart else Alignment.CenterEnd)
+                    .align(Alignment.CenterStart)
                     .clip(Capsule())
                     .background(if (enabled) accentColor else accentColor.copy(alpha = 0.35f))
                     .height(6.dp)
