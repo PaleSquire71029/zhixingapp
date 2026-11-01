@@ -12,7 +12,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -45,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -59,6 +59,7 @@ import com.kyant.backdrop.highlight.Highlight
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.drawEnvironmentReflection
+import ci.us.zhixing.app.ui.glass.drawTouchGlow
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -95,7 +96,9 @@ internal fun GlassLabScreen(
     var environmentReflectionEnabled by rememberSaveable {
         mutableStateOf(initialMaterial.environmentReflectionEnabled)
     }
-    var touchFeedbackEnabled by rememberSaveable { mutableStateOf(initialConfig.touchFeedbackEnabled) }
+    var touchFeedbackEnabled by rememberSaveable {
+        mutableStateOf(initialMaterial.touchFeedbackEnabled)
+    }
     var transparencyPercent by rememberSaveable {
         mutableFloatStateOf(initialMaterial.transparencyPercent.toFloat())
     }
@@ -113,6 +116,7 @@ internal fun GlassLabScreen(
         refractionStrengthDp = refractionStrength,
         edgeHighlightEnabled = edgeHighlightEnabled,
         environmentReflectionEnabled = environmentReflectionEnabled,
+        touchFeedbackEnabled = touchFeedbackEnabled,
     )
 
     fun publishMaterial(commit: Boolean = false) {
@@ -131,7 +135,7 @@ internal fun GlassLabScreen(
         refractionStrength = DEFAULT_HOME_GLASS_MATERIAL.refractionStrengthDp
         edgeHighlightEnabled = DEFAULT_HOME_GLASS_MATERIAL.edgeHighlightEnabled
         environmentReflectionEnabled = DEFAULT_HOME_GLASS_MATERIAL.environmentReflectionEnabled
-        touchFeedbackEnabled = initialConfig.touchFeedbackEnabled
+        touchFeedbackEnabled = DEFAULT_HOME_GLASS_MATERIAL.touchFeedbackEnabled
         onMaterialChange(DEFAULT_HOME_GLASS_MATERIAL)
         onMaterialReset()
     }
@@ -448,6 +452,42 @@ internal fun GlassLabScreen(
             }
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = if (touchFeedbackEnabled) "触摸光效与形变 · 开启" else "触摸光效与形变 · 关闭",
+                    style = ZhixingTheme.type.sectionLabel,
+                    color = ZhixingTheme.colors.secondary,
+                )
+                Text(
+                    text = "按压时局部柔光跟随触点，玻璃胶囊轻微压缩回弹，不改变点击范围",
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.onSurfaceVariant,
+                )
+            }
+            TextButton(
+                enabled = backdropEnabled,
+                onClick = {
+                    markCustom()
+                    touchFeedbackEnabled = !touchFeedbackEnabled
+                    publishMaterial(commit = true)
+                },
+            ) {
+                Text(
+                    text = if (touchFeedbackEnabled) "关闭" else "开启",
+                    style = ZhixingTheme.type.featureTitle,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
+        }
+
         GlassPreviewCard(
             backdropEnabled = backdropEnabled,
             lifecycleStarted = isLifecycleStarted,
@@ -524,10 +564,16 @@ private fun GlassPreviewCard(
     shape: Shape,
 ) {
     var pressed by remember { mutableStateOf(false) }
+    var touchPosition by remember { mutableStateOf(Offset.Zero) }
     val pressScale by animateFloatAsState(
         targetValue = if (pressed && touchFeedbackEnabled) 0.992f else 1f,
         animationSpec = tween(if (pressed) 90 else 180),
         label = "liveGlassPressScale",
+    )
+    val touchGlowAlpha by animateFloatAsState(
+        targetValue = if (pressed && touchFeedbackEnabled) 0.24f else 0f,
+        animationSpec = tween(if (pressed) 90 else 190),
+        label = "glassPreviewTouchGlow",
     )
 
     val backdrop = if (backdropEnabled) rememberLayerBackdrop() else null
@@ -586,10 +632,21 @@ private fun GlassPreviewCard(
                     .pointerInput(touchFeedbackEnabled) {
                         if (!touchFeedbackEnabled) return@pointerInput
                         awaitEachGesture {
-                            awaitFirstDown(requireUnconsumed = false)
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            touchPosition = down.position
                             pressed = true
                             try {
-                                waitForUpOrCancellation()
+                                var pointerDown = true
+                                while (pointerDown) {
+                                    val event = awaitPointerEvent()
+                                    val change = event.changes.firstOrNull()
+                                    if (change == null) {
+                                        pointerDown = false
+                                    } else {
+                                        touchPosition = change.position
+                                        pointerDown = change.pressed
+                                    }
+                                }
                             } finally {
                                 pressed = false
                             }
@@ -615,6 +672,9 @@ private fun GlassPreviewCard(
                             drawRect(Color.White.copy(alpha = surfaceOverlayAlpha))
                             if (environmentReflectionEnabled) {
                                 drawEnvironmentReflection()
+                            }
+                            if (touchFeedbackEnabled && touchGlowAlpha > 0.001f) {
+                                drawTouchGlow(touchPosition, touchGlowAlpha)
                             }
                         },
                     ),

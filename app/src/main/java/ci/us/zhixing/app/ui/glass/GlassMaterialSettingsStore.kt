@@ -25,12 +25,13 @@ private val RefractionEnabledKey = booleanPreferencesKey("refraction_enabled")
 private val RefractionStrengthDpKey = floatPreferencesKey("refraction_strength_dp")
 private val EdgeHighlightEnabledKey = booleanPreferencesKey("edge_highlight_enabled")
 private val EnvironmentReflectionEnabledKey = booleanPreferencesKey("environment_reflection_enabled")
+private val TouchFeedbackEnabledKey = booleanPreferencesKey("touch_feedback_enabled")
 
 /**
  * Defaults for the production home navigation material.
  *
  * The home capsule uses a slightly different transparency default from the
- * original Glass Lab preview. All seven material properties are stored
+ * original Glass Lab preview. All eight material properties are stored
  * independently so Off mode does not erase the user's optical settings.
  */
 internal val DEFAULT_HOME_GLASS_MATERIAL = GlassMaterialState(
@@ -41,6 +42,7 @@ internal val DEFAULT_HOME_GLASS_MATERIAL = GlassMaterialState(
     refractionStrengthDp = 1.8f,
     edgeHighlightEnabled = true,
     environmentReflectionEnabled = GlassMaterialState.DEFAULT_ENVIRONMENT_REFLECTION_ENABLED,
+    touchFeedbackEnabled = GlassMaterialState.DEFAULT_TOUCH_FEEDBACK_ENABLED,
 )
 
 /**
@@ -73,6 +75,7 @@ internal class GlassMaterialSettingsStore(
             preferences[RefractionStrengthDpKey] = state.refractionStrengthDp
             preferences[EdgeHighlightEnabledKey] = state.edgeHighlightEnabled
             preferences[EnvironmentReflectionEnabledKey] = state.environmentReflectionEnabled
+            preferences[TouchFeedbackEnabledKey] = state.touchFeedbackEnabled
         }
     }
 
@@ -85,6 +88,7 @@ internal class GlassMaterialSettingsStore(
             preferences.remove(RefractionStrengthDpKey)
             preferences.remove(EdgeHighlightEnabledKey)
             preferences.remove(EnvironmentReflectionEnabledKey)
+            preferences.remove(TouchFeedbackEnabledKey)
         }
     }
 }
@@ -126,6 +130,8 @@ private fun Preferences.toGlassMaterialState(): GlassMaterialState {
         ?: DEFAULT_HOME_GLASS_MATERIAL.edgeHighlightEnabled
     val environmentReflectionEnabled = this[EnvironmentReflectionEnabledKey]
         ?: DEFAULT_HOME_GLASS_MATERIAL.environmentReflectionEnabled
+    val touchFeedbackEnabled = this[TouchFeedbackEnabledKey]
+        ?: DEFAULT_HOME_GLASS_MATERIAL.touchFeedbackEnabled
 
     return GlassMaterialState(
         transparencyPercent = transparency,
@@ -135,5 +141,6 @@ private fun Preferences.toGlassMaterialState(): GlassMaterialState {
         refractionStrengthDp = refractionStrength,
         edgeHighlightEnabled = edgeHighlightEnabled,
         environmentReflectionEnabled = environmentReflectionEnabled,
+        touchFeedbackEnabled = touchFeedbackEnabled,
     )
 }

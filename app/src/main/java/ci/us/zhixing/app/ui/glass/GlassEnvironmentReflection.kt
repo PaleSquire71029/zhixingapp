@@ -65,3 +65,40 @@ internal fun DrawScope.drawEnvironmentReflection() {
         ),
     )
 }
+
+
+/**
+ * A local specular glow driven by the latest pointer position.
+ *
+ * Alpha is animated by the caller; this drawing helper stays stateless and
+ * does not start its own animation or allocate an off-screen bitmap.
+ */
+internal fun DrawScope.drawTouchGlow(
+    center: Offset,
+    alpha: Float,
+) {
+    if (
+        !center.x.isFinite() ||
+        !center.y.isFinite() ||
+        !alpha.isFinite() ||
+        alpha <= 0f ||
+        size.minDimension <= 0f
+    ) return
+
+    val strength = alpha.coerceIn(0f, 0.32f)
+    val radius = size.minDimension * 0.72f
+    drawCircle(
+        brush = Brush.radialGradient(
+            colors = listOf(
+                Color.White.copy(alpha = strength),
+                Color(0xFFB8E7FF).copy(alpha = strength * 0.62f),
+                Color(0xFFC9C8F5).copy(alpha = strength * 0.24f),
+                Color.Transparent,
+            ),
+            center = center,
+            radius = radius,
+        ),
+        radius = radius,
+        center = center,
+    )
+}
