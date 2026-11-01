@@ -591,10 +591,26 @@
 
 ### 10.3 液态玻璃小步执行记录（2026-11-01）
 
-- [x] 复核 PR #5：实时 Backdrop 代码目前位于 `feature/live-backdrop-host`，范围为 GlassLab、性能档位与单测，不包含 MainActivity 正式底栏。
-- [x] 修复 Off 档资源浪费：提交 `468818be06c562c1f5ed72db06f430cda0745b0b`（`fix: disable live backdrop work in Off preset`）。Off 分支不再挂载 `layerBackdrop`，不再运行动态光斑，仅保留静态浅色背景和普通面板。
-- [ ] PR #5 CI：截至本次记录，GitHub 返回的该提交 workflow runs 与 combined statuses 均为空；编译、JUnit、Debug assemble 尚不能标记通过。
-- [ ] PR #5 仍为 open；未合并到 main。尚未修改 MainActivity 正式底部导航，主页面仍使用原 Material 3 NavigationBar。
+- [x] 复核 PR #5：范围限定为 GlassLab、性能档位和单元测试，不修改 MainActivity 正式底栏。
+- [x] 修复 Off 档资源浪费：Off 不创建 LayerBackdrop、不挂载 `layerBackdrop`，不运行动态光斑，仅保留静态浅色背景和普通面板。
+- [x] 修正实时 Backdrop 迁移中的编译问题：foundation.border 导入、Kotlin 格式化字符串插值、Backdrop 类型收窄与非空值作用域。
+- [x] 将 PR #5 分支整理到最新 main 基线上，避免分支落后造成 dirty merge state；保留四个目标文件及主分支期间新增的文档。
+- [x] PR #5 CI 通过并合并；详见 10.4。
 - [x] 已在 `LIQUID_GLASS_REDESIGN_PLAN.md` 新增 S2.1–S7 小步表，将玻璃组件、共享背景宿主、底栏外观、导航回调、Insets、动画和设置分开验收。
+- [ ] 尚未修改 MainActivity 正式底部导航；主页面仍使用原 Material 3 NavigationBar。
+- [ ] 目标真机的动态连续性、滚动/触控、帧率、温度、GPU/内存与耗电验收未执行。
 
-**当前唯一下一步：** 先让 PR #5 的 Android CI 结果可验证；CI 通过后再合并 Stage 2。不要跳过该门槛直接将未经验证的渲染代码接入主页面。
+### 10.4 实时 Backdrop 阶段 2 合并与 CI 验收（2026-11-01）
+
+- [x] PR：[#5 实时 Backdrop 阶段 2](https://github.com/PaleSquire71029/zhixingapp/pull/5)，已合并至 main。
+- [x] 合并提交：`a71acf50a07e6a0c4d992e0e2f6664120a05cdd2`。
+- [x] Android Build #45：Run ID `41256336581`，结果 `success`；[查看完整运行](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41256336581)。
+- [x] 图片资源校验、Gradle 配置、Kotlin 编译、`:app:testDebugUnitTest`、`:app:assembleDebug` 和 `zhixingapp-debug` Artifact 上传均成功。
+- [x] 临时 Artifact ID：`13063297144`；APK 大小 11,248,442 bytes；SHA-256：`60a49cab67e1d5b87c534b84dcb1615c8bede9f0e76de53ae72d2d8c3dab64df`。
+- [x] PR 事件下“提交安装预览 APK 到 main”步骤跳过；本次没有改写 `artifacts/zhixingapp-preview.apk`，也没有向 main 提交新的 APK。
+- [x] `GlassLabScreen.kt` 已移除每秒一次 Bitmap 导出、1 秒采样循环、旧位图绑定 Shader 和相关快照状态；背景和玻璃面板使用同一 Backdrop 绘制链路。
+- [x] 透明程度（0–100%）与背景模糊（0–24 dp）独立调节；Off 路径不创建 Backdrop 对象；API 26–30、31–32、33+ 按能力降级。
+- [x] Premium / Standard / Lite / Off 性能档位单元测试更新并通过。
+- [ ] 真机验收仍待执行；CI 成功不代表目标设备的动画流畅度、温度和耗电已经通过。
+
+**下一小步：** S3.1，仅新增 `GlassMaterialState.kt` 纯 Kotlin 材质参数模型（透明度 0–100%、模糊 0–24 dp、默认值和范围保护）。本步不接 UI、不修改 MainActivity、不新增设置面板。
