@@ -49,7 +49,7 @@ import ci.us.zhixing.app.ui.glass.BackdropHost
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialSettingsStore
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
-import ci.us.zhixing.app.ui.glass.ZhixingLiquidBottomBar
+import ci.us.zhixing.app.ui.glass.ZhixingCatalogBottomBar
 import ci.us.zhixing.app.ui.glass.ZhixingLiquidBottomBarPlacement
 import ci.us.zhixing.app.ui.lab.GlassLabScreen
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
@@ -154,7 +154,7 @@ private fun ZhixingApp(
                     bottomBar = {
                         Box(modifier = Modifier.fillMaxWidth()) {
                             ZhixingLiquidBottomBarPlacement {
-                                ZhixingLiquidBottomBar(
+                                ZhixingCatalogBottomBar(
                                     backdrop = backdrop,
                                     material = glassMaterial,
                                     destinations = destinations,

@@ -20,8 +20,8 @@ import com.kyant.backdrop.Backdrop
  * existing four destination model to the upstream tab component and keeps
  * Zhixing labels, glyphs, colors, and typography.
  *
- * This component is intentionally isolated in P2.2; MainActivity continues
- * to use the current production bottom bar until the later integration step.
+ * MainActivity owns the selected destination and supplies the live
+ * GlassMaterialState; this adapter preserves the caller's navigation state.
  */
 @Composable
 internal fun ZhixingCatalogBottomBar(

@@ -876,8 +876,8 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 | P2.3.2 | 官方拖动切换与边界行为测试 | `ZhixingCatalogBottomBarDragTest.kt` | ✅ 已完成：PR #53 合并，Android Build #196 成功；四项拖动测试源码编译通过，尚未在实体设备执行 |
 | P2.3.3 | RTL 与布局 / 无障碍回归测试 | `ZhixingCatalogBottomBarLayoutAccessibilityTest.kt` | ✅ 已完成：PR #54 合并，Android Build #198 成功；测试源码通过编译，尚未在实体设备执行 |
 | P2.4.1a | 建立材质参数解析器与纯函数测试 | `CatalogBottomBarMaterialParameters.kt` + JUnit | ✅ 已完成：PR #55 合并，Android Build #200 成功；六项参数映射单测通过 |
-| P2.4.1b | 将解析参数接入官方 Catalog 底栏绘制 | `LiquidBottomTabs.kt`、`ZhixingCatalogBottomBar.kt`、`DampedDragAnimation.kt` | 当前隔离分支接入：模糊、折射、色散、高光、环境反射、触摸反馈；透明度同时控制选中遮罩；只用浅色；Off / 折射 Off 不创建隐藏采样层；关闭触摸动效不影响拖动；增加点击和拖动回归测试 |
-| P2.4.2 | 将参数化官方底栏接入首页共享 Backdrop | `MainActivity.kt` 与包装层 | 复用唯一共享 Backdrop、`ZhixingLiquidBottomBarPlacement` 和系统 Insets；保留四项目的地及调用方导航状态 |
+| P2.4.1b | 将解析参数接入官方 Catalog 底栏绘制 | `LiquidBottomTabs.kt`、`ZhixingCatalogBottomBar.kt`、`DampedDragAnimation.kt` | ✅ 已完成：PR #56 合并，Android Build #206 成功；材质设置实际控制绘制与反馈，Off 路径保留点击 / 拖动导航 |
+| P2.4.2 | 将参数化官方底栏接入首页共享 Backdrop | `MainActivity.kt` 与包装层 | 当前分支切换生产底栏调用；复用唯一共享 Backdrop、`ZhixingLiquidBottomBarPlacement`、系统 Insets 与 IME 抬升；selectedIndex 仍由 MainActivity 持有；增加 Activity 级导航回归测试 |
 | P2.4.3 | 集成回归与视觉验收 | Compose 测试 / 目标真机 | 验证设置调整即时生效、横竖屏和 IME 不遮挡、底栏触摸与拖动、材质清晰度与帧率 |
 | P2.5 | 删除旧底栏重复手势与装饰动画 | 旧 ZhixingLiquidBottomBarItems.kt | 只清理官方接管的逻辑，不改业务状态；构建与导航测试通过 |
 | P2.6 | 导航交互与性能验收 | UI 测试 / 真机检查记录 | 点击、拖动、取消、快速切换、横竖屏、系统 Insets、帧率通过后才结束 P2 |
@@ -961,13 +961,13 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 2. P2.3.1 已完成并合入 main（PR #52，merge commit `4578f54fafd0cfc20f5ba0cdc2aabfdce32ae376`）；Android Build #192 成功。
 3. P2.3.2 已完成并合入 main（PR #53，merge commit `54da045b95bcc4e460597d3a92a3e0f748f23b20`）；Android Build #196 成功。
 4. P2.3.3 已完成并合入 main（PR #54，merge commit `7b24af78590abc6de546f34e66f75a2d0bfe57fc`）；Android Build #198 成功。
-5. P2.4.1a 已完成并合入 main（PR #55，merge commit `677b0b0ea9fbcefac5d2e35d2573e9f93b12fac6`）；Android Build #200 成功，六项映射单测通过。
-6. 当前分支 `port/catalog-1.0.6-p2-4-1b-wire-material-params` 正在执行 P2.4.1b：实际接入官方底栏的表面、折射和交互绘制，并验证 Off 路径继续可导航。
-7. P2.4.1b 完成后才进入 P2.4.2 MainActivity 接入；必须继续保留唯一共享 Backdrop、系统 Insets、IME 抬升和四项目的地。
-8. 当前 CI 只编译 `androidTest` 源码，不会启动模拟器执行仪器测试；必须区分源码编译与设备运行验收。
+5. P2.4.1a 已完成并合入 main（PR #55，merge commit `677b0b0ea9fbcefac5d2e35d2573e9f93b12fac6`）；Android Build #200 成功。
+6. P2.4.1b 已完成并合入 main（PR #56，merge commit `25057905dbbe76881f9f7d77e7e62b156ccbd14b`）；Android Build #206 成功。
+7. 当前分支 `port/catalog-1.0.6-p2-4-2-main-activity-integration` 正在执行 P2.4.2：MainActivity 使用 `ZhixingCatalogBottomBar`，保留共享 Backdrop、材质设置、Insets / IME 定位和外部导航状态；Activity 级仪器测试验证四项导航。
+8. P2.4.2 完成后进入 P2.4.3 集成回归与设备视觉验收；当前 CI 只编译 `androidTest`，不会在 Hosted 模拟器执行仪器测试。
 9. 所有步骤继续固定官方 1.0.6 源码、Apache-2.0 归属和固定依赖版本。
 
-**当前仍不修改 MainActivity；生产底栏尚未切换到官方 Catalog 组件。**
+**当前生产底栏正在本分支切换；旧底栏源码仍保留，待 P2.5 单独清理。**
 
 
 
@@ -978,10 +978,11 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 - [x] P2.3.2 PR #53 合并，commit `54da045b95bcc4e460597d3a92a3e0f748f23b20`；Android Build #196（Run ID `41282146320`）全部成功。
 - [x] P2.3.3 PR #54 合并，commit `7b24af78590abc6de546f34e66f75a2d0bfe57fc`；Android Build #198（Run ID `41282327355`）全部成功。
 - [x] P2.4.1a PR #55 合并，commit `677b0b0ea9fbcefac5d2e35d2573e9f93b12fac6`；Android Build #200（Run ID `41282549664`）全部成功。
-- [x] P2.4.1a 六项单测覆盖默认映射、透明度 / 模糊独立、折射强度区间、API 降级、独立开关和 Off 状态。
-- [x] P2.4.1b 分支 `port/catalog-1.0.6-p2-4-1b-wire-material-params` 已建立；官方底栏接入参数解析、真实模糊 / 透镜 / 色散 / 高光 / 环境反射 / 触摸反馈。
-- [x] Off 或折射关闭时跳过隐藏标签采样层；新增仪器测试确保 Off 状态仍可显示和切换四个导航入口。
-- [ ] P2.4.1b 当前等待代码复核与 Android CI；MainActivity 和生产底栏仍保持旧实现。
+- [x] P2.4.1b PR #56 合并，commit `25057905dbbe76881f9f7d77e7e62b156ccbd14b`；Android Build #206（Run ID `41283390026`）全部成功。
+- [x] P2.4.1b 把透明度、模糊、折射、vibrancy、色散、高光、环境反射、触摸反馈接入官方绘制；Off / 无折射跳过隐藏采样层。
+- [x] P2.4.1b 关闭触摸反馈时跳过 press/release 弹簧及高光 Shader，但保留拖动速度采样与吸附；增加 Off / touch feedback disabled 两项拖动测试。
+- [ ] P2.4.2 当前分支 `port/catalog-1.0.6-p2-4-2-main-activity-integration` 将官方底栏接入 MainActivity，并增加 Activity 级导航集成测试。
+
 
 
 
