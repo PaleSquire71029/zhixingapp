@@ -84,9 +84,13 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
     var showGlassLab by rememberSaveable { mutableStateOf(false) }
     var glassTransparencyPercent by rememberSaveable { mutableIntStateOf(68) }
     var glassBlurRadiusDp by rememberSaveable { mutableFloatStateOf(12f) }
+    var glassRefractionEnabled by rememberSaveable { mutableStateOf(true) }
+    var glassRefractionStrengthDp by rememberSaveable { mutableFloatStateOf(1.8f) }
     val glassMaterial = GlassMaterialState(
         transparencyPercent = glassTransparencyPercent,
         blurRadiusDp = glassBlurRadiusDp,
+        refractionEnabled = glassRefractionEnabled,
+        refractionStrengthDp = glassRefractionStrengthDp,
     )
     val destinations = AppDestinations.all
     val selectedDestination = destinations[selectedIndex]
@@ -103,6 +107,8 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
                 onMaterialChange = { material ->
                     glassTransparencyPercent = material.transparencyPercent
                     glassBlurRadiusDp = material.blurRadiusDp
+                    glassRefractionEnabled = material.refractionEnabled
+                    glassRefractionStrengthDp = material.refractionStrengthDp
                 },
             )
         } else {
