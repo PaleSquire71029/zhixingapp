@@ -1,6 +1,8 @@
 package ci.us.zhixing.app.ui.glass
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
@@ -11,6 +13,25 @@ class GlassMaterialStateTest {
 
         assertEquals(78, state.transparencyPercent)
         assertEquals(12f, state.blurRadiusDp, 0f)
+    }
+
+
+    @Test
+    fun glassRenderingIsEnabledByDefault() {
+        assertTrue(GlassMaterialState().enabled)
+    }
+
+    @Test
+    fun disablingGlassKeepsTransparencyAndBlurValuesIndependent() {
+        val state = GlassMaterialState(
+            transparencyPercent = 42,
+            blurRadiusDp = 17f,
+            enabled = false,
+        )
+
+        assertFalse(state.enabled)
+        assertEquals(42, state.transparencyPercent)
+        assertEquals(17f, state.blurRadiusDp, 0f)
     }
 
     @Test
