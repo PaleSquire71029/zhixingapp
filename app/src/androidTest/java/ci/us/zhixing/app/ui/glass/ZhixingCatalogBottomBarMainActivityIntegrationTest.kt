@@ -7,6 +7,9 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -54,6 +57,22 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
             .performClick()
 
         composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
+    }
+
+    @Test
+    fun refractionSettingUsesAccessibleLiquidSwitch() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
+
+        val refractionSwitch = composeRule.onNode(
+            SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch) and
+                hasContentDescription("边缘折射"),
+        )
+        refractionSwitch.assertIsDisplayed()
+        refractionSwitch.assertIsOn()
+        refractionSwitch.performClick()
+        refractionSwitch.assertIsOff()
+        composeRule.onNodeWithText("边缘折射 · 关闭").assertIsDisplayed()
     }
 
     private fun hasTabRole() =
