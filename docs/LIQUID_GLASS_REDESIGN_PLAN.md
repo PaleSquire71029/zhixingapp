@@ -609,3 +609,15 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] 尚未完成目标真机上的材质显示、交互、帧率、发热和耗电验收。
 
 **下一小步：** S3.3，只建立单个 `ZhixingGlassSurface` 基础组件；复用现有 Backdrop 能力并接受材质参数，不实现底栏、不修改 MainActivity。
+
+## 10. S3.3 可复用玻璃表面组件（2026-11-01）
+
+- [x] 新增 `ZhixingGlassSurface.kt`，将 Backdrop 绘制、高光、圆角和浅色覆盖封装为单一可复用表面。
+- [x] Backdrop 由父级提供，组件不自行创建独立背景记录层，便于多个玻璃表面共享一个背景宿主。
+- [x] 透明度只换算为白色覆盖层 Alpha；模糊半径只传入 Backdrop blur 效果，两个参数保持独立。
+- [x] Backdrop 缺失时采用普通浅色表面回退。
+- [x] PR [#7](https://github.com/PaleSquire71029/zhixingapp/pull/7) 已通过 CI 并合并；合并提交：`e6f78a0101369fe65cc3cf930b48da9ace03cfb7`。
+- [x] Android Build #49（Run ID `41260636118`）资源校验、Gradle、JUnit、Kotlin 编译、Debug APK 构建和 Artifact 上传均通过。
+- [ ] 组件尚未接入 MainActivity / 生产主导航；真机材质效果、触控、滚动和性能仍待验证。
+
+**下一小步：** S3.4，为组件补充显式 Off 开关和 API 26–30 / 31+ 能力策略；Off 必须不挂载 `drawBackdrop` 采样节点，并用纯 Kotlin 测试覆盖策略边界。
