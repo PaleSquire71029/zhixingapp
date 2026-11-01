@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import ci.us.zhixing.app.ui.glass.drawEnvironmentReflection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.drawBackdrop
@@ -74,6 +75,9 @@ internal fun ZhixingGlassSurface(
                 },
                 onDrawSurface = {
                     drawRect(Color.White.copy(alpha = overlayAlpha))
+                    if (material.environmentReflectionEnabled) {
+                        drawEnvironmentReflection()
+                    }
                 },
             ),
             content = content,
