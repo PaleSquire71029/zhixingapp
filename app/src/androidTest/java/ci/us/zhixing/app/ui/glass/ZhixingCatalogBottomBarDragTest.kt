@@ -133,10 +133,10 @@ class ZhixingCatalogBottomBarDragTest {
     ) {
         composeRule.onNodeWithTag(BOTTOM_BAR_TAG).performTouchInput {
             val y = center.y
-            down(Offset(size.width * startFraction, y))
+            down(Offset(visibleSize.width * startFraction, y))
             endFractions.forEach { fraction ->
                 moveTo(
-                    Offset(size.width * fraction, y),
+                    Offset(visibleSize.width * fraction, y),
                     delayMillis = delayMillis,
                 )
             }
