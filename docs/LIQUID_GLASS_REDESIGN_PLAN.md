@@ -1060,7 +1060,7 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 | G1 | 统一圆角与层级 Tokens | `ZhixingGlassTokens.kt`，覆盖 12/16/20/24/28/32dp 尺度与基础 motion values | ✅ PR #65 合并，Build #229 成功；四项 Token 单元测试通过 |
 | G2 | 把首页 Hero / Feature 容器改用共享 `ZhixingGlassSurface` | MainActivity 首页内容卡片 | ✅ PR #66 合并，Build #232 成功；Hero 与三条内容面使用同一共享 Backdrop，关闭折射保持文字清晰 |
 | G3 | 移植并适配官方 `LiquidButton` | 首页材质设置入口（首个接入点） | ✅ PR #67 合并，Build #235 成功；官方按钮源码、16dp 圆角适配和启用状态完成 |
-| G4 | 移植官方 `LiquidSlider` / `LiquidToggle` | Glass Lab 各设置控件，按开关 / 滑块分小步迁移 | 🟡 G4.1 已完成：PR #68 将“边缘折射”迁为 LiquidToggle；其它开关与滑块仍待迁移 |
+| G4 | 移植官方 `LiquidSlider` / `LiquidToggle` | Glass Lab 各设置控件，按开关 / 滑块分小步迁移 | 🟡 G4.1、G4.2 已完成；接下来先迁移边缘高光开关，再处理环境反射、触摸反馈和滑块 |
 | G5 | 首页功能入口玻璃化 | 计算、AI、工具、历史入口卡片 | 大小屏、单手触控、文字对比度 |
 | G6 | 统一计算器显示区与键帽 | 显示面板、数字键、运算键、功能键 | 连按 / 长按、输入正确性、帧时间 |
 | G7 | AI / 工具 / 历史页分批迁移 | 搜索、消息输入、附件、筛选与列表操作 | 页面业务逻辑不变，IME 与滚动正常 |
@@ -1077,4 +1077,15 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 - [x] G3：PR #67 合并（commit `e6ba694e3cc2f384156c3a21081127e1c860cb82`）；移植官方 `LiquidButton`，首页“材质设置”入口接入；Android Build #235（Run ID `41292689956`）成功。
 - [x] G4.1：PR #68 合并（commit `0eb46ffb3951cbd4539759b9f039903728aeb509`）；移植官方 `LiquidToggle`，Glass Lab 的“边缘折射”首个切换项改为液态开关，并补充 Switch 状态、点击和禁用语义；Android Build #239（Run ID `41293096869`）成功。
 - [ ] Android CI 只执行 JVM 单测、编译 androidTest 源码和构建 APK；上述 Activity 仪器测试没有在 Hosted 真机 / 模拟器执行。开关实际拖动、读屏操作、光学效果、帧率仍需目标手机验收。
-- [ ] G4.2：色散折射开关；之后再迁移边缘高光、环境反射、触摸反馈等开关与 Slider。
+- [x] G4.2：PR #71 合并（commit `cefb07b22aedf61d3fb29ca9928477671c65418e`）；色散折射改用 LiquidToggle，保留 Android 13+、边缘折射依赖、Off 档禁用、触摸反馈设置与 DataStore 写入；Android Build #245（Run ID `41319607292`）成功。
+- [ ] G4.3：边缘高光开关；之后再迁移环境反射、触摸反馈等开关与 Slider。
+
+
+### 27.1 G4.2 色散折射 LiquidToggle（2026-11-01）
+
+- [x] PR [#71](https://github.com/PaleSquire71029/zhixingapp/pull/71) 已合并；merge commit `cefb07b22aedf61d3fb29ca9928477671c65418e`。
+- [x] Glass Lab “色散折射”切换控件改用 `ZhixingLiquidToggle`；保持原状态字段 `chromaticDispersionEnabled` 和提交逻辑。
+- [x] 继续遵守 Android 13+ 能力门槛、`refractionEnabled` 依赖和全局 Off 性能档位；触摸反馈仍读取统一设置。
+- [x] 仪器测试覆盖：边缘折射关闭时色散开关禁用；开启边缘折射后色散开关可切换；测试结束恢复原设置。
+- [x] Android Build #245（Run ID `41319607292`）成功，Artifact id `13088592972`。
+- [ ] CI 只编译 `androidTest` 源码；真实设备拖动、光学效果和读屏操作仍需手机验收。
