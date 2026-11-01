@@ -29,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,6 +43,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestinations
 import ci.us.zhixing.app.ui.glass.BackdropHost
+import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.ZhixingLiquidBottomBar
 import ci.us.zhixing.app.ui.glass.ZhixingLiquidBottomBarPlacement
 import ci.us.zhixing.app.ui.lab.GlassLabScreen
@@ -80,6 +82,12 @@ class MainActivity : ComponentActivity() {
 private fun ZhixingApp(lifecycle: Lifecycle) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     var showGlassLab by rememberSaveable { mutableStateOf(false) }
+    var glassTransparencyPercent by rememberSaveable { mutableIntStateOf(68) }
+    var glassBlurRadiusDp by rememberSaveable { mutableFloatStateOf(12f) }
+    val glassMaterial = GlassMaterialState(
+        transparencyPercent = glassTransparencyPercent,
+        blurRadiusDp = glassBlurRadiusDp,
+    )
     val destinations = AppDestinations.all
     val selectedDestination = destinations[selectedIndex]
 
@@ -91,6 +99,11 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
             GlassLabScreen(
                 onBack = { showGlassLab = false },
                 lifecycle = lifecycle,
+                initialMaterial = glassMaterial,
+                onMaterialChange = { material ->
+                    glassTransparencyPercent = material.transparencyPercent
+                    glassBlurRadiusDp = material.blurRadiusDp
+                },
             )
         } else {
             BackdropHost(
@@ -104,6 +117,7 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
                             ZhixingLiquidBottomBarPlacement {
                                 ZhixingLiquidBottomBar(
                                     backdrop = backdrop,
+                                    material = glassMaterial,
                                     destinations = destinations,
                                     selectedIndex = selectedIndex,
                                     onDestinationSelected = { selectedIndex = it },
