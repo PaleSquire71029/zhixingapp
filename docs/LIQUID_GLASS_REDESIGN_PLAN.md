@@ -876,7 +876,6 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 | P2.3.2 | 官方拖动切换与边界行为测试 | Compose 仪器测试 | 拖动跨 Tab、快速反向、边界吸附、回调索引；与真机帧率验收分开 |
 | P2.3.3 | RTL 与布局 / 无障碍回归测试 | Compose 仪器测试 | RTL 排列、窄屏文字与触控区域、不重复暴露采样副本 |
 | P2.4 | 将官方底栏接入首页共享 Backdrop | MainActivity.kt 与包装层 | 用官方 LayerBackdrop / CombinedBackdrop；保留现有 Insets、材质设置和四项导航 |
-| P2.4 | 将官方底栏接入首页共享 Backdrop | MainActivity.kt 与包装层 | 用官方 LayerBackdrop / CombinedBackdrop；保留现有 Insets、材质设置和四项导航 |
 | P2.5 | 删除旧底栏重复手势与装饰动画 | 旧 ZhixingLiquidBottomBarItems.kt | 只清理官方接管的逻辑，不改业务状态；构建与导航测试通过 |
 | P2.6 | 导航交互与性能验收 | UI 测试 / 真机检查记录 | 点击、拖动、取消、快速切换、横竖屏、系统 Insets、帧率通过后才结束 P2 |
 | P3 | 移植官方 BackdropDemoScaffold 背景源与对照壁纸 | BackdropHost、drawable、资源声明 | 使用真实可采样背景；先与参考 APK 同壁纸对照，再替换成知行品牌背景 |
