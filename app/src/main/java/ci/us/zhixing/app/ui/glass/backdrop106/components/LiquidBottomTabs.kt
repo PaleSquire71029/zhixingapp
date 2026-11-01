@@ -4,19 +4,21 @@
  * Ported from Kyant0/AndroidLiquidGlass, Catalog tag 1.0.6
  * (commit 896a94a3ade1cc1a940b92365f942a34971fecda).
  *
- * Modified for Zhixing: package namespace relocated and references to the
- * three ported helper classes redirected to the isolated backdrop106 package.
- * The upstream component layout, gestures and material parameters are retained.
+ * Modified for Zhixing: package namespace and helper references are adapted
+ * to the isolated backdrop106 package. Upstream layout and gesture physics are
+ * retained; material settings are routed through Zhixing's tested parameter map.
  * Source: https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6/catalog
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package ci.us.zhixing.app.ui.glass.backdrop106.components
 
+import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -37,6 +39,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -53,6 +56,9 @@ import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import ci.us.zhixing.app.ui.glass.GlassMaterialState
+import ci.us.zhixing.app.ui.glass.drawEnvironmentReflection
+import ci.us.zhixing.app.ui.glass.resolveCatalogBottomBarMaterialParameters
 import ci.us.zhixing.app.ui.glass.backdrop106.DampedDragAnimation
 import ci.us.zhixing.app.ui.glass.backdrop106.InteractiveHighlight
 import com.kyant.backdrop.drawBackdrop
@@ -70,23 +76,33 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 @Composable
-fun LiquidBottomTabs(
+internal fun LiquidBottomTabs(
     selectedTabIndex: () -> Int,
     onTabSelected: (index: Int) -> Unit,
     backdrop: Backdrop,
     tabsCount: Int,
+    material: GlassMaterialState = GlassMaterialState(),
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
-    val isLightTheme = !isSystemInDarkTheme()
-    val accentColor =
-        if (isLightTheme) Color(0xFF0088FF)
-        else Color(0xFF0091FF)
-    val containerColor =
-        if (isLightTheme) Color(0xFFFAFAFA).copy(0.4f)
-        else Color(0xFF121212).copy(0.4f)
+    // Zhixing intentionally uses a light material regardless of system theme.
+    val materialParameters = resolveCatalogBottomBarMaterialParameters(
+        material = material,
+        apiLevel = Build.VERSION.SDK_INT,
+    )
+    val accentColor = Color(0xFF0088FF)
+    val containerColor = Color(0xFFFAFAFA).copy(alpha = materialParameters.overlayAlpha)
 
-    val tabsBackdrop = rememberLayerBackdrop()
+    val tabsBackdrop = if (materialParameters.useRefraction) {
+        rememberLayerBackdrop()
+    } else {
+        null
+    }
+    val selectionBackdrop = if (tabsBackdrop != null) {
+        rememberCombinedBackdrop(backdrop, tabsBackdrop)
+    } else {
+        backdrop
+    }
 
     BoxWithConstraints(
         modifier,
@@ -112,14 +128,15 @@ fun LiquidBottomTabs(
         var currentIndex by remember(selectedTabIndex) {
             mutableIntStateOf(selectedTabIndex())
         }
-        val dampedDragAnimation = remember(animationScope) {
+        val dampedDragAnimation = remember(animationScope, materialParameters.touchFeedbackEnabled) {
             DampedDragAnimation(
                 animationScope = animationScope,
                 initialValue = selectedTabIndex().toFloat(),
                 valueRange = 0f..(tabsCount - 1).toFloat(),
                 visibilityThreshold = 0.001f,
                 initialScale = 1f,
-                pressedScale = 78f / 56f,
+                pressedScale = if (materialParameters.touchFeedbackEnabled) 78f / 56f else 1f,
+                touchFeedbackEnabled = materialParameters.touchFeedbackEnabled,
                 onDragStarted = {},
                 onDragStopped = {
                     val targetIndex = targetValue.fastRoundToInt().fastCoerceIn(0, tabsCount - 1)
@@ -158,87 +175,187 @@ fun LiquidBottomTabs(
                 }
         }
 
-        val interactiveHighlight = remember(animationScope) {
-            InteractiveHighlight(
-                animationScope = animationScope,
-                position = { size, offset ->
-                    Offset(
-                        if (isLtr) (dampedDragAnimation.value + 0.5f) * tabWidth + panelOffset
-                        else size.width - (dampedDragAnimation.value + 0.5f) * tabWidth + panelOffset,
-                        size.height / 2f
-                    )
-                }
+        val interactiveHighlight = if (materialParameters.touchFeedbackEnabled) {
+            remember(animationScope) {
+                InteractiveHighlight(
+                    animationScope = animationScope,
+                    position = { size, offset ->
+                        Offset(
+                            if (isLtr) (dampedDragAnimation.value + 0.5f) * tabWidth + panelOffset
+                            else size.width - (dampedDragAnimation.value + 0.5f) * tabWidth + panelOffset,
+                            size.height / 2f
+                        )
+                    }
+                )
+            }
+        } else {
+            null
+        }
+
+        val pressProgress = if (materialParameters.touchFeedbackEnabled) {
+            dampedDragAnimation.pressProgress
+        } else {
+            0f
+        }
+        val highlightModifier = interactiveHighlight?.modifier ?: Modifier
+        val highlightGestureModifier = interactiveHighlight?.gestureModifier ?: Modifier
+
+        val backgroundSurfaceModifier = if (materialParameters.useBackdropSampling) {
+            Modifier.drawBackdrop(
+                backdrop = backdrop,
+                shape = { Capsule() },
+                effects = {
+                    if (materialParameters.useVibrancy) vibrancy()
+                    if (materialParameters.useBlur) {
+                        blur(materialParameters.blurRadiusDp.dp.toPx())
+                    }
+                    if (materialParameters.useRefraction) {
+                        val lensAmount = 24f.dp.toPx() * materialParameters.refractionScale
+                        lens(lensAmount, lensAmount)
+                    }
+                },
+                layerBlock = {
+                    val scale = lerp(1f, 1f + 16f.dp.toPx() / size.width, pressProgress)
+                    scaleX = scale
+                    scaleY = scale
+                },
+                onDrawSurface = {
+                    drawRect(containerColor)
+                    if (materialParameters.environmentReflectionEnabled) {
+                        drawEnvironmentReflection()
+                    }
+                },
             )
+        } else {
+            Modifier
+                .clip(Capsule())
+                .background(containerColor)
+                .border(1.dp, Color.White.copy(alpha = 0.82f), Capsule())
         }
 
         Row(
             Modifier
-                .graphicsLayer {
-                    translationX = panelOffset
-                }
-                .drawBackdrop(
-                    backdrop = backdrop,
-                    shape = { Capsule() },
-                    effects = {
-                        vibrancy()
-                        blur(8f.dp.toPx())
-                        lens(24f.dp.toPx(), 24f.dp.toPx())
-                    },
-                    layerBlock = {
-                        val progress = dampedDragAnimation.pressProgress
-                        val scale = lerp(1f, 1f + 16f.dp.toPx() / size.width, progress)
-                        scaleX = scale
-                        scaleY = scale
-                    },
-                    onDrawSurface = { drawRect(containerColor) }
-                )
-                .then(interactiveHighlight.modifier)
+                .graphicsLayer { translationX = panelOffset }
+                .then(backgroundSurfaceModifier)
+                .then(highlightModifier)
                 .height(64f.dp)
                 .fillMaxWidth()
                 .padding(4f.dp),
             verticalAlignment = Alignment.CenterVertically,
-            content = content
+            content = content,
         )
 
-        CompositionLocalProvider(
-            LocalLiquidBottomTabScale provides {
-                lerp(1f, 1.2f, dampedDragAnimation.pressProgress)
+        if (materialParameters.useRefraction) {
+            val activeTabsBackdrop = checkNotNull(tabsBackdrop)
+            CompositionLocalProvider(
+                LocalLiquidBottomTabScale provides {
+                    lerp(1f, 1.2f, pressProgress)
+                },
+            ) {
+                Row(
+                    Modifier
+                        .clearAndSetSemantics {}
+                        .alpha(0f)
+                        .layerBackdrop(activeTabsBackdrop)
+                        .graphicsLayer { translationX = panelOffset }
+                        .drawBackdrop(
+                            backdrop = backdrop,
+                            shape = { Capsule() },
+                            effects = {
+                                if (materialParameters.useVibrancy) vibrancy()
+                                if (materialParameters.useBlur) {
+                                    blur(materialParameters.blurRadiusDp.dp.toPx())
+                                }
+                                val lensAmount =
+                                    24f.dp.toPx() * materialParameters.refractionScale * pressProgress
+                                lens(lensAmount, lensAmount)
+                            },
+                            highlight = {
+                                if (materialParameters.edgeHighlightEnabled) {
+                                    Highlight.Default.copy(alpha = pressProgress)
+                                } else {
+                                    null
+                                }
+                            },
+                            onDrawSurface = {
+                                drawRect(containerColor)
+                                if (materialParameters.environmentReflectionEnabled) {
+                                    drawEnvironmentReflection()
+                                }
+                            },
+                        )
+                        .then(highlightModifier)
+                        .height(56f.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 4f.dp)
+                        .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = content,
+                )
             }
-        ) {
-            Row(
-                Modifier
-                    .clearAndSetSemantics {}
-                    .alpha(0f)
-                    .layerBackdrop(tabsBackdrop)
-                    .graphicsLayer {
-                        translationX = panelOffset
+        }
+
+        val selectionSurfaceModifier = if (materialParameters.useBackdropSampling) {
+            Modifier.drawBackdrop(
+                backdrop = selectionBackdrop,
+                shape = { Capsule() },
+                effects = {
+                    if (materialParameters.useRefraction) {
+                        lens(
+                            10f.dp.toPx() * pressProgress * materialParameters.refractionScale,
+                            14f.dp.toPx() * pressProgress * materialParameters.refractionScale,
+                            chromaticAberration = materialParameters.chromaticDispersionEnabled,
+                        )
                     }
-                    .drawBackdrop(
-                        backdrop = backdrop,
-                        shape = { Capsule() },
-                        effects = {
-                            val progress = dampedDragAnimation.pressProgress
-                            vibrancy()
-                            blur(8f.dp.toPx())
-                            lens(
-                                24f.dp.toPx() * progress,
-                                24f.dp.toPx() * progress
-                            )
-                        },
-                        highlight = {
-                            val progress = dampedDragAnimation.pressProgress
-                            Highlight.Default.copy(alpha = progress)
-                        },
-                        onDrawSurface = { drawRect(containerColor) }
+                },
+                highlight = {
+                    if (materialParameters.edgeHighlightEnabled) {
+                        Highlight.Default.copy(alpha = pressProgress)
+                    } else {
+                        null
+                    }
+                },
+                shadow = {
+                    Shadow(alpha = pressProgress)
+                },
+                innerShadow = {
+                    InnerShadow(
+                        radius = 8f.dp * pressProgress,
+                        alpha = pressProgress,
                     )
-                    .then(interactiveHighlight.modifier)
-                    .height(56f.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 4f.dp)
-                    .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
-                verticalAlignment = Alignment.CenterVertically,
-                content = content
+                },
+                layerBlock = {
+                    if (materialParameters.touchFeedbackEnabled) {
+                        scaleX = dampedDragAnimation.scaleX
+                        scaleY = dampedDragAnimation.scaleY
+                        val velocity = dampedDragAnimation.velocity / 10f
+                        scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
+                        scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
+                    } else {
+                        scaleX = 1f
+                        scaleY = 1f
+                    }
+                },
+                onDrawSurface = {
+                    drawRect(
+                        Color.Black.copy(alpha = 0.1f * materialParameters.overlayAlpha),
+                        alpha = 1f - pressProgress,
+                    )
+                    drawRect(
+                        Color.Black.copy(
+                            alpha = 0.03f * pressProgress * materialParameters.overlayAlpha,
+                        ),
+                    )
+                    if (materialParameters.environmentReflectionEnabled) {
+                        drawEnvironmentReflection()
+                    }
+                },
             )
+        } else {
+            Modifier
+                .clip(Capsule())
+                .background(Color.White.copy(alpha = materialParameters.overlayAlpha * 0.72f))
+                .border(0.75.dp, Color.White.copy(alpha = 0.92f), Capsule())
         }
 
         Box(
@@ -249,53 +366,11 @@ fun LiquidBottomTabs(
                         if (isLtr) dampedDragAnimation.value * tabWidth + panelOffset
                         else size.width - (dampedDragAnimation.value + 1f) * tabWidth + panelOffset
                 }
-                .then(interactiveHighlight.gestureModifier)
+                .then(highlightGestureModifier)
                 .then(dampedDragAnimation.modifier)
-                .drawBackdrop(
-                    backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
-                    shape = { Capsule() },
-                    effects = {
-                        val progress = dampedDragAnimation.pressProgress
-                        lens(
-                            10f.dp.toPx() * progress,
-                            14f.dp.toPx() * progress,
-                            chromaticAberration = true
-                        )
-                    },
-                    highlight = {
-                        val progress = dampedDragAnimation.pressProgress
-                        Highlight.Default.copy(alpha = progress)
-                    },
-                    shadow = {
-                        val progress = dampedDragAnimation.pressProgress
-                        Shadow(alpha = progress)
-                    },
-                    innerShadow = {
-                        val progress = dampedDragAnimation.pressProgress
-                        InnerShadow(
-                            radius = 8f.dp * progress,
-                            alpha = progress
-                        )
-                    },
-                    layerBlock = {
-                        scaleX = dampedDragAnimation.scaleX
-                        scaleY = dampedDragAnimation.scaleY
-                        val velocity = dampedDragAnimation.velocity / 10f
-                        scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
-                        scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
-                    },
-                    onDrawSurface = {
-                        val progress = dampedDragAnimation.pressProgress
-                        drawRect(
-                            if (isLightTheme) Color.Black.copy(0.1f)
-                            else Color.White.copy(0.1f),
-                            alpha = 1f - progress
-                        )
-                        drawRect(Color.Black.copy(alpha = 0.03f * progress))
-                    }
-                )
+                .then(selectionSurfaceModifier)
                 .height(56f.dp)
-                .fillMaxWidth(1f / tabsCount)
+                .fillMaxWidth(1f / tabsCount),
         )
     }
 }

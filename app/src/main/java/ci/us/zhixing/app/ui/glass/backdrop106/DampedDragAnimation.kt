@@ -5,8 +5,8 @@
  * (commit 896a94a3ade1cc1a940b92365f942a34971fecda).
  * Original package: com.kyant.backdrop.catalog.utils
  *
- * Modified for Zhixing: package namespace relocated only. The upstream
- * animation, gesture, velocity, cancellation, and shader logic is retained.
+ * Modified for Zhixing: package namespace relocated and optional touch-only
+ * press animation can be disabled while retaining the original drag physics.
  * Source: https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6/catalog
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -36,6 +36,7 @@ class DampedDragAnimation(
     val visibilityThreshold: Float,
     val initialScale: Float,
     val pressedScale: Float,
+    private val touchFeedbackEnabled: Boolean = true,
     val onDragStarted: DampedDragAnimation.(position: Offset) -> Unit,
     val onDragStopped: DampedDragAnimation.() -> Unit,
     val onDrag: DampedDragAnimation.(size: IntSize, dragAmount: Offset) -> Unit,
@@ -78,16 +79,17 @@ class DampedDragAnimation(
     val modifier: Modifier = Modifier.pointerInput(Unit) {
         inspectDragGestures(
             onDragStart = { down ->
+                velocityTracker.resetTracking()
                 onDragStarted(down.position)
-                press()
+                if (touchFeedbackEnabled) press()
             },
             onDragEnd = {
                 onDragStopped()
-                release()
+                if (touchFeedbackEnabled) release()
             },
             onDragCancel = {
                 onDragStopped()
-                release()
+                if (touchFeedbackEnabled) release()
             }
         ) { change, dragAmount ->
             onDrag(size, dragAmount)
@@ -128,13 +130,13 @@ class DampedDragAnimation(
     fun animateToValue(value: Float) {
         animationScope.launch {
             mutatorMutex.mutate {
-                press()
+                if (touchFeedbackEnabled) press()
                 val targetValue = value.coerceIn(valueRange)
                 launch { valueAnimation.animateTo(targetValue, valueAnimationSpec) }
                 if (velocity != 0f) {
                     launch { velocityAnimation.animateTo(0f, velocityAnimationSpec) }
                 }
-                release()
+                if (touchFeedbackEnabled) release()
             }
         }
     }

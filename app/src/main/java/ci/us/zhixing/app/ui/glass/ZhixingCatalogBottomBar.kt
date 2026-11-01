@@ -29,6 +29,7 @@ internal fun ZhixingCatalogBottomBar(
     destinations: List<AppDestination>,
     selectedIndex: Int,
     onDestinationSelected: (Int) -> Unit,
+    material: GlassMaterialState = GlassMaterialState(),
     modifier: Modifier = Modifier,
 ) {
     require(destinations.isNotEmpty()) {
@@ -43,6 +44,7 @@ internal fun ZhixingCatalogBottomBar(
         onTabSelected = onDestinationSelected,
         backdrop = backdrop,
         tabsCount = destinations.size,
+        material = material,
         modifier = modifier,
     ) {
         destinations.forEachIndexed { index, destination ->
