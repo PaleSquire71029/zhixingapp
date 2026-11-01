@@ -1268,3 +1268,12 @@
 - [x] 未修改生产 Insets 辅助函数、MainActivity、导航状态或依赖；本步骤只新增 instrumentation tests。
 - [ ] Android CI 待验证；工作流只编译 `androidTest` 源码，不会在 Hosted 模拟器执行这些设备相关用例。
 - [ ] 真实导航栏高度、输入法窗口行为、横竖屏视觉和窄屏触控仍需目标设备验收。
+
+### P2.4.3b IME / Insets 与横竖屏回归测试（已合并，2026-11-01）
+
+- [x] 新增 `ZhixingCatalogBottomBarInsetsOrientationTest.kt`，覆盖 IME 显示期间底栏位置、输入法收起后的可访问性，以及横屏 / 竖屏切换后的四个 Tab。
+- [x] 修正 Compose 状态委托、IME Insets 和测试规则 API 的编译问题；测试文件单独迭代，未改生产代码。
+- [x] PR [#60](https://github.com/PaleSquire71029/zhixingapp/pull/60) 已 squash 合并；merge commit：`690cdaa7147213803620f55410081e1a47acf325`。
+- [x] Android Build #221（Run ID `41288408310`）全部成功：资源校验、JUnit、androidTest Kotlin 编译、Debug APK 构建和 Artifact 上传。
+- [ ] 重要限制：CI 没有启动 Android 模拟器执行仪器测试；IME 实际避让、方向切换行为仍需真机检查。
+- [ ] 下一步 P2.4.3c：真机检查透明度 / 模糊独立性、折射 / 色散 / 高光、点击与拖动动画、IME / Insets、横竖屏、帧率 / 温升 / 耗电。完成前不清理旧底栏回滚实现。
