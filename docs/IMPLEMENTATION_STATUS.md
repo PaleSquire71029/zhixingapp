@@ -1102,3 +1102,20 @@
 - [ ] PR / CI 待执行；真机检查快速甩动、慢速拖动、突然反向、不同刷新率下拉伸表现与帧率。
 
 本步先把真实速度引入局部弹性形变；尚未引入完整阻尼跟手、松手惯性或 iOS 式流体质量传播。
+
+
+### 10.42 参考 APK 对照后改为直接移植官方 Catalog（2026-11-01）
+
+- [x] 检查用户上传的参考 APK：包名为 `com.kyant.backdrop.catalog`，版本为 `1.0.0`。
+- [x] 对照 Kyant0/AndroidLiquidGlass tag `1.0.6`（commit `896a94a3ade1cc1a940b92365f942a34971fecda`）：Catalog Gradle 配置的 applicationId / versionName / compileSdk 与参考 APK 相符。
+- [x] 确认官方 Catalog 底栏完整使用 `LiquidBottomTabs`、`LiquidBottomTab`、`DampedDragAnimation`、`InteractiveHighlight`、`DragGestureInspector`，以及 LayerBackdrop / CombinedBackdrop 双层采样；不是只使用单个 lens。
+- [x] 确认知行 App 当前已依赖 `io.github.kyant0:backdrop:1.0.6`；本轮选择直接移植同版本 Catalog 组件，不升级到 2.x，不复制整个 Demo App。
+- [x] 确认上游 Apache-2.0 许可证；移植时需保留原版权声明、LICENSE，并标注修改来源。
+- [x] PR [#47](https://github.com/PaleSquire71029/zhixingapp/pull/47) 已合并（提交 `8325ddfbe9b2c217f05ea4fab670a1eb3b024f5f`，Android Build #167 成功）；该自研速度形变仅为历史原型，后续由官方阻尼动画统一接管。
+- [x] PR [#48](https://github.com/PaleSquire71029/zhixingapp/pull/48) 在参考 APK 对照后关闭，未合并；不把其中单独 Spring-follow 实现作为后续基线。
+- [x] 更新专项计划第 25 节，锁定官方 tag 1.0.6，并明确 P1–P6 直接移植步骤。
+- [ ] P1：搬入官方辅助类（DampedDragAnimation、InteractiveHighlight、DragGestureInspector），保留 Apache 版权头；只新增文件，不改生产 UI。
+- [ ] 暂停继续增加自研 VelocityTracker、拖动尾迹、独立 Spring、装饰性反射等与官方组件重复的实现。
+- [ ] 仍需在目标 Android 真机对比参考 APK：背景、边缘折射、色散、触摸高光、拖动响应、帧率、温升与耗电。
+
+**当前下一步：** P1，直接移植官方三个辅助类与手势识别工具；CI 通过后才进入 P2 底栏组件替换。
