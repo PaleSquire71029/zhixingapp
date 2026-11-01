@@ -876,7 +876,7 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 | P2.3.2 | 官方拖动切换与边界行为测试 | `ZhixingCatalogBottomBarDragTest.kt` | ✅ 已完成：PR #53 合并，Android Build #196 成功；四项拖动测试源码编译通过，尚未在实体设备执行 |
 | P2.3.3 | RTL 与布局 / 无障碍回归测试 | `ZhixingCatalogBottomBarLayoutAccessibilityTest.kt` | ✅ 已完成：PR #54 合并，Android Build #198 成功；测试源码通过编译，尚未在实体设备执行 |
 | P2.4.1a | 建立材质参数解析器与纯函数测试 | `CatalogBottomBarMaterialParameters.kt` + JUnit | ✅ 已完成：PR #55 合并，Android Build #200 成功；六项参数映射单测通过 |
-| P2.4.1b | 将解析参数接入官方 Catalog 底栏绘制 | `LiquidBottomTabs.kt`、`ZhixingCatalogBottomBar.kt` | 当前隔离分支接入：模糊、折射、色散、高光、环境反射、触摸反馈；玻璃 Off / 折射 Off 不创建隐藏采样层；增加 Off 状态导航测试 |
+| P2.4.1b | 将解析参数接入官方 Catalog 底栏绘制 | `LiquidBottomTabs.kt`、`ZhixingCatalogBottomBar.kt`、`DampedDragAnimation.kt` | 当前隔离分支接入：模糊、折射、色散、高光、环境反射、触摸反馈；透明度同时控制选中遮罩；只用浅色；Off / 折射 Off 不创建隐藏采样层；关闭触摸动效不影响拖动；增加点击和拖动回归测试 |
 | P2.4.2 | 将参数化官方底栏接入首页共享 Backdrop | `MainActivity.kt` 与包装层 | 复用唯一共享 Backdrop、`ZhixingLiquidBottomBarPlacement` 和系统 Insets；保留四项目的地及调用方导航状态 |
 | P2.4.3 | 集成回归与视觉验收 | Compose 测试 / 目标真机 | 验证设置调整即时生效、横竖屏和 IME 不遮挡、底栏触摸与拖动、材质清晰度与帧率 |
 | P2.5 | 删除旧底栏重复手势与装饰动画 | 旧 ZhixingLiquidBottomBarItems.kt | 只清理官方接管的逻辑，不改业务状态；构建与导航测试通过 |
