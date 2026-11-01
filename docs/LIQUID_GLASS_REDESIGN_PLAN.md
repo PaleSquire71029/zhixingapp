@@ -540,7 +540,7 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 
 | 小步 | 只做什么 | 修改范围 | 完成条件 |
 |---|---|---|---|
-| S5.1 | 创建无动画的悬浮胶囊底栏外形 | 新增 ZhixingLiquidBottomBar.kt | 浅色玻璃外观、正确圆角和描边，暂不改主页面 |
+| S5.1 | 创建无动画的悬浮胶囊底栏外形 | 新增 ZhixingLiquidBottomBar.kt | ✅ 完成：浅色玻璃外观、胶囊圆角和双层细描边；暂不改主页面 |
 | S5.2 | 迁移四个导航项及点击回调 | 同一底栏文件与导航测试 | 计算、知行AI、工具、历史四个入口和选中状态正确 |
 | S5.3 | 处理悬浮位置与系统 Insets | 底栏与 MainActivity | 手势区域不遮挡，底栏不贴屏幕边缘，内容不被盖住 |
 | S5.4 | 单独添加选中胶囊的连续位移动画 | 底栏文件 | 快速连续点击时不跳位、不重叠、不改变触控命中 |
@@ -658,3 +658,16 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] 尚未完成真机状态栏 / 手势 Insets、滚动、背景采样显示和发热耗电验收。
 
 **当前小步：** S4.3，增加 Android Compose 仪器测试，验证两个玻璃表面共享同一个 Backdrop，并确认前景点击可到达控件；背景像素采样和真实设备帧率仍需物理设备验收。
+
+## 14. S5.1 悬浮底栏胶囊外壳（2026-11-01）
+
+- [x] 新增 `ZhixingLiquidBottomBar.kt`，提供独立的 `ZhixingLiquidBottomBarSurface`。
+- [x] 使用 `RoundedCornerShape(percent = 50)` 建立胶囊轮廓，复用 `ZhixingGlassSurface` 与父级共享 Backdrop。
+- [x] 增加两层细描边：柔白外沿与低对比冷色内沿；保留玻璃表面的高光和浅色覆盖。
+- [x] 首轮 CI 因错误导入 `drawRoundRect` 失败；移除无效导入后第二轮 CI 通过。
+- [x] PR [#12](https://github.com/PaleSquire71029/zhixingapp/pull/12) 已通过 CI 并 squash 合并；合并提交：`f57991f10976e0ca62e9c41454ee63f15e4c865a`。
+- [x] Android Build #57（Run ID `41261908712`）资源检查、Gradle、JUnit、Kotlin 编译、Debug APK 构建和 Artifact 上传均成功。
+- [ ] 该组件尚未接入首页；导航项、选中态、悬浮位置、系统 Insets、动画和真机显示仍由 S5.2–S6 分步完成。
+- [ ] S4.3 PR #11 的模拟器交互测试仍在独立 CI 中运行，尚未据此标记通过。
+
+**下一小步：** S5.2，在独立组件中迁移四个导航项和点击回调，并覆盖选中状态；不接入 MainActivity、不添加位移动画。
