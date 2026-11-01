@@ -874,8 +874,9 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 | P2.2 | 建立 Zhixing 官方底栏包装层 | 新增 ZhixingCatalogBottomBar.kt | ✅ 已完成：PR #51 合并（commit `ce7539907a666db829de3c32b5c88228e39bd5bb`），Android Build #185 成功；生产 UI 未切换 |
 | P2.3.1 | 底栏语义、标签与调用方状态测试 | `ZhixingCatalogBottomBarSemanticsTest.kt` | ✅ 已完成：PR #52 合并，Android Build #192 成功；仪器测试源码完成编译，尚未在实体设备执行 |
 | P2.3.2 | 官方拖动切换与边界行为测试 | `ZhixingCatalogBottomBarDragTest.kt` | ✅ 已完成：PR #53 合并，Android Build #196 成功；四项拖动测试源码编译通过，尚未在实体设备执行 |
-| P2.3.3 | RTL 与布局 / 无障碍回归测试 | `ZhixingCatalogBottomBarLayoutAccessibilityTest.kt` | 当前分支新增三项：RTL 顺序、240dp 窄屏可见边界、无障碍树恰好四个 Tab；等待 CI 编译 |
-| P2.4.1 | 将官方底栏材质参数开放并映射知行设置 | `LiquidBottomTabs.kt`、`ZhixingCatalogBottomBar.kt` | 透明度 / 模糊 / 折射强度 / 色散 / 触摸反馈分别映射到现有 `GlassMaterialState`；保留上游 1.0.6 默认视觉基线，不让设置成为无效 UI |
+| P2.3.3 | RTL 与布局 / 无障碍回归测试 | `ZhixingCatalogBottomBarLayoutAccessibilityTest.kt` | ✅ 已完成：PR #54 合并，Android Build #198 成功；测试源码通过编译，尚未在实体设备执行 |
+| P2.4.1a | 建立材质参数解析器与纯函数测试 | `CatalogBottomBarMaterialParameters.kt` + JUnit | 当前隔离分支新增：透明度 / 模糊独立映射、折射比例、API 能力降级、Off / 色散 / 高光 / 反射 / 触摸开关 |
+| P2.4.1b | 将解析参数接入官方 Catalog 底栏绘制 | `LiquidBottomTabs.kt`、`ZhixingCatalogBottomBar.kt` | 实际控制 8dp 模糊、24dp 基准透镜、色散、高光、环境反射和触摸反馈；Off 不创建无用采样效果 |
 | P2.4.2 | 将参数化官方底栏接入首页共享 Backdrop | `MainActivity.kt` 与包装层 | 复用唯一共享 Backdrop、`ZhixingLiquidBottomBarPlacement` 和系统 Insets；保留四项目的地及调用方导航状态 |
 | P2.4.3 | 集成回归与视觉验收 | Compose 测试 / 目标真机 | 验证设置调整即时生效、横竖屏和 IME 不遮挡、底栏触摸与拖动、材质清晰度与帧率 |
 | P2.5 | 删除旧底栏重复手势与装饰动画 | 旧 ZhixingLiquidBottomBarItems.kt | 只清理官方接管的逻辑，不改业务状态；构建与导航测试通过 |
@@ -959,10 +960,10 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 1. P1、P2.1、P2.2 已完成并合入 main；PR #51 对应 Android Build #185 成功。
 2. P2.3.1 已完成并合入 main（PR #52，merge commit `4578f54fafd0cfc20f5ba0cdc2aabfdce32ae376`）；Android Build #192 成功。
 3. P2.3.2 已完成并合入 main（PR #53，merge commit `54da045b95bcc4e460597d3a92a3e0f748f23b20`）；Android Build #196 成功。
-4. 当前分支 `port/catalog-1.0.6-p2-3-3-rtl-accessibility-tests` 正在执行 P2.3.3：RTL 顺序、窄屏可见边界和隐藏采样层无障碍节点计数。
-5. 当前 CI 只编译 `androidTest` 源码，不会启动模拟器执行仪器测试；必须区分“测试源码编译通过”与“设备交互通过”。
-6. P2.3.3 完成后，按 P2.4.1 材质参数映射、P2.4.2 首页接入、P2.4.3 集成验收的顺序继续。
-7. P2.4.1 必须保证当前 `GlassMaterialState` 的透明度、模糊、折射、色散、触摸反馈都有真实效果映射，不能只保留设置 UI 而让官方组件参数写死。
+4. P2.3.3 已完成并合入 main（PR #54，merge commit `7b24af78590abc6de546f34e66f75a2d0bfe57fc`）；Android Build #198 成功。
+5. 当前分支 `port/catalog-1.0.6-p2-4-1a-material-resolver` 正在执行 P2.4.1a：建立纯函数材质参数映射，测试透明度 / 模糊独立性、折射尺度与 Android API 能力。
+6. P2.4.1a 合并后，再做 P2.4.1b：将解析结果接入官方 Catalog 底栏绘制，验证所有设置确实控制真实材质；然后才进入 P2.4.2 MainActivity 接入。
+7. 当前 CI 只编译 `androidTest` 源码，不会启动模拟器执行仪器测试；必须区分源码编译与设备运行验收。
 8. 所有步骤继续固定官方 1.0.6 源码、Apache-2.0 归属和固定依赖版本。
 
 **当前仍不修改 MainActivity；生产底栏尚未切换到官方 Catalog 组件。**
@@ -974,8 +975,9 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 - [x] P2.2 PR #51 合并，commit `ce7539907a666db829de3c32b5c88228e39bd5bb`；Android Build #185（Run ID `41280875247`）全部成功。
 - [x] P2.3.1 PR #52 合并，commit `4578f54fafd0cfc20f5ba0cdc2aabfdce32ae376`；Android Build #192（Run ID `41281478165`）全部成功。
 - [x] P2.3.2 PR #53 合并，commit `54da045b95bcc4e460597d3a92a3e0f748f23b20`；Android Build #196（Run ID `41282146320`）全部成功。
-- [x] P2.3.2 新增四项拖动测试：左右跨两项、快速反向后吸附、最左边界钳制；首次 CI 发现触摸作用域没有 `size`，已改用 `visibleSize.width`。
-- [x] P2.3.2 的仪器测试源码通过 Kotlin 编译；CI 未在 Hosted 模拟器运行手势，仍需真机验证响应与动画。
-- [x] P2.3.3 分支 `port/catalog-1.0.6-p2-3-3-rtl-accessibility-tests` 已建立，新增 RTL、窄屏和无障碍树三项测试。
-- [ ] P2.3.3 当前等待 CI；生产 MainActivity 仍未切换底栏。
+- [x] P2.3.3 PR #54 合并，commit `7b24af78590abc6de546f34e66f75a2d0bfe57fc`；Android Build #198（Run ID `41282327355`）全部成功。
+- [x] P2.3 已完成三组测试源码：Tab 语义 / 点击回调、真实拖动注入场景、RTL / 窄屏 / 无障碍树。
+- [ ] 当前 P2.4.1a 分支 `port/catalog-1.0.6-p2-4-1a-material-resolver` 新增材质解析器及六项 JUnit 测试，等待 CI。
+- [ ] P2.4.1b 尚未开始；MainActivity 和生产底栏仍保持旧实现。
+
 
