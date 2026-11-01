@@ -1124,16 +1124,11 @@
 ### 10.43 扩大液态玻璃覆盖范围与动画复刻计划（2026-11-01）
 
 - [x] 按用户新要求，将目标从“只有底栏玻璃”扩大为“首页及后续主要页面的大部分交互元素和主要容器采用液态玻璃或立体化浅色材质”。
-- [x] 在专项计划第 25.6 节增加全局 Z0–Z4 空间层级：背景、内容承载层、控件层、浮动层和面板层。
-- [x] 增加元素覆盖矩阵：品牌 / 顶栏、首页功能卡片、底栏、计算器显示区与键帽、科学 / 化学工具、AI 消息与输入区、工具列表、历史、设置 / 弹窗和图表浮层。
-- [x] 增加动画复刻清单：按压、拖动、选中、浮层进出、页面转场、卡片状态、开关 / 滑块、键帽、AI 对话和克制视差。
-- [x] 明确动画和材质必须使用统一 motion / elevation tokens；优先直接复用 Catalog 1.0.6 的现成源码，缺失的页面动效才由知行补齐。
-- [x] 明确不是把文字 Glyph 和公式笔画模糊化；大部分容器和交互表面采用玻璃，但高密度内容保持清晰、可读。
-- [x] 在专项计划第 25.8 节写明下次对话直接从 P1 开始执行；本次不改 Android 源码、不构建 APK。
-- [ ] 下次对话执行 P1：移植官方 DampedDragAnimation、InteractiveHighlight、DragGestureInspector，保留 Apache-2.0 版权头。
-- [ ] 后续依次完成 P2–P9：官方底栏、背景源、材质层级、官方控件、首页广泛覆盖、动画系统、业务页规范和真机对照。
+- [x] 在专项计划第 25.6 节增加全局 Z0–Z4 空间层级、全页面元素覆盖矩阵与统一动画复刻清单。
+- [x] 明确优先直接复用 Catalog 1.0.6 的源码；文字、数学公式及高密度内容必须清晰可读。
+- [x] 本节初版执行入口已由 10.44–10.48 的实际实施记录取代；当前执行入口统一以文档第 25.8 节及本账本最新编号为准。
 
-**当前下一步：** 下次会话从专项计划第 25.8 节直接进入 P1，不再重新讨论路线。
+**当前下一步：** P2.3.2 官方底栏拖动交互测试；生产 MainActivity 仍不切换。
 
 
 ### 10.44 P1 官方 Catalog 1.0.6 辅助类移植完成（2026-11-01）
@@ -1170,12 +1165,30 @@
 - [ ] 生产 UI 未切换；官方组件真机折射、触摸、拖动和帧率验收仍在后续步骤。
 
 
-### 10.47 P2.3.1 官方底栏语义与调用方状态测试（代码完成，待 CI，2026-11-01）
+### 10.47 P2.3.1 官方底栏语义与调用方状态测试（已合并，2026-11-01）
 
 - [x] 新增 `ZhixingCatalogBottomBarSemanticsTest.kt`，使用现有 `createAndroidComposeRule<ComponentActivity>()` 和真实 `BackdropHost` 挂载适配层。
 - [x] 覆盖四个 Tab 均暴露 `Role.Tab`、原中文标签可见、选中态只跟随传入的 selectedIndex。
 - [x] 覆盖点击“工具”后回调更新外部选中索引，以及外部直接切换到“历史”时语义同步变化。
 - [x] 测试不改生产组件、不改导航模型、不改 MainActivity，也不引入额外依赖。
-- [x] 首次 Android Build #188 暴露 Compose UI Test API 使用错误：移除不存在的 `hasRole` 及不需要的 provider member 导入，改用 `SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)`；修正后重新触发 CI。
-- [ ] 修正后的最新 Android CI 待执行 / 验证；当前工作流仅编译 `androidTest`，不会在 Hosted 模拟器上运行仪器测试。不得把源码编译通过描述为测试已执行。
-- [ ] P2.3.2 继续覆盖拖动切换和边界吸附；P2.3.3 覆盖 RTL、窄屏和采样副本无障碍回归。
+- [x] 首次 Android Build #188 暴露 Compose UI Test API 使用错误；改用 `SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)` 后修复。
+- [x] PR [#52](https://github.com/PaleSquire71029/zhixingapp/pull/52) 已 squash 合并；merge commit：`4578f54fafd0cfc20f5ba0cdc2aabfdce32ae376`。
+- [x] Android Build #192（Run ID `41281478165`）全部成功：资源校验、JUnit、androidTest Kotlin 编译、Debug APK 构建和 Artifact 上传。
+- [ ] CI 工作流仅编译 `androidTest`，不会在 Hosted 模拟器执行仪器测试；设备交互、视觉和性能仍待实机验证。
+
+
+### 10.48 P2.3.2 官方底栏拖动与边界测试（代码已建立，待 CI，2026-11-01）
+
+- [x] 建立隔离分支 `port/catalog-1.0.6-p2-3-2-drag-tests`，未改 MainActivity 或生产底栏。
+- [x] 新增 `ZhixingCatalogBottomBarDragTest.kt`，通过 `performTouchInput` 在真实共享 Backdrop 容器上注入水平拖动。
+- [x] 覆盖从“计算”向右跨两项到“工具”、从“历史”向左跨两项到“知行AI”。
+- [x] 覆盖拖动中快速反向后根据最终位置吸附，以及拖至最左边界时索引保持为 0。
+- [ ] 当前等待 Android CI；工作流会编译仪器测试源码，但不会在 Hosted 模拟器执行拖动测试。实际触摸响应和吸附动画必须在目标 Android 设备验收。
+- [ ] P2.3.3 继续覆盖 RTL、窄屏触控范围与隐藏采样副本的无障碍树。
+
+### 10.49 P2.4 材质设置与首页接入拆分约束（计划更新，2026-11-01）
+
+- [x] 将 P2.4 拆为 2.4.1 参数映射、2.4.2 MainActivity 接入、2.4.3 集成验收。
+- [x] 明确官方 1.0.6 底栏的 8dp blur、24dp lens 与固定表面 alpha 不能覆盖知行原有 DataStore 设置；切换生产 UI 前必须将透明度、模糊、折射、色散和触摸反馈逐项接入 `GlassMaterialState`。
+- [x] 明确首页接入必须复用唯一共享 Backdrop 和 `ZhixingLiquidBottomBarPlacement`，保持现有系统 Insets、IME 抬升和四项目的地。
+- [ ] P2.4 尚未开始；当前生产底栏仍保持旧实现，避免用户材质设置在迁移中失效。
