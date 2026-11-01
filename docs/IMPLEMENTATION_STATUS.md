@@ -736,3 +736,18 @@
 - [ ] S4.3 PR #11 模拟器交互验证仍独立等待 CI 结果。
 
 **下一小步：** S5.3，单独处理底栏悬浮位置与系统 Insets，不接入正式首页。
+
+### 10.14 S5.3 悬浮位置与系统 Insets 合并验收（2026-11-01）
+
+- [x] 新增 `app/src/main/java/ci/us/zhixing/app/ui/glass/ZhixingLiquidBottomBarPlacement.kt`。
+- [x] 在全屏 Box 内底部居中放置内容，先应用 `navigationBarsPadding()`，避开系统导航栏 / 手势区域。
+- [x] 默认再应用 `imePadding()`，键盘打开时把底栏上移；提供 `liftForIme` 参数控制。
+- [x] 水平边距默认为 16 dp，底部留白 10 dp，使用独立 padding，不与系统 Insets 混为一项。
+- [x] PR [#14](https://github.com/PaleSquire71029/zhixingapp/pull/14) 已 squash 合并；合并提交：`bdf3198cb16693d03af0eb4dab2c0a5e04429485`。
+- [x] Android Build #59（Run ID `41262297446`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41262297446)。
+- [x] 资源校验、Gradle 配置、JVM 单测、Kotlin 编译、Debug APK 构建和 Artifact 上传均通过。
+- [x] 未修改 `MainActivity.kt`，尚未把底栏放入正式首页。
+- [ ] 手势导航、三键导航、横屏、IME 弹出和物理设备安全区域仍待可视化验收。
+- [ ] S4.3 PR #11 的模拟器测试仍未返回最终结果。
+
+**下一小步：** S5.4，仅为选中胶囊添加连续位移动画；不替换首页导航。
