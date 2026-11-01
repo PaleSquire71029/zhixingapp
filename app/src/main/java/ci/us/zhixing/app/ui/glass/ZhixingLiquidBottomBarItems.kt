@@ -4,12 +4,14 @@ import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitHorizontalTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -44,6 +46,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.consume
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestination
@@ -57,6 +61,7 @@ import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
 import kotlinx.coroutines.flow.collect
+import kotlin.math.roundToInt
 
 /**
  * Four-destination content for the floating glass navigation shell.
@@ -83,7 +88,9 @@ internal fun ZhixingLiquidBottomBar(
     require(destinations.isNotEmpty()) { "At least one navigation destination is required." }
     require(selectedIndex in destinations.indices) { "Selected destination index is out of range." }
 
-    var touchActive by remember { mutableStateOf(false) }
+    var itemTouchActive by remember { mutableStateOf(false) }
+    var dragActive by remember { mutableStateOf(false) }
+    val touchActive = itemTouchActive || dragActive
     val refractionPressProgress by animateFloatAsState(
         targetValue = if (
             touchActive && material.touchFeedbackEnabled &&
@@ -121,14 +128,20 @@ internal fun ZhixingLiquidBottomBar(
                 ),
                 label = "zhixingBottomBarTouchDeformation",
             )
-            val indicatorOffset by animateDpAsState(
-                targetValue = itemWidth * selectedIndex,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMediumLow,
-                ),
-                label = "zhixingBottomBarSelectionOffset",
-            )
+            val indicatorOffset = remember { Animatable(itemWidthPx * selectedIndex) }
+            val latestSelectedIndex = rememberUpdatedState(selectedIndex)
+            val latestOnDestinationSelected = rememberUpdatedState(onDestinationSelected)
+            LaunchedEffect(itemWidthPx, selectedIndex, dragActive) {
+                if (!dragActive) {
+                    indicatorOffset.animateTo(
+                        targetValue = itemWidthPx * selectedIndex,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessMediumLow,
+                        ),
+                    )
+                }
+            }
             val selectionStretch = remember { Animatable(0f) }
             var previousSelectedIndex by remember { mutableStateOf(selectedIndex) }
             LaunchedEffect(selectedIndex) {
@@ -228,10 +241,75 @@ internal fun ZhixingLiquidBottomBar(
                     )
             }
 
+            // The parent observes horizontal movement, but only takes over after
+            // touch slop and only when the gesture began on the selected capsule.
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(itemWidthPx, destinations.size) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            val capsuleStart = indicatorOffset.value
+                            if (
+                                down.position.x < capsuleStart ||
+                                down.position.x > capsuleStart + itemWidthPx
+                            ) {
+                                return@awaitEachGesture
+                            }
+
+                            val dragStart = awaitHorizontalTouchSlopOrCancellation(down.id) { change, _ ->
+                                change.consume()
+                            } ?: return@awaitEachGesture
+
+                            val startPointerX = down.position.x
+                            val startIndicatorOffset = indicatorOffset.value
+                            val maxIndicatorOffset = itemWidthPx * (destinations.size - 1)
+                            dragActive = true
+                            var pointerChange = dragStart
+                            var released = false
+                            try {
+                                while (true) {
+                                    val nextOffset = (
+                                        startIndicatorOffset +
+                                            pointerChange.position.x - startPointerX
+                                        ).coerceIn(0f, maxIndicatorOffset)
+                                    indicatorOffset.snapTo(nextOffset)
+                                    touchPoint = pointerChange.position
+                                    if (!pointerChange.pressed) {
+                                        released = true
+                                        break
+                                    }
+
+                                    val event = awaitPointerEvent()
+                                    val nextChange = event.changes.firstOrNull { it.id == down.id }
+                                        ?: break
+                                    if (nextChange.pressed) {
+                                        nextChange.consume()
+                                    }
+                                    pointerChange = nextChange
+                                }
+                            } finally {
+                                val finalIndex = resolveBottomBarDragIndex(
+                                    indicatorOffsetPx = indicatorOffset.value,
+                                    itemWidthPx = itemWidthPx,
+                                    itemCount = destinations.size,
+                                )
+                                dragActive = false
+                                touchPoint = null
+                                if (
+                                    released &&
+                                    finalIndex != latestSelectedIndex.value
+                                ) {
+                                    latestOnDestinationSelected.value(finalIndex)
+                                }
+                            }
+                        }
+                    },
+            ) {
             // One shared refractive indicator travels behind the four equal-width tabs.
             Box(
                 modifier = Modifier
-                    .offset(x = indicatorOffset)
+                    .offset { IntOffset(indicatorOffset.value.roundToInt(), 0) }
                     .width(itemWidth)
                     .fillMaxHeight()
                     .padding(horizontal = 2.dp)
@@ -275,12 +353,13 @@ internal fun ZhixingLiquidBottomBar(
                             touchFeedbackEnabled = material.touchFeedbackEnabled,
                             onTouchChanged = { point, active ->
                                 if (point != null) touchPoint = point
-                                touchActive = active
+                                itemTouchActive = active
                             },
                             onClick = { onDestinationSelected(index) },
                         )
                     }
                 }
+            }
             }
         }
     }
