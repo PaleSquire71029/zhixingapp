@@ -56,6 +56,7 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
+import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import java.util.Locale
@@ -73,6 +74,8 @@ internal fun GlassLabScreen(
     lifecycle: Lifecycle,
     initialMaterial: GlassMaterialState,
     onMaterialChange: (GlassMaterialState) -> Unit,
+    onMaterialCommit: (GlassMaterialState) -> Unit,
+    onMaterialReset: () -> Unit,
 ) {
     val apiLevel = Build.VERSION.SDK_INT
     val blurSupported = apiLevel >= Build.VERSION_CODES.S
@@ -98,6 +101,28 @@ internal fun GlassLabScreen(
 
     val backdropEnabled = selectedTier != GlassPerformanceTier.OFF
 
+    fun currentMaterial(): GlassMaterialState = GlassMaterialState(
+        transparencyPercent = transparencyPercent.roundToInt(),
+        blurRadiusDp = blurRadiusDp,
+        enabled = selectedTier != GlassPerformanceTier.OFF,
+    )
+
+    fun publishMaterial(commit: Boolean = false) {
+        val material = currentMaterial()
+        onMaterialChange(material)
+        if (commit) {
+            onMaterialCommit(material)
+        }
+    }
+
+    fun resetMaterial() {
+        selectedTier = GlassPerformanceTier.CUSTOM
+        transparencyPercent = DEFAULT_HOME_GLASS_MATERIAL.transparencyPercent.toFloat()
+        blurRadiusDp = DEFAULT_HOME_GLASS_MATERIAL.blurRadiusDp
+        onMaterialChange(DEFAULT_HOME_GLASS_MATERIAL)
+        onMaterialReset()
+    }
+
     fun applyPerformanceTier(tier: GlassPerformanceTier) {
         val config = resolveGlassPerformanceConfig(tier, apiLevel)
         selectedTier = tier
@@ -107,13 +132,7 @@ internal fun GlassLabScreen(
         edgeHighlightEnabled = config.edgeHighlightEnabled
         touchFeedbackEnabled = config.touchFeedbackEnabled
         transparencyPercent = ((1f - config.panelOverlayAlpha) * 100f).coerceIn(0f, 100f)
-        onMaterialChange(
-            GlassMaterialState(
-                transparencyPercent = transparencyPercent.roundToInt(),
-                blurRadiusDp = blurRadiusDp,
-                enabled = tier != GlassPerformanceTier.OFF,
-            ),
-        )
+        publishMaterial(commit = true)
     }
 
     fun markCustom() {
@@ -176,6 +195,25 @@ internal fun GlassLabScreen(
             )
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = "材质参数",
+                style = ZhixingTheme.type.sectionLabel,
+                color = ZhixingTheme.colors.secondary,
+            )
+            TextButton(onClick = { resetMaterial() }) {
+                Text(
+                    text = "重置材质参数",
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
+        }
+
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
             Text(
                 text = "性能模式 · \${tierLabel(selectedTier)}",
@@ -219,14 +257,9 @@ internal fun GlassLabScreen(
                 onValueChange = {
                     markCustom()
                     transparencyPercent = it.coerceIn(0f, 100f)
-                    onMaterialChange(
-                        GlassMaterialState(
-                            transparencyPercent = transparencyPercent.roundToInt(),
-                            blurRadiusDp = blurRadiusDp,
-                            enabled = true,
-                        ),
-                    )
+                    publishMaterial()
                 },
+                onValueChangeFinished = { publishMaterial(commit = true) },
                 valueRange = 0f..100f,
                 steps = 19,
             )
@@ -248,14 +281,9 @@ internal fun GlassLabScreen(
                 onValueChange = {
                     markCustom()
                     blurRadiusDp = it.coerceIn(0f, 24f)
-                    onMaterialChange(
-                        GlassMaterialState(
-                            transparencyPercent = transparencyPercent.roundToInt(),
-                            blurRadiusDp = blurRadiusDp,
-                            enabled = true,
-                        ),
-                    )
+                    publishMaterial()
                 },
+                onValueChangeFinished = { publishMaterial(commit = true) },
                 valueRange = 0f..24f,
                 steps = 23,
                 enabled = blurSupported && backdropEnabled,
