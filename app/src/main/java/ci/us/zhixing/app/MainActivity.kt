@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestinations
+import ci.us.zhixing.app.ui.glass.BackdropHost
 import ci.us.zhixing.app.ui.lab.GlassLabScreen
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import ci.us.zhixing.app.R
@@ -87,8 +88,9 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
         if (showGlassLab) {
             GlassLabScreen(onBack = { showGlassLab = false }, lifecycle = lifecycle)
         } else {
-            Scaffold(
-            containerColor = ZhixingTheme.colors.background,
+            BackdropHost(modifier = Modifier.fillMaxSize()) { _ ->
+                Scaffold(
+                    containerColor = Color.Transparent,
             bottomBar = {
                 NavigationBar(
                     containerColor = Color.White,
@@ -222,7 +224,8 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
                     )
                 }
             }
-        }
+                }
+            }
         }
     }
 }
