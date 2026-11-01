@@ -81,10 +81,12 @@ class CatalogBottomBarMaterialParametersTest {
 
         assertTrue(api26.useBackdropSampling)
         assertFalse(api26.useBlur)
+        assertFalse(api26.useVibrancy)
         assertFalse(api26.useRefraction)
         assertEquals(0f, api26.blurRadiusDp, 0.0001f)
 
         assertTrue(api31.useBlur)
+        assertTrue(api31.useVibrancy)
         assertFalse(api31.useRefraction)
         assertEquals(12f, api31.blurRadiusDp, 0.0001f)
 
@@ -106,6 +108,7 @@ class CatalogBottomBarMaterialParametersTest {
         )
 
         assertFalse(parameters.useRefraction)
+        assertFalse(parameters.useVibrancy)
         assertFalse(parameters.chromaticDispersionEnabled)
         assertFalse(parameters.edgeHighlightEnabled)
         assertFalse(parameters.environmentReflectionEnabled)
