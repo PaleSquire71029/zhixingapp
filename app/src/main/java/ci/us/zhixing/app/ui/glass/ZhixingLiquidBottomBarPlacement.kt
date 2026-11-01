@@ -37,10 +37,8 @@ internal fun BoxScope.ZhixingLiquidBottomBarPlacement(
             .fillMaxWidth()
             .navigationBarsPadding()
             .then(if (liftForIme) Modifier.imePadding() else Modifier)
-            .padding(
-                horizontal = horizontalMargin,
-                vertical = bottomSpacing,
-            ),
+            .padding(horizontal = horizontalMargin)
+            .padding(bottom = bottomSpacing),
         content = content,
     )
 }
