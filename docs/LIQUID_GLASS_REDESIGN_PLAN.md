@@ -878,7 +878,7 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 | P2.4.1a | 建立材质参数解析器与纯函数测试 | `CatalogBottomBarMaterialParameters.kt` + JUnit | ✅ 已完成：PR #55 合并，Android Build #200 成功；六项参数映射单测通过 |
 | P2.4.1b | 将解析参数接入官方 Catalog 底栏绘制 | `LiquidBottomTabs.kt`、`ZhixingCatalogBottomBar.kt`、`DampedDragAnimation.kt` | ✅ 已完成：PR #56 合并，Android Build #206 成功；材质设置实际控制绘制与反馈，Off 路径保留点击 / 拖动导航 |
 | P2.4.2 | 将参数化官方底栏接入首页共享 Backdrop | `MainActivity.kt` 与包装层 | ✅ 已完成：PR #57 合并，Android Build #209 成功；保留原材质状态、导航状态、Backdrop Host、Insets 与 IME 定位 |
-| P2.4.3a | 材质实验室预览 / DataStore 档位提交回归 | `ZhixingCatalogMaterialPreviewIntegrationTest.kt` | 当前分支新增：Off → Standard 档位预览 / 提交、重置默认、返回首页后四入口继续工作；测试结束清理 DataStore |
+| P2.4.3a | 材质实验室预览 / DataStore 档位提交回归 | `ZhixingCatalogMaterialPreviewIntegrationTest.kt` | ✅ 已完成：PR #58 合并，Android Build #214 成功；CI 编译通过，Activity / DataStore 运行仍待实体设备验收 |
 | P2.4.3b | 系统 Insets、IME 与屏幕方向回归 | `ZhixingCatalogBottomBarInsetsOrientationTest.kt` | 当前分支新增：IME 显示时底栏位于键盘上方、Done 隐藏键盘后恢复、横屏 / 竖屏切换后四个 Tab 可见；等待 CI 编译 |
 | P2.4.3c | 目标真机视觉与性能验收 | 真机检查记录 | 对照参考 APK 检查折射、色散、高光、拖动、帧时间、温升、耗电、文字与公式清晰度 |
 | P2.5 | 删除旧底栏重复手势与装饰动画 | 旧 ZhixingLiquidBottomBarItems.kt | 只清理官方接管的逻辑，不改业务状态；构建与导航测试通过 |
