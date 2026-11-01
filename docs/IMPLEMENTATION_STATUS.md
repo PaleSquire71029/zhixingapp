@@ -1176,5 +1176,6 @@
 - [x] 覆盖四个 Tab 均暴露 `Role.Tab`、原中文标签可见、选中态只跟随传入的 selectedIndex。
 - [x] 覆盖点击“工具”后回调更新外部选中索引，以及外部直接切换到“历史”时语义同步变化。
 - [x] 测试不改生产组件、不改导航模型、不改 MainActivity，也不引入额外依赖。
-- [ ] Android CI 待执行 / 验证；当前工作流仅编译 `androidTest`，不会在 Hosted 模拟器上运行仪器测试。不得把源码编译通过描述为测试已执行。
+- [x] 首次 Android Build #188 暴露 Compose UI Test API 使用错误：移除不存在的 `hasRole` 及不需要的 provider member 导入，改用 `SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)`；修正后重新触发 CI。
+- [ ] 修正后的最新 Android CI 待执行 / 验证；当前工作流仅编译 `androidTest`，不会在 Hosted 模拟器上运行仪器测试。不得把源码编译通过描述为测试已执行。
 - [ ] P2.3.2 继续覆盖拖动切换和边界吸附；P2.3.3 覆盖 RTL、窄屏和采样副本无障碍回归。
