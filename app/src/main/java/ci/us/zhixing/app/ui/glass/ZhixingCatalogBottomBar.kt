@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -39,8 +41,17 @@ internal fun ZhixingCatalogBottomBar(
         "Selected destination index is out of range."
     }
 
+    // The Catalog keeps its animation state keyed to this reader function.
+    // Keep the reader stable while updating the value it observes; otherwise
+    // every selectedIndex change recreates the lambda and resets the capsule
+    // animation to the new index before it can animate from the old one.
+    val selectedIndexState = rememberUpdatedState(selectedIndex)
+    val selectedTabIndex: () -> Int = remember {
+        { selectedIndexState.value }
+    }
+
     LiquidBottomTabs(
-        selectedTabIndex = { selectedIndex },
+        selectedTabIndex = selectedTabIndex,
         onTabSelected = onDestinationSelected,
         backdrop = backdrop,
         tabsCount = destinations.size,

@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -74,6 +75,8 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.sign
+
+internal const val LIQUID_BOTTOM_TABS_SELECTION_TAG = "liquid-bottom-tabs-selection"
 
 @Composable
 internal fun LiquidBottomTabs(
@@ -370,7 +373,8 @@ internal fun LiquidBottomTabs(
                 .then(dampedDragAnimation.modifier)
                 .then(selectionSurfaceModifier)
                 .height(56f.dp)
-                .fillMaxWidth(1f / tabsCount),
+                .fillMaxWidth(1f / tabsCount)
+                .testTag(LIQUID_BOTTOM_TABS_SELECTION_TAG),
         )
     }
 }
