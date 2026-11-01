@@ -37,6 +37,15 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
         composeRule.onNodeWithText("把复杂问题拆开处理").assertIsDisplayed()
     }
 
+    @Test
+    fun homepageGlassContainersKeepTheirContentAccessible() {
+        composeRule.onAllNodes(hasTabRole()).assertCountEquals(4)
+        composeRule.onAllNodes(hasText("基础界面已建立 · 功能按小步迁移")).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("原生 Android 工程")).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("知行浅色设计基线")).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("逐步迁移")).assertCountEquals(1)
+    }
+
     private fun hasTabRole() =
         SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
