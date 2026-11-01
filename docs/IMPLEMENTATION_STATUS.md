@@ -778,3 +778,16 @@
 - [ ] 快速连点时视觉与触控区域不变的实际设备验收仍待进行。
 
 **下一小步：** S5.6，单独添加按压高光与轻微回弹，不添加拖动手势或改变点击区域。
+
+### 10.17 S5.6 按压高光与轻微回弹合并验收（2026-11-01）
+
+- [x] 修改 `ZhixingLiquidBottomBarItems.kt`，通过 `MutableInteractionSource` 追踪单项按压状态。
+- [x] 按下时显示柔白按压高光，松开时淡出。
+- [x] 内层图标 / 标签内容按压时缩至 0.975 倍，释放后用无过冲 spring 回到原始大小。
+- [x] 外层 `selectable` 容器不变形，触控区域与布局尺寸不随动画改变。
+- [x] PR [#17](https://github.com/PaleSquire71029/zhixingapp/pull/17) 已 squash 合并；合并提交：`75babe9b963df3225fc67270c6eb94c112c9d8d8`。
+- [x] Android Build #66（Run ID `41262910437`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41262910437)。
+- [x] 资源检查、Gradle、JVM 单测、Kotlin 编译、Debug APK 构建与 Artifact 上传全部通过。
+- [ ] 真机快速按压、取消手势、滚动冲突与触控命中尚未实测。
+
+**下一小步：** S6.1，正式替换 MainActivity 中的 Material 3 NavigationBar；保留四个目的地和原状态回调，使用已实现的共享 Backdrop / Insets 组件。
