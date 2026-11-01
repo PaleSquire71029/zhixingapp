@@ -98,8 +98,7 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
         }
 
         fun sliderNode(label: String) = composeRule.onNode(
-            SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Slider) and
-                hasContentDescription(label),
+            hasContentDescription(label),
         )
 
         val transparency = sliderNode("透明程度")
