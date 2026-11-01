@@ -257,6 +257,8 @@ internal fun GlassLabScreen(
                             transparencyPercent = transparencyPercent.roundToInt(),
                             blurRadiusDp = blurRadiusDp,
                             enabled = true,
+                            refractionEnabled = refractionEnabled,
+                            refractionStrengthDp = refractionStrength,
                         ),
                     )
                 },
