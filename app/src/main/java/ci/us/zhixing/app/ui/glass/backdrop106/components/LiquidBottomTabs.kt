@@ -100,6 +100,7 @@ fun LiquidBottomTabs(
         else Color(0xFF121212).copy(alpha = materialParameters.overlayAlpha)
 
     val tabsBackdrop = rememberLayerBackdrop()
+    val combinedBackdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop)
 
     BoxWithConstraints(
         modifier,
@@ -125,14 +126,14 @@ fun LiquidBottomTabs(
         var currentIndex by remember(selectedTabIndex) {
             mutableIntStateOf(selectedTabIndex())
         }
-        val dampedDragAnimation = remember(animationScope) {
+        val dampedDragAnimation = remember(animationScope, materialParameters.touchFeedbackEnabled) {
             DampedDragAnimation(
                 animationScope = animationScope,
                 initialValue = selectedTabIndex().toFloat(),
                 valueRange = 0f..(tabsCount - 1).toFloat(),
                 visibilityThreshold = 0.001f,
                 initialScale = 1f,
-                pressedScale = 78f / 56f,
+                pressedScale = if (materialParameters.touchFeedbackEnabled) 78f / 56f else 1f,
                 onDragStarted = {},
                 onDragStopped = {
                     val targetIndex = targetValue.fastRoundToInt().fastCoerceIn(0, tabsCount - 1)
