@@ -151,6 +151,7 @@ internal fun ZhixingLiquidBottomBar(
                             destination = destination,
                             selected = index == selectedIndex,
                             itemIndex = index,
+                            itemCount = destinations.size,
                             itemWidthPx = itemWidthPx,
                             touchFeedbackEnabled = material.touchFeedbackEnabled,
                             onTouchChanged = { point, active ->
@@ -171,6 +172,7 @@ private fun RowScope.LiquidBottomBarItem(
     destination: AppDestination,
     selected: Boolean,
     itemIndex: Int,
+    itemCount: Int,
     itemWidthPx: Float,
     touchFeedbackEnabled: Boolean,
     onTouchChanged: (Offset?, Boolean) -> Unit,
@@ -213,7 +215,12 @@ private fun RowScope.LiquidBottomBarItem(
                     if (touchFeedbackEnabled) {
                         latestOnTouchChanged(
                             Offset(
-                                x = itemIndex * itemWidthPx + interaction.pressPosition.x,
+                                x = mapBottomBarTouchPosition(
+                                    itemIndex = itemIndex,
+                                    itemCount = itemCount,
+                                    itemWidthPx = itemWidthPx,
+                                    localPosition = interaction.pressPosition,
+                                ).x,
                                 y = interaction.pressPosition.y,
                             ),
                             true,
