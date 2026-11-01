@@ -706,3 +706,18 @@
 - [ ] 真机背景像素、连续采样、滚动、GPU 帧率、发热和耗电仍待目标设备验收；仪器测试不能替代真机性能测试。
 
 **下一小步：** S4.3 CI 通过后先合并验证代码；再进入 S5.1，只创建不含动画的悬浮胶囊玻璃底栏外形，暂不接导航点击逻辑。
+
+### 10.12 S5.1 悬浮胶囊玻璃底栏外壳与合并验收（2026-11-01）
+
+- [x] 新增 `app/src/main/java/ci/us/zhixing/app/ui/glass/ZhixingLiquidBottomBar.kt`。
+- [x] `ZhixingLiquidBottomBarSurface` 复用共享 Backdrop 与 `ZhixingGlassSurface`，形状为 50% 圆角胶囊。
+- [x] 增加外层柔白描边与内层低对比冷色细线，保持静态外观。
+- [x] 首轮 CI 的 Kotlin 编译报告 `drawRoundRect` 无效导入；已删除导入，保留 DrawScope 作用域内绘制调用。
+- [x] PR [#12](https://github.com/PaleSquire71029/zhixingapp/pull/12) 已 squash 合并；合并提交：`f57991f10976e0ca62e9c41454ee63f15e4c865a`。
+- [x] Android Build #57（Run ID `41261908712`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41261908712)。
+- [x] 资源校验、Gradle、JUnit、Kotlin 编译、Debug APK 构建和 Artifact 上传全部通过。
+- [x] 本步未修改 `MainActivity.kt`，未替换 Material 3 NavigationBar，也未加入导航项、选中动画或 Insets 逻辑。
+- [ ] 真机上胶囊比例、玻璃采样、触控区域和性能待验收。
+- [ ] S4.3 PR #11 的 Android 模拟器仪器测试仍待 CI 最终结果。
+
+**下一小步：** S5.2，在独立底栏组件中添加四个导航项和点击回调，并验证选中状态；仍不修改 MainActivity。
