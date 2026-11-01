@@ -55,6 +55,7 @@ import ci.us.zhixing.app.ui.lab.GlassLabScreen
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import ci.us.zhixing.app.R
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
     private val glassMaterialSettingsStore by lazy {
@@ -102,6 +103,11 @@ private fun ZhixingApp(
         initial = DEFAULT_HOME_GLASS_MATERIAL,
     )
     var previewMaterial by remember { mutableStateOf<GlassMaterialState?>(null) }
+    var materialSettingsLoaded by remember { mutableStateOf(false) }
+    LaunchedEffect(materialSettingsStore) {
+        materialSettingsStore.material.first()
+        materialSettingsLoaded = true
+    }
     val glassMaterial = previewMaterial ?: persistedMaterial
     val persistenceScope = rememberCoroutineScope()
 
@@ -208,6 +214,7 @@ private fun ZhixingApp(
 
                             Surface(
                                 modifier = Modifier.clickable(
+                                    enabled = materialSettingsLoaded,
                                     role = Role.Button,
                                     onClick = { showGlassLab = true },
                                 ),
