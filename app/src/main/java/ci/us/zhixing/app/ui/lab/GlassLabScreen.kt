@@ -40,7 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.border
+import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -50,7 +50,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
@@ -89,7 +88,6 @@ internal fun GlassLabScreen(
         mutableStateOf(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
     }
 
-    val liveBackdrop = rememberLayerBackdrop()
     val backdropEnabled = selectedTier != GlassPerformanceTier.OFF
 
     fun applyPerformanceTier(tier: GlassPerformanceTier) {
@@ -219,7 +217,7 @@ internal fun GlassLabScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
             Text(
-                text = "背景模糊 · \${String.format(Locale.US, "%.1f", blurRadiusDp)} dp",
+                text = "背景模糊 · ${String.format(Locale.US, "%.1f", blurRadiusDp)} dp",
                 style = ZhixingTheme.type.sectionLabel,
                 color = ZhixingTheme.colors.secondary,
             )
@@ -283,7 +281,7 @@ internal fun GlassLabScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
             Text(
-                text = "折射强度 · \${String.format(Locale.US, "%.1f", refractionStrength)} dp",
+                text = "折射强度 · ${String.format(Locale.US, "%.1f", refractionStrength)} dp",
                 style = ZhixingTheme.type.supporting,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
@@ -335,7 +333,6 @@ internal fun GlassLabScreen(
         }
 
         GlassPreviewCard(
-            backdrop = liveBackdrop,
             backdropEnabled = backdropEnabled,
             lifecycleStarted = isLifecycleStarted,
             blurRadiusDp = if (blurSupported) blurRadiusDp else 0f,
@@ -398,7 +395,6 @@ private fun PerformanceTierChip(
 
 @Composable
 private fun GlassPreviewCard(
-    backdrop: Backdrop,
     backdropEnabled: Boolean,
     lifecycleStarted: Boolean,
     blurRadiusDp: Float,
@@ -416,6 +412,7 @@ private fun GlassPreviewCard(
         label = "liveGlassPressScale",
     )
 
+    val backdrop = if (backdropEnabled) rememberLayerBackdrop() else null
     val backdropBrush = remember {
         Brush.linearGradient(
             colors = listOf(
@@ -432,7 +429,7 @@ private fun GlassPreviewCard(
             .height(320.dp)
             .clip(shape),
     ) {
-        if (backdropEnabled) {
+        if (backdrop != null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
