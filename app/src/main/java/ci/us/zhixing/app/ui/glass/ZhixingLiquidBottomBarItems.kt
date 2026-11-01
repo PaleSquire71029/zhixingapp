@@ -7,6 +7,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -24,9 +26,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
@@ -139,13 +144,40 @@ private fun RowScope.LiquidBottomBarItem(
         label = "zhixingBottomBarLabelAlpha",
     )
 
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.975f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "zhixingBottomBarPressScale",
+    )
+    val pressHighlightAlpha by animateFloatAsState(
+        targetValue = if (isPressed) 0.16f else 0f,
+        animationSpec = tween(durationMillis = 110),
+        label = "zhixingBottomBarPressHighlight",
+    )
+
     Column(
         modifier = Modifier
             .weight(1f)
             .fillMaxHeight()
+            .drawBehind {
+                if (pressHighlightAlpha > 0f) {
+                    drawRoundRect(
+                        color = Color.White.copy(alpha = pressHighlightAlpha),
+                        cornerRadius = CornerRadius(
+                            x = 20.dp.toPx(),
+                            y = 20.dp.toPx(),
+                        ),
+                    )
+                }
+            }
             .selectable(
                 selected = selected,
-                interactionSource = null,
+                interactionSource = interactionSource,
                 indication = null,
                 role = Role.Tab,
                 onClick = onClick,
@@ -154,32 +186,44 @@ private fun RowScope.LiquidBottomBarItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = destination.symbol,
-            modifier = Modifier.graphicsLayer {
-                scaleX = iconScale
-                scaleY = iconScale
-                alpha = iconAlpha
-            },
-            style = ZhixingTheme.type.navigationSymbol,
-            color = if (selected) {
-                ZhixingTheme.colors.primary
-            } else {
-                ZhixingTheme.colors.onSurfaceVariant
-            },
-        )
-        Text(
-            text = destination.label,
-            modifier = Modifier.graphicsLayer {
-                alpha = labelAlpha
-            },
-            style = ZhixingTheme.type.supporting,
-            color = if (selected) {
-                ZhixingTheme.colors.primary
-            } else {
-                ZhixingTheme.colors.onSurfaceVariant
-            },
-            maxLines = 1,
-        )
+        // Only the visual content scales. The parent selectable bounds stay fixed.
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    scaleX = pressScale
+                    scaleY = pressScale
+                },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = destination.symbol,
+                modifier = Modifier.graphicsLayer {
+                    scaleX = iconScale
+                    scaleY = iconScale
+                    alpha = iconAlpha
+                },
+                style = ZhixingTheme.type.navigationSymbol,
+                color = if (selected) {
+                    ZhixingTheme.colors.primary
+                } else {
+                    ZhixingTheme.colors.onSurfaceVariant
+                },
+            )
+            Text(
+                text = destination.label,
+                modifier = Modifier.graphicsLayer {
+                    alpha = labelAlpha
+                },
+                style = ZhixingTheme.type.supporting,
+                color = if (selected) {
+                    ZhixingTheme.colors.primary
+                } else {
+                    ZhixingTheme.colors.onSurfaceVariant
+                },
+                maxLines = 1,
+            )
+        }
     }
 }
