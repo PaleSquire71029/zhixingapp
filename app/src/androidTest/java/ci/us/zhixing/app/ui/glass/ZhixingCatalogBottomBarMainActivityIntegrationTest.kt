@@ -9,6 +9,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -73,6 +75,51 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
         refractionSwitch.performClick()
         refractionSwitch.assertIsOff()
         composeRule.onNodeWithText("边缘折射 · 关闭").assertIsDisplayed()
+    }
+
+    @Test
+    fun chromaticDispersionUsesLiquidSwitchAndRequiresRefraction() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
+
+        fun switchNode(label: String) = composeRule.onNode(
+            SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch) and
+                hasContentDescription(label),
+        )
+
+        val refractionSwitch = switchNode("边缘折射")
+        val dispersionSwitch = switchNode("色散折射")
+
+        // The tests share the app's persistent settings. Restore the dependency
+        // after checking the disabled state so this test does not leave side effects.
+        val refractionWasOn =
+            refractionSwitch.fetchSemanticsNode().config[SemanticsProperties.ToggleableState] ==
+                ToggleableState.On
+
+        if (!refractionWasOn) {
+            refractionSwitch.performClick()
+        }
+        refractionSwitch.performClick()
+        dispersionSwitch.assertIsNotEnabled()
+        refractionSwitch.performClick()
+
+        val dispersionWasOn =
+            dispersionSwitch.fetchSemanticsNode().config[SemanticsProperties.ToggleableState] ==
+                ToggleableState.On
+        dispersionSwitch.assertIsEnabled()
+        dispersionSwitch.performClick()
+        if (dispersionWasOn) {
+            dispersionSwitch.assertIsOff()
+            composeRule.onNodeWithText("色散折射 · 关闭").assertIsDisplayed()
+        } else {
+            dispersionSwitch.assertIsOn()
+            composeRule.onNodeWithText("色散折射 · 开启").assertIsDisplayed()
+        }
+        // Return persisted preferences to their starting values.
+        dispersionSwitch.performClick()
+        if (!refractionWasOn) {
+            refractionSwitch.performClick()
+        }
     }
 
     private fun hasTabRole() =
