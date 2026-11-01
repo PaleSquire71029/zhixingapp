@@ -50,6 +50,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -326,6 +327,9 @@ internal fun ZhixingLiquidBottomBar(
                             val startPointerX = down.position.x
                             val startIndicatorOffset = indicatorOffset.value
                             val maxIndicatorOffset = itemWidthPx * (destinations.size - 1)
+                            val velocityTracker = VelocityTracker()
+                            velocityTracker.addPosition(down.uptimeMillis, down.position)
+                            velocityTracker.addPosition(dragStart.uptimeMillis, dragStart.position)
                             dragOffsetPx = startIndicatorOffset
                             dragActive = true
                             var pointerChange = dragStart
@@ -338,15 +342,26 @@ internal fun ZhixingLiquidBottomBar(
                                             pointerChange.position.x - startPointerX
                                         ).coerceIn(0f, maxIndicatorOffset)
                                     dragOffsetPx = nextOffset
+                                    velocityTracker.addPosition(
+                                        pointerChange.uptimeMillis,
+                                        pointerChange.position,
+                                    )
                                     val deltaX = pointerChange.position.x - lastPointerX
-                                    val deformation = resolveDirectionalDragDeformation(
+                                    val directionalDeformation = resolveDirectionalDragDeformation(
                                         deltaXPx = deltaX,
                                         itemWidthPx = itemWidthPx,
                                     )
-                                    if (deformation.direction != 0) {
-                                        dragDirection = deformation.direction
+                                    if (directionalDeformation.direction != 0) {
+                                        dragDirection = directionalDeformation.direction
                                     }
-                                    dragStretchTarget = deformation.stretch
+                                    val velocityStretch = resolveVelocityDragStretch(
+                                        velocityXPxPerSecond = velocityTracker.calculateVelocity().x,
+                                        itemWidthPx = itemWidthPx,
+                                    )
+                                    dragStretchTarget = maxOf(
+                                        directionalDeformation.stretch,
+                                        velocityStretch,
+                                    )
                                     lastPointerX = pointerChange.position.x
                                     touchPoint = pointerChange.position
                                     if (!pointerChange.pressed) {
