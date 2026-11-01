@@ -75,6 +75,25 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
         composeRule.onNodeWithText("边缘折射 · 关闭").assertIsDisplayed()
     }
 
+    @Test
+    fun chromaticDispersionSettingUsesAccessibleLiquidSwitch() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
+
+        val dispersionSwitch = composeRule.onNode(
+            SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch) and
+                hasContentDescription("色散折射"),
+        )
+        dispersionSwitch.assertIsDisplayed()
+        dispersionSwitch.assertIsOff()
+        dispersionSwitch.performClick()
+        dispersionSwitch.assertIsOn()
+        composeRule.onNodeWithText("色散折射 · 开启").assertIsDisplayed()
+        dispersionSwitch.performClick()
+        dispersionSwitch.assertIsOff()
+        composeRule.onNodeWithText("色散折射 · 关闭").assertIsDisplayed()
+    }
+
     private fun hasTabRole() =
         SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
