@@ -791,3 +791,17 @@
 - [ ] 真机快速按压、取消手势、滚动冲突与触控命中尚未实测。
 
 **下一小步：** S6.1，正式替换 MainActivity 中的 Material 3 NavigationBar；保留四个目的地和原状态回调，使用已实现的共享 Backdrop / Insets 组件。
+
+### 10.18 S6.1 首页正式接入液态玻璃底栏（2026-11-01）
+
+- [x] 修改 `app/src/main/java/ci/us/zhixing/app/MainActivity.kt`：移除 Material 3 `NavigationBar` 与 `NavigationBarItem`。
+- [x] 正式接入 `ZhixingLiquidBottomBar`，向其传入首页 `BackdropHost` 的共享 Backdrop。
+- [x] 使用 `ZhixingLiquidBottomBarPlacement` 处理底部导航栏 / 手势区域 Insets 和可选 IME 上移。
+- [x] 保留原 `AppDestinations.all`、`rememberSaveable selectedIndex`、点击回调及首页内容；GlassLab 仍独立显示。
+- [x] PR [#18](https://github.com/PaleSquire71029/zhixingapp/pull/18) 已 squash 合并；合并提交：`95f6a422534f86cd6db64c0980f5ab824c9e897e`。
+- [x] Android Build #67（Run ID `41263159541`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41263159541)。
+- [x] 资源检查、Gradle、JVM 单测、Kotlin 编译、Debug APK 构建和 Artifact 上传全部通过。
+- [ ] 真机上手势 / 三键导航、IME 弹出、滚动内容底部留白、触控命中、动画帧率、温度和电池耗电仍待验收。
+- [ ] 尚未增加材质设置入口、透明度 / 模糊调节和 DataStore 保存。
+
+**下一小步：** S6.2，添加独立材质设置入口；保留四个底栏项的位置，不在本步增加滑块和持久化。
