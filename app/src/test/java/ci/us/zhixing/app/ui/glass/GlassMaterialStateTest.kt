@@ -16,6 +16,7 @@ class GlassMaterialStateTest {
         assertTrue(state.refractionEnabled)
         assertEquals(1.8f, state.refractionStrengthDp, 0f)
         assertTrue(state.edgeHighlightEnabled)
+        assertTrue(state.environmentReflectionEnabled)
     }
 
 
