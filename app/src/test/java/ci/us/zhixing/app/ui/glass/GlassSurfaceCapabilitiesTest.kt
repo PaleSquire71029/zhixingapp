@@ -74,6 +74,21 @@ class GlassSurfaceCapabilitiesTest {
     }
 
     @Test
+    fun api33UsesVibrancyForRefractionEvenWithoutBlur() {
+        val capabilities = resolveGlassSurfaceCapabilities(
+            apiLevel = 33,
+            enabled = true,
+            blurRadiusDp = 0f,
+            refractionEnabled = true,
+            refractionStrengthDp = 1.8f,
+        )
+
+        assertFalse(capabilities.useBlur)
+        assertTrue(capabilities.useRefraction)
+        assertTrue(capabilities.useVibrancy)
+    }
+
+    @Test
     fun offModeDisablesBackdropSamplingAndBlur() {
         val capabilities = resolveGlassSurfaceCapabilities(
             apiLevel = 36,
