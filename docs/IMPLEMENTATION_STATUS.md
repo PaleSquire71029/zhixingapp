@@ -1208,12 +1208,23 @@
 - [ ] CI 未在 Hosted 模拟器执行布局断言；真机 RTL、屏幕裁剪与 TalkBack 顺序仍需设备验收。
 
 
-### 10.51 P2.4.1a 材质参数解析器与 JUnit 测试（代码已建立，待 CI，2026-11-01）
+### 10.51 P2.4.1a 材质参数解析器与 JUnit 测试（已合并，2026-11-01）
 
 - [x] 新增 `CatalogBottomBarMaterialParameters.kt`：将现有 `GlassMaterialState` 映射为官方 Catalog 底栏所需的填充 Alpha、模糊开关 / 半径、折射可用性 / 强度比例，以及色散、高光、环境反射和触摸反馈开关。
 - [x] 透明度沿用 `resolveGlassOverlayAlpha`，不与模糊互相推导；保留 DataStore 原字段和值域。
 - [x] 以知行默认折射强度 1.8dp 对应 Catalog 原透镜 1x；0–8dp 映射到 0–1.5x，避免最大值产生过度拉伸。
-- [x] 复用 `resolveGlassSurfaceCapabilities`：API 26+ 保留背景采样，API 31+ 才使用模糊，API 33+ 才使用折射；Off 时关闭全部光学 / 触摸反馈。
+- [x] 复用 `resolveGlassSurfaceCapabilities`：API 26+ 保留背景采样，API 31+ 才使用模糊 / vibrancy，API 33+ 才使用折射；Off 时关闭全部光学 / 触摸反馈。
 - [x] 新增六项单元测试，覆盖 Home 默认映射、透明度 / 模糊独立、折射范围、API 降级、开关独立和 Off 状态。
-- [ ] 当前等待 Android CI；本步骤只建纯映射层，不修改官方底栏绘制、包装层或 MainActivity。
-- [ ] P2.4.1b 再将参数实际接入 `LiquidBottomTabs.kt` 的背景、选中透镜、色散 / 高光 / 反射与触摸动画。
+- [x] PR [#55](https://github.com/PaleSquire71029/zhixingapp/pull/55) 已 squash 合并；merge commit：`677b0b0ea9fbcefac5d2e35d2573e9f93b12fac6`。
+- [x] Android Build #200（Run ID `41282549664`）全部成功：JUnit、androidTest Kotlin 编译、Debug APK 构建和 Artifact 上传。
+
+### 10.52 P2.4.1b 官方底栏材质参数接线（代码已建立，待复核与 CI，2026-11-01）
+
+- [x] `ZhixingCatalogBottomBar` 新增可传入 `GlassMaterialState` 的参数，默认值保留现有调用兼容。
+- [x] `LiquidBottomTabs` 新增 material 参数，调用纯解析器获取透明度 Alpha、blur、vibrancy、refraction scale、chromatic dispersion、edge highlight、environment reflection 和 touch feedback 开关。
+- [x] 背景材质按设置使用模糊与 24dp 基准折射；折射强度通过 0–1.5x 比例控制。
+- [x] 选中透镜将知行色散设置应用到 chromaticAberration；高光、环境反射和触摸动效均按各自开关生效。
+- [x] 全局 Off 使用浅色胶囊回退而非 drawBackdrop；折射关闭时不创建隐藏标签采样层 / CombinedBackdrop。
+- [x] 新增仪器测试：Off 状态仍暴露四个 Tab、四个标签可见、点击仍能切换选中项。
+- [ ] 本步骤正在静态复核，尚未创建 PR / 运行 CI；生产 MainActivity 尚未切换，旧底栏保留。
+
