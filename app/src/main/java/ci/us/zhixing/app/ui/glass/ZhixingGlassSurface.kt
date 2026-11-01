@@ -62,6 +62,7 @@ internal fun ZhixingGlassSurface(
                         lens(
                             refractionHeight = 22.dp.toPx(),
                             refractionAmount = material.refractionStrengthDp.dp.toPx(),
+                            chromaticAberration = material.chromaticDispersionEnabled,
                         )
                     }
                 },
