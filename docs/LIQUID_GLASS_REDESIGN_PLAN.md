@@ -542,7 +542,7 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 |---|---|---|---|
 | S5.1 | 创建无动画的悬浮胶囊底栏外形 | 新增 ZhixingLiquidBottomBar.kt | ✅ 完成：浅色玻璃外观、胶囊圆角和双层细描边；暂不改主页面 |
 | S5.2 | 迁移四个导航项及点击回调 | 同一底栏文件与导航测试 | ✅ 完成：复用 AppDestinations 的四项数据、受控选中态及点击回调；未接入首页 |
-| S5.3 | 处理悬浮位置与系统 Insets | 底栏与 MainActivity | 手势区域不遮挡，底栏不贴屏幕边缘，内容不被盖住 |
+| S5.3 | 处理悬浮位置与系统 Insets | 新增 ZhixingLiquidBottomBarPlacement.kt | ✅ 完成：避开导航/手势区域，可选避开 IME，保持独立水平与底部间距；尚未接入 MainActivity |
 | S5.4 | 单独添加选中胶囊的连续位移动画 | 底栏文件 | 快速连续点击时不跳位、不重叠、不改变触控命中 |
 | S5.5 | 单独添加图标/标签过渡 | 底栏文件 | 仅轻微缩放和淡入，不挤压布局 |
 | S5.6 | 单独添加按压高光与回弹 | 底栏文件 | 手势取消后状态复位；不影响点击和滚动 |
@@ -685,3 +685,16 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] S4.3 PR #11 的 Android 模拟器测试仍在单独工作流运行，不能把 S5.2 的 CI 成功视为 S4.3 已通过。
 
 **下一小步：** S5.3，单独处理悬浮底栏相对屏幕底部的位置和系统 Insets；先在独立组件或预览中验证，不替换 MainActivity。
+
+## 16. S5.3 悬浮位置与系统 Insets（2026-11-01）
+
+- [x] 新增 `ZhixingLiquidBottomBarPlacement.kt`，提供 BoxScope 底部居中定位容器。
+- [x] 使用 `navigationBarsPadding()` 避开 Android 底部导航栏和手势区域。
+- [x] 默认使用 `imePadding()`，键盘弹出时将底栏内容上移；可通过 `liftForIme = false` 关闭该行为。
+- [x] 水平边距与底部留白独立于系统 Insets 管理：默认水平 16 dp、底部 10 dp。
+- [x] PR [#14](https://github.com/PaleSquire71029/zhixingapp/pull/14) 已通过 CI 并 squash 合并；合并提交：`bdf3198cb16693d03af0eb4dab2c0a5e04429485`。
+- [x] Android Build #59（Run ID `41262297446`）资源检查、Gradle、JUnit、Kotlin 编译、Debug APK 构建和 Artifact 上传均成功。
+- [ ] 尚未在 MainActivity 应用该定位容器；手势导航、三键导航、横屏和键盘行为仍需模拟器 / 真机验收。
+- [ ] S4.3 PR #11 的共享 Backdrop 仪器测试仍在另一条 CI 中等待结果。
+
+**下一小步：** S5.4，只为选中胶囊添加连续位移动画；仍不替换首页导航，先验证连续快速切换时不跳位、不重叠。
