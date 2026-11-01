@@ -1,5 +1,6 @@
 package ci.us.zhixing.app.ui.glass
 
+import android.os.Build
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -46,6 +47,11 @@ import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestination
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.effects.vibrancy
+import com.kyant.backdrop.highlight.Highlight
 import kotlinx.coroutines.flow.collect
 
 /**
@@ -120,8 +126,71 @@ internal fun ZhixingLiquidBottomBar(
                 label = "zhixingBottomBarSelectionOffset",
             )
             val indicatorShape = RoundedCornerShape(24.dp)
+            val indicatorCapabilities = resolveGlassSurfaceCapabilities(
+                apiLevel = Build.VERSION.SDK_INT,
+                enabled = material.enabled,
+                blurRadiusDp = material.blurRadiusDp,
+                refractionEnabled = material.refractionEnabled,
+                refractionStrengthDp = material.refractionStrengthDp,
+            )
+            val selectionLensParameters = resolveTouchRefractionParameters(
+                baseHeightDp = 10f,
+                baseAmountDp = material.refractionStrengthDp * 1.5f,
+                pressProgress = if (
+                    material.enabled && material.refractionEnabled &&
+                    material.touchFeedbackEnabled
+                ) {
+                    refractionPressProgress.coerceIn(0f, 1f)
+                } else {
+                    0f
+                },
+            )
+            val useSelectionBackdrop = indicatorCapabilities.useBackdropSampling &&
+                (indicatorCapabilities.useBlur || indicatorCapabilities.useRefraction)
 
-            // One shared indicator travels behind the four equal-width tabs.
+            // A separate live lens sits behind the foreground tab labels.
+            // It keeps the same animated position and never participates in hit testing.
+            val selectionLensModifier = if (useSelectionBackdrop) {
+                Modifier.drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { indicatorShape },
+                    effects = {
+                        if (indicatorCapabilities.useVibrancy) {
+                            vibrancy()
+                        }
+                        if (indicatorCapabilities.useBlur) {
+                            blur(material.blurRadiusDp.dp.toPx())
+                        }
+                        if (indicatorCapabilities.useRefraction) {
+                            lens(
+                                refractionHeight = selectionLensParameters.heightDp.dp.toPx(),
+                                refractionAmount = selectionLensParameters.amountDp.dp.toPx(),
+                                chromaticAberration = material.chromaticDispersionEnabled,
+                            )
+                        }
+                    },
+                    highlight = {
+                        if (material.edgeHighlightEnabled) {
+                            Highlight.Default.copy(alpha = 0.60f)
+                        } else {
+                            null
+                        }
+                    },
+                    onDrawSurface = {
+                        drawRect(
+                            ZhixingTheme.colors.primaryContainer.copy(alpha = 0.20f),
+                        )
+                    },
+                )
+            } else {
+                Modifier
+                    .clip(indicatorShape)
+                    .background(
+                        ZhixingTheme.colors.primaryContainer.copy(alpha = 0.82f),
+                    )
+            }
+
+            // One shared refractive indicator travels behind the four equal-width tabs.
             Box(
                 modifier = Modifier
                     .offset(x = indicatorOffset)
@@ -132,10 +201,7 @@ internal fun ZhixingLiquidBottomBar(
                         scaleX = 1f + (1f - touchDeformationScale) * 0.25f
                         scaleY = touchDeformationScale
                     }
-                    .clip(indicatorShape)
-                    .background(
-                        ZhixingTheme.colors.primaryContainer.copy(alpha = 0.82f),
-                    ),
+                    .then(selectionLensModifier),
             )
 
             Box(
