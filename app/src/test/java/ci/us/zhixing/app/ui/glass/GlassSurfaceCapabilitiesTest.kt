@@ -13,10 +13,13 @@ class GlassSurfaceCapabilitiesTest {
                 apiLevel = apiLevel,
                 enabled = true,
                 blurRadiusDp = 12f,
+                refractionEnabled = true,
+                refractionStrengthDp = 1.8f,
             )
 
             assertTrue(capabilities.useBackdropSampling)
             assertFalse(capabilities.useBlur)
+            assertFalse(capabilities.useRefraction)
         }
     }
 
@@ -27,10 +30,13 @@ class GlassSurfaceCapabilitiesTest {
                 apiLevel = apiLevel,
                 enabled = true,
                 blurRadiusDp = 12f,
+                refractionEnabled = true,
+                refractionStrengthDp = 1.8f,
             )
 
             assertTrue(capabilities.useBackdropSampling)
             assertTrue(capabilities.useBlur)
+            assertFalse(capabilities.useRefraction)
         }
     }
 
@@ -41,10 +47,13 @@ class GlassSurfaceCapabilitiesTest {
                 apiLevel = apiLevel,
                 enabled = true,
                 blurRadiusDp = 12f,
+                refractionEnabled = true,
+                refractionStrengthDp = 1.8f,
             )
 
             assertTrue(capabilities.useBackdropSampling)
             assertTrue(capabilities.useBlur)
+            assertTrue(capabilities.useRefraction)
         }
     }
 
@@ -66,10 +75,50 @@ class GlassSurfaceCapabilitiesTest {
             apiLevel = 36,
             enabled = false,
             blurRadiusDp = 12f,
+            refractionEnabled = true,
+            refractionStrengthDp = 1.8f,
         )
 
         assertFalse(capabilities.useBackdropSampling)
         assertFalse(capabilities.useBlur)
+        assertFalse(capabilities.useRefraction)
+    }
+
+    @Test
+    fun disabledOrZeroRefractionDoesNotEnableLens() {
+        val disabled = resolveGlassSurfaceCapabilities(
+            apiLevel = 36,
+            enabled = true,
+            blurRadiusDp = 0f,
+            refractionEnabled = false,
+            refractionStrengthDp = 1.8f,
+        )
+        val zeroStrength = resolveGlassSurfaceCapabilities(
+            apiLevel = 36,
+            enabled = true,
+            blurRadiusDp = 0f,
+            refractionEnabled = true,
+            refractionStrengthDp = 0f,
+        )
+
+        assertFalse(disabled.useRefraction)
+        assertFalse(zeroStrength.useRefraction)
+    }
+
+    @Test
+    fun refractionStrengthOutsideRangeAndNonFiniteValuesAreRejected() {
+        listOf(-0.01f, 8.01f, Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
+            .forEach { strength ->
+                assertThrows(IllegalArgumentException::class.java) {
+                    resolveGlassSurfaceCapabilities(
+                        apiLevel = 36,
+                        enabled = true,
+                        blurRadiusDp = 0f,
+                        refractionEnabled = true,
+                        refractionStrengthDp = strength,
+                    )
+                }
+            }
     }
 
     @Test
