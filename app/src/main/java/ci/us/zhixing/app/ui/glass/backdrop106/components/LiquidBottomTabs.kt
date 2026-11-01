@@ -85,17 +85,13 @@ fun LiquidBottomTabs(
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
-    val isLightTheme = true
+    // Zhixing intentionally uses a light material regardless of system theme.
     val materialParameters = resolveCatalogBottomBarMaterialParameters(
         material = material,
         apiLevel = Build.VERSION.SDK_INT,
     )
-    val accentColor =
-        if (isLightTheme) Color(0xFF0088FF)
-        else Color(0xFF0091FF)
-    val containerColor =
-        if (isLightTheme) Color(0xFFFAFAFA).copy(alpha = materialParameters.overlayAlpha)
-        else Color(0xFF121212).copy(alpha = materialParameters.overlayAlpha)
+    val accentColor = Color(0xFF0088FF)
+    val containerColor = Color(0xFFFAFAFA).copy(alpha = materialParameters.overlayAlpha)
 
     val tabsBackdrop = if (materialParameters.useRefraction) {
         rememberLayerBackdrop()
@@ -342,11 +338,7 @@ fun LiquidBottomTabs(
                 },
                 onDrawSurface = {
                     drawRect(
-                        if (isLightTheme) {
-                            Color.Black.copy(alpha = 0.1f * materialParameters.overlayAlpha)
-                        } else {
-                            Color.White.copy(alpha = 0.1f * materialParameters.overlayAlpha)
-                        },
+                        Color.Black.copy(alpha = 0.1f * materialParameters.overlayAlpha),
                         alpha = 1f - pressProgress,
                     )
                     drawRect(
