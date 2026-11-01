@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -25,8 +28,10 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.input.ImeAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import ci.us.zhixing.app.MainActivity
 import ci.us.zhixing.app.navigation.AppDestinations
@@ -47,6 +52,7 @@ class ZhixingCatalogBottomBarInsetsOrientationTest {
 
         composeRule.setContent {
             var input by remember { mutableStateOf("") }
+            val keyboardController = LocalSoftwareKeyboardController.current
             val imeBottom = androidx.compose.foundation.layout.WindowInsets.ime
                 .getBottom(LocalDensity.current)
             SideEffect {
@@ -68,6 +74,10 @@ class ZhixingCatalogBottomBarInsetsOrientationTest {
                             BasicTextField(
                                 value = input,
                                 onValueChange = { input = it },
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                keyboardActions = KeyboardActions(
+                                    onDone = { keyboardController?.hide() },
+                                ),
                                 modifier = Modifier.testTag(IME_INPUT_TAG),
                             )
                         }
@@ -107,6 +117,13 @@ class ZhixingCatalogBottomBarInsetsOrientationTest {
             "Catalog bottom bar should be lifted above the visible IME.",
             barBounds.bottom <= imeTop + 4f,
         )
+        composeRule.onAllNodes(tabRole()).assertCountEquals(4)
+        composeRule.onNodeWithTag(BOTTOM_BAR_TAG).assertIsDisplayed()
+
+        composeRule.onNodeWithTag(IME_INPUT_TAG).performImeAction()
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            insets.imeBottomPx == 0
+        }
         composeRule.onAllNodes(tabRole()).assertCountEquals(4)
         composeRule.onNodeWithTag(BOTTOM_BAR_TAG).assertIsDisplayed()
     }
