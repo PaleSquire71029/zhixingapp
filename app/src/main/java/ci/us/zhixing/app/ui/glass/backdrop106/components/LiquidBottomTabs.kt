@@ -19,7 +19,6 @@ import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -86,7 +85,7 @@ fun LiquidBottomTabs(
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
-    val isLightTheme = !isSystemInDarkTheme()
+    val isLightTheme = true
     val materialParameters = resolveCatalogBottomBarMaterialParameters(
         material = material,
         apiLevel = Build.VERSION.SDK_INT,
@@ -141,6 +140,7 @@ fun LiquidBottomTabs(
                 visibilityThreshold = 0.001f,
                 initialScale = 1f,
                 pressedScale = if (materialParameters.touchFeedbackEnabled) 78f / 56f else 1f,
+                touchFeedbackEnabled = materialParameters.touchFeedbackEnabled,
                 onDragStarted = {},
                 onDragStopped = {
                     val targetIndex = targetValue.fastRoundToInt().fastCoerceIn(0, tabsCount - 1)
@@ -346,11 +346,18 @@ fun LiquidBottomTabs(
                 },
                 onDrawSurface = {
                     drawRect(
-                        if (isLightTheme) Color.Black.copy(0.1f)
-                        else Color.White.copy(0.1f),
+                        if (isLightTheme) {
+                            Color.Black.copy(alpha = 0.1f * materialParameters.overlayAlpha)
+                        } else {
+                            Color.White.copy(alpha = 0.1f * materialParameters.overlayAlpha)
+                        },
                         alpha = 1f - pressProgress,
                     )
-                    drawRect(Color.Black.copy(alpha = 0.03f * pressProgress))
+                    drawRect(
+                        Color.Black.copy(
+                            alpha = 0.03f * pressProgress * materialParameters.overlayAlpha,
+                        ),
+                    )
                     if (materialParameters.environmentReflectionEnabled) {
                         drawEnvironmentReflection()
                     }
