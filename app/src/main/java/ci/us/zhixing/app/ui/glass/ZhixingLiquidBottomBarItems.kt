@@ -507,6 +507,60 @@ internal fun ZhixingLiquidBottomBar(
 }
 
 @Composable
+private fun RowScope.LiquidBottomBarSampleItem(
+    destination: AppDestination,
+    selected: Boolean,
+) {
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .fillMaxHeight()
+            .padding(horizontal = 2.dp, vertical = 3.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    scaleX = if (selected) 1f else 0.96f
+                    scaleY = if (selected) 1f else 0.96f
+                },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = destination.symbol,
+                modifier = Modifier.graphicsLayer {
+                    alpha = if (selected) 1f else 0.88f
+                    scaleX = if (selected) 1f else 0.96f
+                    scaleY = if (selected) 1f else 0.96f
+                },
+                style = ZhixingTheme.type.navigationSymbol,
+                color = if (selected) {
+                    ZhixingTheme.colors.primary
+                } else {
+                    ZhixingTheme.colors.onSurfaceVariant
+                },
+            )
+            Text(
+                text = destination.label,
+                modifier = Modifier.graphicsLayer {
+                    alpha = if (selected) 1f else 0.78f
+                },
+                style = ZhixingTheme.type.supporting,
+                color = if (selected) {
+                    ZhixingTheme.colors.primary
+                } else {
+                    ZhixingTheme.colors.onSurfaceVariant
+                },
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
 private fun RowScope.LiquidBottomBarItem(
     destination: AppDestination,
     selected: Boolean,
