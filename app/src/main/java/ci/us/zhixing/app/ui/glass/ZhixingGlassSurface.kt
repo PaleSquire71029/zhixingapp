@@ -60,7 +60,7 @@ internal fun ZhixingGlassSurface(
                         blur(material.blurRadiusDp.dp.toPx())
                     }
                     if (capabilities.useRefraction) {
-                        val lens = resolveTouchRefractionParameters(
+                        val lensParameters = resolveTouchRefractionParameters(
                             baseHeightDp = 22f,
                             baseAmountDp = material.refractionStrengthDp,
                             pressProgress = if (material.touchFeedbackEnabled) {
@@ -70,8 +70,8 @@ internal fun ZhixingGlassSurface(
                             },
                         )
                         lens(
-                            refractionHeight = lens.heightDp.dp.toPx(),
-                            refractionAmount = lens.amountDp.dp.toPx(),
+                            refractionHeight = lensParameters.heightDp.dp.toPx(),
+                            refractionAmount = lensParameters.amountDp.dp.toPx(),
                             chromaticAberration = material.chromaticDispersionEnabled,
                         )
                     }
