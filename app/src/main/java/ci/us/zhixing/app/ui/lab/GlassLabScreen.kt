@@ -12,7 +12,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -45,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -59,6 +59,7 @@ import com.kyant.backdrop.highlight.Highlight
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.drawEnvironmentReflection
+import ci.us.zhixing.app.ui.glass.drawTouchGlow
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -563,10 +564,16 @@ private fun GlassPreviewCard(
     shape: Shape,
 ) {
     var pressed by remember { mutableStateOf(false) }
+    var touchPosition by remember { mutableStateOf(Offset.Zero) }
     val pressScale by animateFloatAsState(
         targetValue = if (pressed && touchFeedbackEnabled) 0.992f else 1f,
         animationSpec = tween(if (pressed) 90 else 180),
         label = "liveGlassPressScale",
+    )
+    val touchGlowAlpha by animateFloatAsState(
+        targetValue = if (pressed && touchFeedbackEnabled) 0.24f else 0f,
+        animationSpec = tween(if (pressed) 90 else 190),
+        label = "glassPreviewTouchGlow",
     )
 
     val backdrop = if (backdropEnabled) rememberLayerBackdrop() else null
@@ -625,10 +632,21 @@ private fun GlassPreviewCard(
                     .pointerInput(touchFeedbackEnabled) {
                         if (!touchFeedbackEnabled) return@pointerInput
                         awaitEachGesture {
-                            awaitFirstDown(requireUnconsumed = false)
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            touchPosition = down.position
                             pressed = true
                             try {
-                                waitForUpOrCancellation()
+                                var pointerDown = true
+                                while (pointerDown) {
+                                    val event = awaitPointerEvent()
+                                    val change = event.changes.firstOrNull()
+                                    if (change == null) {
+                                        pointerDown = false
+                                    } else {
+                                        touchPosition = change.position
+                                        pointerDown = change.pressed
+                                    }
+                                }
                             } finally {
                                 pressed = false
                             }
@@ -654,6 +672,9 @@ private fun GlassPreviewCard(
                             drawRect(Color.White.copy(alpha = surfaceOverlayAlpha))
                             if (environmentReflectionEnabled) {
                                 drawEnvironmentReflection()
+                            }
+                            if (touchFeedbackEnabled && touchGlowAlpha > 0.001f) {
+                                drawTouchGlow(touchPosition, touchGlowAlpha)
                             }
                         },
                     ),
