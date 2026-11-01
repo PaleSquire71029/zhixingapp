@@ -4,6 +4,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -30,7 +31,7 @@ class GlassMaterialSettingsStoreTest {
     }
 
     @Test
-    fun savePersistsAllEightMaterialProperties() = runBlocking {
+    fun savePersistsAllNineMaterialProperties() = runBlocking {
         val store = createStore()
         val expected = GlassMaterialState(
             transparencyPercent = 43,
@@ -38,6 +39,7 @@ class GlassMaterialSettingsStoreTest {
             enabled = false,
             refractionEnabled = false,
             refractionStrengthDp = 6.5f,
+            chromaticDispersionEnabled = true,
             edgeHighlightEnabled = false,
             environmentReflectionEnabled = false,
             touchFeedbackEnabled = false,
@@ -49,6 +51,7 @@ class GlassMaterialSettingsStoreTest {
         assertEquals(false, store.material.first().edgeHighlightEnabled)
         assertEquals(false, store.material.first().environmentReflectionEnabled)
         assertEquals(false, store.material.first().touchFeedbackEnabled)
+        assertTrue(store.material.first().chromaticDispersionEnabled)
     }
 
     @Test
