@@ -76,7 +76,7 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 @Composable
-fun LiquidBottomTabs(
+internal fun LiquidBottomTabs(
     selectedTabIndex: () -> Int,
     onTabSelected: (index: Int) -> Unit,
     backdrop: Backdrop,
