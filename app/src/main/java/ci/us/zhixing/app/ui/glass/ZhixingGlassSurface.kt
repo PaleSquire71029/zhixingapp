@@ -38,6 +38,7 @@ internal fun ZhixingGlassSurface(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(26.dp),
     glassEnabled: Boolean = true,
+    refractionPressProgress: Float = 0f,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val overlayAlpha = (100 - material.transparencyPercent) / 100f
@@ -59,9 +60,18 @@ internal fun ZhixingGlassSurface(
                         blur(material.blurRadiusDp.dp.toPx())
                     }
                     if (capabilities.useRefraction) {
+                        val lensParameters = resolveTouchRefractionParameters(
+                            baseHeightDp = 22f,
+                            baseAmountDp = material.refractionStrengthDp,
+                            pressProgress = if (material.touchFeedbackEnabled) {
+                                refractionPressProgress.coerceIn(0f, 1f)
+                            } else {
+                                0f
+                            },
+                        )
                         lens(
-                            refractionHeight = 22.dp.toPx(),
-                            refractionAmount = material.refractionStrengthDp.dp.toPx(),
+                            refractionHeight = lensParameters.heightDp.dp.toPx(),
+                            refractionAmount = lensParameters.amountDp.dp.toPx(),
                             chromaticAberration = material.chromaticDispersionEnabled,
                         )
                     }
