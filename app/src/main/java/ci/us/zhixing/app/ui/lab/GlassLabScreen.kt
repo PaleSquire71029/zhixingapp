@@ -429,8 +429,8 @@ private fun GlassPreviewCard(
             .height(320.dp)
             .clip(shape),
     ) {
-        if (backdrop != null) {
-            val activeBackdrop = requireNotNull(backdrop)
+        val activeBackdrop = backdrop
+        if (activeBackdrop != null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -454,7 +454,7 @@ private fun GlassPreviewCard(
             }
         }
 
-        if (backdropEnabled) {
+        if (activeBackdrop != null) {
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)
