@@ -929,7 +929,19 @@
 - [x] 正式 `ZhixingGlassSurface` 与 Glass Lab 预览使用相同的效果顺序：Vibrancy → Blur → Lens。
 - [x] Lite（模糊 / 折射均关闭）和 Off 不执行 Vibrancy；API 26–30 自动降级，避免无效 RenderEffect。
 - [x] 扩展能力策略测试：覆盖 API 26–30、31–32、33+、仅折射、无有效光学效果及 Off。
-- [ ] PR #33 的资源检查、JUnit、仪器测试源码编译、Debug APK 构建和 Artifact 上传待 CI。
+- [x] PR [#33](https://github.com/PaleSquire71029/zhixingapp/pull/33) 已 squash 合并；合并提交 `b4a31695893fd7f03438e26fbb8be2549ce25d86`。
+- [x] Android Build（Run ID `41272191950`）结果为 `success`；资源检查、JUnit、仪器测试源码编译、Debug APK 构建和 Artifact 上传全部通过。
 - [ ] 真机检查颜色是否过饱和、玻璃下背景对比度、白色 / 彩色背景表现与帧率。
 
 本步使用 Backdrop 库自身的 Vibrancy ColorMatrix，不叠加自制滤镜；Vibrancy 只作用于被玻璃采样的背景，玻璃表面内的前景文字仍由 Compose 正常绘制。实际观感仍需在设备上校准。
+
+### 10.28 S6.12 底部导航选中项独立折射玻璃层（2026-11-01）
+
+- [x] 将原本的纯色选中背景替换为独立的 Backdrop drawBackdrop 层；透镜随共享选中胶囊连续移动。
+- [x] 选中层单独采样页面 Backdrop，并按当前材质能力应用 Vibrancy、Blur、Lens；API 低版本或折射关闭时保留轻量回退。
+- [x] 选中层复用当前折射强度和色散开关，增加克制的前景色调与边缘高光。
+- [x] 选中层沿用 S6.10 的按压进度，触摸时透镜高度和折射量动态增强；释放后回归静态状态。
+- [x] 保持原有动画位置、四项导航内容、Role.Tab 语义和 selectable 触控区域；玻璃装饰层不接管点击。
+- [ ] PR / CI 待执行；设备上检查折射是否清晰但不过强、文字对比度、帧率和耗电仍待验收。
+
+本步只让选中胶囊拥有独立实时折射层；尚未实现手指拖动选项、液体形变传播或完整 iOS 26 系统级材质行为。
