@@ -52,6 +52,8 @@ import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
+import com.kyant.backdrop.shadow.InnerShadow
+import com.kyant.backdrop.shadow.Shadow
 import kotlinx.coroutines.flow.collect
 
 /**
@@ -133,17 +135,18 @@ internal fun ZhixingLiquidBottomBar(
                 refractionEnabled = material.refractionEnabled,
                 refractionStrengthDp = material.refractionStrengthDp,
             )
+            val selectionPressProgress = if (
+                material.enabled && material.refractionEnabled &&
+                material.touchFeedbackEnabled
+            ) {
+                refractionPressProgress.coerceIn(0f, 1f)
+            } else {
+                0f
+            }
             val selectionLensParameters = resolveTouchRefractionParameters(
                 baseHeightDp = 10f,
                 baseAmountDp = material.refractionStrengthDp * 1.5f,
-                pressProgress = if (
-                    material.enabled && material.refractionEnabled &&
-                    material.touchFeedbackEnabled
-                ) {
-                    refractionPressProgress.coerceIn(0f, 1f)
-                } else {
-                    0f
-                },
+                pressProgress = selectionPressProgress,
             )
             val useSelectionBackdrop = indicatorCapabilities.useBackdropSampling &&
                 (indicatorCapabilities.useBlur || indicatorCapabilities.useRefraction)
@@ -171,10 +174,25 @@ internal fun ZhixingLiquidBottomBar(
                     },
                     highlight = {
                         if (material.edgeHighlightEnabled) {
-                            Highlight.Default.copy(alpha = 0.60f)
+                            Highlight.Default.copy(
+                                alpha = 0.52f + 0.16f * selectionPressProgress,
+                            )
                         } else {
                             null
                         }
+                    },
+                    shadow = {
+                        Shadow(
+                            radius = 4.dp,
+                            color = Color.Black.copy(alpha = 0.055f),
+                            alpha = 0.42f + 0.28f * selectionPressProgress,
+                        )
+                    },
+                    innerShadow = {
+                        InnerShadow(
+                            radius = 2.dp + 3.dp * selectionPressProgress,
+                            alpha = 0.08f + 0.12f * selectionPressProgress,
+                        )
                     },
                     onDrawSurface = {
                         drawRect(
