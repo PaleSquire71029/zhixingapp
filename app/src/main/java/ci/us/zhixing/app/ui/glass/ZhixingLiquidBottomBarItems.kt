@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
@@ -51,10 +52,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestination
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -115,6 +120,10 @@ internal fun ZhixingLiquidBottomBar(
                 .padding(horizontal = 7.dp, vertical = 6.dp),
         ) {
             val itemWidth = maxWidth / destinations.size
+            // Mirror the tab faces into a dedicated layer so the selected lens
+            // can refract both page content and the labels/icons beneath it.
+            val tabContentBackdrop = rememberLayerBackdrop()
+            val selectionBackdrop = rememberCombinedBackdrop(backdrop, tabContentBackdrop)
             val density = LocalDensity.current
             val itemWidthPx = with(density) { itemWidth.toPx() }
             var touchPoint by remember { mutableStateOf<Offset?>(null) }
@@ -235,7 +244,7 @@ internal fun ZhixingLiquidBottomBar(
             // It keeps the same animated position and never participates in hit testing.
             val selectionLensModifier = if (useSelectionBackdrop) {
                 Modifier.drawBackdrop(
-                    backdrop = backdrop,
+                    backdrop = selectionBackdrop,
                     shape = { indicatorShape },
                     effects = {
                         if (indicatorCapabilities.useVibrancy) {
@@ -373,6 +382,27 @@ internal fun ZhixingLiquidBottomBar(
                         }
                     },
             ) {
+            // The invisible duplicate contributes only tab artwork to the combined
+            // backdrop. It has no pointer handlers, click target, or accessibility nodes.
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clearAndSetSemantics {}
+                    .alpha(0f)
+                    .layerBackdrop(tabContentBackdrop),
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                destinations.forEachIndexed { index, destination ->
+                    key(destination.route) {
+                        LiquidBottomBarSampleItem(
+                            destination = destination,
+                            selected = index == selectedIndex,
+                        )
+                    }
+                }
+            }
+
             // A short gradient wake trails the moving capsule and fades on release.
             if (dragTrailOpacity > 0.001f) {
                 val trailColor = dragTrailTint
@@ -472,6 +502,60 @@ internal fun ZhixingLiquidBottomBar(
                 }
             }
             }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.LiquidBottomBarSampleItem(
+    destination: AppDestination,
+    selected: Boolean,
+) {
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .fillMaxHeight()
+            .padding(horizontal = 2.dp, vertical = 3.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    scaleX = if (selected) 1f else 0.96f
+                    scaleY = if (selected) 1f else 0.96f
+                },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = destination.symbol,
+                modifier = Modifier.graphicsLayer {
+                    alpha = if (selected) 1f else 0.88f
+                    scaleX = if (selected) 1f else 0.96f
+                    scaleY = if (selected) 1f else 0.96f
+                },
+                style = ZhixingTheme.type.navigationSymbol,
+                color = if (selected) {
+                    ZhixingTheme.colors.primary
+                } else {
+                    ZhixingTheme.colors.onSurfaceVariant
+                },
+            )
+            Text(
+                text = destination.label,
+                modifier = Modifier.graphicsLayer {
+                    alpha = if (selected) 1f else 0.78f
+                },
+                style = ZhixingTheme.type.supporting,
+                color = if (selected) {
+                    ZhixingTheme.colors.primary
+                } else {
+                    ZhixingTheme.colors.onSurfaceVariant
+                },
+                maxLines = 1,
+            )
         }
     }
 }
