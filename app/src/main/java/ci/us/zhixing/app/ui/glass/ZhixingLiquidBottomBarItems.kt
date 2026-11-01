@@ -229,6 +229,7 @@ internal fun ZhixingLiquidBottomBar(
             )
             val useSelectionBackdrop = indicatorCapabilities.useBackdropSampling &&
                 (indicatorCapabilities.useBlur || indicatorCapabilities.useRefraction)
+            val selectionOverlayAlpha = resolveGlassOverlayAlpha(material.transparencyPercent)
 
             // A separate live lens sits behind the foreground tab labels.
             // It keeps the same animated position and never participates in hit testing.
@@ -275,7 +276,7 @@ internal fun ZhixingLiquidBottomBar(
                     },
                     onDrawSurface = {
                         drawRect(
-                            ZhixingTheme.colors.primaryContainer.copy(alpha = 0.20f),
+                            ZhixingTheme.colors.primaryContainer.copy(alpha = selectionOverlayAlpha),
                         )
                         if (material.environmentReflectionEnabled) {
                             drawEnvironmentReflection()
@@ -286,7 +287,7 @@ internal fun ZhixingLiquidBottomBar(
                 Modifier
                     .clip(indicatorShape)
                     .background(
-                        ZhixingTheme.colors.primaryContainer.copy(alpha = 0.82f),
+                        ZhixingTheme.colors.primaryContainer.copy(alpha = selectionOverlayAlpha),
                     )
             }
 
