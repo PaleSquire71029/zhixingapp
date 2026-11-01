@@ -877,8 +877,10 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 | P2.3.3 | RTL 与布局 / 无障碍回归测试 | `ZhixingCatalogBottomBarLayoutAccessibilityTest.kt` | ✅ 已完成：PR #54 合并，Android Build #198 成功；测试源码通过编译，尚未在实体设备执行 |
 | P2.4.1a | 建立材质参数解析器与纯函数测试 | `CatalogBottomBarMaterialParameters.kt` + JUnit | ✅ 已完成：PR #55 合并，Android Build #200 成功；六项参数映射单测通过 |
 | P2.4.1b | 将解析参数接入官方 Catalog 底栏绘制 | `LiquidBottomTabs.kt`、`ZhixingCatalogBottomBar.kt`、`DampedDragAnimation.kt` | ✅ 已完成：PR #56 合并，Android Build #206 成功；材质设置实际控制绘制与反馈，Off 路径保留点击 / 拖动导航 |
-| P2.4.2 | 将参数化官方底栏接入首页共享 Backdrop | `MainActivity.kt` 与包装层 | 当前分支切换生产底栏调用；复用唯一共享 Backdrop、`ZhixingLiquidBottomBarPlacement`、系统 Insets 与 IME 抬升；selectedIndex 仍由 MainActivity 持有；增加 Activity 级导航回归测试 |
-| P2.4.3 | 集成回归与视觉验收 | Compose 测试 / 目标真机 | 验证设置调整即时生效、横竖屏和 IME 不遮挡、底栏触摸与拖动、材质清晰度与帧率 |
+| P2.4.2 | 将参数化官方底栏接入首页共享 Backdrop | `MainActivity.kt` 与包装层 | ✅ 已完成：PR #57 合并，Android Build #209 成功；保留原材质状态、导航状态、Backdrop Host、Insets 与 IME 定位 |
+| P2.4.3a | 材质实验室预览 / DataStore 即时应用回归 | Activity 仪器测试 | 修改透明度、模糊、折射和开关后验证预览驱动的底栏跟随更新；提交 / 重置后检查持久化 |
+| P2.4.3b | 系统 Insets、IME 与屏幕方向回归 | Compose / Activity 仪器测试 | 导航栏安全区、键盘升起与收起、横竖屏、窄屏四入口可见与触控范围 |
+| P2.4.3c | 目标真机视觉与性能验收 | 真机检查记录 | 对照参考 APK 检查折射、色散、高光、拖动、帧时间、温升、耗电、文字与公式清晰度 |
 | P2.5 | 删除旧底栏重复手势与装饰动画 | 旧 ZhixingLiquidBottomBarItems.kt | 只清理官方接管的逻辑，不改业务状态；构建与导航测试通过 |
 | P2.6 | 导航交互与性能验收 | UI 测试 / 真机检查记录 | 点击、拖动、取消、快速切换、横竖屏、系统 Insets、帧率通过后才结束 P2 |
 | P3 | 移植官方 BackdropDemoScaffold 背景源与对照壁纸 | BackdropHost、drawable、资源声明 | 使用真实可采样背景；先与参考 APK 同壁纸对照，再替换成知行品牌背景 |
@@ -963,25 +965,29 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 4. P2.3.3 已完成并合入 main（PR #54，merge commit `7b24af78590abc6de546f34e66f75a2d0bfe57fc`）；Android Build #198 成功。
 5. P2.4.1a 已完成并合入 main（PR #55，merge commit `677b0b0ea9fbcefac5d2e35d2573e9f93b12fac6`）；Android Build #200 成功。
 6. P2.4.1b 已完成并合入 main（PR #56，merge commit `25057905dbbe76881f9f7d77e7e62b156ccbd14b`）；Android Build #206 成功。
-7. 当前分支 `port/catalog-1.0.6-p2-4-2-main-activity-integration` 正在执行 P2.4.2：MainActivity 使用 `ZhixingCatalogBottomBar`，保留共享 Backdrop、材质设置、Insets / IME 定位和外部导航状态；Activity 级仪器测试验证四项导航。
-8. P2.4.2 完成后进入 P2.4.3 集成回归与设备视觉验收；当前 CI 只编译 `androidTest`，不会在 Hosted 模拟器执行仪器测试。
-9. 所有步骤继续固定官方 1.0.6 源码、Apache-2.0 归属和固定依赖版本。
+7. P2.4.2 已完成并合入 main（PR #57，merge commit `3ac995fd7069148bea56cb8baaf11ab794987cdd`）；Android Build #209 成功，MainActivity 已使用官方 Catalog 底栏。
+8. 下一步做 P2.4.3a 材质实验室预览 / DataStore 即时应用回归，再做 P2.4.3b Insets / IME / 方向变化回归，最后 P2.4.3c 真机视觉与性能验收。
+9. 当前 CI 只编译 `androidTest` 源码，不会在 Hosted 模拟器执行仪器测试；真机折射、手势、TalkBack、帧率和耗电仍需真实设备验收。
+10. 旧 `ZhixingLiquidBottomBar` 代码暂留，P2.5 单独清理；不要在 P2.4.3 之前删除回滚路径。
+11. 所有步骤继续固定官方 1.0.6 源码、Apache-2.0 归属和固定依赖版本。
 
-**当前生产底栏正在本分支切换；旧底栏源码仍保留，待 P2.5 单独清理。**
+**当前生产底栏已切换到官方适配层；旧底栏实现保留待 P2.5 清理。**
 
 
 
 ### 25.9 本轮进度记录（2026-11-01）
 
-- [x] P2.2 PR #51 合并，commit `ce7539907a666db829de3c32b5c88228e39bd5bb`；Android Build #185（Run ID `41280875247`）全部成功。
-- [x] P2.3.1 PR #52 合并，commit `4578f54fafd0cfc20f5ba0cdc2aabfdce32ae376`；Android Build #192（Run ID `41281478165`）全部成功。
-- [x] P2.3.2 PR #53 合并，commit `54da045b95bcc4e460597d3a92a3e0f748f23b20`；Android Build #196（Run ID `41282146320`）全部成功。
-- [x] P2.3.3 PR #54 合并，commit `7b24af78590abc6de546f34e66f75a2d0bfe57fc`；Android Build #198（Run ID `41282327355`）全部成功。
-- [x] P2.4.1a PR #55 合并，commit `677b0b0ea9fbcefac5d2e35d2573e9f93b12fac6`；Android Build #200（Run ID `41282549664`）全部成功。
-- [x] P2.4.1b PR #56 合并，commit `25057905dbbe76881f9f7d77e7e62b156ccbd14b`；Android Build #206（Run ID `41283390026`）全部成功。
-- [x] P2.4.1b 把透明度、模糊、折射、vibrancy、色散、高光、环境反射、触摸反馈接入官方绘制；Off / 无折射跳过隐藏采样层。
-- [x] P2.4.1b 关闭触摸反馈时跳过 press/release 弹簧及高光 Shader，但保留拖动速度采样与吸附；增加 Off / touch feedback disabled 两项拖动测试。
-- [ ] P2.4.2 当前分支 `port/catalog-1.0.6-p2-4-2-main-activity-integration` 将官方底栏接入 MainActivity，并增加 Activity 级导航集成测试。
+- [x] P2.2 PR #51 合并，commit `ce7539907a666db829de3c32b5c88228e39bd5bb`；Android Build #185 全部成功。
+- [x] P2.3.1 PR #52 合并，commit `4578f54fafd0cfc20f5ba0cdc2aabfdce32ae376`；Android Build #192 全部成功。
+- [x] P2.3.2 PR #53 合并，commit `54da045b95bcc4e460597d3a92a3e0f748f23b20`；Android Build #196 全部成功。
+- [x] P2.3.3 PR #54 合并，commit `7b24af78590abc6de546f34e66f75a2d0bfe57fc`；Android Build #198 全部成功。
+- [x] P2.4.1a PR #55 合并，commit `677b0b0ea9fbcefac5d2e35d2573e9f93b12fac6`；Android Build #200 全部成功。
+- [x] P2.4.1b PR #56 合并，commit `25057905dbbe76881f9f7d77e7e62b156ccbd14b`；Android Build #206 全部成功。
+- [x] P2.4.2 PR #57 合并，commit `3ac995fd7069148bea56cb8baaf11ab794987cdd`；Android Build #209 全部成功。
+- [x] MainActivity 已切换到官方 Catalog 适配层，继续复用 DataStore 材质状态、shared Backdrop、四项目的导航状态和原系统 Insets / IME 定位。
+- [x] 新增 Activity 级仪器测试源，检查四个 Tab、初始计算选中以及知行AI / 工具页面标题联动；CI 完成编译，尚未在模拟器执行。
+- [ ] 下一步进入 P2.4.3a 材质实验室预览 / DataStore 即时应用回归。
+
 
 
 
