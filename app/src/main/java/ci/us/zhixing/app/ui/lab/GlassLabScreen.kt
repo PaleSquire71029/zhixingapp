@@ -73,6 +73,8 @@ internal fun GlassLabScreen(
     lifecycle: Lifecycle,
     initialMaterial: GlassMaterialState,
     onMaterialChange: (GlassMaterialState) -> Unit,
+    onMaterialCommit: (GlassMaterialState) -> Unit,
+    onMaterialReset: () -> Unit,
 ) {
     val apiLevel = Build.VERSION.SDK_INT
     val blurSupported = apiLevel >= Build.VERSION_CODES.S
@@ -98,24 +100,49 @@ internal fun GlassLabScreen(
 
     val backdropEnabled = selectedTier != GlassPerformanceTier.OFF
 
+    fun currentMaterial(): GlassMaterialState = GlassMaterialState(
+        transparencyPercent = transparencyPercent.roundToInt(),
+        blurRadiusDp = blurRadiusDp,
+        enabled = selectedTier != GlassPerformanceTier.OFF,
+        refractionEnabled = refractionEnabled,
+        refractionStrengthDp = refractionStrength,
+    )
+
+    fun publishMaterial(commit: Boolean = false) {
+        val material = currentMaterial()
+        onMaterialChange(material)
+        if (commit) {
+            onMaterialCommit(material)
+        }
+    }
+
+    fun resetMaterial() {
+        selectedTier = GlassPerformanceTier.CUSTOM
+        transparencyPercent = DEFAULT_HOME_GLASS_MATERIAL.transparencyPercent.toFloat()
+        blurRadiusDp = DEFAULT_HOME_GLASS_MATERIAL.blurRadiusDp
+        refractionEnabled = DEFAULT_HOME_GLASS_MATERIAL.refractionEnabled
+        refractionStrength = DEFAULT_HOME_GLASS_MATERIAL.refractionStrengthDp
+        edgeHighlightEnabled = initialConfig.edgeHighlightEnabled
+        touchFeedbackEnabled = initialConfig.touchFeedbackEnabled
+        onMaterialChange(DEFAULT_HOME_GLASS_MATERIAL)
+        onMaterialReset()
+    }
+
     fun applyPerformanceTier(tier: GlassPerformanceTier) {
-        val config = resolveGlassPerformanceConfig(tier, apiLevel)
-        selectedTier = tier
-        blurRadiusDp = config.blurRadiusDp
-        refractionEnabled = config.refractionEnabled
-        refractionStrength = config.refractionStrengthPx
-        edgeHighlightEnabled = config.edgeHighlightEnabled
-        touchFeedbackEnabled = config.touchFeedbackEnabled
-        transparencyPercent = ((1f - config.panelOverlayAlpha) * 100f).coerceIn(0f, 100f)
-        onMaterialChange(
-            GlassMaterialState(
-                transparencyPercent = transparencyPercent.roundToInt(),
-                blurRadiusDp = blurRadiusDp,
-                enabled = tier != GlassPerformanceTier.OFF,
-                refractionEnabled = refractionEnabled,
-                refractionStrengthDp = refractionStrength,
-            ),
-        )
+        if (tier == GlassPerformanceTier.OFF) {
+            // Off only changes the enabled flag; retain the user's optical values.
+            selectedTier = GlassPerformanceTier.OFF
+        } else {
+            val config = resolveGlassPerformanceConfig(tier, apiLevel)
+            selectedTier = tier
+            blurRadiusDp = config.blurRadiusDp
+            refractionEnabled = config.refractionEnabled
+            refractionStrength = config.refractionStrengthPx
+            edgeHighlightEnabled = config.edgeHighlightEnabled
+            touchFeedbackEnabled = config.touchFeedbackEnabled
+            transparencyPercent = ((1f - config.panelOverlayAlpha) * 100f).coerceIn(0f, 100f)
+        }
+        publishMaterial(commit = true)
     }
 
     fun markCustom() {
@@ -221,16 +248,9 @@ internal fun GlassLabScreen(
                 onValueChange = {
                     markCustom()
                     transparencyPercent = it.coerceIn(0f, 100f)
-                    onMaterialChange(
-                        GlassMaterialState(
-                            transparencyPercent = transparencyPercent.roundToInt(),
-                            blurRadiusDp = blurRadiusDp,
-                            enabled = true,
-                            refractionEnabled = refractionEnabled,
-                            refractionStrengthDp = refractionStrength,
-                        ),
-                    )
+                    publishMaterial()
                 },
+                onValueChangeFinished = { publishMaterial(commit = true) },
                 valueRange = 0f..100f,
                 steps = 19,
             )
@@ -252,16 +272,9 @@ internal fun GlassLabScreen(
                 onValueChange = {
                     markCustom()
                     blurRadiusDp = it.coerceIn(0f, 24f)
-                    onMaterialChange(
-                        GlassMaterialState(
-                            transparencyPercent = transparencyPercent.roundToInt(),
-                            blurRadiusDp = blurRadiusDp,
-                            enabled = true,
-                            refractionEnabled = refractionEnabled,
-                            refractionStrengthDp = refractionStrength,
-                        ),
-                    )
+                    publishMaterial()
                 },
+                onValueChangeFinished = { publishMaterial(commit = true) },
                 valueRange = 0f..24f,
                 steps = 23,
                 enabled = blurSupported && backdropEnabled,
@@ -304,15 +317,7 @@ internal fun GlassLabScreen(
                 onClick = {
                     markCustom()
                     refractionEnabled = !refractionEnabled
-                    onMaterialChange(
-                        GlassMaterialState(
-                            transparencyPercent = transparencyPercent.roundToInt(),
-                            blurRadiusDp = blurRadiusDp,
-                            enabled = true,
-                            refractionEnabled = refractionEnabled,
-                            refractionStrengthDp = refractionStrength,
-                        ),
-                    )
+                    publishMaterial(commit = true)
                 },
             ) {
                 Text(
@@ -334,16 +339,9 @@ internal fun GlassLabScreen(
                 onValueChange = {
                     markCustom()
                     refractionStrength = it.coerceIn(0f, 8f)
-                    onMaterialChange(
-                        GlassMaterialState(
-                            transparencyPercent = transparencyPercent.roundToInt(),
-                            blurRadiusDp = blurRadiusDp,
-                            enabled = true,
-                            refractionEnabled = refractionEnabled,
-                            refractionStrengthDp = refractionStrength,
-                        ),
-                    )
+                    publishMaterial()
                 },
+                onValueChangeFinished = { publishMaterial(commit = true) },
                 valueRange = 0f..8f,
                 steps = 15,
                 enabled = refractionSupported && refractionEnabled && backdropEnabled,
