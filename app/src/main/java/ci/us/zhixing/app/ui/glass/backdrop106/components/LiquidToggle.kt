@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -50,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.lerp
 import ci.us.zhixing.app.ui.glass.backdrop106.DampedDragAnimation
-import ci.us.zhixing.app.ui.glass.backdrop106.DragGestureInspector
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberBackdrop
@@ -148,7 +148,7 @@ internal fun LiquidToggle(
                 .clip(Capsule())
                 .drawBehind {
                     val progress = dampedDragAnimation.value
-                    drawRect(Color.lerp(trackColor, accentColor, progress))
+                    drawRect(lerp(trackColor, accentColor, progress))
                 }
                 .size(64.dp, 28.dp),
         )
