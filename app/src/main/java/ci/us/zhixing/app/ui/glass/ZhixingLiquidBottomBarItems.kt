@@ -46,7 +46,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.consume
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.semantics.Role
@@ -72,7 +71,8 @@ import kotlin.math.roundToInt
  * the same spring animation. Icon scale and label opacity are draw-only
  * transitions and do not change tab measurement or touch bounds.
  *
- * Positioning, system insets, and drag gestures remain separate concerns.
+ * A horizontal drag can begin on the selected capsule; system insets and
+ * placement remain owned by the surrounding navigation host.
  */
 @Composable
 internal fun ZhixingLiquidBottomBar(
