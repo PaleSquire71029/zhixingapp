@@ -695,17 +695,18 @@
 - [x] Android Build #53（Run ID `41261281542`）通过；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41261281542)。
 - [ ] 尚未完成目标手机上的 Insets、安全区域、滚动层级、背景采样画面和设备性能实测。
 
-### 10.11 S4.3 共享背景宿主交互验证（进行中，2026-11-01）
+### 10.11 S4.3 共享背景宿主交互验证（部分完成，2026-11-01）
 
 - [x] 代码审查确认 `layerBackdrop` 仅包裹背景渐变子树；前景内容由同一宿主的兄弟层绘制，不会被重新录入同一采样层。
 - [x] 确认背景层没有 `clickable`、`pointerInput` 或语义点击修饰符，不主动消费前景触摸。
-- [x] 新增 Compose Android 仪器测试：两个 `ZhixingGlassSurface` 使用同一 Backdrop，验证内容可见且两处点击都能更新计数。
-- [x] 为 Android 测试增加 Compose UI Test / AndroidX Test 依赖。
-- [x] Android Build 工作流增加 API 35 Google APIs Emulator 仪器测试步骤。
-- [ ] PR #11 的 Android Emulator 仪器测试与 Debug 构建待 CI 验证。
-- [ ] 真机背景像素、连续采样、滚动、GPU 帧率、发热和耗电仍待目标设备验收；仪器测试不能替代真机性能测试。
+- [x] 新增 Compose Android 仪器测试：两个 `ZhixingGlassSurface` 使用同一 Backdrop，测试覆盖两个内容节点可见及两处点击后计数更新。
+- [x] PR #11 已合并，合并提交：`11fc135175210569bbadf0786e3acf8ece788ac2`。
+- [x] Android Build（Run ID `41263348169`）结果为 `success`：资源检查、JVM 单测、`compileDebugAndroidTestKotlin` 仪器测试源码编译、Debug APK 构建和 Artifact 上传均通过。
+- [x] 已从常规 CI 移除模拟器启动步骤，避免当前 Hosted Runner 在无 KVM 环境下持续卡住。
+- [ ] 仪器测试的实际点击断言没有执行。API 35 x86_64 模拟器日志显示 Runner 无 `/dev/kvm` 权限，ADB 长期 `device offline`，8 分钟后超时。
+- [ ] 因此此项仅完成架构审查与测试源码编译；两个表面的真实点击、采样像素、闪烁和真机性能仍待可用 Android 设备 / 带 KVM 的环境验证。
 
-**下一小步：** S4.3 CI 通过后先合并验证代码；再进入 S5.1，只创建不含动画的悬浮胶囊玻璃底栏外形，暂不接导航点击逻辑。
+**后续处理：** 有可用模拟器或真机时运行 `:app:connectedDebugAndroidTest`；不可把 androidTest 源码编译成功等同于点击断言通过。
 
 ### 10.12 S5.1 悬浮胶囊玻璃底栏外壳与合并验收（2026-11-01）
 
@@ -819,6 +820,19 @@
 - [ ] 真实设备上的入口位置、触控面积与 TalkBack 朗读待验收。
 
 本步只增加一个容易找到的材质设置入口；底部导航和玻璃渲染逻辑不在本步修改。
+
+### 10.20 S6.2 首页独立材质设置入口（2026-11-01）
+
+- [x] 首页右上角入口由静态“原生预览”标记改为可点击的“材质设置”。
+- [x] 点击后打开现有 `GlassLabScreen`，避免复制一套重复材质页面。
+- [x] 删除首页下方重复的“打开材质实验室”按钮。
+- [x] 保留四个玻璃底栏入口与选中逻辑，不增加第五个导航目的地。
+- [x] PR [#19](https://github.com/PaleSquire71029/zhixingapp/pull/19) 已 squash 合并；合并提交：`afadc577c4bd7e6b3a69719a58bfcb7c1d3e2161`。
+- [x] Android Build（Run ID `41263447325`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41263447325)。
+- [ ] 真机入口触控区域、TalkBack 朗读与小屏顶部布局尚待验收。
+- [ ] 现有 GlassLab 滑块尚未与首页底栏材质状态绑定；DataStore 保存与恢复仍未实现。
+
+**下一小步：** S6.3，增加透明度单独滑块并绑定首页底栏材质；透明度调整不得改变模糊半径。
 
 ### 10.20 S6.3 材质设置同步首页底栏（2026-11-01）
 
