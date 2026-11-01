@@ -1304,3 +1304,14 @@
 - [x] 开关补充 `Role.Switch`、`toggleableState`、ContentDescription、语义点击与 disabled 语义。
 - [x] 新增 Activity 集成测试，覆盖开关状态语义与切换后标题更新；Android Build #239（Run ID `41293096869`）全部成功。
 - [ ] CI 只编译仪器测试源；实际拖动、无障碍读屏、折射表现和触控延迟仍需目标手机验收。
+
+
+### 10.60 G4.2 色散折射 LiquidToggle（已合并，2026-11-01）
+
+- [x] PR [#71](https://github.com/PaleSquire71029/zhixingapp/pull/71) 已合并，commit `cefb07b22aedf61d3fb29ca9928477671c65418e`。
+- [x] “色散折射”由文字按钮换成 `ZhixingLiquidToggle`，状态仍写入原有 `chromaticDispersionEnabled`；未新增独立持久化字段。
+- [x] 保留 Android 13+ 支持条件、边缘折射开启条件、Off 性能档位禁用条件及统一触摸反馈配置。
+- [x] 新增语义测试覆盖依赖禁用、开启后状态切换，并尝试恢复测试前设置。
+- [x] Android Build #245（Run ID `41319607292`）通过：JUnit、androidTest Kotlin 编译、Debug APK 组装与 Artifact 上传成功。
+- [ ] 目标设备实际拖动 / 弹性、读屏点击、色散画面效果、性能和发热仍待验收。
+- [ ] 下一步 G4.3：边缘高光开关迁移。
