@@ -42,8 +42,8 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Run unit tests and assemble Debug APK
-        run: ./gradlew --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug
+      - name: Run unit tests, compile instrumentation tests and assemble Debug APK
+        run: ./gradlew --no-daemon --stacktrace :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:assembleDebug
 
       - name: Upload Debug APK as workflow artifact
         if: success()
