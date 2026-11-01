@@ -18,6 +18,7 @@ class GlassMaterialStateTest {
         assertTrue(state.edgeHighlightEnabled)
         assertTrue(state.environmentReflectionEnabled)
         assertTrue(state.touchFeedbackEnabled)
+        assertFalse(state.chromaticDispersionEnabled)
     }
 
 
