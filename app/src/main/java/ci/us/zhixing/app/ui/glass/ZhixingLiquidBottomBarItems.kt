@@ -152,6 +152,14 @@ internal fun ZhixingLiquidBottomBar(
                 animationSpec = tween(durationMillis = 120),
                 label = "zhixingBottomBarDragTrailOpacity",
             )
+            val dragTrailDirectionProgress by animateFloatAsState(
+                targetValue = if (dragDirection > 0) 1f else 0f,
+                animationSpec = tween(
+                    durationMillis = 100,
+                    easing = FastOutSlowInEasing,
+                ),
+                label = "zhixingBottomBarDragTrailDirection",
+            )
             val dragTrailWidth = with(density) {
                 (itemWidthPx * (0.22f + dragStretch * 0.50f)).toDp()
             }
@@ -355,12 +363,13 @@ internal fun ZhixingLiquidBottomBar(
             ) {
             // A short gradient wake trails the moving capsule and fades on release.
             if (dragTrailOpacity > 0.001f) {
-                val trailColor = Color(0xFFB8DDF0).copy(alpha = 0.30f)
-                val trailColors = if (dragDirection > 0) {
-                    listOf(Color.Transparent, trailColor)
-                } else {
-                    listOf(trailColor, Color.Transparent)
-                }
+                val trailColor = Color(0xFFB8DDF0)
+                val directionProgress = dragTrailDirectionProgress.coerceIn(0f, 1f)
+                val trailColors = listOf(
+                    trailColor.copy(alpha = 0.30f * (1f - directionProgress)),
+                    trailColor.copy(alpha = 0.30f),
+                    trailColor.copy(alpha = 0.30f * directionProgress),
+                )
                 Box(
                     modifier = Modifier
                         .align(Alignment.CenterStart)
@@ -370,11 +379,10 @@ internal fun ZhixingLiquidBottomBar(
                             } else {
                                 indicatorOffset.value
                             }
-                            val trailLeft = if (dragDirection > 0) {
-                                capsuleOffset - dragTrailWidth.toPx() + 3.dp.toPx()
-                            } else {
-                                capsuleOffset + itemWidthPx - 3.dp.toPx()
-                            }
+                            val trailingLeft = capsuleOffset - dragTrailWidth.toPx() + 3.dp.toPx()
+                            val trailingRight = capsuleOffset + itemWidthPx - 3.dp.toPx()
+                            val trailLeft = trailingRight +
+                                (trailingLeft - trailingRight) * directionProgress
                             IntOffset(trailLeft.roundToInt(), 0)
                         }
                         .width(dragTrailWidth)
