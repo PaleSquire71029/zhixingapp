@@ -90,8 +90,8 @@ class BackdropHostInteractionTest {
         }
 
         composeRule.onNodeWithTag("backdrop-host").assertIsDisplayed()
-        composeRule.onNodeWithTag("glass-content-one").assertIsDisplayed()
-        composeRule.onNodeWithTag("glass-content-two").assertIsDisplayed()
+        composeRule.onNodeWithTag("glass-content-one", useUnmergedTree = true).assertIsDisplayed()
+        composeRule.onNodeWithTag("glass-content-two", useUnmergedTree = true).assertIsDisplayed()
         composeRule.onNodeWithTag("tap-count").assertTextEquals("Tap count: 0")
 
         composeRule.onNodeWithTag("glass-surface-one").performClick()
