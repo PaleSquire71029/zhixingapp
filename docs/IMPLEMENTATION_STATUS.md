@@ -721,3 +721,18 @@
 - [ ] S4.3 PR #11 的 Android 模拟器仪器测试仍待 CI 最终结果。
 
 **下一小步：** S5.2，在独立底栏组件中添加四个导航项和点击回调，并验证选中状态；仍不修改 MainActivity。
+
+### 10.13 S5.2 四个玻璃底栏入口与受控选中态（2026-11-01）
+
+- [x] 新增 `app/src/main/java/ci/us/zhixing/app/ui/glass/ZhixingLiquidBottomBarItems.kt`。
+- [x] 使用现有 `AppDestination` 列表，四项为计算、知行AI、工具、历史。
+- [x] 接受 `selectedIndex` 和 `onDestinationSelected(index)`，选中状态由调用方统一控制。
+- [x] 使用 selectable 的 `Role.Tab` 语义；当前选中项显示浅色背景，其他项透明。
+- [x] PR [#13](https://github.com/PaleSquire71029/zhixingapp/pull/13) 已 squash 合并；合并提交：`c7077ad0c5331436ef9fc41e2a966d748c12de8f`。
+- [x] Android Build #58（Run ID `41262141510`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41262141510)。
+- [x] 资源校验、Gradle、JVM 单测、Kotlin 编译、Debug APK 构建与 Artifact 上传均通过。
+- [x] 本步未修改 `MainActivity.kt`，尚未替换现有 Material 3 NavigationBar；无选中移动动画或手势。
+- [ ] 真机文字适配、触摸面积、低高度布局和系统 Insets 待下一阶段验收。
+- [ ] S4.3 PR #11 模拟器交互验证仍独立等待 CI 结果。
+
+**下一小步：** S5.3，单独处理底栏悬浮位置与系统 Insets，不接入正式首页。
