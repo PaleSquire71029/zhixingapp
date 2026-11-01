@@ -98,8 +98,16 @@ fun LiquidBottomTabs(
         if (isLightTheme) Color(0xFFFAFAFA).copy(alpha = materialParameters.overlayAlpha)
         else Color(0xFF121212).copy(alpha = materialParameters.overlayAlpha)
 
-    val tabsBackdrop = rememberLayerBackdrop()
-    val combinedBackdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop)
+    val tabsBackdrop = if (materialParameters.useRefraction) {
+        rememberLayerBackdrop()
+    } else {
+        null
+    }
+    val selectionBackdrop = if (tabsBackdrop != null) {
+        rememberCombinedBackdrop(backdrop, tabsBackdrop)
+    } else {
+        backdrop
+    }
 
     BoxWithConstraints(
         modifier,
@@ -246,6 +254,7 @@ fun LiquidBottomTabs(
         )
 
         if (materialParameters.useRefraction) {
+            val activeTabsBackdrop = checkNotNull(tabsBackdrop)
             CompositionLocalProvider(
                 LocalLiquidBottomTabScale provides {
                     lerp(1f, 1.2f, pressProgress)
@@ -255,7 +264,7 @@ fun LiquidBottomTabs(
                     Modifier
                         .clearAndSetSemantics {}
                         .alpha(0f)
-                        .layerBackdrop(tabsBackdrop)
+                        .layerBackdrop(activeTabsBackdrop)
                         .graphicsLayer { translationX = panelOffset }
                         .drawBackdrop(
                             backdrop = backdrop,
@@ -296,7 +305,7 @@ fun LiquidBottomTabs(
 
         val selectionSurfaceModifier = if (materialParameters.useBackdropSampling) {
             Modifier.drawBackdrop(
-                backdrop = combinedBackdrop,
+                backdrop = selectionBackdrop,
                 shape = { Capsule() },
                 effects = {
                     if (materialParameters.useRefraction) {
