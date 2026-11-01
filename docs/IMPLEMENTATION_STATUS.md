@@ -587,3 +587,14 @@
 - [x] 已更新性能档位单元测试，验证 Premium / Standard / Lite / Off 与 API 降级规则。
 - [ ] PR CI 构建、测试和运行结果待验证；未合并 Stage 2 实现。
 - [ ] 当前尚未将液态玻璃底栏集成到 MainActivity；底栏属于后续阶段。
+
+
+### 10.3 液态玻璃小步执行记录（2026-11-01）
+
+- [x] 复核 PR #5：实时 Backdrop 代码目前位于 `feature/live-backdrop-host`，范围为 GlassLab、性能档位与单测，不包含 MainActivity 正式底栏。
+- [x] 修复 Off 档资源浪费：提交 `468818be06c562c1f5ed72db06f430cda0745b0b`（`fix: disable live backdrop work in Off preset`）。Off 分支不再挂载 `layerBackdrop`，不再运行动态光斑，仅保留静态浅色背景和普通面板。
+- [ ] PR #5 CI：截至本次记录，GitHub 返回的该提交 workflow runs 与 combined statuses 均为空；编译、JUnit、Debug assemble 尚不能标记通过。
+- [ ] PR #5 仍为 open；未合并到 main。尚未修改 MainActivity 正式底部导航，主页面仍使用原 Material 3 NavigationBar。
+- [x] 已在 `LIQUID_GLASS_REDESIGN_PLAN.md` 新增 S2.1–S7 小步表，将玻璃组件、共享背景宿主、底栏外观、导航回调、Insets、动画和设置分开验收。
+
+**当前唯一下一步：** 先让 PR #5 的 Android CI 结果可验证；CI 通过后再合并 Stage 2。不要跳过该门槛直接将未经验证的渲染代码接入主页面。
