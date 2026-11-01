@@ -200,6 +200,10 @@ internal fun LiquidBottomTabs(
         } else {
             0f
         }
+        // Keep a restrained optical response while idle; pressing brings the
+        // capsule to the full Catalog lens and depth response.
+        val selectionOpticalProgress = lerp(0.24f, 1f, pressProgress)
+        val selectionDepthAlpha = 0.12f + 0.28f * pressProgress
         val highlightModifier = interactiveHighlight?.modifier ?: Modifier
         val highlightGestureModifier = interactiveHighlight?.gestureModifier ?: Modifier
 
@@ -305,26 +309,26 @@ internal fun LiquidBottomTabs(
                 effects = {
                     if (materialParameters.useRefraction) {
                         lens(
-                            10f.dp.toPx() * pressProgress * materialParameters.refractionScale,
-                            14f.dp.toPx() * pressProgress * materialParameters.refractionScale,
+                            10f.dp.toPx() * selectionOpticalProgress * materialParameters.refractionScale,
+                            14f.dp.toPx() * selectionOpticalProgress * materialParameters.refractionScale,
                             chromaticAberration = materialParameters.chromaticDispersionEnabled,
                         )
                     }
                 },
                 highlight = {
                     if (materialParameters.edgeHighlightEnabled) {
-                        Highlight.Default.copy(alpha = pressProgress)
+                        Highlight.Default.copy(alpha = 0.18f + 0.82f * pressProgress)
                     } else {
                         null
                     }
                 },
                 shadow = {
-                    Shadow(alpha = pressProgress)
+                    Shadow(alpha = selectionDepthAlpha)
                 },
                 innerShadow = {
                     InnerShadow(
-                        radius = 8f.dp * pressProgress,
-                        alpha = pressProgress,
+                        radius = (2f + 6f * pressProgress).dp,
+                        alpha = selectionDepthAlpha,
                     )
                 },
                 layerBlock = {
