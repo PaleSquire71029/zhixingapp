@@ -678,6 +678,31 @@
 - [x] 首轮 PR #9 CI 因错误导入 `matchParentSize` 失败；修正为 `fillMaxSize` 后重新构建。
 - [x] PR [#9](https://github.com/PaleSquire71029/zhixingapp/pull/9) 第二轮 Build #52（Run ID `41261146162`）成功；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41261146162)。
 - [x] PR #9 已 squash 合并；合并提交：`496c098fdd1d41c4f979074a6ae5757b942b69b6`。
-- [ ] 当前只合并宿主实现，生产首页尚未使用该宿主；真机层级、视觉与性能测试待进行。
+- [x] S4.2 已将现有首页 Scaffold 放入共享宿主前景，生产首页已能显示共享浅色背景。
+- [x] S4.2 保留原 Logo、卡片、功能行、材质实验室入口和四个导航项；原白色 NavigationBar 与导航回调未改。
+- [x] PR [#10](https://github.com/PaleSquire71029/zhixingapp/pull/10) 的 Build #53（Run ID `41261281542`）通过并合并；合并提交：`5436ccbf2add0e9e76ae0f803ec3113da5599028`。
+- [ ] 真机层级、状态栏 / 手势 Insets、滚动、视觉和性能验收待执行。
 
-**下一小步：** S4.2，只调整 `MainActivity.kt` 根层级，将现有首页 Scaffold 放入 BackdropHost 前景并使用透明容器背景；不改首页内容、原白色 NavigationBar 或导航回调。
+**下一小步：** S4.3，增加 Android Compose 仪器测试，验证共享 Backdrop 的多个前景消费者和点击交互。
+
+### 10.10 S4.2 首页接入共享背景与合并验收（2026-11-01）
+
+- [x] 修改 `app/src/main/java/ci/us/zhixing/app/MainActivity.kt`，将原首页 Scaffold 放入 `BackdropHost` 前景内容层。
+- [x] Scaffold 的 `containerColor` 改为透明，共享低饱和浅色背景由宿主绘制在后方。
+- [x] 保留知行 Logo、首页 Hero 卡片、功能行、材质实验室入口和全部首页内容。
+- [x] 保留原 Material 3 白色 NavigationBar、四个入口、选中状态与点击回调；未提前替换玻璃底栏。
+- [x] PR [#10](https://github.com/PaleSquire71029/zhixingapp/pull/10) 已 squash 合并；合并提交：`5436ccbf2add0e9e76ae0f803ec3113da5599028`。
+- [x] Android Build #53（Run ID `41261281542`）通过；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41261281542)。
+- [ ] 尚未完成目标手机上的 Insets、安全区域、滚动层级、背景采样画面和设备性能实测。
+
+### 10.11 S4.3 共享背景宿主交互验证（进行中，2026-11-01）
+
+- [x] 代码审查确认 `layerBackdrop` 仅包裹背景渐变子树；前景内容由同一宿主的兄弟层绘制，不会被重新录入同一采样层。
+- [x] 确认背景层没有 `clickable`、`pointerInput` 或语义点击修饰符，不主动消费前景触摸。
+- [x] 新增 Compose Android 仪器测试：两个 `ZhixingGlassSurface` 使用同一 Backdrop，验证内容可见且两处点击都能更新计数。
+- [x] 为 Android 测试增加 Compose UI Test / AndroidX Test 依赖。
+- [x] Android Build 工作流增加 API 35 Google APIs Emulator 仪器测试步骤。
+- [ ] PR #11 的 Android Emulator 仪器测试与 Debug 构建待 CI 验证。
+- [ ] 真机背景像素、连续采样、滚动、GPU 帧率、发热和耗电仍待目标设备验收；仪器测试不能替代真机性能测试。
+
+**下一小步：** S4.3 CI 通过后先合并验证代码；再进入 S5.1，只创建不含动画的悬浮胶囊玻璃底栏外形，暂不接导航点击逻辑。
