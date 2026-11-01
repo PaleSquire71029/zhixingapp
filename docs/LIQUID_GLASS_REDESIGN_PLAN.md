@@ -523,10 +523,10 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 
 | 小步 | 只做什么 | 修改范围 | 完成条件 |
 |---|---|---|---|
-| S3.1 | 定义材质参数模型 | 新增 GlassMaterialState.kt | 透明度 0–100%、模糊 0–24 dp；分别校验、分别有默认值 |
-| S3.2 | 给参数模型添加纯 Kotlin 单测 | 新增对应 Test | 边界、非法值、默认值测试通过 |
-| S3.3 | 建立单个 ZhixingGlassSurface | 新增 ZhixingGlassSurface.kt | 支持 Backdrop、浅色覆盖、圆角和边缘高光；不包含导航业务 |
-| S3.4 | 补充 API 降级与 Off 路径 | 同一玻璃组件及测试 | 低版本不调用不支持的效果；Off 不创建绘制采样节点 |
+| S3.1 | 定义材质参数模型 | 新增 GlassMaterialState.kt | ✅ 完成：透明度 0–100%、模糊 0–24 dp；分别校验、分别有默认值 |
+| S3.2 | 给参数模型添加纯 Kotlin 单测 | 新增对应 Test | ✅ 完成：边界、非法值、默认值测试通过 |
+| S3.3 | 建立单个 ZhixingGlassSurface | 新增 ZhixingGlassSurface.kt | ✅ 完成：支持 Backdrop、浅色覆盖、圆角和边缘高光；不包含导航业务 |
+| S3.4 | 补充 API 降级与 Off 路径 | 同一玻璃组件及测试 | ✅ 完成：API 26–30 仅背景采样；API 31+ 可模糊；Off 不创建绘制采样节点 |
 
 ### S4：建立主页面唯一的共享背景宿主
 
@@ -621,3 +621,16 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] 组件尚未接入 MainActivity / 生产主导航；真机材质效果、触控、滚动和性能仍待验证。
 
 **下一小步：** S3.4，为组件补充显式 Off 开关和 API 26–30 / 31+ 能力策略；Off 必须不挂载 `drawBackdrop` 采样节点，并用纯 Kotlin 测试覆盖策略边界。
+
+## 11. S3.4 API 降级与 Off 路径验收（2026-11-01）
+
+- [x] 为 `ZhixingGlassSurface` 增加显式 `glassEnabled` 开关；关闭时使用浅色回退面，不挂载 `drawBackdrop` 修饰符。
+- [x] 抽取纯 Kotlin `resolveGlassSurfaceCapabilities`，明确 API 26+ 的 Backdrop 采样能力与 API 31+ 的系统模糊能力。
+- [x] 模糊半径为 0 时不创建模糊效果；越界、NaN、正负无穷均拒绝。
+- [x] 新增 `GlassSurfaceCapabilitiesTest.kt`，覆盖 API 26–30、31–32、33+、零模糊、Off 和非法值。
+- [x] PR [#8](https://github.com/PaleSquire71029/zhixingapp/pull/8) 已通过 CI 并 squash 合并；合并提交：`bd2c5bf3bcc0d143ac0230ab8e550ca27715ea11`。
+- [x] Android Build #50（Run ID `41260858724`）成功；资源检查、Gradle、JVM 单测、Kotlin 编译、Debug APK 构建和 Artifact 上传均通过。
+- [ ] 该组件的 Off 路径只保证不挂载单个表面的采样节点；整个主机进入 Off 时仍需要由宿主避免创建共享 Backdrop，留待 S4 阶段的宿主设计处理。
+- [ ] 尚未进行目标 Android 真机上的 GPU、帧率、滚动、温度和耗电测量。
+
+**下一小步：** S4.1，只新增 `BackdropHost.kt` 静态浅色共享背景宿主；单一背景层提供给后续玻璃表面，包含低饱和渐变与静态柔光，不修改首页内容和导航。
