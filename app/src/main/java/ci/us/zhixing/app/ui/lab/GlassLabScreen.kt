@@ -85,8 +85,8 @@ internal fun GlassLabScreen(
         mutableStateOf(if (initialMaterial.enabled) GlassPerformanceTier.CUSTOM else GlassPerformanceTier.OFF)
     }
     var blurRadiusDp by rememberSaveable { mutableFloatStateOf(initialMaterial.blurRadiusDp) }
-    var refractionEnabled by rememberSaveable { mutableStateOf(initialConfig.refractionEnabled) }
-    var refractionStrength by rememberSaveable { mutableFloatStateOf(initialConfig.refractionStrengthPx) }
+    var refractionEnabled by rememberSaveable { mutableStateOf(initialMaterial.refractionEnabled) }
+    var refractionStrength by rememberSaveable { mutableFloatStateOf(initialMaterial.refractionStrengthDp) }
     var edgeHighlightEnabled by rememberSaveable { mutableStateOf(initialConfig.edgeHighlightEnabled) }
     var touchFeedbackEnabled by rememberSaveable { mutableStateOf(initialConfig.touchFeedbackEnabled) }
     var transparencyPercent by rememberSaveable {
@@ -112,6 +112,8 @@ internal fun GlassLabScreen(
                 transparencyPercent = transparencyPercent.roundToInt(),
                 blurRadiusDp = blurRadiusDp,
                 enabled = tier != GlassPerformanceTier.OFF,
+                refractionEnabled = refractionEnabled,
+                refractionStrengthDp = refractionStrength,
             ),
         )
     }
@@ -224,6 +226,8 @@ internal fun GlassLabScreen(
                             transparencyPercent = transparencyPercent.roundToInt(),
                             blurRadiusDp = blurRadiusDp,
                             enabled = true,
+                            refractionEnabled = refractionEnabled,
+                            refractionStrengthDp = refractionStrength,
                         ),
                     )
                 },
@@ -253,6 +257,8 @@ internal fun GlassLabScreen(
                             transparencyPercent = transparencyPercent.roundToInt(),
                             blurRadiusDp = blurRadiusDp,
                             enabled = true,
+                            refractionEnabled = refractionEnabled,
+                            refractionStrengthDp = refractionStrength,
                         ),
                     )
                 },
@@ -298,6 +304,15 @@ internal fun GlassLabScreen(
                 onClick = {
                     markCustom()
                     refractionEnabled = !refractionEnabled
+                    onMaterialChange(
+                        GlassMaterialState(
+                            transparencyPercent = transparencyPercent.roundToInt(),
+                            blurRadiusDp = blurRadiusDp,
+                            enabled = true,
+                            refractionEnabled = refractionEnabled,
+                            refractionStrengthDp = refractionStrength,
+                        ),
+                    )
                 },
             ) {
                 Text(
@@ -319,6 +334,15 @@ internal fun GlassLabScreen(
                 onValueChange = {
                     markCustom()
                     refractionStrength = it.coerceIn(0f, 8f)
+                    onMaterialChange(
+                        GlassMaterialState(
+                            transparencyPercent = transparencyPercent.roundToInt(),
+                            blurRadiusDp = blurRadiusDp,
+                            enabled = true,
+                            refractionEnabled = refractionEnabled,
+                            refractionStrengthDp = refractionStrength,
+                        ),
+                    )
                 },
                 valueRange = 0f..8f,
                 steps = 15,
