@@ -1,13 +1,15 @@
 # 知行 Android App：主界面液态玻璃重设计专项计划
 
-> 文档版本：1.0
+> 文档版本：2.0
 > 建立日期：2026-11-01
 > 目标仓库：PaleSquire71029/zhixingapp
 > 执行分支：main（规划文档）；后续兼容性试验可使用独立分支
-> 状态：规划已建立；实施按阶段推进
+> 状态：2026-11-01 已按用户提供的官方 Catalog APK 调整为直接移植路线；旧自研增量方案暂停
 > 关联文档：[Android App 总体规划](./ANDROID_APP_MASTER_PLAN.md)、[实施状态账本](./IMPLEMENTATION_STATUS.md)、[项目现状与操作指南](./PROJECT_STATUS_AND_GUIDE.md)
 
 本文专门记录这次液态玻璃重做的设计决策、技术验证、实施顺序、涉及文件、性能策略和验收条件。后续每完成一个阶段，都必须更新本文的阶段状态，并同步更新 \`IMPLEMENTATION_STATUS.md\`。规划中的功能不得描述成已经完成。
+
+**路线变更（2026-11-01）：** 用户提供了 Backdrop Catalog 官方 APK 作为效果基准。执行策略从“基于 Backdrop 原语自行逐项搭建”改为“固定到官方 1.0.6 标签，直接移植其 Catalog 已验证的液态玻璃组件源码，再适配知行导航、品牌和浅色主题”。本文件末尾第 25 节为当前最高优先级执行路线，旧阶段记录仅保留作历史，不再要求沿旧自研方案继续叠加效果。
 
 ---
 
@@ -55,7 +57,7 @@
 | 语言 | Kotlin |
 | UI | Jetpack Compose + Material 3 |
 | Android Gradle Plugin | 9.1.1 |
-| Kotlin Compose 插件 | 2.2.10 |
+| Kotlin Compose 插件 | 2.4.21 |
 | Gradle Wrapper | 9.3.1 |
 | Compose BOM | 2026.06.00 |
 | compileSdk / targetSdk | 36 / 36 |
@@ -168,7 +170,7 @@
 - 示例包含 LiquidButton、LiquidToggle、LiquidSlider、LiquidBottomTabs 等组件写法。
 - 仓库 README 明确说明库本身不提供可直接拿来用的完整高层 UI 控件；这些组件是示例，因此知行需要自己实现导航栏、按钮和参数控制界面。
 - Maven Central 候选坐标：\`io.github.kyant0:backdrop\`。
-- 本项目不直接复制其 Demo App 的整体界面，而是复用其渲染基础和必要的实现思路。
+- 不复制 Catalog 的整套演示 App，但**直接移植它在 1.0.6 标签中已经实现的玻璃组件源码**（底栏、阻尼拖动、交互高光、按钮、滑块、开关等）；保留原版权 / Apache-2.0 声明，再适配知行导航状态与浅色设计。此路线优先于继续手写相似组件。
 
 官方与发布信息：
 - 项目源码与 README：<https://github.com/Kyant0/AndroidLiquidGlass>
@@ -216,24 +218,44 @@
 
 
 
-#### 4.2.2 Backdrop 1.0.6：当前优先兼容候选
+#### 4.2.2 Backdrop 1.0.6：当前正式依赖基线
 
-2026-11-01 的隔离 CI 试验已确认 2.0.1 的 Android AAR / 传递 Compose 组件要求 `compileSdk 37`。而 CI Runner 的 SDK 仓库返回 `Failed to find package 'platforms;android-37'`，暂时无法在当前流水线中安装该平台包。第二轮 API 36 试验虽成功完成 SDK 安装和 Gradle 配置，但在 `checkDebugAarMetadata` 阶段因要求 API 37 而失败；没有进入 Kotlin 源码编译，也没有证明 2.0.1 的源代码本身不兼容。
+Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再是待选择候选：
 
-因此转测 **Backdrop 1.0.6**：
+- 当前依赖：io.github.kyant0:backdrop:1.0.6。
+- 官方上游 tag 1.0.6 的 Android Catalog 使用 compileSdk 36，包名为 com.kyant.backdrop.catalog，versionName = 1.0.0。
+- 用户上传的参考 APK 清单识别出的包名 / 应用版本与该 Catalog 配置相符；这使 tag 1.0.6 成为可直接核对的源码基准。
+- 当前知行工程已通过包含 Backdrop 1.0.6 的 Android Build CI；本轮不再把升级到 Backdrop 2.x 作为前置条件。
+- Catalog 组件源码依赖 io.github.kyant0:shapes:1.2.0（上游 1.0.6 目录中的版本声明）；移植时按原版本显式固定，并由 CI 验证变体 / 传递依赖。
 
-- 上游 tag `1.0.6` 的 Android 工程使用 Android Gradle Plugin 9.0.0、Kotlin Compose 插件 2.3.10、AndroidX Compose 1.10.3 和 `compileSdk 36`；
-- 发布制品为 Android 原生 Jetpack Compose 库，不是 2.x 新版 Compose Multiplatform Android variant；
-- 仍包含 `rememberLayerBackdrop`、`Modifier.layerBackdrop`、`Modifier.drawBackdrop`、`blur` 和 `lens` 等此次所需 API；
-- 许可证仍为 Apache-2.0；
-- 试验分支暂时使用 KGP 2.4.21 与现有 AGP 9.1.1 / Gradle 9.3.1，以满足当前 Kotlin 官方兼容矩阵，最终仍以 CI 编译结果为准。
+#### 4.2.3 参考 APK 的源码基准与直接移植范围
 
-Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第三轮 CI 正在测试它。若通过，仍需进一步进行真实界面渲染、帧连续性、内存与设备性能测试；若失败，保留 main，不合并试验配置。
+**唯一移植基准：** [Kyant0/AndroidLiquidGlass tag 1.0.6](https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6)，tag commit：896a94a3ade1cc1a940b92365f942a34971fecda。
 
-参考：
-- [Backdrop 1.0.6 release](https://github.com/Kyant0/AndroidLiquidGlass/releases/tag/1.0.6)
-- [Backdrop 1.0.6 发布信息与许可证](https://mvnrepository.com/artifact/io.github.kyant0/backdrop/1.0.6)
-- [Backdrop 上游源码](https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6)
+优先移植的 Catalog 源文件：
+
+| 官方源文件（tag 1.0.6） | 作用 | 知行侧适配 |
+|---|---|---|
+| catalog/.../components/LiquidBottomTabs.kt | 完整液态玻璃底栏、双层采样和选中透镜 | 保留四个 AppDestination 与现有回调 |
+| catalog/.../components/LiquidBottomTab.kt | Tab 点击语义及按压缩放 | 映射 Role.Tab、无障碍标签 |
+| catalog/.../utils/DampedDragAnimation.kt | 阻尼位置、速度、按压进度、X/Y 缩放 | 保留统一动画状态，不再叠加自研 Spring |
+| catalog/.../utils/InteractiveHighlight.kt | 指尖跟随径向高光与按压反馈 | 按 API 33+ 使用 RuntimeShader，低版本按原方式回退 |
+| catalog/.../utils/DragGestureInspector.kt | 官方拖动识别与取消逻辑 | 检查与页面纵向滚动、点击手势的冲突 |
+| catalog/.../components/LiquidButton.kt | 液态按钮 | 用于主界面适合悬浮的操作入口 |
+| catalog/.../components/LiquidSlider.kt | 液态滑块 | 逐步替换材质设置中对应控件 |
+| catalog/.../components/LiquidToggle.kt | 液态开关 | 逐步替换玻璃开关 |
+
+背景采样按官方 BackdropDemoScaffold.kt 的结构移植：背景图像先通过 layerBackdrop(backdrop) 注册为 Backdrop source，前景玻璃组件再使用同一个 backdrop；优先采用 tag 1.0.6 的 catalog/src/main/res/drawable/wallpaper_light.webp 作为首轮视觉对照背景。此处采样的是明确的背景源，不做每帧整屏 Bitmap 截图，也不将前景自身循环录入背景层。
+
+**版本 / 工程策略：**
+
+1. 保持当前 Backdrop 1.0.6，不迁移到 kmp 主分支上的 2.0.x API。
+2. 只补齐 Catalog 明确使用的 shapes:1.2.0（如果当前依赖树尚未提供），不引入整套 Compose Multiplatform 工程。
+3. 不为了移植示例组件而升级 AGP、Gradle、SDK 或 Compose BOM；只有 CI 明确证明是必要条件时，才做最小兼容调整。
+4. 把官方源文件复制进知行自己的 ui/glass/catalog/（或等价隔离包），保留 Apache-2.0 原始版权头；每个改动文件注明“基于 Kyant0/AndroidLiquidGlass tag 1.0.6 修改”，仓库保留上游 LICENSE。
+5. 只适配浅色模式、知行主题色、现有安全区、四项导航和设置参数；不照搬 Catalog 的展示页、导航结构、深色模式或整套演示 App。
+6. 高成本的自适应亮度逐帧截图、进阶 demo 手势和实验页效果先不默认启用；基础材质达到参考效果后再评估。
+
 
 ### 4.3 引入前检查清单
 
@@ -808,3 +830,65 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] Off 时单个玻璃表面不采样，但首页共享 `BackdropHost` 目前仍会创建 `LayerBackdrop`；整层宿主在 Off 时停止创建仍是后续性能优化。
 
 **当前进度：** S6.1–S6.5 的主代码已合入 main。接下来优先做真机外观 / Insets / 交互 / 性能验收，再决定是否继续扩大光学效果（例如色散、环境反射），不应在未实机验证前叠加复杂动效。
+
+## 25. 2026-11-01：按用户参考 APK 直接移植官方液态玻璃（当前执行路线）
+
+> 本节优先级高于本文早先的 S5 / S6 自研拆分。后续不再为了追求“自己实现”而重复编写官方已有的动画和材质代码。
+
+### 25.1 已确认的参考基准
+
+- [x] 用户上传的 base.apk 已识别为 Backdrop Catalog 应用；APK 中包名为 com.kyant.backdrop.catalog，应用版本为 1.0.0。
+- [x] 上游 tag 1.0.6 的 catalog/build.gradle.kts 同样声明该 applicationId、versionCode 1、versionName 1.0.0 和 compileSdk 36。
+- [x] 已核对 tag 1.0.6 源码；底栏不是只有一个 lens，而是由 LiquidBottomTabs、DampedDragAnimation、InteractiveHighlight、前景 LayerBackdrop 和 CombinedBackdrop 协同构成。
+- [x] 知行当前主分支已经依赖 io.github.kyant0:backdrop:1.0.6，无需先升级到 2.x。
+- [x] 确认上游许可证为 Apache-2.0；直接移植时保留版权头、许可证文本并标注修改文件。
+
+### 25.2 移植原则
+
+- 以 tag 1.0.6 为唯一源码基线，不使用会变化的 kmp 主分支版本。
+- 直接复制 / 适配已实现的 Catalog 组件，不重新手写同等复杂的拖动动画、交互高光、折射和色散算法。
+- 复用现有 Backdrop 依赖；只添加上游 Catalog 所需且当前工程缺失的固定依赖（预期 io.github.kyant0:shapes:1.2.0，以依赖树和 CI 确认）。
+- 保留知行 App 的 AppDestinations、四个业务入口、Logo、现有字体策略、浅色主题、DataStore 设置和系统 Insets。
+- 背景使用真实图像 / 清晰定义的背景层作为采样源；页面内容继续在其前方绘制。首轮移植使用官方 wallpaper_light.webp 对齐参考 APK 的折射效果，后续再替换成知行品牌背景。
+- 不直接复制 Catalog 的 Activity、演示导航、演示页集合或所有演示依赖；只搬移所需组件与必需辅助类。
+- 不使用额外渐变尾迹去“假装”官方效果；优先删除与官方组件重复的旧自研装饰动画。
+
+### 25.3 新的实施步骤（一个 PR 一个可构建小步）
+
+| 步骤 | 内容 | 预计修改范围 | 验收要求 |
+|---|---|---|---|
+| P0 | 清理移植基线：确认 PR #47 的现状、PR #48 已关闭且未合并；冻结旧自研动效，不再叠加 | 文档 / 分支状态 | main 不包含 PR #48；历史提交保留可回滚 |
+| P1 | 搬入官方辅助类：DampedDragAnimation、InteractiveHighlight、DragGestureInspector | 新增隔离源码文件、Apache 头 | 不改 UI；Android 编译和现有单测通过 |
+| P2 | 搬入官方底栏组件：LiquidBottomTabs、LiquidBottomTab，适配四个 AppDestination | 新增 / 替换底栏组件 | 与官方动画状态、LayerBackdrop + CombinedBackdrop 结构一致；点击和选择索引正确 |
+| P3 | 移植官方背景采样宿主及 wallpaper 资源 | BackdropHost.kt、drawable 资源 | 背景确实进入 Backdrop source；玻璃不再只采样三组装饰渐变 |
+| P4 | 将官方材质参数映射到知行设置 | GlassMaterialState、Glass Lab、DataStore | 透明度和模糊独立；基础 lens / vibrancy / dispersion 与参考值对齐；Off 和低 API 有回退 |
+| P5 | 移植 LiquidButton、LiquidSlider、LiquidToggle 并应用于适合的主界面交互控件 | glass component 文件、设置界面 | 保持业务回调、触控区和无障碍语义，不把正文卡片玻璃化 |
+| P6 | 真机性能和视觉对照 | 测试 / 计划文档 | 与参考 APK 在同一 wallpaper、相近尺寸和系统环境对照；检查触摸、折射、色散、帧时间、温升和耗电 |
+
+### 25.4 关键默认表现对齐表
+
+首轮以官方 Catalog 的基础表现为参照，不先用旧知行数值压低效果：
+
+| 项目 | 官方 Catalog 1.0.6 参考值 | 知行移植要求 |
+|---|---:|---|
+| 底栏整体模糊 | 8 dp | 首轮 8 dp，可由独立设置调整 |
+| 底栏整体透镜 | 24 dp 高 / 24 dp 折射量 | 默认对齐 |
+| 选中胶囊按压透镜 | 10 dp 高 / 14 dp 折射量 × pressProgress | 直接使用按压进度驱动 |
+| 色散 | 选中胶囊开启 chromatic aberration | 首轮与 Catalog 一致，之后允许用户关闭 |
+| 内容面板 | 白色 40% 填充 | 保持浅色、可读并允许透明度调节 |
+| 按压进度 | 独立 spring | 不再用单一 tween 代替 |
+| 拖动速度 | DampedDragAnimation 内部速度动画 | 使用上游实现，不叠加第二套 VelocityTracker |
+| 指尖高光 | InteractiveHighlight + API 33+ RuntimeShader | 直接移植；API 26–32 使用官方 fallback |
+
+注：知行将延续用户要求的浅色模式，不移植 Catalog 中用于深色主题的暗色材质分支。参数设置仍可独立调节；上表是移植验收基线，不是取消设置功能。
+
+### 25.5 完成标准与回滚规则
+
+- P1–P5 每一步 CI 必须通过后才可合并；失败只修本步，不跳到下一项。
+- 以相同参考壁纸做 screenshot / 真机视觉比较，避免因为背景不同误判折射质量。
+- 不把“源码搬入”说成效果已验收；真机拖动和图形渲染仍须用户检查。
+- 若新组件与现有业务语义冲突，优先在包装层适配，不篡改上游核心算法。
+- 上游源码文件保留版权头和 Apache-2.0 许可证，修改处写明来源、tag 和变更内容。
+- 用户确认参考效果达到预期后，才扩展到其他页面；计算器算法和 AI 服务不在本次移植范围内。
+
+**当前下一步：** P1，只搬入官方三个辅助类与必要的手势辅助文件，不修改底栏外观和 MainActivity；完成 CI 后再进入 P2。
