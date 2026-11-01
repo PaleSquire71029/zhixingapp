@@ -27,6 +27,7 @@ internal fun ZhixingLiquidBottomBarSurface(
         transparencyPercent = 68,
         blurRadiusDp = 12f,
     ),
+    refractionPressProgress: Float = 0f,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val capsuleShape: Shape = RoundedCornerShape(percent = 50)
@@ -61,6 +62,7 @@ internal fun ZhixingLiquidBottomBarSurface(
             )
         },
         shape = capsuleShape,
+        refractionPressProgress = refractionPressProgress,
         content = content,
     )
 }
