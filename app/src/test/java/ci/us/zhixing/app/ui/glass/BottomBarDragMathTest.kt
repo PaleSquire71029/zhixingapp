@@ -38,6 +38,40 @@ class BottomBarDragMathTest {
         }
     }
     @Test
+    fun velocityStretchScalesWithTabWidthsPerSecond() {
+        assertEquals(0f, resolveVelocityDragStretch(0f, 100f), 0f)
+        assertEquals(0.035f, resolveVelocityDragStretch(100f, 100f), 0.0001f)
+        assertEquals(0.07f, resolveVelocityDragStretch(200f, 100f), 0.0001f)
+    }
+
+    @Test
+    fun velocityStretchIsIndependentOfDisplayPixelScale() {
+        assertEquals(
+            resolveVelocityDragStretch(200f, 100f),
+            resolveVelocityDragStretch(600f, 300f),
+            0f,
+        )
+    }
+
+    @Test
+    fun velocityStretchIsBoundedForFastGestures() {
+        assertEquals(0.12f, resolveVelocityDragStretch(2_000f, 100f), 0f)
+    }
+
+    @Test
+    fun velocityStretchRejectsInvalidMeasurements() {
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveVelocityDragStretch(Float.NaN, 100f)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveVelocityDragStretch(Float.POSITIVE_INFINITY, 100f)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveVelocityDragStretch(100f, 0f)
+        }
+    }
+
+    @Test
     fun directionalStretchTracksMovementDirection() {
         val right = resolveDirectionalDragDeformation(
             deltaXPx = 8f,
