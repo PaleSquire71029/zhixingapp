@@ -94,7 +94,42 @@ class ZhixingCatalogBottomBarDragTest {
         composeRule.onNode(tab("知行AI")).assertIsNotSelected()
     }
 
-    private fun setBottomBar(initialIndex: Int) {
+    @Test
+    fun disablingTouchFeedbackDoesNotDisableDragNavigation() {
+        setBottomBar(
+            initialIndex = 0,
+            material = GlassMaterialState(touchFeedbackEnabled = false),
+        )
+
+        dragAcrossBar(
+            startFraction = 0.125f,
+            endFractions = listOf(0.625f),
+        )
+
+        assertSelectedIndex(2)
+        composeRule.onNode(tab("工具")).assertIsSelected()
+    }
+
+    @Test
+    fun glassOffStillAllowsDragNavigation() {
+        setBottomBar(
+            initialIndex = 0,
+            material = GlassMaterialState(enabled = false),
+        )
+
+        dragAcrossBar(
+            startFraction = 0.125f,
+            endFractions = listOf(0.625f),
+        )
+
+        assertSelectedIndex(2)
+        composeRule.onNode(tab("工具")).assertIsSelected()
+    }
+
+    private fun setBottomBar(
+        initialIndex: Int,
+        material: GlassMaterialState = GlassMaterialState(),
+    ) {
         composeRule.setContent {
             var selectedIndex by remember { mutableIntStateOf(initialIndex) }
 
@@ -111,6 +146,7 @@ class ZhixingCatalogBottomBarDragTest {
                             destinations = AppDestinations.all,
                             selectedIndex = selectedIndex,
                             onDestinationSelected = { selectedIndex = it },
+                            material = material,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(72.dp)
