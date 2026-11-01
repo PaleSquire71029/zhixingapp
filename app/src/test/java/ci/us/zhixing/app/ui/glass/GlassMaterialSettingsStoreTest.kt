@@ -80,7 +80,7 @@ class GlassMaterialSettingsStoreTest {
     }
 
     @Test
-    fun nonFiniteStoredRefractionStrengthFallsBackToDefault() = runBlocking {
+    fun savedRefractionStrengthRoundTripsWithoutPrecisionLoss() = runBlocking {
         val store = createStore()
         store.save(
             GlassMaterialState(
