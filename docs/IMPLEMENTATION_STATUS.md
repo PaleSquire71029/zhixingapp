@@ -638,7 +638,7 @@
 - [x] PR 构建中的“提交安装预览 APK 到 main”步骤按工作流规则跳过；没有在本次源码合并中更新 `artifacts/zhixingapp-preview.apk`。
 - [ ] 尚未将材质模型接入实际玻璃组件；尚未完成目标 Android 真机的显示、滚动、触控、帧率、温度和耗电验收。
 
-**下一小步：** S4.1，只新增 `BackdropHost.kt` 静态浅色共享背景宿主；不修改首页内容和导航。
+**下一小步：** S4.2，只调整 `MainActivity.kt` 根层级，让现有首页内容位于共享背景之上；保留旧 NavigationBar。
 
 ### 10.7 S3.3 可复用玻璃表面组件与合并验收（2026-11-01）
 
@@ -668,3 +668,16 @@
 - [ ] 目标 Android 真机性能、外观和交互尚未验收。
 
 **下一小步：** S4.1，只新增 `BackdropHost.kt` 静态浅色共享背景宿主；不修改首页内容和导航。
+
+### 10.9 S4.1 静态共享背景宿主与合并验收（2026-11-01）
+
+- [x] 新增 `app/src/main/java/ci/us/zhixing/app/ui/glass/BackdropHost.kt`。
+- [x] 一个宿主统一创建一个共享 `LayerBackdrop`，通过内容 lambda 向前景传递 Backdrop。
+- [x] 使用低饱和浅色渐变和三处静态柔光，画笔通过 `drawWithCache` 缓存。
+- [x] 保持静态，不添加持续动画、Timer、Bitmap 快照或逐帧图像导出。
+- [x] 首轮 PR #9 CI 因错误导入 `matchParentSize` 失败；修正为 `fillMaxSize` 后重新构建。
+- [x] PR [#9](https://github.com/PaleSquire71029/zhixingapp/pull/9) 第二轮 Build #52（Run ID `41261146162`）成功；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41261146162)。
+- [x] PR #9 已 squash 合并；合并提交：`496c098fdd1d41c4f979074a6ae5757b942b69b6`。
+- [ ] 当前只合并宿主实现，生产首页尚未使用该宿主；真机层级、视觉与性能测试待进行。
+
+**下一小步：** S4.2，只调整 `MainActivity.kt` 根层级，将现有首页 Scaffold 放入 BackdropHost 前景并使用透明容器背景；不改首页内容、原白色 NavigationBar 或导航回调。
