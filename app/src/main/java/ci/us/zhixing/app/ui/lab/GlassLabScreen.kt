@@ -58,6 +58,7 @@ import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
+import ci.us.zhixing.app.ui.glass.drawEnvironmentReflection
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -91,6 +92,9 @@ internal fun GlassLabScreen(
     var refractionEnabled by rememberSaveable { mutableStateOf(initialMaterial.refractionEnabled) }
     var refractionStrength by rememberSaveable { mutableFloatStateOf(initialMaterial.refractionStrengthDp) }
     var edgeHighlightEnabled by rememberSaveable { mutableStateOf(initialMaterial.edgeHighlightEnabled) }
+    var environmentReflectionEnabled by rememberSaveable {
+        mutableStateOf(initialMaterial.environmentReflectionEnabled)
+    }
     var touchFeedbackEnabled by rememberSaveable { mutableStateOf(initialConfig.touchFeedbackEnabled) }
     var transparencyPercent by rememberSaveable {
         mutableFloatStateOf(initialMaterial.transparencyPercent.toFloat())
@@ -108,6 +112,7 @@ internal fun GlassLabScreen(
         refractionEnabled = refractionEnabled,
         refractionStrengthDp = refractionStrength,
         edgeHighlightEnabled = edgeHighlightEnabled,
+        environmentReflectionEnabled = environmentReflectionEnabled,
     )
 
     fun publishMaterial(commit: Boolean = false) {
@@ -125,6 +130,7 @@ internal fun GlassLabScreen(
         refractionEnabled = DEFAULT_HOME_GLASS_MATERIAL.refractionEnabled
         refractionStrength = DEFAULT_HOME_GLASS_MATERIAL.refractionStrengthDp
         edgeHighlightEnabled = DEFAULT_HOME_GLASS_MATERIAL.edgeHighlightEnabled
+        environmentReflectionEnabled = DEFAULT_HOME_GLASS_MATERIAL.environmentReflectionEnabled
         touchFeedbackEnabled = initialConfig.touchFeedbackEnabled
         onMaterialChange(DEFAULT_HOME_GLASS_MATERIAL)
         onMaterialReset()
@@ -141,6 +147,7 @@ internal fun GlassLabScreen(
             refractionEnabled = config.refractionEnabled
             refractionStrength = config.refractionStrengthPx
             edgeHighlightEnabled = config.edgeHighlightEnabled
+            environmentReflectionEnabled = tier != GlassPerformanceTier.LITE
             touchFeedbackEnabled = config.touchFeedbackEnabled
             transparencyPercent = ((1f - config.panelOverlayAlpha) * 100f).coerceIn(0f, 100f)
         }
@@ -405,6 +412,42 @@ internal fun GlassLabScreen(
             }
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = if (environmentReflectionEnabled) "环境反射 · 开启" else "环境反射 · 关闭",
+                    style = ZhixingTheme.type.sectionLabel,
+                    color = ZhixingTheme.colors.secondary,
+                )
+                Text(
+                    text = "叠加柔和冷暖环境光色，增强玻璃表面的空间感",
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.onSurfaceVariant,
+                )
+            }
+            TextButton(
+                enabled = backdropEnabled,
+                onClick = {
+                    markCustom()
+                    environmentReflectionEnabled = !environmentReflectionEnabled
+                    publishMaterial(commit = true)
+                },
+            ) {
+                Text(
+                    text = if (environmentReflectionEnabled) "关闭" else "开启",
+                    style = ZhixingTheme.type.featureTitle,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
+        }
+
         GlassPreviewCard(
             backdropEnabled = backdropEnabled,
             lifecycleStarted = isLifecycleStarted,
@@ -412,6 +455,7 @@ internal fun GlassLabScreen(
             refractionEnabled = refractionEnabled && refractionSupported,
             refractionStrength = if (refractionSupported) refractionStrength else 0f,
             edgeHighlightEnabled = edgeHighlightEnabled,
+            environmentReflectionEnabled = environmentReflectionEnabled,
             touchFeedbackEnabled = touchFeedbackEnabled,
             surfaceOverlayAlpha = surfaceOverlayAlpha,
             shape = panelShape,
@@ -474,6 +518,7 @@ private fun GlassPreviewCard(
     refractionEnabled: Boolean,
     refractionStrength: Float,
     edgeHighlightEnabled: Boolean,
+    environmentReflectionEnabled: Boolean,
     touchFeedbackEnabled: Boolean,
     surfaceOverlayAlpha: Float,
     shape: Shape,
@@ -568,6 +613,9 @@ private fun GlassPreviewCard(
                         },
                         onDrawSurface = {
                             drawRect(Color.White.copy(alpha = surfaceOverlayAlpha))
+                            if (environmentReflectionEnabled) {
+                                drawEnvironmentReflection()
+                            }
                         },
                     ),
             ) {
