@@ -15,16 +15,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasRole
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodes
-import androidx.compose.ui.test.onNode
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -63,7 +62,7 @@ class ZhixingCatalogBottomBarSemanticsTest {
             }
         }
 
-        composeRule.onAllNodes(hasRole(Role.Tab)).assertCountEquals(4)
+        composeRule.onAllNodes(hasTabRole()).assertCountEquals(4)
 
         listOf("计算", "知行AI", "工具", "历史").forEach { label ->
             composeRule.onNode(tab(label)).assertIsDisplayed()
@@ -152,6 +151,9 @@ class ZhixingCatalogBottomBarSemanticsTest {
         composeRule.onNode(tab("计算")).assertIsNotSelected()
     }
 
+    private fun hasTabRole() =
+        SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+
     private fun tab(label: String) =
-        hasRole(Role.Tab) and hasText(label, substring = true)
+        hasTabRole() and hasText(label, substring = true)
 }
