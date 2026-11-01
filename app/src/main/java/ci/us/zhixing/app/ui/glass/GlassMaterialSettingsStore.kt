@@ -30,7 +30,7 @@ private val EnvironmentReflectionEnabledKey = booleanPreferencesKey("environment
  * Defaults for the production home navigation material.
  *
  * The home capsule uses a slightly different transparency default from the
- * original Glass Lab preview. All six material properties are stored
+ * original Glass Lab preview. All seven material properties are stored
  * independently so Off mode does not erase the user's optical settings.
  */
 internal val DEFAULT_HOME_GLASS_MATERIAL = GlassMaterialState(
@@ -40,7 +40,7 @@ internal val DEFAULT_HOME_GLASS_MATERIAL = GlassMaterialState(
     refractionEnabled = true,
     refractionStrengthDp = 1.8f,
     edgeHighlightEnabled = true,
-    environmentReflectionEnabled = true,
+    environmentReflectionEnabled = GlassMaterialState.DEFAULT_ENVIRONMENT_REFLECTION_ENABLED,
 )
 
 /**
