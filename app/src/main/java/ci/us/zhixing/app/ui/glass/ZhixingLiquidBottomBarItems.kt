@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -69,6 +70,7 @@ import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlin.math.roundToInt
 
 /**
@@ -179,6 +181,9 @@ internal fun ZhixingLiquidBottomBar(
             }
             val dragTrailTint = ZhixingTheme.colors.primary
             val indicatorOffset = remember { Animatable(itemWidthPx * selectedIndex) }
+            // The raw pointer target stays exact for hit / selection math; this separate
+            // spring-driven offset gives the visible glass capsule a restrained follow lag.
+            val dragFollowOffset = remember { Animatable(itemWidthPx * selectedIndex) }
             var dragOffsetPx by remember { mutableStateOf(itemWidthPx * selectedIndex) }
             var settleFromDragPx by remember { mutableStateOf<Float?>(null) }
             val latestSelectedIndex = rememberUpdatedState(selectedIndex)
@@ -196,6 +201,23 @@ internal fun ZhixingLiquidBottomBar(
                             stiffness = Spring.StiffnessMediumLow,
                         ),
                     )
+                    dragFollowOffset.snapTo(indicatorOffset.value)
+                }
+            }
+            LaunchedEffect(dragActive) {
+                if (dragActive) {
+                    // Start from the settled capsule position, then follow raw pointer
+                    // updates with a low-bounce spring. The drag target itself is not delayed.
+                    dragFollowOffset.snapTo(indicatorOffset.value)
+                    snapshotFlow { dragOffsetPx }.collectLatest { targetOffset ->
+                        dragFollowOffset.animateTo(
+                            targetValue = targetOffset,
+                            animationSpec = spring(
+                                dampingRatio = 0.86f,
+                                stiffness = Spring.StiffnessMediumLow,
+                            ),
+                        )
+                    }
                 }
             }
             val selectionStretch = remember { Animatable(0f) }
@@ -383,7 +405,7 @@ internal fun ZhixingLiquidBottomBar(
                                     itemWidthPx = itemWidthPx,
                                     itemCount = destinations.size,
                                 )
-                                settleFromDragPx = dragOffsetPx
+                                settleFromDragPx = dragFollowOffset.value
                                 dragStretchTarget = 0f
                                 dragActive = false
                                 touchPoint = null
@@ -432,7 +454,7 @@ internal fun ZhixingLiquidBottomBar(
                         .align(Alignment.CenterStart)
                         .offset {
                             val capsuleOffset = if (dragActive) {
-                                dragOffsetPx
+                                dragFollowOffset.value
                             } else {
                                 indicatorOffset.value
                             }
@@ -457,7 +479,7 @@ internal fun ZhixingLiquidBottomBar(
             Box(
                 modifier = Modifier
                     .offset {
-                        val currentOffset = if (dragActive) dragOffsetPx else indicatorOffset.value
+                        val currentOffset = if (dragActive) dragFollowOffset.value else indicatorOffset.value
                         IntOffset(currentOffset.roundToInt(), 0)
                     }
                     .width(itemWidth)
