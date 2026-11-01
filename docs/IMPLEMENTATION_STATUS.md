@@ -1242,5 +1242,6 @@
 - [x] 继续复用同一 `BackdropHost` 提供的 Backdrop、`ZhixingLiquidBottomBarPlacement`、68dp 容器高度与导航栏 / IME Insets 处理。
 - [x] `selectedIndex` 和 `onDestinationSelected` 仍由 MainActivity 所有；四个原路由、中文标签、glyph、标题和描述数据未改变。
 - [x] 新增 `ZhixingCatalogBottomBarMainActivityIntegrationTest.kt`：启动 MainActivity 后检查四个 Role.Tab、初始计算页选中、点击知行AI和工具后页面标题同步更新。
-- [ ] 等待 Android CI；当前工作流会编译该 Activity 仪器测试源码，但不在 Hosted 模拟器实际启动 Activity。
+- [x] 首次 Android Build #208 发现 Activity 集成测试错误导入 `onAllNodes` / `onNode` 顶层符号；已移除 provider member 的错误导入，保留 ComposeTestRule 成员调用。
+- [ ] 等待修正后的最新 Android CI；当前工作流会编译该 Activity 仪器测试源码，但不在 Hosted 模拟器实际启动 Activity。
 - [ ] 旧 `ZhixingLiquidBottomBar` 与其手势 / 装饰代码暂时保留，待 P2.4.3 设备验收后在 P2.5 单独清理。
