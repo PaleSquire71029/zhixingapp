@@ -10,6 +10,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestinations
 import ci.us.zhixing.app.ui.glass.BackdropHost
@@ -157,11 +159,15 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
                             }
 
                             Surface(
+                                modifier = Modifier.clickable(
+                                    role = Role.Button,
+                                    onClick = { showGlassLab = true },
+                                ),
                                 color = ZhixingTheme.colors.primaryContainer,
                                 shape = CircleShape,
                             ) {
                                 Text(
-                                    text = "原生预览",
+                                    text = "材质设置",
                                     modifier = Modifier.padding(
                                         horizontal = ZhixingTheme.spacing.badgeHorizontal,
                                         vertical = ZhixingTheme.spacing.badgeVertical,
@@ -233,15 +239,6 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
                             )
                         }
 
-                        androidx.compose.material3.TextButton(
-                            onClick = { showGlassLab = true },
-                        ) {
-                            Text(
-                                text = "打开材质实验室",
-                                style = ZhixingTheme.type.featureTitle,
-                                color = ZhixingTheme.colors.primary,
-                            )
-                        }
                     }
                 }
             }
