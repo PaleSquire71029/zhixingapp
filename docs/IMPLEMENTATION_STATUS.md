@@ -915,7 +915,21 @@
 - [x] 仅底部导航传入动态进度；其他 `ZhixingGlassSurface` 和 Glass Lab 预览默认进度为 0，不改变其基础效果。
 - [x] 关闭触摸反馈、关闭玻璃或关闭折射时，动态透镜进度归零；不改变 `selectable` 外层尺寸和点击命中区域。
 - [x] 新增参数纯函数测试，覆盖闲置、完整按压、部分按压及非法值。
-- [ ] PR #32 的资源检查、JUnit、仪器测试源码编译、Debug APK 构建和 Artifact 上传待 CI。
+- [x] PR #32 已 squash 合并，提交 `4f9279f7c476d33d63f45f3da4bf4676900f113f`。
+- [x] Android Build（Run ID `41271365006`）：资源检查、JUnit、仪器测试源码编译、Debug APK 构建和 Artifact 上传全部通过。
 - [ ] 真机检查快速点击、长按、取消触摸、低帧率时动画一致性及实际折射观感。
  
 本步不新增持续动画时钟、快照、Shader、图层或依赖；折射变化只跟随真实触摸事件，并在松开后停止。
+
+
+### 10.27 S6.11 Backdrop 原生 Vibrancy 色彩活力（2026-11-01）
+
+- [x] 核对 Backdrop 1.0.6 的 `vibrancy()` 实现：其通过 ColorMatrix saturation 1.5 提升被采样背景颜色活力；Android 12（API 31）以下由库内部自动跳过。
+- [x] 将 Vibrancy 加入统一 `GlassSurfaceCapabilities`：仅 API 31+ 且模糊或折射至少一项有效时启用。
+- [x] 正式 `ZhixingGlassSurface` 与 Glass Lab 预览使用相同的效果顺序：Vibrancy → Blur → Lens。
+- [x] Lite（模糊 / 折射均关闭）和 Off 不执行 Vibrancy；API 26–30 自动降级，避免无效 RenderEffect。
+- [x] 扩展能力策略测试：覆盖 API 26–30、31–32、33+、仅折射、无有效光学效果及 Off。
+- [ ] PR #33 的资源检查、JUnit、仪器测试源码编译、Debug APK 构建和 Artifact 上传待 CI。
+- [ ] 真机检查颜色是否过饱和、玻璃下背景对比度、白色 / 彩色背景表现与帧率。
+
+本步使用 Backdrop 库自身的 Vibrancy ColorMatrix，不叠加自制滤镜；Vibrancy 只作用于被玻璃采样的背景，玻璃表面内的前景文字仍由 Compose 正常绘制。实际观感仍需在设备上校准。

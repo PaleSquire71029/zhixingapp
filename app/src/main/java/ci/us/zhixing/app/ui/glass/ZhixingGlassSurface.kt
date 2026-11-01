@@ -16,6 +16,7 @@ import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 
 /**
@@ -56,6 +57,9 @@ internal fun ZhixingGlassSurface(
                 backdrop = backdrop,
                 shape = { shape },
                 effects = {
+                    if (capabilities.useVibrancy) {
+                        vibrancy()
+                    }
                     if (capabilities.useBlur) {
                         blur(material.blurRadiusDp.dp.toPx())
                     }
