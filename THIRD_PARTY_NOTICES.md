@@ -9,6 +9,8 @@
   - `DampedDragAnimation.kt`
   - `InteractiveHighlight.kt`
   - `DragGestureInspector.kt`
+  - `LiquidBottomTabs.kt`
+  - `LiquidBottomTab.kt`
 - Zhixing modifications in this P1 step: the Kotlin package namespace was relocated to `ci.us.zhixing.app.ui.glass.backdrop106`; implementation behavior was otherwise retained. Each source file carries an attribution and modification notice.
 
-The port is isolated and is not wired into the production UI in P1. Integration is reserved for the subsequent bottom-navigation migration step.
+The P1 helper classes and P2.1 tab components remain isolated under `ui/glass/backdrop106`; they are not wired into the production UI yet. Subsequent P2 steps will add the Zhixing adapter, tests, and controlled production integration.
