@@ -1,6 +1,8 @@
 package ci.us.zhixing.app.ui.glass
 
+import android.os.Build
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
@@ -16,8 +18,11 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import ci.us.zhixing.app.MainActivity
+import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,6 +64,73 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
             .performClick()
 
         composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
+    }
+
+    @After
+    fun restoreDefaultMaterialSettings() {
+        runBlocking {
+            GlassMaterialSettingsStore(composeRule.activity).resetToDefaults()
+        }
+    }
+
+    @Test
+    fun glassLabMigratesEverySwitchAndSliderWithoutChangingMaterialStateRules() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
+        composeRule.onNodeWithText("Standard").performClick()
+        composeRule.onNodeWithText("性能模式 · Standard").assertIsDisplayed()
+
+        fun switchNode(label: String) = composeRule.onNode(
+            SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch) and
+                hasContentDescription(label),
+        )
+
+        listOf("边缘高光", "环境反射", "触摸光效与形变").forEach { label ->
+            val node = switchNode(label)
+            node.assertIsDisplayed().assertIsEnabled()
+            val wasOn =
+                node.fetchSemanticsNode().config[SemanticsProperties.ToggleableState] ==
+                    ToggleableState.On
+            node.performClick()
+            if (wasOn) node.assertIsOff() else node.assertIsOn()
+            node.performClick()
+            if (wasOn) node.assertIsOn() else node.assertIsOff()
+        }
+
+        fun sliderNode(label: String) = composeRule.onNode(
+            hasContentDescription(label),
+        )
+
+        val transparency = sliderNode("透明程度")
+        transparency.assertIsDisplayed().assertIsEnabled()
+        transparency.performSemanticsAction(SemanticsActions.SetProgress) { setProgress ->
+            setProgress(75f)
+        }
+        composeRule.onNodeWithText("透明程度 · 75%").assertIsDisplayed()
+
+        val blur = sliderNode("背景模糊")
+        blur.assertIsDisplayed()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            blur.assertIsEnabled()
+            blur.performSemanticsAction(SemanticsActions.SetProgress) { setProgress ->
+                setProgress(7f)
+            }
+            composeRule.onNodeWithText("背景模糊 · 7.0 dp").assertIsDisplayed()
+        } else {
+            blur.assertIsNotEnabled()
+        }
+
+        val refraction = sliderNode("折射强度")
+        refraction.assertIsDisplayed()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            refraction.assertIsEnabled()
+            refraction.performSemanticsAction(SemanticsActions.SetProgress) { setProgress ->
+                setProgress(3.5f)
+            }
+            composeRule.onNodeWithText("折射强度 · 3.5 dp").assertIsDisplayed()
+        } else {
+            refraction.assertIsNotEnabled()
+        }
     }
 
     @Test

@@ -1315,3 +1315,14 @@
 - [x] Android Build #245（Run ID `41319607292`）通过：JUnit、androidTest Kotlin 编译、Debug APK 组装与 Artifact 上传成功。
 - [ ] 目标设备实际拖动 / 弹性、读屏点击、色散画面效果、性能和发热仍待验收。
 - [ ] 下一步 G4.3：边缘高光开关迁移。
+
+
+### 10.61 G4.3 Glass Lab 全部控件批量液态化（待 CI，2026-11-01）
+
+- [x] 新增官方 Catalog 1.0.6 `LiquidSlider.kt` 移植与 `ZhixingLiquidSlider.kt` 包装层，使用阻尼拖动、真实 Backdrop、玻璃滑块头与动态填充轨道。
+- [x] 三个滑块迁移：透明程度、背景模糊、折射强度。保留各自原始值域、steps、API / 依赖门槛、实时预览与松手提交策略。
+- [x] 剩余三个设置项“边缘高光”“环境反射”“触摸光效与形变”接入液态开关；现有“边缘折射”“色散折射”保持不变。
+- [x] Premium / Standard / Lite / Off 性能档位、返回与重置入口改用液态按钮，并共享触摸反馈设置。
+- [x] 新增 Activity 集成测试覆盖新增开关、Slider 语义和无障碍 setProgress；测试结束后清理材质设置。
+- [ ] Android Build、JUnit、androidTest 源码编译、Debug APK 和 Artifact 等待本 PR 检查；自动化流程不会代替目标真机运行。
+- [ ] 需在目标设备验收开关拖拽、滑块连续拖动 / 点击、TalkBack、滚动、帧率、温升与耗电。

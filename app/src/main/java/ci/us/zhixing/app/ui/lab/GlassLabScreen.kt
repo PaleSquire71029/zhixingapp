@@ -9,7 +9,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
@@ -26,9 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -50,6 +47,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
@@ -59,6 +57,8 @@ import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import ci.us.zhixing.app.ui.glass.BackdropHost
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
+import ci.us.zhixing.app.ui.glass.ZhixingLiquidButton
+import ci.us.zhixing.app.ui.glass.ZhixingLiquidSlider
 import ci.us.zhixing.app.ui.glass.ZhixingLiquidToggle
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.drawEnvironmentReflection
@@ -200,7 +200,11 @@ internal fun GlassLabScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            TextButton(onClick = onBack) {
+            ZhixingLiquidButton(
+                backdrop = backdrop,
+                onClick = onBack,
+                touchFeedbackEnabled = touchFeedbackEnabled,
+            ) {
                 Text(
                     text = "← 返回主界面",
                     style = ZhixingTheme.type.featureTitle,
@@ -238,7 +242,11 @@ internal fun GlassLabScreen(
                 style = ZhixingTheme.type.sectionLabel,
                 color = ZhixingTheme.colors.secondary,
             )
-            TextButton(onClick = { resetMaterial() }) {
+            ZhixingLiquidButton(
+                backdrop = backdrop,
+                onClick = { resetMaterial() },
+                touchFeedbackEnabled = touchFeedbackEnabled,
+            ) {
                 Text(
                     text = "重置材质参数",
                     style = ZhixingTheme.type.supporting,
@@ -249,31 +257,39 @@ internal fun GlassLabScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
             Text(
-                text = "性能模式 · \${tierLabel(selectedTier)}",
+                text = "性能模式 · ${tierLabel(selectedTier)}",
                 style = ZhixingTheme.type.sectionTitle,
                 color = ZhixingTheme.colors.onBackground,
             )
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 PerformanceTierChip(
+                    backdrop = backdrop,
                     label = "Premium",
                     selected = selectedTier == GlassPerformanceTier.PREMIUM,
+                    touchFeedbackEnabled = touchFeedbackEnabled,
                     modifier = Modifier.weight(1f),
                 ) { applyPerformanceTier(GlassPerformanceTier.PREMIUM) }
                 PerformanceTierChip(
+                    backdrop = backdrop,
                     label = "Standard",
                     selected = selectedTier == GlassPerformanceTier.STANDARD,
+                    touchFeedbackEnabled = touchFeedbackEnabled,
                     modifier = Modifier.weight(1f),
                 ) { applyPerformanceTier(GlassPerformanceTier.STANDARD) }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 PerformanceTierChip(
+                    backdrop = backdrop,
                     label = "Lite",
                     selected = selectedTier == GlassPerformanceTier.LITE,
+                    touchFeedbackEnabled = touchFeedbackEnabled,
                     modifier = Modifier.weight(1f),
                 ) { applyPerformanceTier(GlassPerformanceTier.LITE) }
                 PerformanceTierChip(
+                    backdrop = backdrop,
                     label = "Off",
                     selected = selectedTier == GlassPerformanceTier.OFF,
+                    touchFeedbackEnabled = touchFeedbackEnabled,
                     modifier = Modifier.weight(1f),
                 ) { applyPerformanceTier(GlassPerformanceTier.OFF) }
             }
@@ -281,11 +297,12 @@ internal fun GlassLabScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
             Text(
-                text = "透明程度 · \${transparencyPercent.toInt()}%",
+                text = "透明程度 · ${transparencyPercent.toInt()}%",
                 style = ZhixingTheme.type.sectionLabel,
                 color = ZhixingTheme.colors.secondary,
             )
-            Slider(
+            ZhixingLiquidSlider(
+                backdrop = backdrop,
                 value = transparencyPercent,
                 onValueChange = {
                     markCustom()
@@ -295,6 +312,8 @@ internal fun GlassLabScreen(
                 onValueChangeFinished = { publishMaterial(commit = true) },
                 valueRange = 0f..100f,
                 steps = 19,
+                label = "透明程度",
+                touchFeedbackEnabled = touchFeedbackEnabled,
             )
             Text(
                 text = "数值越高，背景越清晰；为保证文字可读，始终保留极轻的浅色底。",
@@ -309,7 +328,8 @@ internal fun GlassLabScreen(
                 style = ZhixingTheme.type.sectionLabel,
                 color = ZhixingTheme.colors.secondary,
             )
-            Slider(
+            ZhixingLiquidSlider(
+                backdrop = backdrop,
                 value = blurRadiusDp,
                 onValueChange = {
                     markCustom()
@@ -319,7 +339,9 @@ internal fun GlassLabScreen(
                 onValueChangeFinished = { publishMaterial(commit = true) },
                 valueRange = 0f..24f,
                 steps = 23,
+                label = "背景模糊",
                 enabled = blurSupported && backdropEnabled,
+                touchFeedbackEnabled = touchFeedbackEnabled,
             )
             if (!blurSupported) {
                 Text(
@@ -374,7 +396,8 @@ internal fun GlassLabScreen(
                 style = ZhixingTheme.type.supporting,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
-            Slider(
+            ZhixingLiquidSlider(
+                backdrop = backdrop,
                 value = refractionStrength,
                 onValueChange = {
                     markCustom()
@@ -384,7 +407,9 @@ internal fun GlassLabScreen(
                 onValueChangeFinished = { publishMaterial(commit = true) },
                 valueRange = 0f..8f,
                 steps = 15,
+                label = "折射强度",
                 enabled = refractionSupported && refractionEnabled && backdropEnabled,
+                touchFeedbackEnabled = touchFeedbackEnabled,
             )
         }
 
@@ -446,20 +471,18 @@ internal fun GlassLabScreen(
                     color = ZhixingTheme.colors.onSurfaceVariant,
                 )
             }
-            TextButton(
+            ZhixingLiquidToggle(
+                backdrop = backdrop,
+                checked = edgeHighlightEnabled,
                 enabled = backdropEnabled,
-                onClick = {
+                touchFeedbackEnabled = touchFeedbackEnabled,
+                label = "边缘高光",
+                onCheckedChange = { checked ->
                     markCustom()
-                    edgeHighlightEnabled = !edgeHighlightEnabled
+                    edgeHighlightEnabled = checked
                     publishMaterial(commit = true)
                 },
-            ) {
-                Text(
-                    text = if (edgeHighlightEnabled) "关闭" else "开启",
-                    style = ZhixingTheme.type.featureTitle,
-                    color = ZhixingTheme.colors.primary,
-                )
-            }
+            )
         }
 
         Row(
@@ -482,20 +505,18 @@ internal fun GlassLabScreen(
                     color = ZhixingTheme.colors.onSurfaceVariant,
                 )
             }
-            TextButton(
+            ZhixingLiquidToggle(
+                backdrop = backdrop,
+                checked = environmentReflectionEnabled,
                 enabled = backdropEnabled,
-                onClick = {
+                touchFeedbackEnabled = touchFeedbackEnabled,
+                label = "环境反射",
+                onCheckedChange = { checked ->
                     markCustom()
-                    environmentReflectionEnabled = !environmentReflectionEnabled
+                    environmentReflectionEnabled = checked
                     publishMaterial(commit = true)
                 },
-            ) {
-                Text(
-                    text = if (environmentReflectionEnabled) "关闭" else "开启",
-                    style = ZhixingTheme.type.featureTitle,
-                    color = ZhixingTheme.colors.primary,
-                )
-            }
+            )
         }
 
         Row(
@@ -518,20 +539,18 @@ internal fun GlassLabScreen(
                     color = ZhixingTheme.colors.onSurfaceVariant,
                 )
             }
-            TextButton(
+            ZhixingLiquidToggle(
+                backdrop = backdrop,
+                checked = touchFeedbackEnabled,
                 enabled = backdropEnabled,
-                onClick = {
+                touchFeedbackEnabled = touchFeedbackEnabled,
+                label = "触摸光效与形变",
+                onCheckedChange = { checked ->
                     markCustom()
-                    touchFeedbackEnabled = !touchFeedbackEnabled
+                    touchFeedbackEnabled = checked
                     publishMaterial(commit = true)
                 },
-            ) {
-                Text(
-                    text = if (touchFeedbackEnabled) "关闭" else "开启",
-                    style = ZhixingTheme.type.featureTitle,
-                    color = ZhixingTheme.colors.primary,
-                )
-            }
+            )
         }
 
         GlassPreviewCard(
@@ -573,21 +592,20 @@ private fun tierLabel(tier: GlassPerformanceTier): String = when (tier) {
 
 @Composable
 private fun PerformanceTierChip(
+    backdrop: Backdrop,
     label: String,
     selected: Boolean,
+    touchFeedbackEnabled: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(
-                if (selected) ZhixingTheme.colors.primary.copy(alpha = 0.14f)
-                else Color.White.copy(alpha = 0.72f),
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 6.dp, vertical = 10.dp),
-        contentAlignment = Alignment.Center,
+    ZhixingLiquidButton(
+        backdrop = backdrop,
+        onClick = onClick,
+        modifier = modifier,
+        touchFeedbackEnabled = touchFeedbackEnabled,
+        selected = selected,
+        shape = ci.us.zhixing.app.ui.theme.ZhixingGlassShapes.pill,
     ) {
         Text(
             text = label,
