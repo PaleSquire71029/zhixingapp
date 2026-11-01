@@ -98,6 +98,7 @@ class CatalogBottomBarMaterialParametersTest {
     fun opticalTogglesAreMappedIndependently() {
         val parameters = resolveCatalogBottomBarMaterialParameters(
             material = GlassMaterialState(
+                blurRadiusDp = 0f,
                 refractionEnabled = false,
                 chromaticDispersionEnabled = true,
                 edgeHighlightEnabled = false,
