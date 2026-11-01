@@ -638,7 +638,7 @@
 - [x] PR 构建中的“提交安装预览 APK 到 main”步骤按工作流规则跳过；没有在本次源码合并中更新 `artifacts/zhixingapp-preview.apk`。
 - [ ] 尚未将材质模型接入实际玻璃组件；尚未完成目标 Android 真机的显示、滚动、触控、帧率、温度和耗电验收。
 
-**下一小步：** S3.4，为 `ZhixingGlassSurface` 增加明确的 Off 路径与 API 版本能力降级，并补充纯 Kotlin 单测。
+**下一小步：** S4.1，只新增 `BackdropHost.kt` 静态浅色共享背景宿主；不修改首页内容和导航。
 
 ### 10.7 S3.3 可复用玻璃表面组件与合并验收（2026-11-01）
 
@@ -653,3 +653,18 @@
 - [ ] 尚未完成真机渲染、触控、滚动、帧率、温度和耗电验收。
 
 **下一小步：** S3.4，为组件增加显式 Off 开关和 API 26–30 / 31+ 降级策略；Off 不挂载 `drawBackdrop` 采样节点，并补充单测。
+
+### 10.8 S3.4 API 降级与 Off 路径合并验收（2026-11-01）
+
+- [x] 为 `ZhixingGlassSurface` 增加显式 `glassEnabled` 参数；关闭时使用浅色回退，不挂载 `drawBackdrop` 采样修饰符。
+- [x] 新增纯 Kotlin `GlassSurfaceCapabilities.kt`，区分 API 26+ 的 Backdrop 背景采样和 API 31+ 的模糊能力。
+- [x] 零模糊不启用 blur；非法范围和非有限值在能力解析层拒绝。
+- [x] 新增 `GlassSurfaceCapabilitiesTest.kt`，覆盖 API 26–30、31–32、33+、Off、零模糊和非法参数等 7 组测试。
+- [x] PR [#8](https://github.com/PaleSquire71029/zhixingapp/pull/8) 已 squash 合并；合并提交：`bd2c5bf3bcc0d143ac0230ab8e550ca27715ea11`。
+- [x] Android Build #50（Run ID `41260858724`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41260858724)。
+- [x] 资源校验、Gradle 配置、JVM 单测、Kotlin 编译、Debug APK 构建与 Artifact 上传均通过。
+- [x] 本次未修改 `MainActivity.kt`、首页、导航与持久化设置，也未将 PR 临时 APK 发布到 main。
+- [ ] 整个共享背景宿主 Off 时不创建 LayerBackdrop 的行为，留待 S4 主机集成阶段完成。
+- [ ] 目标 Android 真机性能、外观和交互尚未验收。
+
+**下一小步：** S4.1，只新增 `BackdropHost.kt` 静态浅色共享背景宿主；不修改首页内容和导航。
