@@ -765,3 +765,16 @@
 - [ ] 仍未替换 MainActivity 的现有 Material 3 NavigationBar。
 
 **下一小步：** S5.5，单独添加图标 / 标签的轻微过渡，不改变每个导航项的测量和触控尺寸。
+
+### 10.16 S5.5 图标与标签轻微过渡合并验收（2026-11-01）
+
+- [x] 修改 `ZhixingLiquidBottomBarItems.kt`，选中图标 1.0 倍、未选中 0.96 倍；图标 Alpha 0.88–1.0。
+- [x] 标签 Alpha 0.78–1.0；使用 170 ms FastOutSlowIn tween。
+- [x] 图标 / 标签的变化通过 `graphicsLayer` 完成，不改变布局测量、导航项宽度或 selectable 的点击区域。
+- [x] 使用 destination route key 保持每个导航项动画状态稳定。
+- [x] PR [#16](https://github.com/PaleSquire71029/zhixingapp/pull/16) 已 squash 合并；合并提交：`be056decb918611d4734083d442b4b1c1c7cc63f`。
+- [x] Android Build #63（Run ID `41262700012`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41262700012)。
+- [x] 资源校验、Gradle、JVM 单测、Kotlin 编译、Debug APK 构建和 Artifact 上传全部通过。
+- [ ] 快速连点时视觉与触控区域不变的实际设备验收仍待进行。
+
+**下一小步：** S5.6，单独添加按压高光与轻微回弹，不添加拖动手势或改变点击区域。
