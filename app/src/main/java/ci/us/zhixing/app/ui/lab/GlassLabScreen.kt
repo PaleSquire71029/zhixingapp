@@ -92,6 +92,9 @@ internal fun GlassLabScreen(
     var blurRadiusDp by rememberSaveable { mutableFloatStateOf(initialMaterial.blurRadiusDp) }
     var refractionEnabled by rememberSaveable { mutableStateOf(initialMaterial.refractionEnabled) }
     var refractionStrength by rememberSaveable { mutableFloatStateOf(initialMaterial.refractionStrengthDp) }
+    var chromaticDispersionEnabled by rememberSaveable {
+        mutableStateOf(initialMaterial.chromaticDispersionEnabled)
+    }
     var edgeHighlightEnabled by rememberSaveable { mutableStateOf(initialMaterial.edgeHighlightEnabled) }
     var environmentReflectionEnabled by rememberSaveable {
         mutableStateOf(initialMaterial.environmentReflectionEnabled)
@@ -114,6 +117,7 @@ internal fun GlassLabScreen(
         enabled = selectedTier != GlassPerformanceTier.OFF,
         refractionEnabled = refractionEnabled,
         refractionStrengthDp = refractionStrength,
+        chromaticDispersionEnabled = chromaticDispersionEnabled,
         edgeHighlightEnabled = edgeHighlightEnabled,
         environmentReflectionEnabled = environmentReflectionEnabled,
         touchFeedbackEnabled = touchFeedbackEnabled,
@@ -133,6 +137,7 @@ internal fun GlassLabScreen(
         blurRadiusDp = DEFAULT_HOME_GLASS_MATERIAL.blurRadiusDp
         refractionEnabled = DEFAULT_HOME_GLASS_MATERIAL.refractionEnabled
         refractionStrength = DEFAULT_HOME_GLASS_MATERIAL.refractionStrengthDp
+        chromaticDispersionEnabled = DEFAULT_HOME_GLASS_MATERIAL.chromaticDispersionEnabled
         edgeHighlightEnabled = DEFAULT_HOME_GLASS_MATERIAL.edgeHighlightEnabled
         environmentReflectionEnabled = DEFAULT_HOME_GLASS_MATERIAL.environmentReflectionEnabled
         touchFeedbackEnabled = DEFAULT_HOME_GLASS_MATERIAL.touchFeedbackEnabled
@@ -150,6 +155,7 @@ internal fun GlassLabScreen(
             blurRadiusDp = config.blurRadiusDp
             refractionEnabled = config.refractionEnabled
             refractionStrength = config.refractionStrengthPx
+            chromaticDispersionEnabled = config.chromaticDispersionEnabled
             edgeHighlightEnabled = config.edgeHighlightEnabled
             environmentReflectionEnabled = tier != GlassPerformanceTier.LITE
             touchFeedbackEnabled = config.touchFeedbackEnabled
@@ -390,6 +396,46 @@ internal fun GlassLabScreen(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
+                    text = if (chromaticDispersionEnabled) "色散折射 · 开启" else "色散折射 · 关闭",
+                    style = ZhixingTheme.type.sectionLabel,
+                    color = ZhixingTheme.colors.secondary,
+                )
+                Text(
+                    text = if (refractionSupported) {
+                        "仅在玻璃边缘产生轻微冷暖色分离；Premium 默认开启"
+                    } else {
+                        "需要 Android 13 及以上版本"
+                    },
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.onSurfaceVariant,
+                )
+            }
+            TextButton(
+                enabled = refractionSupported && refractionEnabled && backdropEnabled,
+                onClick = {
+                    markCustom()
+                    chromaticDispersionEnabled = !chromaticDispersionEnabled
+                    publishMaterial(commit = true)
+                },
+            ) {
+                Text(
+                    text = if (chromaticDispersionEnabled) "关闭" else "开启",
+                    style = ZhixingTheme.type.featureTitle,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
                     text = if (edgeHighlightEnabled) "边缘高光 · 开启" else "边缘高光 · 关闭",
                     style = ZhixingTheme.type.sectionLabel,
                     color = ZhixingTheme.colors.secondary,
@@ -494,6 +540,7 @@ internal fun GlassLabScreen(
             blurRadiusDp = if (blurSupported) blurRadiusDp else 0f,
             refractionEnabled = refractionEnabled && refractionSupported,
             refractionStrength = if (refractionSupported) refractionStrength else 0f,
+            chromaticDispersionEnabled = chromaticDispersionEnabled && refractionSupported,
             edgeHighlightEnabled = edgeHighlightEnabled,
             environmentReflectionEnabled = environmentReflectionEnabled,
             touchFeedbackEnabled = touchFeedbackEnabled,
@@ -557,6 +604,7 @@ private fun GlassPreviewCard(
     blurRadiusDp: Float,
     refractionEnabled: Boolean,
     refractionStrength: Float,
+    chromaticDispersionEnabled: Boolean,
     edgeHighlightEnabled: Boolean,
     environmentReflectionEnabled: Boolean,
     touchFeedbackEnabled: Boolean,
@@ -661,6 +709,7 @@ private fun GlassPreviewCard(
                                 lens(
                                     refractionHeight = 22.dp.toPx(),
                                     refractionAmount = refractionStrength.dp.toPx(),
+                                    chromaticAberration = chromaticDispersionEnabled,
                                 )
                             }
                         },
