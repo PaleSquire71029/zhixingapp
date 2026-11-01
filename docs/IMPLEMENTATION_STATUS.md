@@ -828,7 +828,7 @@
 - [x] 选择 Premium / Standard / Lite / Off 档时，同步对应透明度、模糊值；Off 档将玻璃采样表面切换为浅色回退表面。
 - [x] `GlassMaterialState.enabled` 控制 `ZhixingGlassSurface` 是否添加 Backdrop 采样修饰符；Off 表面不再执行前景采样。
 - [x] 保持当前四项底部导航、入口和选择动画不变；未增加新依赖。
-- [ ] PR #20 的资源校验、JVM 单测、Kotlin 编译和 Debug APK 构建待 CI。
+- [ ] PR #21 的资源校验、JVM 单测、Kotlin 编译和 Debug APK 构建待 CI。
 - [ ] 真机检查滑块操作后返回首页的即时效果、低版本模糊回退、滚动与帧率。
 - [ ] 当前只同步透明度、模糊与 Off 开关；折射强度、边缘高光、触摸光效和色散尚未接入首页共享材质状态。
 
