@@ -1,12 +1,6 @@
 package ci.us.zhixing.app.ui.glass
 
 /**
- * Immutable user-facing settings for Zhixing's light glass material.
- *
- * Transparency and background blur are deliberately independent values:
- * changing one never derives or mutates the other.
- */
-/**
  * Converts the user-facing transparency percentage to the surface tint alpha.
  * Blur remains an independent material property.
  */
@@ -17,6 +11,12 @@ internal fun resolveGlassOverlayAlpha(transparencyPercent: Int): Float {
     return (100 - transparencyPercent) / 100f
 }
 
+/**
+ * Immutable user-facing settings for Zhixing's light glass material.
+ *
+ * Transparency and background blur are deliberately independent values:
+ * changing one never derives or mutates the other.
+ */
 internal data class GlassMaterialState(
     val transparencyPercent: Int = DEFAULT_TRANSPARENCY_PERCENT,
     val blurRadiusDp: Float = DEFAULT_BLUR_RADIUS_DP,
