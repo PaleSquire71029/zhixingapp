@@ -1146,11 +1146,24 @@
 - [x] Android Build #180（Run ID `41280383296`）成功：资源校验、JUnit、Android 测试源码编译、Debug APK 构建和 Artifact 上传全部通过。
 - [ ] 该步骤没有连接生产 UI；真机触摸和 Shader 呈现需要后续 P2 / P9 验收。
 
-### 10.45 P2.1 官方 LiquidBottomTabs 源码隔离移植（进行中，2026-11-01）
+### 10.45 P2.1 官方 LiquidBottomTabs 源码隔离移植（已完成，2026-11-01）
 
 - [x] 从固定上游 tag 1.0.6 获取 `LiquidBottomTabs.kt` 与 `LiquidBottomTab.kt`。
 - [x] 移植到 `ui/glass/backdrop106/components`，将 helper 引用重定向到已合并的隔离包；保留官方布局、手势、透镜参数与色散配置。
 - [x] 按上游 Catalog 的依赖声明添加固定版本 `io.github.kyant0:shapes:1.2.0`；没有升级 Backdrop / Compose / AGP / Kotlin。
 - [x] 更新第三方来源说明，扩展已移植文件清单。
-- [ ] P2.1 Android CI 尚未完成；当前不接入 MainActivity、不替换原有底栏。
-- [ ] CI 通过后再建立 Zhixing 包装层（P2.2）；不得跳步删除现有导航代码。
+- [x] 两个组件源码经包名反向还原后与上游固定 tag 逐字一致。
+- [x] PR [#50](https://github.com/PaleSquire71029/zhixingapp/pull/50) 已 squash 合并；合并提交 `c07a0e34977f05c1c5feca465f04d8b605a48d4d`。
+- [x] Android Build #183（Run ID `41280683284`）全部成功：资源校验、JUnit、androidTest 源码编译、Debug APK 构建和 Artifact 上传。
+- [ ] 未修改 MainActivity；新组件仍未接入生产底栏，真机交互待后续验收。
+
+### 10.46 P2.2 知行四入口适配层（代码完成，待 CI，2026-11-01）
+
+- [x] 新增 `ZhixingCatalogBottomBar.kt`，仅包装官方 `LiquidBottomTabs` / `LiquidBottomTab`。
+- [x] 映射现有 `AppDestinations.all`：四个入口、route 稳定 key、原 label 与 symbol 均沿用，不复制或改写导航数据。
+- [x] selectedIndex 和 `onDestinationSelected` 仍由调用方控制，包装层不创建第二份导航状态。
+- [x] 为每个 Tab 保留 `Role.Tab`（来自官方组件），并添加当前选中语义。
+- [x] 使用现有 `ZhixingTheme` 的字号、颜色和文字 Tokens；不引入新字体、不增加新动画。
+- [x] 没有修改 MainActivity、旧底栏、BackdropHost、系统 Insets、DataStore 或业务页面。
+- [ ] P2.2 Android CI 待运行 / 验证。
+- [ ] P2.3 才增加导航语义与点击行为测试；P2.4 才切换首页生产底栏。
