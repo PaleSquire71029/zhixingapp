@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.TransformOrigin
@@ -144,6 +145,16 @@ internal fun ZhixingLiquidBottomBar(
                 ),
                 label = "zhixingBottomBarDirectionalDragStretch",
             )
+            val dragTrailOpacity by animateFloatAsState(
+                targetValue = if (
+                    dragActive && material.touchFeedbackEnabled && dragStretchTarget > 0.01f
+                ) 0.48f else 0f,
+                animationSpec = tween(durationMillis = 120),
+                label = "zhixingBottomBarDragTrailOpacity",
+            )
+            val dragTrailWidth = with(density) {
+                (itemWidthPx * (0.22f + dragStretch * 0.50f)).toDp()
+            }
             val indicatorOffset = remember { Animatable(itemWidthPx * selectedIndex) }
             var dragOffsetPx by remember { mutableStateOf(itemWidthPx * selectedIndex) }
             var settleFromDragPx by remember { mutableStateOf<Float?>(null) }
@@ -342,6 +353,41 @@ internal fun ZhixingLiquidBottomBar(
                         }
                     },
             ) {
+            // A short gradient wake trails the moving capsule and fades on release.
+            if (dragTrailOpacity > 0.001f) {
+                val trailColor = Color(0xFFB8DDF0).copy(alpha = 0.30f)
+                val trailColors = if (dragDirection > 0) {
+                    listOf(Color.Transparent, trailColor)
+                } else {
+                    listOf(trailColor, Color.Transparent)
+                }
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .offset {
+                            val capsuleOffset = if (dragActive) {
+                                dragOffsetPx
+                            } else {
+                                indicatorOffset.value
+                            }
+                            val trailLeft = if (dragDirection > 0) {
+                                capsuleOffset - dragTrailWidth.toPx() + 3.dp.toPx()
+                            } else {
+                                capsuleOffset + itemWidthPx - 3.dp.toPx()
+                            }
+                            IntOffset(trailLeft.roundToInt(), 0)
+                        }
+                        .width(dragTrailWidth)
+                        .fillMaxHeight(0.30f)
+                        .clip(RoundedCornerShape(percent = 50))
+                        .background(
+                            brush = Brush.horizontalGradient(trailColors),
+                            shape = RoundedCornerShape(percent = 50),
+                        )
+                        .graphicsLayer { alpha = dragTrailOpacity },
+                )
+            }
+
             // One shared refractive indicator travels behind the four equal-width tabs.
             Box(
                 modifier = Modifier
