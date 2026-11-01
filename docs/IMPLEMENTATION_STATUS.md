@@ -1218,7 +1218,7 @@
 - [x] PR [#55](https://github.com/PaleSquire71029/zhixingapp/pull/55) 已 squash 合并；merge commit：`677b0b0ea9fbcefac5d2e35d2573e9f93b12fac6`。
 - [x] Android Build #200（Run ID `41282549664`）全部成功：JUnit、androidTest Kotlin 编译、Debug APK 构建和 Artifact 上传。
 
-### 10.52 P2.4.1b 官方底栏材质参数接线（代码已建立，待 CI，2026-11-01）
+### 10.52 P2.4.1b 官方底栏材质参数接线（已合并，2026-11-01）
 
 - [x] `ZhixingCatalogBottomBar` 新增可传入 `GlassMaterialState` 的参数，默认值保留现有调用兼容。
 - [x] `LiquidBottomTabs` 新增 material 参数，调用纯解析器获取透明度 Alpha、blur、vibrancy、refraction scale、chromatic dispersion、edge highlight、environment reflection 和 touch feedback 开关。
@@ -1229,7 +1229,18 @@
 - [x] 触摸反馈关闭时，P1 `DampedDragAnimation` 跳过 press / release 弹簧并不创建 `InteractiveHighlight` / RuntimeShader；拖动位移、速度采样与吸附仍保留。
 - [x] 每次拖动开始都重置 VelocityTracker，避免关闭触摸反馈后沿用上一段拖动的速度。
 - [x] 新增仪器测试：Off 状态四个 Tab 可见且点击可切换；整体 Off 和仅关闭触摸反馈时，拖动仍可切换到“工具”。
-- [x] 首次 Android Build #202 暴露可见性错误：官方移植组件公开函数不能暴露内部 `GlassMaterialState`；已将仅供应用内部调用的 `LiquidBottomTabs` 改为 `internal`，不扩大设置模型可见性。
-- [x] Build #204 的单测发现色散开关用例沿用了默认 12dp blur，按既有 capability 策略 vibrancy 会保持开启；已将该独立开关用例的 blur 显式设为 0dp，隔离测试目标。
-- [ ] 修正后的最新 Android CI 待验收；当前工作流只编译 `androidTest` 源码，不会在 Hosted 模拟器执行仪器交互。生产 MainActivity 尚未切换，旧底栏保留。
+- [x] PR [#56](https://github.com/PaleSquire71029/zhixingapp/pull/56) 已 squash 合并；merge commit：`25057905dbbe76881f9f7d77e7e62b156ccbd14b`。
+- [x] Android Build #206（Run ID `41283390026`）全部成功：资源校验、JUnit、androidTest Kotlin 编译、Debug APK 构建和 Artifact 上传。
+- [ ] Android CI 仅编译仪器测试源码；真实拖动跟手、折射视觉、高光和帧率仍需目标设备验收。
 
+
+
+### 10.53 P2.4.2 MainActivity 集成官方底栏（代码已建立，待 CI，2026-11-01）
+
+- [x] `MainActivity.kt` 的生产底栏调用已从 `ZhixingLiquidBottomBar` 切换为 `ZhixingCatalogBottomBar`。
+- [x] 继续传入原有 `glassMaterial`，实时预览和 DataStore 持久化设置无需新增状态或重新保存。
+- [x] 继续复用同一 `BackdropHost` 提供的 Backdrop、`ZhixingLiquidBottomBarPlacement`、68dp 容器高度与导航栏 / IME Insets 处理。
+- [x] `selectedIndex` 和 `onDestinationSelected` 仍由 MainActivity 所有；四个原路由、中文标签、glyph、标题和描述数据未改变。
+- [x] 新增 `ZhixingCatalogBottomBarMainActivityIntegrationTest.kt`：启动 MainActivity 后检查四个 Role.Tab、初始计算页选中、点击知行AI和工具后页面标题同步更新。
+- [ ] 等待 Android CI；当前工作流会编译该 Activity 仪器测试源码，但不在 Hosted 模拟器实际启动 Activity。
+- [ ] 旧 `ZhixingLiquidBottomBar` 与其手势 / 装饰代码暂时保留，待 P2.4.3 设备验收后在 P2.5 单独清理。
