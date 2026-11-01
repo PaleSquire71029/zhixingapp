@@ -179,17 +179,21 @@ fun LiquidBottomTabs(
                 }
         }
 
-        val interactiveHighlight = remember(animationScope) {
-            InteractiveHighlight(
-                animationScope = animationScope,
-                position = { size, offset ->
-                    Offset(
-                        if (isLtr) (dampedDragAnimation.value + 0.5f) * tabWidth + panelOffset
-                        else size.width - (dampedDragAnimation.value + 0.5f) * tabWidth + panelOffset,
-                        size.height / 2f
-                    )
-                }
-            )
+        val interactiveHighlight = if (materialParameters.touchFeedbackEnabled) {
+            remember(animationScope) {
+                InteractiveHighlight(
+                    animationScope = animationScope,
+                    position = { size, offset ->
+                        Offset(
+                            if (isLtr) (dampedDragAnimation.value + 0.5f) * tabWidth + panelOffset
+                            else size.width - (dampedDragAnimation.value + 0.5f) * tabWidth + panelOffset,
+                            size.height / 2f
+                        )
+                    }
+                )
+            }
+        } else {
+            null
         }
 
         val pressProgress = if (materialParameters.touchFeedbackEnabled) {
@@ -197,16 +201,8 @@ fun LiquidBottomTabs(
         } else {
             0f
         }
-        val highlightModifier = if (materialParameters.touchFeedbackEnabled) {
-            interactiveHighlight.modifier
-        } else {
-            Modifier
-        }
-        val highlightGestureModifier = if (materialParameters.touchFeedbackEnabled) {
-            interactiveHighlight.gestureModifier
-        } else {
-            Modifier
-        }
+        val highlightModifier = interactiveHighlight?.modifier ?: Modifier
+        val highlightGestureModifier = interactiveHighlight?.gestureModifier ?: Modifier
 
         val backgroundSurfaceModifier = if (materialParameters.useBackdropSampling) {
             Modifier.drawBackdrop(
