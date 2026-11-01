@@ -871,8 +871,10 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 | P0 | 冻结旧自研玻璃动效并确认可回滚点 | 文档 / 分支 / 主分支状态 | PR #48 未合并；旧拖尾、独立 Spring、速度拉伸标记为待被官方组件替换 |
 | P1 | 直接移植官方 DampedDragAnimation、InteractiveHighlight、DragGestureInspector | 新增隔离源码文件 | ✅ 已完成：与 1.0.6 上游逐字对照（仅包名适配）；PR #49 合并，Android Build #180 成功 |
 | P2.1 | 隔离移植官方 LiquidBottomTabs / LiquidBottomTab 源码及局部状态 | 新增 backdrop106/components；固定 shapes 1.2.0 | ✅ 已完成：PR #50 合并，Android Build #183 全部成功 |
-| P2.2 | 建立 Zhixing 官方底栏包装层 | 新增 ZhixingCatalogBottomBar.kt | ✅ 代码完成待 CI：适配 AppDestination、保留知行标签/符号/文字 Tokens/选中语义；不替换线上底栏 |
-| P2.3 | 为官方底栏建立最小 Compose 测试 | 新增底栏测试 | 检查四项语义、选中状态和点击回调；不依赖无法启动的 Hosted 模拟器 |
+| P2.2 | 建立 Zhixing 官方底栏包装层 | 新增 ZhixingCatalogBottomBar.kt | ✅ 已完成：PR #51 合并（commit `ce7539907a666db829de3c32b5c88228e39bd5bb`），Android Build #185 成功；生产 UI 未切换 |
+| P2.3.1 | 底栏语义、标签与调用方状态测试 | 新增 `ZhixingCatalogBottomBarSemanticsTest.kt` | 四个 `Role.Tab`、原中文标签、单选中状态、点击回调和外部 selectedIndex 同步 |
+| P2.3.2 | 官方拖动切换与边界行为测试 | Compose 仪器测试 | 拖动跨 Tab、快速反向、边界吸附、回调索引；与真机帧率验收分开 |
+| P2.3.3 | RTL 与布局 / 无障碍回归测试 | Compose 仪器测试 | RTL 排列、窄屏文字与触控区域、不重复暴露采样副本 |
 | P2.4 | 将官方底栏接入首页共享 Backdrop | MainActivity.kt 与包装层 | 用官方 LayerBackdrop / CombinedBackdrop；保留现有 Insets、材质设置和四项导航 |
 | P2.5 | 删除旧底栏重复手势与装饰动画 | 旧 ZhixingLiquidBottomBarItems.kt | 只清理官方接管的逻辑，不改业务状态；构建与导航测试通过 |
 | P2.6 | 导航交互与性能验收 | UI 测试 / 真机检查记录 | 点击、拖动、取消、快速切换、横竖屏、系统 Insets、帧率通过后才结束 P2 |
@@ -948,15 +950,26 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 
 **严禁以“所有元素都动”为目标。** 静态时材质应有空间感；用户触摸、拖动、切换或打开界面时再有针对性地响应。持续循环动画仅限背景中低强度环境光，并受生命周期和性能档位约束。
 
-### 25.8 下一次对话执行入口
+### 25.8 当前执行入口
 
-下一次继续本仓库时，直接从本节启动，不再重新讨论路线：
+下次继续本仓库时，从 main 最新提交和本专项分支状态开始：
 
-1. 核对 main 最新提交；P1 已合并（PR #49），P2.1 已合并（PR #50）。
-2. P2.2：在隔离适配层映射 `AppDestination` 的四个目的地、现有标签与符号，保持 selectedIndex 和点击回调由 MainActivity 所有。
-3. P2.2 不修改 MainActivity、不切换生产 UI、不新增导航状态；完成 CI 后执行 P2.3 语义 / 点击测试。
-4. P2.4 才允许接入首页共享 Backdrop；P2.5 再清理旧底栏重复逻辑；P2.6 处理真机交互验收。
-5. 所有步骤均保持官方 1.0.6 源码、Apache-2.0 归属和固定依赖版本。
+1. P1、P2.1、P2.2 已完成并合入 main；P2.2 的 Android Build #185 已成功。
+2. 当前分支正在执行 P2.3.1：使用 Android Compose 仪器测试验证四个 Tab 的角色、原中文标签、选中语义、点击回调和外部状态同步。
+3. 当前 CI 工作流会编译 `androidTest` 源码，但不会启动模拟器执行仪器测试；文档和验收报告必须明确区分“编译通过”与“设备执行通过”。
+4. P2.3.1 CI 通过后，再完成 P2.3.2 拖动边界测试及 P2.3.3 RTL / 窄屏 / 无障碍回归。
+5. P2.3 全部完成后才进入 P2.4；接入首页时保留现有系统 Insets、材质设置、四个导航入口和外部导航状态。
+6. 所有步骤继续固定官方 1.0.6 源码、Apache-2.0 归属和固定依赖版本。
 
-**本轮 P2.2 只新增知行包装层；现有生产底栏保持不变。**
+**当前仍不修改 MainActivity；生产底栏尚未切换到官方 Catalog 组件。**
 
+
+
+### 25.9 本轮进度记录（2026-11-01）
+
+- [x] P2.2 PR #51 已按已验证 head SHA 合并，合并提交：`ce7539907a666db829de3c32b5c88228e39bd5bb`。
+- [x] Android Build #185（Run ID `41280875247`）完成且 conclusion 为 success：资源校验、JUnit、androidTest Kotlin 编译、Debug APK 编译和 Artifact 上传全部成功。
+- [x] 建立 P2.3.1 隔离分支 `port/catalog-1.0.6-p2-3-1-bottom-tab-tests`，新增 `ZhixingCatalogBottomBarSemanticsTest.kt`。
+- [x] 三项仪器测试覆盖四个 Tab 角色 / 标签 / 选中态、点击后回调、调用方外部更新 selectedIndex。
+- [ ] P2.3.1 当前等待 Android CI；尚未在模拟器或真机执行。当前工作流只编译仪器测试源码。
+- [ ] P2.3.1 未通过 CI 前不合并，也不修改 MainActivity。

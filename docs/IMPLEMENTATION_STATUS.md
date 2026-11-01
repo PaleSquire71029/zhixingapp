@@ -1157,7 +1157,7 @@
 - [x] Android Build #183（Run ID `41280683284`）全部成功：资源校验、JUnit、androidTest 源码编译、Debug APK 构建和 Artifact 上传。
 - [ ] 未修改 MainActivity；新组件仍未接入生产底栏，真机交互待后续验收。
 
-### 10.46 P2.2 知行四入口适配层（代码完成，待 CI，2026-11-01）
+### 10.46 P2.2 知行四入口适配层（已完成，2026-11-01）
 
 - [x] 新增 `ZhixingCatalogBottomBar.kt`，仅包装官方 `LiquidBottomTabs` / `LiquidBottomTab`。
 - [x] 映射现有 `AppDestinations.all`：四个入口、route 稳定 key、原 label 与 symbol 均沿用，不复制或改写导航数据。
@@ -1165,5 +1165,17 @@
 - [x] 为每个 Tab 保留 `Role.Tab`（来自官方组件），并添加当前选中语义。
 - [x] 使用现有 `ZhixingTheme` 的字号、颜色和文字 Tokens；不引入新字体、不增加新动画。
 - [x] 没有修改 MainActivity、旧底栏、BackdropHost、系统 Insets、DataStore 或业务页面。
-- [ ] P2.2 Android CI 待运行 / 验证。
-- [ ] P2.3 才增加导航语义与点击行为测试；P2.4 才切换首页生产底栏。
+- [x] PR [#51](https://github.com/PaleSquire71029/zhixingapp/pull/51) 已 squash 合并；合并提交：`ce7539907a666db829de3c32b5c88228e39bd5bb`。
+- [x] Android Build #185（Run ID `41280875247`）成功：资源校验、JUnit、androidTest Kotlin 编译、Debug APK 构建和 Artifact 上传全部通过。
+- [ ] 生产 UI 未切换；官方组件真机折射、触摸、拖动和帧率验收仍在后续步骤。
+
+
+### 10.47 P2.3.1 官方底栏语义与调用方状态测试（代码完成，待 CI，2026-11-01）
+
+- [x] 新增 `ZhixingCatalogBottomBarSemanticsTest.kt`，使用现有 `createAndroidComposeRule<ComponentActivity>()` 和真实 `BackdropHost` 挂载适配层。
+- [x] 覆盖四个 Tab 均暴露 `Role.Tab`、原中文标签可见、选中态只跟随传入的 selectedIndex。
+- [x] 覆盖点击“工具”后回调更新外部选中索引，以及外部直接切换到“历史”时语义同步变化。
+- [x] 测试不改生产组件、不改导航模型、不改 MainActivity，也不引入额外依赖。
+- [x] 首次 Android Build #188 暴露 Compose UI Test API 使用错误：移除不存在的 `hasRole` 及不需要的 provider member 导入，改用 `SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)`；修正后重新触发 CI。
+- [ ] 修正后的最新 Android CI 待执行 / 验证；当前工作流仅编译 `androidTest`，不会在 Hosted 模拟器上运行仪器测试。不得把源码编译通过描述为测试已执行。
+- [ ] P2.3.2 继续覆盖拖动切换和边界吸附；P2.3.3 覆盖 RTL、窄屏和采样副本无障碍回归。
