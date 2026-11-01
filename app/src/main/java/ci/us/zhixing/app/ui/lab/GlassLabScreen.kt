@@ -95,7 +95,9 @@ internal fun GlassLabScreen(
     var environmentReflectionEnabled by rememberSaveable {
         mutableStateOf(initialMaterial.environmentReflectionEnabled)
     }
-    var touchFeedbackEnabled by rememberSaveable { mutableStateOf(initialConfig.touchFeedbackEnabled) }
+    var touchFeedbackEnabled by rememberSaveable {
+        mutableStateOf(initialMaterial.touchFeedbackEnabled)
+    }
     var transparencyPercent by rememberSaveable {
         mutableFloatStateOf(initialMaterial.transparencyPercent.toFloat())
     }
@@ -113,6 +115,7 @@ internal fun GlassLabScreen(
         refractionStrengthDp = refractionStrength,
         edgeHighlightEnabled = edgeHighlightEnabled,
         environmentReflectionEnabled = environmentReflectionEnabled,
+        touchFeedbackEnabled = touchFeedbackEnabled,
     )
 
     fun publishMaterial(commit: Boolean = false) {
@@ -131,7 +134,7 @@ internal fun GlassLabScreen(
         refractionStrength = DEFAULT_HOME_GLASS_MATERIAL.refractionStrengthDp
         edgeHighlightEnabled = DEFAULT_HOME_GLASS_MATERIAL.edgeHighlightEnabled
         environmentReflectionEnabled = DEFAULT_HOME_GLASS_MATERIAL.environmentReflectionEnabled
-        touchFeedbackEnabled = initialConfig.touchFeedbackEnabled
+        touchFeedbackEnabled = DEFAULT_HOME_GLASS_MATERIAL.touchFeedbackEnabled
         onMaterialChange(DEFAULT_HOME_GLASS_MATERIAL)
         onMaterialReset()
     }
@@ -442,6 +445,42 @@ internal fun GlassLabScreen(
             ) {
                 Text(
                     text = if (environmentReflectionEnabled) "关闭" else "开启",
+                    style = ZhixingTheme.type.featureTitle,
+                    color = ZhixingTheme.colors.primary,
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = if (touchFeedbackEnabled) "触摸光效与形变 · 开启" else "触摸光效与形变 · 关闭",
+                    style = ZhixingTheme.type.sectionLabel,
+                    color = ZhixingTheme.colors.secondary,
+                )
+                Text(
+                    text = "按压时局部柔光跟随触点，玻璃胶囊轻微压缩回弹，不改变点击范围",
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.onSurfaceVariant,
+                )
+            }
+            TextButton(
+                enabled = backdropEnabled,
+                onClick = {
+                    markCustom()
+                    touchFeedbackEnabled = !touchFeedbackEnabled
+                    publishMaterial(commit = true)
+                },
+            ) {
+                Text(
+                    text = if (touchFeedbackEnabled) "关闭" else "开启",
                     style = ZhixingTheme.type.featureTitle,
                     color = ZhixingTheme.colors.primary,
                 )
