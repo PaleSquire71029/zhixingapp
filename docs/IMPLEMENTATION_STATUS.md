@@ -618,12 +618,24 @@
 
 ### 10.5 S3.1 知行玻璃材质参数模型（2026-11-01）
 
-- [x] 在独立分支 `feature/glass-material-state` 新建 `app/src/main/java/ci/us/zhixing/app/ui/glass/GlassMaterialState.kt`。
+- [x] 新增 `app/src/main/java/ci/us/zhixing/app/ui/glass/GlassMaterialState.kt`，以不可变 data class 保存材质设置。
 - [x] 透明度与模糊半径使用独立字段：`transparencyPercent: Int`、`blurRadiusDp: Float`。
 - [x] 默认值：透明度 78%，模糊 12 dp；范围分别为 0–100% 与 0–24 dp。
 - [x] 构造时校验透明度范围；模糊必须为有限数且位于 0–24 dp。通过 data class copy 更新时同样执行构造校验。
-- [ ] 尚未新增单元测试；S3.2 将单独覆盖默认值、上下边界、越界输入、NaN 和正负无穷。
-- [ ] 尚未执行 CI；本文件尚未合并到 main。
-- Commit：`8419d3514d6aef67345a67ad874ba8810d5f2eba`。
+- [x] 模型已随 PR #6 合并至 main；原始开发提交：`8419d3514d6aef67345a67ad874ba8810d5f2eba`。
+- [x] 不接入 UI、DataStore、Backdrop 或主导航，保持本步范围独立。
 
-本小步只创建纯 Kotlin 参数模型，没有接入任何 UI、DataStore、Backdrop 或主导航。
+本小步只创建纯 Kotlin 参数模型，没有改变任何生产界面行为。
+
+### 10.6 S3.2 材质参数模型单元测试与合并验收（2026-11-01）
+
+- [x] 新增 `app/src/test/java/ci/us/zhixing/app/ui/glass/GlassMaterialStateTest.kt`。
+- [x] 覆盖默认值、透明度 0/100 边界、模糊 0/24 dp 边界、两个参数独立设置、越界值拒绝。
+- [x] 覆盖 `Float.NaN`、`Float.POSITIVE_INFINITY` 与 `Float.NEGATIVE_INFINITY` 均被拒绝。
+- [x] PR [#6](https://github.com/PaleSquire71029/zhixingapp/pull/6) 已 squash 合并；合并提交：`5639a8ad4664eab0b7707c5caeb8145dd82fbe95`。
+- [x] Android Build #48（Run ID `41256717498`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41256717498)。
+- [x] 资源校验、Gradle 配置、JVM 单测、Debug APK 编译和 Artifact 上传步骤均成功。
+- [x] PR 构建中的“提交安装预览 APK 到 main”步骤按工作流规则跳过；没有在本次源码合并中更新 `artifacts/zhixingapp-preview.apk`。
+- [ ] 尚未将材质模型接入实际玻璃组件；尚未完成目标 Android 真机的显示、滚动、触控、帧率、温度和耗电验收。
+
+**下一小步：** S3.3，只新增 `ZhixingGlassSurface.kt`，封装单个可复用玻璃表面；不修改主导航或 MainActivity。
