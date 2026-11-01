@@ -151,6 +151,48 @@ class ZhixingCatalogBottomBarSemanticsTest {
         composeRule.onNode(tab("计算")).assertIsNotSelected()
     }
 
+    @Test
+    fun glassOffKeepsAllTabsVisibleAndNavigationUsable() {
+        composeRule.setContent {
+            var selectedIndex by remember { mutableIntStateOf(0) }
+
+            ZhixingTheme {
+                BackdropHost(
+                    modifier = Modifier.fillMaxSize(),
+                ) { backdrop ->
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        ZhixingCatalogBottomBar(
+                            backdrop = backdrop,
+                            destinations = AppDestinations.all,
+                            selectedIndex = selectedIndex,
+                            onDestinationSelected = { selectedIndex = it },
+                            material = GlassMaterialState(enabled = false),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(72.dp),
+                        )
+                        Text(
+                            text = "Selected index: $selectedIndex",
+                            modifier = Modifier.testTag("selected-index-off"),
+                        )
+                    }
+                }
+            }
+        }
+
+        composeRule.onAllNodes(hasTabRole()).assertCountEquals(4)
+        listOf("计算", "知行AI", "工具", "历史").forEach { label ->
+            composeRule.onNode(tab(label)).assertIsDisplayed()
+        }
+
+        composeRule.onNode(tab("工具")).performClick()
+        composeRule.onNodeWithTag("selected-index-off").assertTextEquals("Selected index: 2")
+        composeRule.onNode(tab("工具")).assertIsSelected()
+    }
+
     private fun hasTabRole() =
         SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
