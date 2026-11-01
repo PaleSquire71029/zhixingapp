@@ -30,7 +30,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import ci.us.zhixing.app.navigation.AppDestinations
+import ci.us.zhixing.app.ui.glass.backdrop106.components.LIQUID_BOTTOM_TABS_SELECTION_TAG
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -191,6 +193,42 @@ class ZhixingCatalogBottomBarSemanticsTest {
         composeRule.onNode(tab("工具")).performClick()
         composeRule.onNodeWithTag("selected-index-off").assertTextEquals("Selected index: 2")
         composeRule.onNode(tab("工具")).assertIsSelected()
+    }
+
+
+    @Test
+    fun selectionCapsuleSlidesWhenCallerChangesSelectedIndexAfterTabClick() {
+        composeRule.setContent {
+            var selectedIndex by remember { mutableIntStateOf(0) }
+
+            ZhixingTheme {
+                BackdropHost(
+                    modifier = Modifier.fillMaxSize(),
+                ) { backdrop ->
+                    ZhixingCatalogBottomBar(
+                        backdrop = backdrop,
+                        destinations = AppDestinations.all,
+                        selectedIndex = selectedIndex,
+                        onDestinationSelected = { selectedIndex = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(72.dp),
+                    )
+                }
+            }
+        }
+
+        val selectionCapsule = composeRule.onNodeWithTag(LIQUID_BOTTOM_TABS_SELECTION_TAG)
+        val initialBounds = selectionCapsule.fetchSemanticsNode().boundsInRoot
+
+        composeRule.onNode(tab("工具")).performClick()
+        composeRule.waitForIdle()
+
+        val selectedBounds = selectionCapsule.fetchSemanticsNode().boundsInRoot
+        assertTrue(
+            "The liquid selection capsule should slide to the newly selected tab.",
+            selectedBounds.left > initialBounds.left + initialBounds.width,
+        )
     }
 
     private fun hasTabRole() =
