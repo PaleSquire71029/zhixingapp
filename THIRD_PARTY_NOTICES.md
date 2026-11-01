@@ -11,6 +11,6 @@
   - `DragGestureInspector.kt`
   - `LiquidBottomTabs.kt`
   - `LiquidBottomTab.kt`
-- Zhixing modifications in this P1 step: the Kotlin package namespace was relocated to `ci.us.zhixing.app.ui.glass.backdrop106`; implementation behavior was otherwise retained. Each source file carries an attribution and modification notice.
+- Zhixing modifications: upstream packages are relocated into `ci.us.zhixing.app.ui.glass.backdrop106`; component helper references point to the relocated P1 helpers. The Catalog tab UI is wrapped by `ZhixingCatalogBottomBar.kt`, which maps the existing Zhixing destination model and visual tokens without changing upstream gesture or lens algorithms. Each ported source file carries an attribution and modification notice.
 
-The P1 helper classes and P2.1 tab components remain isolated under `ui/glass/backdrop106`; they are not wired into the production UI yet. Subsequent P2 steps will add the Zhixing adapter, tests, and controlled production integration.
+The P1 helpers, P2.1 official tab components, and P2.2 Zhixing adapter remain isolated; they are not wired into the production UI yet. Subsequent P2 steps will add tests and a controlled production integration.
