@@ -37,4 +37,45 @@ class BottomBarDragMathTest {
             resolveBottomBarDragIndex(0f, 100f, 0)
         }
     }
+    @Test
+    fun directionalStretchTracksMovementDirection() {
+        val right = resolveDirectionalDragDeformation(
+            deltaXPx = 8f,
+            itemWidthPx = 100f,
+        )
+        val left = resolveDirectionalDragDeformation(
+            deltaXPx = -8f,
+            itemWidthPx = 100f,
+        )
+
+        assertEquals(1, right.direction)
+        assertEquals(-1, left.direction)
+        assertEquals(right.stretch, left.stretch, 0f)
+        assertEquals(0.072f, right.stretch, 0.0001f)
+    }
+
+    @Test
+    fun directionalStretchIgnoresJitterAndClampsLargeDeltas() {
+        assertEquals(
+            0f,
+            resolveDirectionalDragDeformation(1f, 100f).stretch,
+            0f,
+        )
+        assertEquals(
+            0.12f,
+            resolveDirectionalDragDeformation(500f, 100f).stretch,
+            0f,
+        )
+    }
+
+    @Test
+    fun directionalStretchRejectsInvalidInputs() {
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveDirectionalDragDeformation(Float.NaN, 100f)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveDirectionalDragDeformation(10f, 0f)
+        }
+    }
+
 }

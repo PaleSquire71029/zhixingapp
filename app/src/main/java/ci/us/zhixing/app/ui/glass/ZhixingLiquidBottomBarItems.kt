@@ -45,6 +45,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
@@ -128,6 +129,20 @@ internal fun ZhixingLiquidBottomBar(
                     stiffness = Spring.StiffnessMedium,
                 ),
                 label = "zhixingBottomBarTouchDeformation",
+            )
+            var dragDirection by remember { mutableStateOf(1) }
+            var dragStretchTarget by remember { mutableStateOf(0f) }
+            val dragStretch by animateFloatAsState(
+                targetValue = if (dragActive && material.touchFeedbackEnabled) {
+                    dragStretchTarget
+                } else {
+                    0f
+                },
+                animationSpec = tween(
+                    durationMillis = 72,
+                    easing = FastOutSlowInEasing,
+                ),
+                label = "zhixingBottomBarDirectionalDragStretch",
             )
             val indicatorOffset = remember { Animatable(itemWidthPx * selectedIndex) }
             var dragOffsetPx by remember { mutableStateOf(itemWidthPx * selectedIndex) }
@@ -274,6 +289,7 @@ internal fun ZhixingLiquidBottomBar(
                             dragOffsetPx = startIndicatorOffset
                             dragActive = true
                             var pointerChange = dragStart
+                            var lastPointerX = down.position.x
                             var released = false
                             try {
                                 while (true) {
@@ -282,6 +298,16 @@ internal fun ZhixingLiquidBottomBar(
                                             pointerChange.position.x - startPointerX
                                         ).coerceIn(0f, maxIndicatorOffset)
                                     dragOffsetPx = nextOffset
+                                    val deltaX = pointerChange.position.x - lastPointerX
+                                    val deformation = resolveDirectionalDragDeformation(
+                                        deltaXPx = deltaX,
+                                        itemWidthPx = itemWidthPx,
+                                    )
+                                    if (deformation.direction != 0) {
+                                        dragDirection = deformation.direction
+                                    }
+                                    dragStretchTarget = deformation.stretch
+                                    lastPointerX = pointerChange.position.x
                                     touchPoint = pointerChange.position
                                     if (!pointerChange.pressed) {
                                         released = true
@@ -303,6 +329,7 @@ internal fun ZhixingLiquidBottomBar(
                                     itemCount = destinations.size,
                                 )
                                 settleFromDragPx = dragOffsetPx
+                                dragStretchTarget = 0f
                                 dragActive = false
                                 touchPoint = null
                                 if (
@@ -326,13 +353,19 @@ internal fun ZhixingLiquidBottomBar(
                     .fillMaxHeight()
                     .padding(horizontal = 2.dp)
                     .graphicsLayer {
-                        // Stretch briefly as the capsule travels, then settle without
-                        // changing the measured size or the tabs' hit targets.
+                        // Anchor the capsule at the trailing edge so drag stretch
+                        // extends toward the direction of travel.
+                        transformOrigin = TransformOrigin(
+                            pivotFractionX = if (dragDirection > 0) 0f else 1f,
+                            pivotFractionY = 0.5f,
+                        )
                         scaleX = 1f +
                             selectionStretch.value * 0.14f +
+                            dragStretch +
                             (1f - touchDeformationScale) * 0.25f
                         scaleY = touchDeformationScale *
-                            (1f - selectionStretch.value * 0.035f)
+                            (1f - selectionStretch.value * 0.035f) *
+                            (1f - dragStretch * 0.18f)
                     }
                     .then(selectionLensModifier),
             )
