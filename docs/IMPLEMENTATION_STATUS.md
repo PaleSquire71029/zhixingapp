@@ -1190,10 +1190,10 @@
 
 ### 10.49 P2.4 材质设置与首页接入拆分约束（计划更新，2026-11-01）
 
-- [x] 将 P2.4 拆为 2.4.1 参数映射、2.4.2 MainActivity 接入、2.4.3 集成验收。
-- [x] 明确官方 1.0.6 底栏的 8dp blur、24dp lens 与固定表面 alpha 不能覆盖知行原有 DataStore 设置；切换生产 UI 前必须将透明度、模糊、折射、色散和触摸反馈逐项接入 `GlassMaterialState`。
+- [x] 将 P2.4 拆为 2.4.1a / 2.4.1b 参数映射与绘制、2.4.2 MainActivity 接入、2.4.3 集成验收。
+- [x] 明确官方 1.0.6 底栏的 8dp blur、24dp lens 与固定表面 alpha 不能覆盖知行原有 DataStore 设置；P2.4.1a / 1b 已逐项将透明度、模糊、折射、色散、高光、环境反射、触摸反馈映射到 `GlassMaterialState`。
 - [x] 明确首页接入必须复用唯一共享 Backdrop 和 `ZhixingLiquidBottomBarPlacement`，保持现有系统 Insets、IME 抬升和四项目的地。
-- [ ] P2.4 尚未开始；当前生产底栏仍保持旧实现，避免用户材质设置在迁移中失效。
+- [x] P2.4.2 已在 PR #57 完成生产调用切换；旧底栏仍保留，待 P2.5 单独清理。
 
 
 ### 10.50 P2.3.3 RTL、窄屏与无障碍回归测试（已合并，2026-11-01）
@@ -1235,13 +1235,15 @@
 
 
 
-### 10.53 P2.4.2 MainActivity 集成官方底栏（代码已建立，待 CI，2026-11-01）
+### 10.53 P2.4.2 MainActivity 集成官方底栏（已合并，2026-11-01）
 
 - [x] `MainActivity.kt` 的生产底栏调用已从 `ZhixingLiquidBottomBar` 切换为 `ZhixingCatalogBottomBar`。
 - [x] 继续传入原有 `glassMaterial`，实时预览和 DataStore 持久化设置无需新增状态或重新保存。
 - [x] 继续复用同一 `BackdropHost` 提供的 Backdrop、`ZhixingLiquidBottomBarPlacement`、68dp 容器高度与导航栏 / IME Insets 处理。
 - [x] `selectedIndex` 和 `onDestinationSelected` 仍由 MainActivity 所有；四个原路由、中文标签、glyph、标题和描述数据未改变。
-- [x] 新增 `ZhixingCatalogBottomBarMainActivityIntegrationTest.kt`：启动 MainActivity 后检查四个 Role.Tab、初始计算页选中、点击知行AI和工具后页面标题同步更新。
-- [x] 首次 Android Build #208 发现 Activity 集成测试错误导入 `onAllNodes` / `onNode` 顶层符号；已移除 provider member 的错误导入，保留 ComposeTestRule 成员调用。
-- [ ] 等待修正后的最新 Android CI；当前工作流会编译该 Activity 仪器测试源码，但不在 Hosted 模拟器实际启动 Activity。
+- [x] 新增 `ZhixingCatalogBottomBarMainActivityIntegrationTest.kt`：检查四个 Role.Tab、初始计算页选中、点击知行AI和工具后页面标题同步更新。
+- [x] 首次 Android Build #208 发现 Activity 集成测试错误导入 `onAllNodes` / `onNode` 顶层符号；已移除 provider member 的错误导入。
+- [x] PR [#57](https://github.com/PaleSquire71029/zhixingapp/pull/57) 已 squash 合并；merge commit：`3ac995fd7069148bea56cb8baaf11ab794987cdd`。
+- [x] Android Build #209（Run ID `41283758964`）全部成功：资源校验、JUnit、androidTest Kotlin 编译、Debug APK 构建和 Artifact 上传。
+- [ ] CI 编译了 Activity 仪器测试源，但未在 Hosted 模拟器实际启动 Activity；真机四入口、横竖屏、Insets / IME 和视觉仍需验收。
 - [ ] 旧 `ZhixingLiquidBottomBar` 与其手势 / 装饰代码暂时保留，待 P2.4.3 设备验收后在 P2.5 单独清理。
