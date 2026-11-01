@@ -130,10 +130,16 @@ internal fun ZhixingLiquidBottomBar(
                 label = "zhixingBottomBarTouchDeformation",
             )
             val indicatorOffset = remember { Animatable(itemWidthPx * selectedIndex) }
+            var dragOffsetPx by remember { mutableStateOf(itemWidthPx * selectedIndex) }
+            var settleFromDragPx by remember { mutableStateOf<Float?>(null) }
             val latestSelectedIndex = rememberUpdatedState(selectedIndex)
             val latestOnDestinationSelected = rememberUpdatedState(onDestinationSelected)
             LaunchedEffect(itemWidthPx, selectedIndex, dragActive) {
                 if (!dragActive) {
+                    settleFromDragPx?.let { dragStart ->
+                        indicatorOffset.snapTo(dragStart)
+                        settleFromDragPx = null
+                    }
                     indicatorOffset.animateTo(
                         targetValue = itemWidthPx * selectedIndex,
                         animationSpec = spring(
@@ -265,6 +271,7 @@ internal fun ZhixingLiquidBottomBar(
                             val startPointerX = down.position.x
                             val startIndicatorOffset = indicatorOffset.value
                             val maxIndicatorOffset = itemWidthPx * (destinations.size - 1)
+                            dragOffsetPx = startIndicatorOffset
                             dragActive = true
                             var pointerChange = dragStart
                             var released = false
@@ -274,7 +281,7 @@ internal fun ZhixingLiquidBottomBar(
                                         startIndicatorOffset +
                                             pointerChange.position.x - startPointerX
                                         ).coerceIn(0f, maxIndicatorOffset)
-                                    indicatorOffset.snapTo(nextOffset)
+                                    dragOffsetPx = nextOffset
                                     touchPoint = pointerChange.position
                                     if (!pointerChange.pressed) {
                                         released = true
@@ -291,10 +298,11 @@ internal fun ZhixingLiquidBottomBar(
                                 }
                             } finally {
                                 val finalIndex = resolveBottomBarDragIndex(
-                                    indicatorOffsetPx = indicatorOffset.value,
+                                    indicatorOffsetPx = dragOffsetPx,
                                     itemWidthPx = itemWidthPx,
                                     itemCount = destinations.size,
                                 )
+                                settleFromDragPx = dragOffsetPx
                                 dragActive = false
                                 touchPoint = null
                                 if (
@@ -310,7 +318,10 @@ internal fun ZhixingLiquidBottomBar(
             // One shared refractive indicator travels behind the four equal-width tabs.
             Box(
                 modifier = Modifier
-                    .offset { IntOffset(indicatorOffset.value.roundToInt(), 0) }
+                    .offset {
+                        val currentOffset = if (dragActive) dragOffsetPx else indicatorOffset.value
+                        IntOffset(currentOffset.roundToInt(), 0)
+                    }
                     .width(itemWidth)
                     .fillMaxHeight()
                     .padding(horizontal = 2.dp)
