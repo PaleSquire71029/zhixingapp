@@ -1,10 +1,12 @@
 package ci.us.zhixing.app.ui.glass
 
 import android.os.Build
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -127,6 +129,24 @@ internal fun ZhixingLiquidBottomBar(
                 ),
                 label = "zhixingBottomBarSelectionOffset",
             )
+            val selectionStretch = remember { Animatable(0f) }
+            var previousSelectedIndex by remember { mutableStateOf(selectedIndex) }
+            LaunchedEffect(selectedIndex) {
+                val selectionChanged = previousSelectedIndex != selectedIndex
+                previousSelectedIndex = selectedIndex
+                if (selectionChanged) {
+                    selectionStretch.snapTo(0f)
+                    selectionStretch.animateTo(
+                        targetValue = 0f,
+                        animationSpec = keyframes {
+                            durationMillis = 280
+                            0.16f at 55
+                            0.045f at 170
+                            0f at 280
+                        },
+                    )
+                }
+            }
             val indicatorShape = RoundedCornerShape(24.dp)
             val indicatorCapabilities = resolveGlassSurfaceCapabilities(
                 apiLevel = Build.VERSION.SDK_INT,
@@ -216,8 +236,13 @@ internal fun ZhixingLiquidBottomBar(
                     .fillMaxHeight()
                     .padding(horizontal = 2.dp)
                     .graphicsLayer {
-                        scaleX = 1f + (1f - touchDeformationScale) * 0.25f
-                        scaleY = touchDeformationScale
+                        // Stretch briefly as the capsule travels, then settle without
+                        // changing the measured size or the tabs' hit targets.
+                        scaleX = 1f +
+                            selectionStretch.value * 0.14f +
+                            (1f - touchDeformationScale) * 0.25f
+                        scaleY = touchDeformationScale *
+                            (1f - selectionStretch.value * 0.035f)
                     }
                     .then(selectionLensModifier),
             )
