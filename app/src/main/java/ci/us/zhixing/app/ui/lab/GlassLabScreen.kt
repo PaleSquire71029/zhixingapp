@@ -90,7 +90,7 @@ internal fun GlassLabScreen(
     var blurRadiusDp by rememberSaveable { mutableFloatStateOf(initialMaterial.blurRadiusDp) }
     var refractionEnabled by rememberSaveable { mutableStateOf(initialMaterial.refractionEnabled) }
     var refractionStrength by rememberSaveable { mutableFloatStateOf(initialMaterial.refractionStrengthDp) }
-    var edgeHighlightEnabled by rememberSaveable { mutableStateOf(initialConfig.edgeHighlightEnabled) }
+    var edgeHighlightEnabled by rememberSaveable { mutableStateOf(initialMaterial.edgeHighlightEnabled) }
     var touchFeedbackEnabled by rememberSaveable { mutableStateOf(initialConfig.touchFeedbackEnabled) }
     var transparencyPercent by rememberSaveable {
         mutableFloatStateOf(initialMaterial.transparencyPercent.toFloat())
@@ -107,6 +107,7 @@ internal fun GlassLabScreen(
         enabled = selectedTier != GlassPerformanceTier.OFF,
         refractionEnabled = refractionEnabled,
         refractionStrengthDp = refractionStrength,
+        edgeHighlightEnabled = edgeHighlightEnabled,
     )
 
     fun publishMaterial(commit: Boolean = false) {
@@ -123,7 +124,7 @@ internal fun GlassLabScreen(
         blurRadiusDp = DEFAULT_HOME_GLASS_MATERIAL.blurRadiusDp
         refractionEnabled = DEFAULT_HOME_GLASS_MATERIAL.refractionEnabled
         refractionStrength = DEFAULT_HOME_GLASS_MATERIAL.refractionStrengthDp
-        edgeHighlightEnabled = initialConfig.edgeHighlightEnabled
+        edgeHighlightEnabled = DEFAULT_HOME_GLASS_MATERIAL.edgeHighlightEnabled
         touchFeedbackEnabled = initialConfig.touchFeedbackEnabled
         onMaterialChange(DEFAULT_HOME_GLASS_MATERIAL)
         onMaterialReset()
@@ -393,6 +394,7 @@ internal fun GlassLabScreen(
                 onClick = {
                     markCustom()
                     edgeHighlightEnabled = !edgeHighlightEnabled
+                    publishMaterial(commit = true)
                 },
             ) {
                 Text(

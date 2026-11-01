@@ -23,12 +23,13 @@ private val BlurRadiusDpKey = floatPreferencesKey("blur_radius_dp")
 private val GlassEnabledKey = booleanPreferencesKey("glass_enabled")
 private val RefractionEnabledKey = booleanPreferencesKey("refraction_enabled")
 private val RefractionStrengthDpKey = floatPreferencesKey("refraction_strength_dp")
+private val EdgeHighlightEnabledKey = booleanPreferencesKey("edge_highlight_enabled")
 
 /**
  * Defaults for the production home navigation material.
  *
  * The home capsule uses a slightly different transparency default from the
- * original Glass Lab preview. All five material properties are stored
+ * original Glass Lab preview. All six material properties are stored
  * independently so Off mode does not erase the user's optical settings.
  */
 internal val DEFAULT_HOME_GLASS_MATERIAL = GlassMaterialState(
@@ -37,6 +38,7 @@ internal val DEFAULT_HOME_GLASS_MATERIAL = GlassMaterialState(
     enabled = true,
     refractionEnabled = true,
     refractionStrengthDp = 1.8f,
+    edgeHighlightEnabled = true,
 )
 
 /**
@@ -67,6 +69,7 @@ internal class GlassMaterialSettingsStore(
             preferences[GlassEnabledKey] = state.enabled
             preferences[RefractionEnabledKey] = state.refractionEnabled
             preferences[RefractionStrengthDpKey] = state.refractionStrengthDp
+            preferences[EdgeHighlightEnabledKey] = state.edgeHighlightEnabled
         }
     }
 
@@ -77,6 +80,7 @@ internal class GlassMaterialSettingsStore(
             preferences.remove(GlassEnabledKey)
             preferences.remove(RefractionEnabledKey)
             preferences.remove(RefractionStrengthDpKey)
+            preferences.remove(EdgeHighlightEnabledKey)
         }
     }
 }
@@ -114,11 +118,15 @@ private fun Preferences.toGlassMaterialState(): GlassMaterialState {
         DEFAULT_HOME_GLASS_MATERIAL.refractionStrengthDp
     }
 
+    val edgeHighlightEnabled = this[EdgeHighlightEnabledKey]
+        ?: DEFAULT_HOME_GLASS_MATERIAL.edgeHighlightEnabled
+
     return GlassMaterialState(
         transparencyPercent = transparency,
         blurRadiusDp = blur,
         enabled = enabled,
         refractionEnabled = refractionEnabled,
         refractionStrengthDp = refractionStrength,
+        edgeHighlightEnabled = edgeHighlightEnabled,
     )
 }

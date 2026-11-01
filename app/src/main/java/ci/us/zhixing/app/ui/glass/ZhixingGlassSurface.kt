@@ -66,7 +66,11 @@ internal fun ZhixingGlassSurface(
                     }
                 },
                 highlight = {
-                    Highlight.Default.copy(alpha = 0.42f)
+                    if (material.edgeHighlightEnabled) {
+                        Highlight.Default.copy(alpha = 0.42f)
+                    } else {
+                        null
+                    }
                 },
                 onDrawSurface = {
                     drawRect(Color.White.copy(alpha = overlayAlpha))
