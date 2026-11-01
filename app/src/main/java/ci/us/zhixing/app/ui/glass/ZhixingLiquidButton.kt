@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import ci.us.zhixing.app.ui.glass.backdrop106.components.LiquidButton
 import ci.us.zhixing.app.ui.theme.ZhixingGlassShapes
+import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import com.kyant.backdrop.Backdrop
 
 /**
@@ -19,6 +21,10 @@ internal fun ZhixingLiquidButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    touchFeedbackEnabled: Boolean = true,
+    selected: Boolean = false,
+    shape: Shape = ZhixingGlassShapes.compactControl,
+    surfaceColor: Color = Color.White.copy(alpha = 0.10f),
     content: @Composable RowScope.() -> Unit,
 ) {
     LiquidButton(
@@ -26,9 +32,9 @@ internal fun ZhixingLiquidButton(
         backdrop = backdrop,
         modifier = modifier,
         enabled = enabled,
-        isInteractive = true,
-        shape = ZhixingGlassShapes.compactControl,
-        surfaceColor = Color.White.copy(alpha = 0.10f),
+        isInteractive = touchFeedbackEnabled,
+        shape = shape,
+        surfaceColor = if (selected) ZhixingTheme.colors.primary.copy(alpha = 0.12f) else surfaceColor,
         content = content,
     )
 }
