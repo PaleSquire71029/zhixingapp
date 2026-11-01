@@ -412,20 +412,18 @@ internal fun GlassLabScreen(
                     color = ZhixingTheme.colors.onSurfaceVariant,
                 )
             }
-            TextButton(
+            ZhixingLiquidToggle(
+                backdrop = backdrop,
+                checked = chromaticDispersionEnabled,
                 enabled = refractionSupported && refractionEnabled && backdropEnabled,
-                onClick = {
+                touchFeedbackEnabled = touchFeedbackEnabled,
+                label = "色散折射",
+                onCheckedChange = { checked ->
                     markCustom()
-                    chromaticDispersionEnabled = !chromaticDispersionEnabled
+                    chromaticDispersionEnabled = checked
                     publishMaterial(commit = true)
                 },
-            ) {
-                Text(
-                    text = if (chromaticDispersionEnabled) "关闭" else "开启",
-                    style = ZhixingTheme.type.featureTitle,
-                    color = ZhixingTheme.colors.primary,
-                )
-            }
+            )
         }
 
         Row(
