@@ -13,6 +13,8 @@ class GlassMaterialStateTest {
 
         assertEquals(78, state.transparencyPercent)
         assertEquals(12f, state.blurRadiusDp, 0f)
+        assertTrue(state.refractionEnabled)
+        assertEquals(1.8f, state.refractionStrengthDp, 0f)
     }
 
 
@@ -32,6 +34,7 @@ class GlassMaterialStateTest {
         assertFalse(state.enabled)
         assertEquals(42, state.transparencyPercent)
         assertEquals(17f, state.blurRadiusDp, 0f)
+        assertTrue(state.refractionEnabled)
     }
 
     @Test
@@ -55,6 +58,30 @@ class GlassMaterialStateTest {
 
         assertEquals(35, state.transparencyPercent)
         assertEquals(18f, state.blurRadiusDp, 0f)
+    }
+
+    @Test
+    fun refractionStrengthAcceptsBothInclusiveBoundaries() {
+        assertEquals(
+            0f,
+            GlassMaterialState(refractionStrengthDp = 0f).refractionStrengthDp,
+            0f,
+        )
+        assertEquals(
+            8f,
+            GlassMaterialState(refractionStrengthDp = 8f).refractionStrengthDp,
+            0f,
+        )
+    }
+
+    @Test
+    fun refractionStrengthOutsideRangeAndNonFiniteValuesAreRejected() {
+        listOf(-0.01f, 8.01f, Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
+            .forEach { strength ->
+                assertThrows(IllegalArgumentException::class.java) {
+                    GlassMaterialState(refractionStrengthDp = strength)
+                }
+            }
     }
 
     @Test
