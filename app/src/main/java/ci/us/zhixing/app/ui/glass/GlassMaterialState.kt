@@ -9,6 +9,7 @@ package ci.us.zhixing.app.ui.glass
 internal data class GlassMaterialState(
     val transparencyPercent: Int = DEFAULT_TRANSPARENCY_PERCENT,
     val blurRadiusDp: Float = DEFAULT_BLUR_RADIUS_DP,
+    val enabled: Boolean = true,
 ) {
     init {
         require(transparencyPercent in MIN_TRANSPARENCY_PERCENT..MAX_TRANSPARENCY_PERCENT) {

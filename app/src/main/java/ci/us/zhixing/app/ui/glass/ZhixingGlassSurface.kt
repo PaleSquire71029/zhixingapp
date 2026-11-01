@@ -42,7 +42,7 @@ internal fun ZhixingGlassSurface(
     val overlayAlpha = (100 - material.transparencyPercent) / 100f
     val capabilities = resolveGlassSurfaceCapabilities(
         apiLevel = Build.VERSION.SDK_INT,
-        enabled = glassEnabled,
+        enabled = glassEnabled && material.enabled,
         blurRadiusDp = material.blurRadiusDp,
     )
 

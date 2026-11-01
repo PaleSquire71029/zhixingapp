@@ -57,6 +57,10 @@ internal fun ZhixingLiquidBottomBar(
     selectedIndex: Int,
     onDestinationSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    material: GlassMaterialState = GlassMaterialState(
+        transparencyPercent = 68,
+        blurRadiusDp = 12f,
+    ),
 ) {
     require(destinations.isNotEmpty()) { "At least one navigation destination is required." }
     require(selectedIndex in destinations.indices) { "Selected destination index is out of range." }
@@ -64,6 +68,7 @@ internal fun ZhixingLiquidBottomBar(
     ZhixingLiquidBottomBarSurface(
         backdrop = backdrop,
         modifier = modifier,
+        material = material,
     ) {
         BoxWithConstraints(
             modifier = Modifier

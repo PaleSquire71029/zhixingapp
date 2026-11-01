@@ -56,8 +56,10 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
+import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import java.util.Locale
+import kotlin.math.roundToInt
 
 /**
  * Glass Lab stage 2:
@@ -69,6 +71,8 @@ import java.util.Locale
 internal fun GlassLabScreen(
     onBack: () -> Unit,
     lifecycle: Lifecycle,
+    initialMaterial: GlassMaterialState,
+    onMaterialChange: (GlassMaterialState) -> Unit,
 ) {
     val apiLevel = Build.VERSION.SDK_INT
     val blurSupported = apiLevel >= Build.VERSION_CODES.S
@@ -77,13 +81,17 @@ internal fun GlassLabScreen(
         resolveGlassPerformanceConfig(GlassPerformanceTier.STANDARD, apiLevel)
     }
 
-    var selectedTier by rememberSaveable { mutableStateOf(GlassPerformanceTier.STANDARD) }
-    var blurRadiusDp by rememberSaveable { mutableFloatStateOf(initialConfig.blurRadiusDp) }
+    var selectedTier by rememberSaveable {
+        mutableStateOf(if (initialMaterial.enabled) GlassPerformanceTier.CUSTOM else GlassPerformanceTier.OFF)
+    }
+    var blurRadiusDp by rememberSaveable { mutableFloatStateOf(initialMaterial.blurRadiusDp) }
     var refractionEnabled by rememberSaveable { mutableStateOf(initialConfig.refractionEnabled) }
     var refractionStrength by rememberSaveable { mutableFloatStateOf(initialConfig.refractionStrengthPx) }
     var edgeHighlightEnabled by rememberSaveable { mutableStateOf(initialConfig.edgeHighlightEnabled) }
     var touchFeedbackEnabled by rememberSaveable { mutableStateOf(initialConfig.touchFeedbackEnabled) }
-    var transparencyPercent by rememberSaveable { mutableFloatStateOf(78f) }
+    var transparencyPercent by rememberSaveable {
+        mutableFloatStateOf(initialMaterial.transparencyPercent.toFloat())
+    }
     var isLifecycleStarted by remember(lifecycle) {
         mutableStateOf(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
     }
@@ -99,6 +107,13 @@ internal fun GlassLabScreen(
         edgeHighlightEnabled = config.edgeHighlightEnabled
         touchFeedbackEnabled = config.touchFeedbackEnabled
         transparencyPercent = ((1f - config.panelOverlayAlpha) * 100f).coerceIn(0f, 100f)
+        onMaterialChange(
+            GlassMaterialState(
+                transparencyPercent = transparencyPercent.roundToInt(),
+                blurRadiusDp = blurRadiusDp,
+                enabled = tier != GlassPerformanceTier.OFF,
+            ),
+        )
     }
 
     fun markCustom() {
@@ -204,6 +219,13 @@ internal fun GlassLabScreen(
                 onValueChange = {
                     markCustom()
                     transparencyPercent = it.coerceIn(0f, 100f)
+                    onMaterialChange(
+                        GlassMaterialState(
+                            transparencyPercent = transparencyPercent.roundToInt(),
+                            blurRadiusDp = blurRadiusDp,
+                            enabled = true,
+                        ),
+                    )
                 },
                 valueRange = 0f..100f,
                 steps = 19,
@@ -226,6 +248,13 @@ internal fun GlassLabScreen(
                 onValueChange = {
                     markCustom()
                     blurRadiusDp = it.coerceIn(0f, 24f)
+                    onMaterialChange(
+                        GlassMaterialState(
+                            transparencyPercent = transparencyPercent.roundToInt(),
+                            blurRadiusDp = blurRadiusDp,
+                            enabled = true,
+                        ),
+                    )
                 },
                 valueRange = 0f..24f,
                 steps = 23,
