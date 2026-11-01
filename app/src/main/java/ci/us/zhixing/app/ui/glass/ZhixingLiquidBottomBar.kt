@@ -13,11 +13,10 @@ import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 
 /**
- * Static capsule shell for the future floating liquid-glass bottom bar.
+ * Shared glass capsule shell for the floating liquid-glass bottom bar.
  *
- * This step deliberately provides only the glass material and capsule outline.
- * Navigation items, selection state, positioning, insets, and animations are
- * added in separate steps so each interaction can be verified independently.
+ * The shell owns the shared material and outline. Touch-driven optical
+ * deformation is forwarded to the same Backdrop lens used by other surfaces.
  */
 @Composable
 internal fun ZhixingLiquidBottomBarSurface(
