@@ -736,3 +736,16 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] 真实按压取消、快速连点、滚动冲突和物理设备触控仍待仪器 / 真机验收。
 
 **下一小步：** S6.1，在 MainActivity 中把原 Material 3 NavigationBar 替换为新的玻璃底栏；使用共享 Backdrop 和 Insets 定位容器，保留原四个导航目的地及受控选中索引；本步不加入 DataStore 或材质设置面板。
+
+## 20. S6.1 首页正式接入液态玻璃底栏（2026-11-01）
+
+- [x] 在 `MainActivity.kt` 中移除原 Material 3 `NavigationBar` / `NavigationBarItem`。
+- [x] 正式使用 `ZhixingLiquidBottomBar`，将首页 `BackdropHost` 提供的同一个 Backdrop 传给底栏玻璃表面。
+- [x] 使用 `ZhixingLiquidBottomBarPlacement`，底栏位于 Scaffold bottomBar 槽中，避开系统导航 / 手势 Insets，并在 IME 弹出时上移。
+- [x] 保留 `AppDestinations.all`、`selectedIndex` 的 `rememberSaveable` 状态及原点击索引更新行为；首页卡片和 GlassLab 路径不变。
+- [x] PR [#18](https://github.com/PaleSquire71029/zhixingapp/pull/18) 已通过 CI 并 squash 合并；合并提交：`95f6a422534f86cd6db64c0980f5ab824c9e897e`。
+- [x] Android Build #67（Run ID `41263159541`）资源校验、Gradle、JUnit、Kotlin 编译、Debug APK 构建和 Artifact 上传均成功。
+- [ ] 尚未在目标真机验证系统手势 / 三键 Insets、IME、滚动遮挡、触控、帧率、温度和功耗。
+- [ ] 材质透明度 / 模糊设置面板与 DataStore 持久化尚未实现；属于 S6.2–S6.5。
+
+**下一小步：** S6.2，增加一个不挤占四个导航项的材质设置入口；只接入面板开启状态，不在本步修改透明度 / 模糊滑块或持久化。
