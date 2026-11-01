@@ -534,7 +534,7 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 |---|---|---|---|
 | S4.1 | 建立静态浅色背景宿主 | 新增 BackdropHost.kt | ✅ 完成：单一背景源；低饱和渐变和静态柔光，不改变首页内容 |
 | S4.2 | 让主界面内容层透明地位于背景上 | MainActivity.kt | ✅ 完成：调整根层级，保留原卡片、Logo、四个入口和白色底栏 |
-| S4.3 | 验证玻璃采样范围和滚动层级 | Android Compose UI 测试/CI | ⏳ 进行中：验证多个玻璃表面共享一个背景，前景内容可见且点击事件正常；采样边界需结合代码层级与真机检查验收 |
+| S4.3 | 验证玻璃采样范围和滚动层级 | Android Compose UI 测试/CI | △ 部分完成：代码层级审查与 androidTest 源码编译通过；Hosted Runner 缺少 KVM，模拟器无法启动，点击断言仍待设备验证 |
 
 ### S5：独立实现四入口玻璃底栏
 
@@ -749,3 +749,16 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] 材质透明度 / 模糊设置面板与 DataStore 持久化尚未实现；属于 S6.2–S6.5。
 
 **下一小步：** S6.2，增加一个不挤占四个导航项的材质设置入口；只接入面板开启状态，不在本步修改透明度 / 模糊滑块或持久化。
+
+## 21. S4.3 共享 Backdrop 与前景点击验证（部分完成，2026-11-01）
+
+- [x] 源码结构审查确认：`layerBackdrop` 仅记录背景渐变子树；宿主的前景内容是兄弟层，不会被重新录入同一采样层。
+- [x] 背景层没有 `clickable`、`pointerInput` 或语义点击处理，不主动消费前景触摸。
+- [x] 新增 Android Compose 仪器测试：两个 `ZhixingGlassSurface` 使用同一个 Backdrop；测试断言两个内容节点可见，分别点击后计数从 0 增至 1、2。
+- [x] PR [#11](https://github.com/PaleSquire71029/zhixingapp/pull/11) 已合并；合并提交：`11fc135175210569bbadf0786e3acf8ece788ac2`。
+- [x] Android Build（Run ID `41263348169`）成功：资源检查、JVM 单测、`compileDebugAndroidTestKotlin` 仪器测试源码编译、Debug APK 构建与 Artifact 上传均通过。
+- [x] 已从 PR #11 移除需要实际启动模拟器的 CI 步骤，防止无 KVM 的 hosted runner 长时间卡住。
+- [ ] 实际仪器点击断言**没有执行**。原 API 35 x86_64 模拟器日志明确显示 Runner 无 `/dev/kvm` 权限、x86_64 无硬件加速，ADB 持续报告 `device offline`，最终 8 分钟超时。
+- [ ] 因此 S4.3 仅完成架构审查和测试源码编译，不标记“运行时交互通过”；两个表面的真实点击行为、采样像素、闪烁和真机性能仍待可用 Android 设备 / 带 KVM 的运行环境验证。
+
+**后续处理：** 等有可用模拟器或真机时，再运行 `connectedDebugAndroidTest`；在此之前不得把仪器测试源码编译成功等同于点击断言通过。
