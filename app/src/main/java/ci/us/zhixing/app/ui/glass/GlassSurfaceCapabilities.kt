@@ -16,8 +16,8 @@ internal data class GlassSurfaceCapabilities(
  * Resolves the features that are safe and useful on the current Android API.
  *
  * Backdrop sampling remains available on API 26+; blur is enabled only on
- * API 31+ where Android RenderEffect support is available. Disabling glass
- * turns off both features so the composable can avoid attaching drawBackdrop.
+ * API 31+, and lens refraction only on API 33+. Disabling glass turns off all
+ * backdrop effects so the composable can avoid attaching drawBackdrop.
  */
 internal fun resolveGlassSurfaceCapabilities(
     apiLevel: Int,
