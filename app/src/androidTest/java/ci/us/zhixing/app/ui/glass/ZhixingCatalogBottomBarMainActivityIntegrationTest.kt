@@ -6,6 +6,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -44,6 +45,15 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
         composeRule.onAllNodes(hasText("原生 Android 工程")).assertCountEquals(1)
         composeRule.onAllNodes(hasText("知行浅色设计基线")).assertCountEquals(1)
         composeRule.onAllNodes(hasText("逐步迁移")).assertCountEquals(1)
+    }
+
+    @Test
+    fun glassSettingsEntryUsesLiquidButtonAndOpensGlassLab() {
+        composeRule.onNodeWithText("材质设置")
+            .assertIsEnabled()
+            .performClick()
+
+        composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
     }
 
     private fun hasTabRole() =
