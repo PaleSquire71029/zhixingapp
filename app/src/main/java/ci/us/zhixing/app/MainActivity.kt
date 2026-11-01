@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestinations
+import ci.us.zhixing.app.ui.glass.BackdropHost
 import ci.us.zhixing.app.ui.lab.GlassLabScreen
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import ci.us.zhixing.app.R
@@ -85,144 +86,178 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
             showGlassLab = false
         }
         if (showGlassLab) {
-            GlassLabScreen(onBack = { showGlassLab = false }, lifecycle = lifecycle)
+            GlassLabScreen(
+                onBack = { showGlassLab = false },
+                lifecycle = lifecycle,
+            )
         } else {
-            Scaffold(
-            containerColor = ZhixingTheme.colors.background,
-            bottomBar = {
-                NavigationBar(
-                    containerColor = Color.White,
-                    tonalElevation = 0.dp,
-                ) {
-                    destinations.forEachIndexed { index, destination ->
-                        NavigationBarItem(
-                            selected = selectedIndex == index,
-                            onClick = { selectedIndex = index },
-                            icon = {
-                                Text(
-                                    text = destination.symbol,
-                                    style = ZhixingTheme.type.navigationSymbol,
+            BackdropHost(
+                modifier = Modifier.fillMaxSize(),
+            ) { _ ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent,
+                    bottomBar = {
+                        NavigationBar(
+                            containerColor = Color.White,
+                            tonalElevation = 0.dp,
+                        ) {
+                            destinations.forEachIndexed { index, destination ->
+                                NavigationBarItem(
+                                    selected = selectedIndex == index,
+                                    onClick = { selectedIndex = index },
+                                    icon = {
+                                        Text(
+                                            text = destination.symbol,
+                                            style = ZhixingTheme.type.navigationSymbol,
+                                        )
+                                    },
+                                    label = { Text(destination.label) },
+                                    alwaysShowLabel = true,
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = ZhixingTheme.colors.primary,
+                                        selectedTextColor = ZhixingTheme.colors.primary,
+                                        unselectedIconColor = ZhixingTheme.colors.onSurfaceVariant,
+                                        unselectedTextColor = ZhixingTheme.colors.onSurfaceVariant,
+                                        indicatorColor = ZhixingTheme.colors.primaryContainer,
+                                    ),
                                 )
-                            },
-                            label = { Text(destination.label) },
-                            alwaysShowLabel = true,
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = ZhixingTheme.colors.primary,
-                                selectedTextColor = ZhixingTheme.colors.primary,
-                                unselectedIconColor = ZhixingTheme.colors.onSurfaceVariant,
-                                unselectedTextColor = ZhixingTheme.colors.onSurfaceVariant,
-                                indicatorColor = ZhixingTheme.colors.primaryContainer,
+                            }
+                        }
+                    },
+                ) { innerPadding ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = ZhixingTheme.spacing.pageHorizontal)
+                            .padding(
+                                top = ZhixingTheme.spacing.pageVertical,
+                                bottom = ZhixingTheme.spacing.pageVertical,
                             ),
-                        )
-                    }
-                }
-            },
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = ZhixingTheme.spacing.pageHorizontal)
-                    .padding(top = ZhixingTheme.spacing.pageVertical, bottom = ZhixingTheme.spacing.pageVertical),
-                verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.section),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.headerGap),
+                        verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.section),
                     ) {
-                        Image(
-                            painter = painterResource(R.drawable.zhixing_logo),
-                            contentDescription = "知行图标",
-                            modifier = Modifier.height(54.dp),
-                            contentScale = ContentScale.Fit,
-                        )
-                        Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.headerGap),
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.zhixing_logo),
+                                    contentDescription = "知行图标",
+                                    modifier = Modifier.height(54.dp),
+                                    contentScale = ContentScale.Fit,
+                                )
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight),
+                                ) {
+                                    Text(
+                                        text = "知行",
+                                        style = ZhixingTheme.type.brandTitle,
+                                        color = ZhixingTheme.colors.onBackground,
+                                    )
+                                    Text(
+                                        text = "CALCULATOR  ×  AI",
+                                        style = ZhixingTheme.type.brandCaption,
+                                        color = ZhixingTheme.colors.onSurfaceVariant,
+                                    )
+                                }
+                            }
+
+                            Surface(
+                                color = ZhixingTheme.colors.primaryContainer,
+                                shape = CircleShape,
+                            ) {
+                                Text(
+                                    text = "原生预览",
+                                    modifier = Modifier.padding(
+                                        horizontal = ZhixingTheme.spacing.badgeHorizontal,
+                                        vertical = ZhixingTheme.spacing.badgeVertical,
+                                    ),
+                                    style = ZhixingTheme.type.badge,
+                                    color = ZhixingTheme.colors.onPrimaryContainer,
+                                )
+                            }
+                        }
+
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = Color.White,
+                            shape = ZhixingTheme.shapes.hero,
+                            border = BorderStroke(
+                                1.dp,
+                                ZhixingTheme.colors.outline.copy(alpha = 0.7f),
+                            ),
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(ZhixingTheme.spacing.cardPadding),
+                                verticalArrangement = Arrangement.spacedBy(
+                                    ZhixingTheme.spacing.cardContentGap,
+                                ),
+                            ) {
+                                Text(
+                                    text = selectedDestination.label,
+                                    style = ZhixingTheme.type.sectionLabel,
+                                    color = ZhixingTheme.colors.secondary,
+                                )
+                                Text(
+                                    text = selectedDestination.title,
+                                    style = ZhixingTheme.type.screenTitle,
+                                    color = ZhixingTheme.colors.onSurface,
+                                )
+                                Text(
+                                    text = selectedDestination.description,
+                                    style = ZhixingTheme.type.body,
+                                    color = ZhixingTheme.colors.onSurfaceVariant,
+                                )
+                                Spacer(modifier = Modifier.height(ZhixingTheme.spacing.hairlineGap))
+                                Text(
+                                    text = "基础界面已建立 · 功能按小步迁移",
+                                    style = ZhixingTheme.type.badge,
+                                    color = ZhixingTheme.colors.primary,
+                                )
+                            }
+                        }
+
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.groupGap),
+                        ) {
                             Text(
-                                text = "知行",
-                                style = ZhixingTheme.type.brandTitle,
+                                text = "本阶段先完成基础",
+                                style = ZhixingTheme.type.sectionTitle,
                                 color = ZhixingTheme.colors.onBackground,
                             )
+                            FeatureLine(
+                                title = "原生 Android 工程",
+                                detail = "Kotlin + Jetpack Compose",
+                            )
+                            FeatureLine(
+                                title = "知行浅色设计基线",
+                                detail = "先稳定布局与文字层级",
+                            )
+                            FeatureLine(
+                                title = "逐步迁移",
+                                detail = "液态玻璃、计算和 AI 分别验收",
+                            )
+                        }
+
+                        androidx.compose.material3.TextButton(
+                            onClick = { showGlassLab = true },
+                        ) {
                             Text(
-                                text = "CALCULATOR  ×  AI",
-                                style = ZhixingTheme.type.brandCaption,
-                                color = ZhixingTheme.colors.onSurfaceVariant,
+                                text = "打开材质实验室",
+                                style = ZhixingTheme.type.featureTitle,
+                                color = ZhixingTheme.colors.primary,
                             )
                         }
                     }
-
-                    Surface(
-                        color = ZhixingTheme.colors.primaryContainer,
-                        shape = CircleShape,
-                    ) {
-                        Text(
-                            text = "原生预览",
-                            modifier = Modifier.padding(horizontal = ZhixingTheme.spacing.badgeHorizontal, vertical = ZhixingTheme.spacing.badgeVertical),
-                            style = ZhixingTheme.type.badge,
-                            color = ZhixingTheme.colors.onPrimaryContainer,
-                        )
-                    }
-                }
-
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = Color.White,
-                    shape = ZhixingTheme.shapes.hero,
-                    border = BorderStroke(1.dp, ZhixingTheme.colors.outline.copy(alpha = 0.7f)),
-                ) {
-                    Column(
-                        modifier = Modifier.padding(ZhixingTheme.spacing.cardPadding),
-                        verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.cardContentGap),
-                    ) {
-                        Text(
-                            text = selectedDestination.label,
-                            style = ZhixingTheme.type.sectionLabel,
-                            color = ZhixingTheme.colors.secondary,
-                        )
-                        Text(
-                            text = selectedDestination.title,
-                            style = ZhixingTheme.type.screenTitle,
-                            color = ZhixingTheme.colors.onSurface,
-                        )
-                        Text(
-                            text = selectedDestination.description,
-                            style = ZhixingTheme.type.body,
-                            color = ZhixingTheme.colors.onSurfaceVariant,
-                        )
-                        Spacer(modifier = Modifier.height(ZhixingTheme.spacing.hairlineGap))
-                        Text(
-                            text = "基础界面已建立 · 功能按小步迁移",
-                            style = ZhixingTheme.type.badge,
-                            color = ZhixingTheme.colors.primary,
-                        )
-                    }
-                }
-
-                Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.groupGap)) {
-                    Text(
-                        text = "本阶段先完成基础",
-                        style = ZhixingTheme.type.sectionTitle,
-                        color = ZhixingTheme.colors.onBackground,
-                    )
-                    FeatureLine(title = "原生 Android 工程", detail = "Kotlin + Jetpack Compose")
-                    FeatureLine(title = "知行浅色设计基线", detail = "先稳定布局与文字层级")
-                    FeatureLine(title = "逐步迁移", detail = "液态玻璃、计算和 AI 分别验收")
-                }
-
-                androidx.compose.material3.TextButton(onClick = { showGlassLab = true }) {
-                    Text(
-                        text = "打开材质实验室",
-                        style = ZhixingTheme.type.featureTitle,
-                        color = ZhixingTheme.colors.primary,
-                    )
                 }
             }
-        }
         }
     }
 }
