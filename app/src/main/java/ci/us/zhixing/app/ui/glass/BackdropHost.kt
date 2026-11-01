@@ -3,7 +3,6 @@ package ci.us.zhixing.app.ui.glass
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -34,7 +33,7 @@ internal fun BackdropHost(
     Box(modifier = modifier) {
         Box(
             modifier = Modifier
-                .matchParentSize()
+                .fillMaxSize()
                 .layerBackdrop(backdrop),
         ) {
             Box(
