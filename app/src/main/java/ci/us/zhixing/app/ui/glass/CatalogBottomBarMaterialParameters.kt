@@ -12,6 +12,7 @@ internal data class CatalogBottomBarMaterialParameters(
     val blurRadiusDp: Float,
     val useBackdropSampling: Boolean,
     val useBlur: Boolean,
+    val useVibrancy: Boolean,
     val useRefraction: Boolean,
     val refractionScale: Float,
     val chromaticDispersionEnabled: Boolean,
@@ -55,6 +56,7 @@ internal fun resolveCatalogBottomBarMaterialParameters(
         blurRadiusDp = if (capabilities.useBlur) material.blurRadiusDp else 0f,
         useBackdropSampling = capabilities.useBackdropSampling,
         useBlur = capabilities.useBlur,
+        useVibrancy = capabilities.useVibrancy,
         useRefraction = capabilities.useRefraction,
         refractionScale = refractionScale,
         chromaticDispersionEnabled =
