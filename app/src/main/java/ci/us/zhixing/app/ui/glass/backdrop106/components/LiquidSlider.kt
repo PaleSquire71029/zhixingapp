@@ -115,7 +115,7 @@ internal fun LiquidSlider(
                 role = Role.Slider
                 contentDescription = label
                 progressBarRangeInfo = ProgressBarRangeInfo(
-                    current = snapValue(valueReader()),
+                    current = valueReader().coerceIn(valueRange),
                     range = valueRange,
                     steps = stepCount,
                 )
@@ -147,7 +147,7 @@ internal fun LiquidSlider(
         ) {
             DampedDragAnimation(
                 animationScope = animationScope,
-                initialValue = snapValue(valueReader()),
+                initialValue = valueReader().coerceIn(valueRange),
                 valueRange = valueRange,
                 visibilityThreshold = visibilityThreshold,
                 initialScale = 1f,
@@ -181,7 +181,7 @@ internal fun LiquidSlider(
         LaunchedEffect(dampedDragAnimation) {
             snapshotFlow { valueReader() }
                 .collectLatest { newValue ->
-                    val snapped = snapValue(newValue)
+                    val snapped = newValue.coerceIn(valueRange)
                     if (dampedDragAnimation.targetValue != snapped) {
                         dampedDragAnimation.updateValue(snapped)
                     }
@@ -256,7 +256,7 @@ internal fun LiquidSlider(
                         lens(
                             10.dp.toPx() * progress,
                             14.dp.toPx() * progress,
-                            chromaticAberration = touchFeedbackEnabled,
+                            chromaticAberration = true,
                         )
                     },
                     highlight = {
