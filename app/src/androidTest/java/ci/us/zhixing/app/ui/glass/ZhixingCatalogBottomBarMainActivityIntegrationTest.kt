@@ -96,13 +96,12 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
             refractionSwitch.fetchSemanticsNode().config[SemanticsProperties.ToggleableState] ==
                 ToggleableState.On
 
-        if (refractionWasOn) {
+        if (!refractionWasOn) {
             refractionSwitch.performClick()
         }
+        refractionSwitch.performClick()
         dispersionSwitch.assertIsNotEnabled()
-        if (refractionWasOn) {
-            refractionSwitch.performClick()
-        }
+        refractionSwitch.performClick()
 
         val dispersionWasOn =
             dispersionSwitch.fetchSemanticsNode().config[SemanticsProperties.ToggleableState] ==
@@ -116,8 +115,11 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
             dispersionSwitch.assertIsOn()
             composeRule.onNodeWithText("色散折射 · 开启").assertIsDisplayed()
         }
-        // Return the persisted preference to its starting value.
+        // Return persisted preferences to their starting values.
         dispersionSwitch.performClick()
+        if (!refractionWasOn) {
+            refractionSwitch.performClick()
+        }
     }
 
     private fun hasTabRole() =
