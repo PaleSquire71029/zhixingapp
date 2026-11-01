@@ -596,3 +596,16 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - 目标 Android 真机安装、启动和交互验收通过。
 
 在全部验收完成前，只能使用“部分完成”“代码已提交待验证”等准确状态，不得宣称已完全还原 iOS 26 Liquid Glass。
+
+## 9. S3.1–S3.2 实施记录（2026-11-01）
+
+- [x] S3.1：新增 `GlassMaterialState.kt`，以不可变数据模型分别保存透明度和模糊半径。
+- [x] 默认值为透明度 78%、模糊 12 dp；合法范围分别为 0–100% 和 0–24 dp。
+- [x] 对模糊值拒绝 NaN、正无穷和负无穷；透明度与模糊均在构造时校验。
+- [x] S3.2：新增 `GlassMaterialStateTest.kt`，覆盖默认值、两个参数的上下边界、独立设置、越界输入和非有限模糊值。
+- [x] PR [#6](https://github.com/PaleSquire71029/zhixingapp/pull/6) 已通过 CI 并 squash 合并到 main；合并提交：`5639a8ad4664eab0b7707c5caeb8145dd82fbe95`。
+- [x] Android Build #48（Run ID `41256717498`）成功：资源校验、Gradle 配置、JVM 单测、Debug APK 编译和 Artifact 上传均通过。
+- [ ] 本步没有将模型接入 UI、DataStore、Backdrop 或 MainActivity；也没有把 PR 临时 APK 发布到 main。
+- [ ] 尚未完成目标真机上的材质显示、交互、帧率、发热和耗电验收。
+
+**下一小步：** S3.3，只建立单个 `ZhixingGlassSurface` 基础组件；复用现有 Backdrop 能力并接受材质参数，不实现底栏、不修改 MainActivity。
