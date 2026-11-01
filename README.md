@@ -21,7 +21,7 @@
 4. [Android App 总体规划与迁移蓝图](docs/ANDROID_APP_MASTER_PLAN.md)
 5. [液态玻璃参考 APK 直接移植计划](docs/LIQUID_GLASS_REDESIGN_PLAN.md)
 
-开始任何实现前，先检查这两份文件和仓库当前 commit。每次只推进一个小步骤；构建或测试失败时先修复，不继续叠加新功能。
+开始任何实现前，先检查以上文档和仓库当前 commit。液态玻璃按专项计划第 25 节直接移植官方 Catalog 1.0.6 组件；每次只推进一个可构建小步骤，CI 失败先修复，不继续叠加新功能。
 
 ## 当前进度
 
