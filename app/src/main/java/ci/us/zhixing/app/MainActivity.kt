@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -78,12 +79,17 @@ class MainActivity : ComponentActivity() {
 private fun ZhixingApp(lifecycle: Lifecycle) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     var showGlassLab by rememberSaveable { mutableStateOf(false) }
+    var showGlassAppearanceSheet by rememberSaveable { mutableStateOf(false) }
     val destinations = AppDestinations.all
     val selectedDestination = destinations[selectedIndex]
 
     ZhixingTheme {
-        BackHandler(enabled = showGlassLab) {
-            showGlassLab = false
+        BackHandler(enabled = showGlassLab || showGlassAppearanceSheet) {
+            if (showGlassAppearanceSheet) {
+                showGlassAppearanceSheet = false
+            } else {
+                showGlassLab = false
+            }
         }
         if (showGlassLab) {
             GlassLabScreen(
@@ -156,19 +162,33 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
                                 }
                             }
 
-                            Surface(
-                                color = ZhixingTheme.colors.primaryContainer,
-                                shape = CircleShape,
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp),
                             ) {
-                                Text(
-                                    text = "原生预览",
-                                    modifier = Modifier.padding(
-                                        horizontal = ZhixingTheme.spacing.badgeHorizontal,
-                                        vertical = ZhixingTheme.spacing.badgeVertical,
-                                    ),
-                                    style = ZhixingTheme.type.badge,
-                                    color = ZhixingTheme.colors.onPrimaryContainer,
-                                )
+                                androidx.compose.material3.TextButton(
+                                    onClick = { showGlassAppearanceSheet = true },
+                                ) {
+                                    Text(
+                                        text = "材质",
+                                        style = ZhixingTheme.type.featureTitle,
+                                        color = ZhixingTheme.colors.primary,
+                                    )
+                                }
+                                Surface(
+                                    color = ZhixingTheme.colors.primaryContainer,
+                                    shape = CircleShape,
+                                ) {
+                                    Text(
+                                        text = "原生预览",
+                                        modifier = Modifier.padding(
+                                            horizontal = ZhixingTheme.spacing.badgeHorizontal,
+                                            vertical = ZhixingTheme.spacing.badgeVertical,
+                                        ),
+                                        style = ZhixingTheme.type.badge,
+                                        color = ZhixingTheme.colors.onPrimaryContainer,
+                                    )
+                                }
                             }
                         }
 
@@ -240,6 +260,38 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
                                 text = "打开材质实验室",
                                 style = ZhixingTheme.type.featureTitle,
                                 color = ZhixingTheme.colors.primary,
+                            )
+                        }
+                    }
+                }
+
+                if (showGlassAppearanceSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showGlassAppearanceSheet = false },
+                        containerColor = Color(0xFFF8FBFD),
+                        contentColor = ZhixingTheme.colors.onSurface,
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = ZhixingTheme.spacing.pageHorizontal)
+                                .padding(bottom = 28.dp),
+                            verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.groupGap),
+                        ) {
+                            Text(
+                                text = "材质外观",
+                                style = ZhixingTheme.type.sectionTitle,
+                                color = ZhixingTheme.colors.onBackground,
+                            )
+                            Text(
+                                text = "透明度与背景模糊将分别调节，互不影响。",
+                                style = ZhixingTheme.type.body,
+                                color = ZhixingTheme.colors.onSurfaceVariant,
+                            )
+                            Text(
+                                text = "独立调节控件将在后续步骤接入。",
+                                style = ZhixingTheme.type.supporting,
+                                color = ZhixingTheme.colors.onSurfaceVariant,
                             )
                         }
                     }
