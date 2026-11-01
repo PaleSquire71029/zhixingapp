@@ -20,6 +20,7 @@ class GlassSurfaceCapabilitiesTest {
             assertTrue(capabilities.useBackdropSampling)
             assertFalse(capabilities.useBlur)
             assertFalse(capabilities.useRefraction)
+            assertFalse(capabilities.useVibrancy)
         }
     }
 
@@ -37,6 +38,7 @@ class GlassSurfaceCapabilitiesTest {
             assertTrue(capabilities.useBackdropSampling)
             assertTrue(capabilities.useBlur)
             assertFalse(capabilities.useRefraction)
+            assertTrue(capabilities.useVibrancy)
         }
     }
 
@@ -54,6 +56,7 @@ class GlassSurfaceCapabilitiesTest {
             assertTrue(capabilities.useBackdropSampling)
             assertTrue(capabilities.useBlur)
             assertTrue(capabilities.useRefraction)
+            assertTrue(capabilities.useVibrancy)
         }
     }
 
@@ -67,6 +70,7 @@ class GlassSurfaceCapabilitiesTest {
 
         assertTrue(capabilities.useBackdropSampling)
         assertFalse(capabilities.useBlur)
+        assertFalse(capabilities.useVibrancy)
     }
 
     @Test
@@ -82,6 +86,7 @@ class GlassSurfaceCapabilitiesTest {
         assertFalse(capabilities.useBackdropSampling)
         assertFalse(capabilities.useBlur)
         assertFalse(capabilities.useRefraction)
+        assertFalse(capabilities.useVibrancy)
     }
 
     @Test
@@ -102,7 +107,9 @@ class GlassSurfaceCapabilitiesTest {
         )
 
         assertFalse(disabled.useRefraction)
+        assertFalse(disabled.useVibrancy)
         assertFalse(zeroStrength.useRefraction)
+        assertFalse(zeroStrength.useVibrancy)
     }
 
     @Test
