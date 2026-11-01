@@ -553,8 +553,8 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 |---|---|---|---|
 | S6.1 | 在主 Scaffold 中替换原 NavigationBar | MainActivity.kt | ✅ 完成：共享 Backdrop 液态玻璃底栏已成为首页正式导航，四个目的地与原状态回调保留 |
 | S6.2 | 添加设置入口 | MainActivity.kt | ✅ 完成：品牌区增加独立“材质设置”入口，复用现有 GlassLab，不占用底栏导航项 |
-| S6.3 | 添加透明度单独滑块 | GlassAppearanceSheet.kt | 只影响透明度，不改变模糊值 |
-| S6.4 | 添加模糊单独滑块 | 同一设置面板 | 只影响模糊值，0 dp 时关闭模糊计算 |
+| S6.3 | 添加透明度单独滑块 | 复用 GlassLabScreen / GlassMaterialState | ✅ 完成：现有透明度滑块实时更新首页共享材质状态，不改变模糊值 |
+| S6.4 | 添加模糊单独滑块 | 复用 GlassLabScreen / GlassMaterialState | ✅ 完成：现有模糊滑块实时更新首页共享材质状态，0 dp 不启用模糊计算 |
 | S6.5 | 保存和恢复设置 | MaterialState / DataStore 适配 | 进程重建后参数恢复，重置可回到默认值 |
 
 ### S7：收尾和扩展
@@ -748,7 +748,7 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] 尚未在目标真机验证系统手势 / 三键 Insets、IME、滚动遮挡、触控、帧率、温度和功耗。
 - [ ] 材质透明度 / 模糊设置面板与 DataStore 持久化尚未实现；属于 S6.2–S6.5。
 
-**下一小步：** S6.3，在材质设置界面增加透明度单独滑块，并将数值连接到首页玻璃底栏；不改变模糊半径，不在本步保存到 DataStore。
+**下一小步：** S6.5，使用 DataStore 保存并恢复透明度、模糊半径和 Off 开关；进程重建后设置恢复，提供重置默认值。
 
 ## 21. S4.3 共享 Backdrop 与前景点击验证（部分完成，2026-11-01）
 
@@ -775,3 +775,19 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] 透明度 / 模糊滑块尚未接入首页玻璃底栏；DataStore 持久化尚未实现。
 
 **下一小步：** S6.3，先把透明度作为单独参数接入首页底栏并提供滑块；调整透明度不改变模糊半径。
+
+## 23. S6.3–S6.4 材质参数实时同步（2026-11-01）
+
+- [x] 在 `ZhixingApp` 中使用 `rememberSaveable` 持有首页透明度和模糊状态，并构造统一 `GlassMaterialState`。
+- [x] 将同一 `GlassMaterialState` 传给生产 `ZhixingLiquidBottomBar`，底栏外观由该状态驱动。
+- [x] 打开 Glass Lab 时将首页当前材质参数传入，避免滑块从另一组默认数值开始。
+- [x] 透明度滑块变化只更新 `transparencyPercent`；模糊滑块变化只更新 `blurRadiusDp`，两者独立。
+- [x] Premium / Standard / Lite / Off 预设同步对应材质数值；Off 设置 `enabled = false`，玻璃表面使用浅色回退且不添加单表面 Backdrop 采样节点。
+- [x] `GlassMaterialState.enabled` 默认值为 `true`；新增单测覆盖默认开启及 Off 后透明度 / 模糊数值保持独立。
+- [x] PR [#22](https://github.com/PaleSquire71029/zhixingapp/pull/22) 已 squash 合并；合并提交：`c473d29d4fb28b1a9c49d46fff79a6c78be3ba86`。
+- [x] Android Build（Run ID `41264097084`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41264097084)。
+- [ ] 该步骤只完成运行期间的状态同步与 rememberSaveable 恢复；DataStore 的跨进程重启持久化仍未实现。
+- [ ] Off 时单个玻璃表面不采样，但首页 `BackdropHost` 目前仍创建共享 LayerBackdrop；整个宿主在 Off 时跳过创建属于后续性能优化。
+- [ ] 真机滑块返回首页即时效果、低版本模糊回退、滚动、帧率和电量仍待验收。
+
+**下一小步：** S6.5，持久化 `transparencyPercent`、`blurRadiusDp` 与 `enabled`，进程重启后恢复并支持恢复默认值。
