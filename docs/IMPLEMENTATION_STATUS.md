@@ -1196,12 +1196,24 @@
 - [ ] P2.4 尚未开始；当前生产底栏仍保持旧实现，避免用户材质设置在迁移中失效。
 
 
-### 10.50 P2.3.3 RTL、窄屏与无障碍回归测试（代码已建立，待 CI，2026-11-01）
+### 10.50 P2.3.3 RTL、窄屏与无障碍回归测试（已合并，2026-11-01）
 
 - [x] 新增 `ZhixingCatalogBottomBarLayoutAccessibilityTest.kt`，在真实共享 Backdrop Host 中覆盖三个布局 / 无障碍场景。
 - [x] RTL：通过标签语义节点的 root bounds，检查首个目的地“计算”显示在最后一个目的地“历史”的右侧，并验证四项标签可见。
 - [x] 窄屏：将底栏约束为 240dp，验证四项标签均可见、语义节点有非空边界。
 - [x] 无障碍：在 unmerged semantics tree 中确认恰好暴露四个 Role.Tab，避免隐藏采样层重复出现可访问节点。
 - [x] 未修改生产适配层、导航数据、MainActivity、依赖或旧底栏。
-- [ ] Android CI 待验证；工作流仅编译仪器测试源码，不会在 Hosted 模拟器执行布局断言。
-- [ ] 完成后 P2.3 测试系列结束；下一步进入 P2.4.1，将知行材质参数真正映射到官方组件。
+- [x] PR [#54](https://github.com/PaleSquire71029/zhixingapp/pull/54) 已 squash 合并；merge commit：`7b24af78590abc6de546f34e66f75a2d0bfe57fc`。
+- [x] Android Build #198（Run ID `41282327355`）全部成功：资源校验、JUnit、androidTest Kotlin 编译、Debug APK 构建和 Artifact 上传。
+- [ ] CI 未在 Hosted 模拟器执行布局断言；真机 RTL、屏幕裁剪与 TalkBack 顺序仍需设备验收。
+
+
+### 10.51 P2.4.1a 材质参数解析器与 JUnit 测试（代码已建立，待 CI，2026-11-01）
+
+- [x] 新增 `CatalogBottomBarMaterialParameters.kt`：将现有 `GlassMaterialState` 映射为官方 Catalog 底栏所需的填充 Alpha、模糊开关 / 半径、折射可用性 / 强度比例，以及色散、高光、环境反射和触摸反馈开关。
+- [x] 透明度沿用 `resolveGlassOverlayAlpha`，不与模糊互相推导；保留 DataStore 原字段和值域。
+- [x] 以知行默认折射强度 1.8dp 对应 Catalog 原透镜 1x；0–8dp 映射到 0–1.5x，避免最大值产生过度拉伸。
+- [x] 复用 `resolveGlassSurfaceCapabilities`：API 26+ 保留背景采样，API 31+ 才使用模糊，API 33+ 才使用折射；Off 时关闭全部光学 / 触摸反馈。
+- [x] 新增六项单元测试，覆盖 Home 默认映射、透明度 / 模糊独立、折射范围、API 降级、开关独立和 Off 状态。
+- [ ] 当前等待 Android CI；本步骤只建纯映射层，不修改官方底栏绘制、包装层或 MainActivity。
+- [ ] P2.4.1b 再将参数实际接入 `LiquidBottomTabs.kt` 的背景、选中透镜、色散 / 高光 / 反射与触摸动画。
