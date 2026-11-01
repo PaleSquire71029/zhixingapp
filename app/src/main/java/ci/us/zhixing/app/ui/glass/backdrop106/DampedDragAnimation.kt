@@ -79,6 +79,7 @@ class DampedDragAnimation(
     val modifier: Modifier = Modifier.pointerInput(Unit) {
         inspectDragGestures(
             onDragStart = { down ->
+                velocityTracker.resetTracking()
                 onDragStarted(down.position)
                 if (touchFeedbackEnabled) press()
             },
