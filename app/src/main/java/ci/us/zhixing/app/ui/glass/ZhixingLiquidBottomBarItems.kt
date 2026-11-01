@@ -73,10 +73,21 @@ internal fun ZhixingLiquidBottomBar(
     require(destinations.isNotEmpty()) { "At least one navigation destination is required." }
     require(selectedIndex in destinations.indices) { "Selected destination index is out of range." }
 
+    var touchActive by remember { mutableStateOf(false) }
+    val refractionPressProgress by animateFloatAsState(
+        targetValue = if (
+            touchActive && material.touchFeedbackEnabled &&
+            material.enabled && material.refractionEnabled
+        ) 1f else 0f,
+        animationSpec = tween(durationMillis = 130),
+        label = "zhixingBottomBarLensPressure",
+    )
+
     ZhixingLiquidBottomBarSurface(
         backdrop = backdrop,
         modifier = modifier,
         material = material,
+        refractionPressProgress = refractionPressProgress,
     ) {
         BoxWithConstraints(
             modifier = Modifier
@@ -87,7 +98,6 @@ internal fun ZhixingLiquidBottomBar(
             val density = LocalDensity.current
             val itemWidthPx = with(density) { itemWidth.toPx() }
             var touchPoint by remember { mutableStateOf<Offset?>(null) }
-            var touchActive by remember { mutableStateOf(false) }
             val touchGlowAlpha by animateFloatAsState(
                 targetValue = if (touchActive && material.touchFeedbackEnabled) 0.22f else 0f,
                 animationSpec = tween(durationMillis = 160),
