@@ -861,3 +861,17 @@
 - [ ] 真机上检查上沿/侧缘高光是否自然、白边是否过强、不同背景亮度下的可见度与 GPU 帧率。
 
 本步只把已有 Highlight 效果的开关正式接入生产材质；高光形状/强度曲线与环境反射仍待后续设计和真机校准。
+
+### 10.23 S6.7 低成本环境反射接入正式材质（2026-11-01）
+
+- [x] 在 `GlassMaterialState` 增加 `environmentReflectionEnabled`，默认开启。
+- [x] 将环境反射开关加入 Preferences DataStore；材质设置由七项独立属性组成。
+- [x] 新增 `GlassEnvironmentReflection.kt`，按玻璃表面尺寸绘制柔和冷蓝、紫色、暖色径向环境光与一条低强度反射光带。
+- [x] 正式 `ZhixingGlassSurface` 在基础透明覆盖层之上绘制环境反射；关闭开关时跳过环境光绘制。
+- [x] Glass Lab 增加环境反射开关，预览卡和首页共用同一绘制 helper；开关改变时即时预览并保存。
+- [x] Reset 恢复默认环境反射；Lite 预设关闭环境反射，Premium / Standard 保持开启，Off 不清除用户光学参数。
+- [x] 扩展材质默认值与 DataStore 七项往返保存测试，覆盖环境反射关闭后的持久化。
+- [ ] 本步 PR 的资源检查、JUnit、androidTest 源码编译和 Debug APK 构建待 CI。
+- [ ] 真机检查冷暖反射强度、不同亮度背景上的观感、文字对比度与帧率。
+
+本步是低功耗的环境色反射叠加，不是物理级实时环境贴图或 ray tracing；没有新增持续动画时钟、全屏快照或 Shader。动态随触摸移动的反射留待后续独立步骤。
