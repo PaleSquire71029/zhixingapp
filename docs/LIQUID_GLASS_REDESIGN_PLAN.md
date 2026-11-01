@@ -878,7 +878,7 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 | P2.4.1a | 建立材质参数解析器与纯函数测试 | `CatalogBottomBarMaterialParameters.kt` + JUnit | ✅ 已完成：PR #55 合并，Android Build #200 成功；六项参数映射单测通过 |
 | P2.4.1b | 将解析参数接入官方 Catalog 底栏绘制 | `LiquidBottomTabs.kt`、`ZhixingCatalogBottomBar.kt`、`DampedDragAnimation.kt` | ✅ 已完成：PR #56 合并，Android Build #206 成功；材质设置实际控制绘制与反馈，Off 路径保留点击 / 拖动导航 |
 | P2.4.2 | 将参数化官方底栏接入首页共享 Backdrop | `MainActivity.kt` 与包装层 | ✅ 已完成：PR #57 合并，Android Build #209 成功；保留原材质状态、导航状态、Backdrop Host、Insets 与 IME 定位 |
-| P2.4.3a | 材质实验室预览 / DataStore 即时应用回归 | Activity 仪器测试 | 修改透明度、模糊、折射和开关后验证预览驱动的底栏跟随更新；提交 / 重置后检查持久化 |
+| P2.4.3a | 材质实验室预览 / DataStore 档位提交回归 | `ZhixingCatalogMaterialPreviewIntegrationTest.kt` | 当前分支新增：Off → Standard 档位预览 / 提交、重置默认、返回首页后四入口继续工作；测试结束清理 DataStore |
 | P2.4.3b | 系统 Insets、IME 与屏幕方向回归 | Compose / Activity 仪器测试 | 导航栏安全区、键盘升起与收起、横竖屏、窄屏四入口可见与触控范围 |
 | P2.4.3c | 目标真机视觉与性能验收 | 真机检查记录 | 对照参考 APK 检查折射、色散、高光、拖动、帧时间、温升、耗电、文字与公式清晰度 |
 | P2.5 | 删除旧底栏重复手势与装饰动画 | 旧 ZhixingLiquidBottomBarItems.kt | 只清理官方接管的逻辑，不改业务状态；构建与导航测试通过 |
@@ -966,10 +966,11 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 5. P2.4.1a 已完成并合入 main（PR #55，merge commit `677b0b0ea9fbcefac5d2e35d2573e9f93b12fac6`）；Android Build #200 成功。
 6. P2.4.1b 已完成并合入 main（PR #56，merge commit `25057905dbbe76881f9f7d77e7e62b156ccbd14b`）；Android Build #206 成功。
 7. P2.4.2 已完成并合入 main（PR #57，merge commit `3ac995fd7069148bea56cb8baaf11ab794987cdd`）；Android Build #209 成功，MainActivity 已使用官方 Catalog 底栏。
-8. 下一步做 P2.4.3a 材质实验室预览 / DataStore 即时应用回归，再做 P2.4.3b Insets / IME / 方向变化回归，最后 P2.4.3c 真机视觉与性能验收。
-9. 当前 CI 只编译 `androidTest` 源码，不会在 Hosted 模拟器执行仪器测试；真机折射、手势、TalkBack、帧率和耗电仍需真实设备验收。
-10. 旧 `ZhixingLiquidBottomBar` 代码暂留，P2.5 单独清理；不要在 P2.4.3 之前删除回滚路径。
-11. 所有步骤继续固定官方 1.0.6 源码、Apache-2.0 归属和固定依赖版本。
+8. 当前分支 `port/catalog-1.0.6-p2-4-3a-material-preview-tests` 正在执行 P2.4.3a：测试 Glass Lab Off / Standard 档位提交、重置默认、返回首页继续导航，并在测试结束恢复 DataStore 默认值。
+9. P2.4.3a 通过后再做 P2.4.3b Insets / IME / 横竖屏回归，最后 P2.4.3c 真机视觉与性能验收。
+10. 当前 CI 只编译 `androidTest` 源码，不会在 Hosted 模拟器执行仪器测试；真机折射、手势、TalkBack、帧率和耗电仍需真实设备验收。
+11. 旧 `ZhixingLiquidBottomBar` 代码暂留，P2.5 单独清理；不要在 P2.4.3 之前删除回滚路径。
+12. 所有步骤继续固定官方 1.0.6 源码、Apache-2.0 归属和固定依赖版本。
 
 **当前生产底栏已切换到官方适配层；旧底栏实现保留待 P2.5 清理。**
 
