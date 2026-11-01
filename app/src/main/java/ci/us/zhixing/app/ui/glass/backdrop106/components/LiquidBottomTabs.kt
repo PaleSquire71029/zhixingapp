@@ -13,9 +13,12 @@
 
 package ci.us.zhixing.app.ui.glass.backdrop106.components
 
+import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -37,6 +40,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -53,6 +57,10 @@ import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import ci.us.zhixing.app.ui.glass.CatalogBottomBarMaterialParameters
+import ci.us.zhixing.app.ui.glass.GlassMaterialState
+import ci.us.zhixing.app.ui.glass.drawEnvironmentReflection
+import ci.us.zhixing.app.ui.glass.resolveCatalogBottomBarMaterialParameters
 import ci.us.zhixing.app.ui.glass.backdrop106.DampedDragAnimation
 import ci.us.zhixing.app.ui.glass.backdrop106.InteractiveHighlight
 import com.kyant.backdrop.drawBackdrop
@@ -75,16 +83,21 @@ fun LiquidBottomTabs(
     onTabSelected: (index: Int) -> Unit,
     backdrop: Backdrop,
     tabsCount: Int,
+    material: GlassMaterialState = GlassMaterialState(),
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
     val isLightTheme = !isSystemInDarkTheme()
+    val materialParameters = resolveCatalogBottomBarMaterialParameters(
+        material = material,
+        apiLevel = Build.VERSION.SDK_INT,
+    )
     val accentColor =
         if (isLightTheme) Color(0xFF0088FF)
         else Color(0xFF0091FF)
     val containerColor =
-        if (isLightTheme) Color(0xFFFAFAFA).copy(0.4f)
-        else Color(0xFF121212).copy(0.4f)
+        if (isLightTheme) Color(0xFFFAFAFA).copy(alpha = materialParameters.overlayAlpha)
+        else Color(0xFF121212).copy(alpha = materialParameters.overlayAlpha)
 
     val tabsBackdrop = rememberLayerBackdrop()
 
