@@ -57,7 +57,9 @@ import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
+import ci.us.zhixing.app.ui.glass.BackdropHost
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
+import ci.us.zhixing.app.ui.glass.ZhixingLiquidToggle
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.drawEnvironmentReflection
 import ci.us.zhixing.app.ui.glass.drawTouchGlow
@@ -184,15 +186,16 @@ internal fun GlassLabScreen(
     val panelShape = ZhixingTheme.shapes.hero
     val surfaceOverlayAlpha = (1f - transparencyPercent / 100f).coerceIn(0.08f, 0.96f)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(ZhixingTheme.colors.background)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = ZhixingTheme.spacing.pageHorizontal)
-            .padding(vertical = ZhixingTheme.spacing.pageVertical),
-        verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.section),
-    ) {
+    BackdropHost(modifier = Modifier.fillMaxSize()) { backdrop ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(ZhixingTheme.colors.background)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = ZhixingTheme.spacing.pageHorizontal)
+                .padding(vertical = ZhixingTheme.spacing.pageVertical),
+            verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.section),
+        ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -351,20 +354,18 @@ internal fun GlassLabScreen(
                     color = ZhixingTheme.colors.onSurfaceVariant,
                 )
             }
-            TextButton(
+            ZhixingLiquidToggle(
+                backdrop = backdrop,
+                checked = refractionEnabled,
                 enabled = refractionSupported && backdropEnabled,
-                onClick = {
+                touchFeedbackEnabled = touchFeedbackEnabled,
+                label = "边缘折射",
+                onCheckedChange = { checked ->
                     markCustom()
-                    refractionEnabled = !refractionEnabled
+                    refractionEnabled = checked
                     publishMaterial(commit = true)
                 },
-            ) {
-                Text(
-                    text = if (refractionEnabled) "关闭" else "开启",
-                    style = ZhixingTheme.type.featureTitle,
-                    color = ZhixingTheme.colors.primary,
-                )
-            }
+            )
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight)) {
@@ -560,6 +561,7 @@ internal fun GlassLabScreen(
             style = ZhixingTheme.type.supporting,
             color = ZhixingTheme.colors.onSurfaceVariant,
         )
+        }
     }
 }
 
