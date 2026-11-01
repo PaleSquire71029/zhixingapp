@@ -9,7 +9,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -49,11 +50,14 @@ import ci.us.zhixing.app.ui.glass.BackdropHost
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialSettingsStore
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
+import ci.us.zhixing.app.ui.glass.ZhixingGlassSurface
 import ci.us.zhixing.app.ui.glass.ZhixingCatalogBottomBar
 import ci.us.zhixing.app.ui.glass.ZhixingLiquidBottomBarPlacement
 import ci.us.zhixing.app.ui.lab.GlassLabScreen
+import ci.us.zhixing.app.ui.theme.ZhixingGlassShapes
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import ci.us.zhixing.app.R
+import com.kyant.backdrop.Backdrop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -148,6 +152,13 @@ private fun ZhixingApp(
             BackdropHost(
                 modifier = Modifier.fillMaxSize(),
             ) { backdrop ->
+                // Content containers stay optically calm: preserve the user's
+                // transparency, blur and edge-highlight choices, but do not
+                // refract or disperse text and formulas.
+                val contentGlassMaterial = glassMaterial.copy(
+                    refractionEnabled = false,
+                    chromaticDispersionEnabled = false,
+                )
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Color.Transparent,
@@ -232,14 +243,15 @@ private fun ZhixingApp(
                             }
                         }
 
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = Color.White,
-                            shape = ZhixingTheme.shapes.hero,
-                            border = BorderStroke(
-                                1.dp,
-                                ZhixingTheme.colors.outline.copy(alpha = 0.7f),
-                            ),
+                        val heroShape = ZhixingGlassShapes.hero
+                        ZhixingGlassSurface(
+                            backdrop = backdrop,
+                            material = contentGlassMaterial,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(10.dp, heroShape, clip = false)
+                                .clip(heroShape),
+                            shape = heroShape,
                         ) {
                             Column(
                                 modifier = Modifier.padding(ZhixingTheme.spacing.cardPadding),
@@ -282,14 +294,20 @@ private fun ZhixingApp(
                             FeatureLine(
                                 title = "原生 Android 工程",
                                 detail = "Kotlin + Jetpack Compose",
+                                backdrop = backdrop,
+                                material = contentGlassMaterial,
                             )
                             FeatureLine(
                                 title = "知行浅色设计基线",
                                 detail = "先稳定布局与文字层级",
+                                backdrop = backdrop,
+                                material = contentGlassMaterial,
                             )
                             FeatureLine(
                                 title = "逐步迁移",
                                 detail = "液态玻璃、计算和 AI 分别验收",
+                                backdrop = backdrop,
+                                material = contentGlassMaterial,
                             )
                         }
 
@@ -301,15 +319,27 @@ private fun ZhixingApp(
 }
 
 @Composable
-private fun FeatureLine(title: String, detail: String) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = Color.White.copy(alpha = 0.78f),
-        shape = ZhixingTheme.shapes.feature,
-        border = BorderStroke(1.dp, ZhixingTheme.colors.outline.copy(alpha = 0.5f)),
+private fun FeatureLine(
+    title: String,
+    detail: String,
+    backdrop: Backdrop,
+    material: GlassMaterialState,
+) {
+    val shape = ZhixingGlassShapes.card
+    ZhixingGlassSurface(
+        backdrop = backdrop,
+        material = material,
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(6.dp, shape, clip = false)
+            .clip(shape),
+        shape = shape,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = ZhixingTheme.spacing.featureHorizontal, vertical = ZhixingTheme.spacing.featureVertical),
+            modifier = Modifier.padding(
+                horizontal = ZhixingTheme.spacing.featureHorizontal,
+                vertical = ZhixingTheme.spacing.featureVertical,
+            ),
             verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight),
         ) {
             Text(
