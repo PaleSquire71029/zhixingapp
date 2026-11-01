@@ -48,6 +48,23 @@ class GlassMaterialStateTest {
     }
 
     @Test
+    fun glassOverlayAlphaMatchesTransparencyPercentage() {
+        assertEquals(1f, resolveGlassOverlayAlpha(0), 0f)
+        assertEquals(0.22f, resolveGlassOverlayAlpha(78), 0.0001f)
+        assertEquals(0f, resolveGlassOverlayAlpha(100), 0f)
+    }
+
+    @Test
+    fun glassOverlayAlphaRejectsOutOfRangePercentages() {
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveGlassOverlayAlpha(-1)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveGlassOverlayAlpha(101)
+        }
+    }
+
+    @Test
     fun blurAcceptsBothInclusiveBoundaries() {
         assertEquals(0f, GlassMaterialState(blurRadiusDp = 0f).blurRadiusDp, 0f)
         assertEquals(24f, GlassMaterialState(blurRadiusDp = 24f).blurRadiusDp, 0f)

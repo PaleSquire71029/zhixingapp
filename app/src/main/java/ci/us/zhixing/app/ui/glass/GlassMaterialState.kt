@@ -1,6 +1,17 @@
 package ci.us.zhixing.app.ui.glass
 
 /**
+ * Converts the user-facing transparency percentage to the surface tint alpha.
+ * Blur remains an independent material property.
+ */
+internal fun resolveGlassOverlayAlpha(transparencyPercent: Int): Float {
+    require(transparencyPercent in 0..100) {
+        "Transparency must be between 0 and 100 percent."
+    }
+    return (100 - transparencyPercent) / 100f
+}
+
+/**
  * Immutable user-facing settings for Zhixing's light glass material.
  *
  * Transparency and background blur are deliberately independent values:

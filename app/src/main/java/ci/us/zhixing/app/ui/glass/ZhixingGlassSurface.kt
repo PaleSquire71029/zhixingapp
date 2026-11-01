@@ -42,7 +42,7 @@ internal fun ZhixingGlassSurface(
     refractionPressProgress: Float = 0f,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val overlayAlpha = (100 - material.transparencyPercent) / 100f
+    val overlayAlpha = resolveGlassOverlayAlpha(material.transparencyPercent)
     val capabilities = resolveGlassSurfaceCapabilities(
         apiLevel = Build.VERSION.SDK_INT,
         enabled = glassEnabled && material.enabled,
