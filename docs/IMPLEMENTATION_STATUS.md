@@ -1229,5 +1229,6 @@
 - [x] 触摸反馈关闭时，P1 `DampedDragAnimation` 跳过 press / release 弹簧并不创建 `InteractiveHighlight` / RuntimeShader；拖动位移、速度采样与吸附仍保留。
 - [x] 每次拖动开始都重置 VelocityTracker，避免关闭触摸反馈后沿用上一段拖动的速度。
 - [x] 新增仪器测试：Off 状态四个 Tab 可见且点击可切换；整体 Off 和仅关闭触摸反馈时，拖动仍可切换到“工具”。
-- [ ] 本步骤等待 Android CI；当前工作流只编译 `androidTest` 源码，不会在 Hosted 模拟器执行仪器交互。生产 MainActivity 尚未切换，旧底栏保留。
+- [x] 首次 Android Build #202 暴露可见性错误：官方移植组件公开函数不能暴露内部 `GlassMaterialState`；已将仅供应用内部调用的 `LiquidBottomTabs` 改为 `internal`，不扩大设置模型可见性。
+- [ ] 修正后的最新 Android CI 待验收；当前工作流只编译 `androidTest` 源码，不会在 Hosted 模拟器执行仪器交互。生产 MainActivity 尚未切换，旧底栏保留。
 
