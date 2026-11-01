@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,9 +23,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,6 +40,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestinations
 import ci.us.zhixing.app.ui.glass.BackdropHost
+import ci.us.zhixing.app.ui.glass.ZhixingLiquidBottomBar
+import ci.us.zhixing.app.ui.glass.ZhixingLiquidBottomBarPlacement
 import ci.us.zhixing.app.ui.lab.GlassLabScreen
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import ci.us.zhixing.app.R
@@ -93,34 +93,21 @@ private fun ZhixingApp(lifecycle: Lifecycle) {
         } else {
             BackdropHost(
                 modifier = Modifier.fillMaxSize(),
-            ) { _ ->
+            ) { backdrop ->
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Color.Transparent,
                     bottomBar = {
-                        NavigationBar(
-                            containerColor = Color.White,
-                            tonalElevation = 0.dp,
-                        ) {
-                            destinations.forEachIndexed { index, destination ->
-                                NavigationBarItem(
-                                    selected = selectedIndex == index,
-                                    onClick = { selectedIndex = index },
-                                    icon = {
-                                        Text(
-                                            text = destination.symbol,
-                                            style = ZhixingTheme.type.navigationSymbol,
-                                        )
-                                    },
-                                    label = { Text(destination.label) },
-                                    alwaysShowLabel = true,
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = ZhixingTheme.colors.primary,
-                                        selectedTextColor = ZhixingTheme.colors.primary,
-                                        unselectedIconColor = ZhixingTheme.colors.onSurfaceVariant,
-                                        unselectedTextColor = ZhixingTheme.colors.onSurfaceVariant,
-                                        indicatorColor = ZhixingTheme.colors.primaryContainer,
-                                    ),
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            ZhixingLiquidBottomBarPlacement {
+                                ZhixingLiquidBottomBar(
+                                    backdrop = backdrop,
+                                    destinations = destinations,
+                                    selectedIndex = selectedIndex,
+                                    onDestinationSelected = { selectedIndex = it },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(68.dp),
                                 )
                             }
                         }

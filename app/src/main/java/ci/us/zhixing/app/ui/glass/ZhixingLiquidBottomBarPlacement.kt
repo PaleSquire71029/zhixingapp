@@ -15,10 +15,11 @@ import androidx.compose.ui.unit.dp
 /**
  * Positions floating bottom-bar content above system navigation and the IME.
  *
- * The parent must be a full-screen Box. Navigation-bar insets are consumed
- * first; IME padding then lifts the content above an on-screen keyboard without
- * adding the navigation inset twice. Horizontal and bottom spacing remain
- * explicit design tokens rather than being mixed into system inset handling.
+ * Call from any BoxScope whose bottom edge should anchor the bar; this can be
+ * a full-screen overlay or a Scaffold bottom-bar container. Navigation-bar
+ * insets are consumed first; IME padding then lifts the content above an
+ * on-screen keyboard without adding the navigation inset twice. Horizontal
+ * and bottom spacing remain separate from system inset handling.
  *
  * This helper only defines placement. It does not draw a surface, handle
  * navigation, or replace the Activity's existing bottom bar.
