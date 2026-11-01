@@ -614,3 +614,16 @@
 - [ ] 真机验收仍待执行；CI 成功不代表目标设备的动画流畅度、温度和耗电已经通过。
 
 **下一小步：** S3.1，仅新增 `GlassMaterialState.kt` 纯 Kotlin 材质参数模型（透明度 0–100%、模糊 0–24 dp、默认值和范围保护）。本步不接 UI、不修改 MainActivity、不新增设置面板。
+
+
+### 10.5 S3.1 知行玻璃材质参数模型（2026-11-01）
+
+- [x] 在独立分支 `feature/glass-material-state` 新建 `app/src/main/java/ci/us/zhixing/app/ui/glass/GlassMaterialState.kt`。
+- [x] 透明度与模糊半径使用独立字段：`transparencyPercent: Int`、`blurRadiusDp: Float`。
+- [x] 默认值：透明度 78%，模糊 12 dp；范围分别为 0–100% 与 0–24 dp。
+- [x] 构造时校验透明度范围；模糊必须为有限数且位于 0–24 dp。通过 data class copy 更新时同样执行构造校验。
+- [ ] 尚未新增单元测试；S3.2 将单独覆盖默认值、上下边界、越界输入、NaN 和正负无穷。
+- [ ] 尚未执行 CI；本文件尚未合并到 main。
+- Commit：`8419d3514d6aef67345a67ad874ba8810d5f2eba`。
+
+本小步只创建纯 Kotlin 参数模型，没有接入任何 UI、DataStore、Backdrop 或主导航。
