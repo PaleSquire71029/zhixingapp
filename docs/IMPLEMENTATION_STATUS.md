@@ -885,7 +885,22 @@
 - [x] Glass Lab 增加“触摸光效与形变”开关；预览卡支持按下与拖动跟随触点，释放后恢复。
 - [x] Lite / 性能预设和 Off 的状态行为复用已有配置；触摸反馈设置可保存、恢复和重置。
 - [x] 新增触点坐标映射边界单测，并扩展材质状态与 DataStore 八项持久化测试。
-- [ ] 本步 PR 的资源校验、JUnit、仪器测试源码编译和 Debug APK 构建待 CI。
+- [x] PR #30（S6.8）Android Build #130 / Run ID `41267449459`：资源校验、JUnit、仪器测试源码编译、Debug APK 构建和 Artifact 上传全部通过；已合并，提交 `bd033e1da00289a76c45b00d3e0bfa89276fd5c3`。
 - [ ] 真机检查触摸轨迹跟随、快速连续切换、点击命中区域、动画帧率及长时间运行的发热 / 功耗。
 
 本步使用 Compose InteractionSource 与轻量径向绘制，不引入全屏捕获、持续动画时钟或新 Shader；目前的形变是可控的视觉反馈，不是完整的物理液体模拟。
+
+
+### 10.25 S6.9 Backdrop 原生色散折射接入（2026-11-01）
+
+- [x] 核对当前依赖 `io.github.kyant0:backdrop:1.0.6` 的源码：`lens()` 已提供 `chromaticAberration` 参数，并在 Android 13（API 33）以下跳过 RuntimeShader；无需新增依赖或复制 Shader。
+- [x] 在 `GlassMaterialState` 增加独立的 `chromaticDispersionEnabled`，默认关闭，并接入 DataStore 保存、读取、重置。
+- [x] 正式共享玻璃表面将开关传给 Backdrop `lens()`，底部导航等复用 `ZhixingGlassSurface` 的组件同步生效。
+- [x] Glass Lab 增加色散折射开关与系统版本提示；关闭折射或不支持 API 时不能开启。
+- [x] Premium 在 API 33+ 默认启用色散；Standard 和 Lite 不启用，Off 不清除已保存的自定义材质参数。
+- [x] 玻璃预览卡与首页调用相同的 Backdrop 色散参数。
+- [x] 新增默认值、DataStore 九项属性往返保存、Premium 预设及 API 26–32 降级测试。
+- [ ] 本步 CI、Debug APK 构建与 Artifact 上传待执行。
+- [ ] 真机色散边缘、彩边自然程度、不同背景下的文字可读性和帧率待验收。
+
+本步使用 Backdrop 1.0.6 自带的 `chromaticAberration` 着色器分支；没有额外依赖、自制 RGB 边缘描线或持续动画。色散为库内固定效果，当前版本不提供独立色散强度参数。
