@@ -541,7 +541,7 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 | 小步 | 只做什么 | 修改范围 | 完成条件 |
 |---|---|---|---|
 | S5.1 | 创建无动画的悬浮胶囊底栏外形 | 新增 ZhixingLiquidBottomBar.kt | ✅ 完成：浅色玻璃外观、胶囊圆角和双层细描边；暂不改主页面 |
-| S5.2 | 迁移四个导航项及点击回调 | 同一底栏文件与导航测试 | 计算、知行AI、工具、历史四个入口和选中状态正确 |
+| S5.2 | 迁移四个导航项及点击回调 | 同一底栏文件与导航测试 | ✅ 完成：复用 AppDestinations 的四项数据、受控选中态及点击回调；未接入首页 |
 | S5.3 | 处理悬浮位置与系统 Insets | 底栏与 MainActivity | 手势区域不遮挡，底栏不贴屏幕边缘，内容不被盖住 |
 | S5.4 | 单独添加选中胶囊的连续位移动画 | 底栏文件 | 快速连续点击时不跳位、不重叠、不改变触控命中 |
 | S5.5 | 单独添加图标/标签过渡 | 底栏文件 | 仅轻微缩放和淡入，不挤压布局 |
@@ -671,3 +671,17 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] S4.3 PR #11 的模拟器交互测试仍在独立 CI 中运行，尚未据此标记通过。
 
 **下一小步：** S5.2，在独立组件中迁移四个导航项和点击回调，并覆盖选中状态；不接入 MainActivity、不添加位移动画。
+
+## 15. S5.2 四入口与受控选中状态（2026-11-01）
+
+- [x] 新增 `ZhixingLiquidBottomBarItems.kt`，创建独立 `ZhixingLiquidBottomBar` 内容组件。
+- [x] 直接复用 `AppDestination` / `AppDestinations.all` 数据模型，不复制四个入口的标签和符号。
+- [x] 支持调用方传入 `selectedIndex` 与 `onDestinationSelected(index)`；组件不持有导航状态。
+- [x] 使用 `Role.Tab` 与 selectable 语义，选中项显示浅色胶囊背景，未选中项保持透明。
+- [x] 保持静态，没有选中位移动画、缩放、拖动手势、系统 Insets 或 MainActivity 修改。
+- [x] PR [#13](https://github.com/PaleSquire71029/zhixingapp/pull/13) 已通过 CI 并 squash 合并；合并提交：`c7077ad0c5331436ef9fc41e2a966d748c12de8f`。
+- [x] Android Build #58（Run ID `41262141510`）资源检查、Gradle、JUnit、Kotlin 编译、Debug APK 构建及 Artifact 上传均成功。
+- [ ] 组件尚未接入首页，真机横向空间、文字可读性、触控面积和系统 Insets 待后续步骤验收。
+- [ ] S4.3 PR #11 的 Android 模拟器测试仍在单独工作流运行，不能把 S5.2 的 CI 成功视为 S4.3 已通过。
+
+**下一小步：** S5.3，单独处理悬浮底栏相对屏幕底部的位置和系统 Insets；先在独立组件或预览中验证，不替换 MainActivity。
