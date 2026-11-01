@@ -25,6 +25,27 @@ internal fun resolveBottomBarDragIndex(
         .coerceIn(0, itemCount - 1)
 }
 
+/**
+ * Converts measured horizontal pointer speed into a bounded elastic stretch.
+ *
+ * Speed is normalized by tab width, so the response is independent of display
+ * density and event sampling frequency.
+ */
+internal fun resolveVelocityDragStretch(
+    velocityXPxPerSecond: Float,
+    itemWidthPx: Float,
+): Float {
+    require(velocityXPxPerSecond.isFinite()) {
+        "Drag velocity must be finite."
+    }
+    require(itemWidthPx.isFinite() && itemWidthPx > 0f) {
+        "Navigation item width must be finite and positive."
+    }
+
+    val tabWidthsPerSecond = kotlin.math.abs(velocityXPxPerSecond) / itemWidthPx
+    return (tabWidthsPerSecond * 0.035f).coerceIn(0f, 0.12f)
+}
+
 /** Direction and normalized stretch amount for one horizontal drag sample. */
 internal data class DirectionalDragDeformation(
     val direction: Int,
