@@ -255,7 +255,10 @@ internal fun ZhixingLiquidBottomBar(
                     highlight = {
                         if (material.edgeHighlightEnabled) {
                             Highlight.Default.copy(
-                                alpha = 0.52f + 0.16f * selectionPressProgress,
+                                alpha = resolveGlassHighlightAlpha(
+                                    transparencyPercent = material.transparencyPercent,
+                                    pressProgress = selectionPressProgress,
+                                ),
                             )
                         } else {
                             null

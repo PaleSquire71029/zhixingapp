@@ -65,6 +65,35 @@ class GlassMaterialStateTest {
     }
 
     @Test
+    fun glassHighlightAlphaAdaptsToTransparency() {
+        assertEquals(0.30f, resolveGlassHighlightAlpha(0), 0.0001f)
+        assertEquals(0.4248f, resolveGlassHighlightAlpha(78), 0.0001f)
+        assertEquals(0.46f, resolveGlassHighlightAlpha(100), 0.0001f)
+    }
+
+    @Test
+    fun glassHighlightAlphaIncreasesGentlyOnPress() {
+        assertEquals(0.5448f, resolveGlassHighlightAlpha(78, 1f), 0.0001f)
+        assertEquals(0.4848f, resolveGlassHighlightAlpha(78, 0.5f), 0.0001f)
+    }
+
+    @Test
+    fun glassHighlightAlphaRejectsInvalidInputs() {
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveGlassHighlightAlpha(-1)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveGlassHighlightAlpha(101)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveGlassHighlightAlpha(78, Float.NaN)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            resolveGlassHighlightAlpha(78, 1.01f)
+        }
+    }
+
+    @Test
     fun blurAcceptsBothInclusiveBoundaries() {
         assertEquals(0f, GlassMaterialState(blurRadiusDp = 0f).blurRadiusDp, 0f)
         assertEquals(24f, GlassMaterialState(blurRadiusDp = 24f).blurRadiusDp, 0f)

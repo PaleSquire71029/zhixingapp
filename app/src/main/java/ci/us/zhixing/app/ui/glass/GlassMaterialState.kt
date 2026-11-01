@@ -11,6 +11,22 @@ internal fun resolveGlassOverlayAlpha(transparencyPercent: Int): Float {
     return (100 - transparencyPercent) / 100f
 }
 
+internal fun resolveGlassHighlightAlpha(
+    transparencyPercent: Int,
+    pressProgress: Float = 0f,
+): Float {
+    require(transparencyPercent in 0..100) {
+        "Transparency must be between 0 and 100 percent."
+    }
+    require(pressProgress.isFinite() && pressProgress in 0f..1f) {
+        "Press progress must be finite and between 0 and 1."
+    }
+
+    val transparency = transparencyPercent / 100f
+    return (0.30f + 0.16f * transparency + 0.12f * pressProgress)
+        .coerceIn(0f, 1f)
+}
+
 /**
  * Immutable user-facing settings for Zhixing's light glass material.
  *
