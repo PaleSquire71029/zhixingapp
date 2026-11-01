@@ -1230,5 +1230,6 @@
 - [x] 每次拖动开始都重置 VelocityTracker，避免关闭触摸反馈后沿用上一段拖动的速度。
 - [x] 新增仪器测试：Off 状态四个 Tab 可见且点击可切换；整体 Off 和仅关闭触摸反馈时，拖动仍可切换到“工具”。
 - [x] 首次 Android Build #202 暴露可见性错误：官方移植组件公开函数不能暴露内部 `GlassMaterialState`；已将仅供应用内部调用的 `LiquidBottomTabs` 改为 `internal`，不扩大设置模型可见性。
+- [x] Build #204 的单测发现色散开关用例沿用了默认 12dp blur，按既有 capability 策略 vibrancy 会保持开启；已将该独立开关用例的 blur 显式设为 0dp，隔离测试目标。
 - [ ] 修正后的最新 Android CI 待验收；当前工作流只编译 `androidTest` 源码，不会在 Hosted 模拟器执行仪器交互。生产 MainActivity 尚未切换，旧底栏保留。
 
