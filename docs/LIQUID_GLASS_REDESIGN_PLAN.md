@@ -553,9 +553,9 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 |---|---|---|---|
 | S6.1 | 在主 Scaffold 中替换原 NavigationBar | MainActivity.kt | ✅ 完成：共享 Backdrop 液态玻璃底栏已成为首页正式导航，四个目的地与原状态回调保留 |
 | S6.2 | 添加设置入口 | MainActivity.kt | ✅ 完成：品牌区增加独立“材质设置”入口，复用现有 GlassLab，不占用底栏导航项 |
-| S6.3 | 添加透明度单独滑块 | 复用 GlassLabScreen / GlassMaterialState | ✅ 完成：现有透明度滑块实时更新首页共享材质状态，不改变模糊值 |
-| S6.4 | 添加模糊单独滑块 | 复用 GlassLabScreen / GlassMaterialState | ✅ 完成：现有模糊滑块实时更新首页共享材质状态，0 dp 不启用模糊计算 |
-| S6.5 | 保存和恢复设置 | MaterialState / DataStore 适配 | 进程重建后参数恢复，重置可回到默认值 |
+| S6.3 | 添加透明度单独滑块 | 复用 GlassLabScreen / GlassMaterialState | ✅ 完成：透明度滑块实时更新首页共享材质，松手保存；不改变模糊值 |
+| S6.4 | 添加模糊与折射控制 | GlassLabScreen / ZhixingGlassSurface | ✅ 完成：模糊独立调节；API 33+ 提供独立透镜折射开关和强度，低版本降级 |
+| S6.5 | 保存和恢复设置 | GlassMaterialSettingsStore / Preferences DataStore | ✅ 完成：透明度、模糊、Off、折射开关和折射强度均可跨进程保存与恢复；支持重置 |
 
 ### S7：收尾和扩展
 
@@ -791,3 +791,20 @@ Backdrop 1.0.6 是当前首选候选，不代表已经验证兼容。PR #4 第�
 - [ ] 真机滑块返回首页即时效果、低版本模糊回退、滚动、帧率和电量仍待验收。
 
 **下一小步：** S6.5，持久化 `transparencyPercent`、`blurRadiusDp` 与 `enabled`，进程重启后恢复并支持恢复默认值。
+
+## 24. S6.5 材质设置 DataStore 持久化（2026-11-01）
+
+- [x] 新增 Preferences DataStore 1.3.0 仓库 `GlassMaterialSettingsStore`。
+- [x] 保存五个相互独立的材质属性：`transparencyPercent`、`blurRadiusDp`、`enabled`、`refractionEnabled`、`refractionStrengthDp`。
+- [x] 默认首页材质：透明度 68%、模糊 12 dp、玻璃开启、折射开启、折射强度 1.8 dp。
+- [x] 应用启动后从 DataStore 恢复；首次读取完成前暂不开放材质实验室入口，避免默认值抢先覆盖已保存设置。
+- [x] 透明度 / 模糊 / 折射强度拖动时仅更新预览状态，松手后写入 DataStore；折射开关与性能预设立即保存。
+- [x] Off 只写入 `enabled = false`，不清空透明度、模糊和折射参数；重新开启可以恢复之前的光学设置。
+- [x] 增加“重置材质参数”操作，删除保存项并恢复五项首页默认值。
+- [x] 新增 `GlassMaterialSettingsStoreTest`，覆盖默认值、五项保存 / 读取、参数独立性与重置。
+- [x] PR [#27](https://github.com/PaleSquire71029/zhixingapp/pull/27) 已 squash 合并；合并提交：`ff20f47119b19d2442515a608e4e612835486abc`。
+- [x] Android Build #122（Run ID `41265710542`）结果为 `success`：资源检查、JUnit、androidTest 源码编译、Kotlin 编译、Debug APK 构建与 Artifact 上传均通过。
+- [ ] 仍需在真机执行进程强制结束 / 重启，确认 DataStore 真实恢复；需同时检查滑块快速拖动、Off 复开和低版本折射降级。
+- [ ] Off 时单个玻璃表面不采样，但首页共享 `BackdropHost` 目前仍会创建 `LayerBackdrop`；整层宿主在 Off 时停止创建仍是后续性能优化。
+
+**当前进度：** S6.1–S6.5 的主代码已合入 main。接下来优先做真机外观 / Insets / 交互 / 性能验收，再决定是否继续扩大光学效果（例如色散、环境反射），不应在未实机验证前叠加复杂动效。
