@@ -9,6 +9,7 @@ package ci.us.zhixing.app.ui.glass
 internal data class GlassSurfaceCapabilities(
     val useBackdropSampling: Boolean,
     val useBlur: Boolean,
+    val useRefraction: Boolean,
 )
 
 /**
@@ -22,20 +23,32 @@ internal fun resolveGlassSurfaceCapabilities(
     apiLevel: Int,
     enabled: Boolean,
     blurRadiusDp: Float,
+    refractionEnabled: Boolean = false,
+    refractionStrengthDp: Float = 0f,
 ): GlassSurfaceCapabilities {
     require(blurRadiusDp.isFinite() && blurRadiusDp in 0f..GlassMaterialState.MAX_BLUR_RADIUS_DP) {
         "Blur radius must be finite and between 0 and 24 dp."
+    }
+
+    require(
+        refractionStrengthDp.isFinite() &&
+            refractionStrengthDp in GlassMaterialState.MIN_REFRACTION_STRENGTH_DP..
+                GlassMaterialState.MAX_REFRACTION_STRENGTH_DP
+    ) {
+        "Refraction strength must be finite and between 0 and 8 dp."
     }
 
     if (!enabled) {
         return GlassSurfaceCapabilities(
             useBackdropSampling = false,
             useBlur = false,
+            useRefraction = false,
         )
     }
 
     return GlassSurfaceCapabilities(
         useBackdropSampling = true,
         useBlur = apiLevel >= 31 && blurRadiusDp > 0f,
+        useRefraction = apiLevel >= 33 && refractionEnabled && refractionStrengthDp > 0f,
     )
 }
