@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
 
 /**
@@ -44,6 +45,8 @@ internal fun ZhixingGlassSurface(
         apiLevel = Build.VERSION.SDK_INT,
         enabled = glassEnabled && material.enabled,
         blurRadiusDp = material.blurRadiusDp,
+        refractionEnabled = material.refractionEnabled,
+        refractionStrengthDp = material.refractionStrengthDp,
     )
 
     if (backdrop != null && capabilities.useBackdropSampling) {
@@ -54,6 +57,12 @@ internal fun ZhixingGlassSurface(
                 effects = {
                     if (capabilities.useBlur) {
                         blur(material.blurRadiusDp.dp.toPx())
+                    }
+                    if (capabilities.useRefraction) {
+                        lens(
+                            refractionHeight = 22.dp.toPx(),
+                            refractionAmount = material.refractionStrengthDp.dp.toPx(),
+                        )
                     }
                 },
                 highlight = {
