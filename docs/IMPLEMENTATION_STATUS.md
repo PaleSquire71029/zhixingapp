@@ -1218,13 +1218,16 @@
 - [x] PR [#55](https://github.com/PaleSquire71029/zhixingapp/pull/55) 已 squash 合并；merge commit：`677b0b0ea9fbcefac5d2e35d2573e9f93b12fac6`。
 - [x] Android Build #200（Run ID `41282549664`）全部成功：JUnit、androidTest Kotlin 编译、Debug APK 构建和 Artifact 上传。
 
-### 10.52 P2.4.1b 官方底栏材质参数接线（代码已建立，待复核与 CI，2026-11-01）
+### 10.52 P2.4.1b 官方底栏材质参数接线（代码已建立，待 CI，2026-11-01）
 
 - [x] `ZhixingCatalogBottomBar` 新增可传入 `GlassMaterialState` 的参数，默认值保留现有调用兼容。
 - [x] `LiquidBottomTabs` 新增 material 参数，调用纯解析器获取透明度 Alpha、blur、vibrancy、refraction scale、chromatic dispersion、edge highlight、environment reflection 和 touch feedback 开关。
 - [x] 背景材质按设置使用模糊与 24dp 基准折射；折射强度通过 0–1.5x 比例控制。
+- [x] 透明度不仅影响底栏基底填充，也映射到选中胶囊的表面遮罩；浅色主题不再跟随 Android 系统暗色模式。
 - [x] 选中透镜将知行色散设置应用到 chromaticAberration；高光、环境反射和触摸动效均按各自开关生效。
 - [x] 全局 Off 使用浅色胶囊回退而非 drawBackdrop；折射关闭时不创建隐藏标签采样层 / CombinedBackdrop。
-- [x] 新增仪器测试：Off 状态仍暴露四个 Tab、四个标签可见、点击仍能切换选中项。
-- [ ] 本步骤正在静态复核，尚未创建 PR / 运行 CI；生产 MainActivity 尚未切换，旧底栏保留。
+- [x] 触摸反馈关闭时，P1 `DampedDragAnimation` 跳过 press / release 弹簧并不创建 `InteractiveHighlight` / RuntimeShader；拖动位移、速度采样与吸附仍保留。
+- [x] 每次拖动开始都重置 VelocityTracker，避免关闭触摸反馈后沿用上一段拖动的速度。
+- [x] 新增仪器测试：Off 状态四个 Tab 可见且点击可切换；整体 Off 和仅关闭触摸反馈时，拖动仍可切换到“工具”。
+- [ ] 本步骤等待 Android CI；当前工作流只编译 `androidTest` 源码，不会在 Hosted 模拟器执行仪器交互。生产 MainActivity 尚未切换，旧底栏保留。
 
