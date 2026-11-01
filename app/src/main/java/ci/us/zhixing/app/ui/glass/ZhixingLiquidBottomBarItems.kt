@@ -214,14 +214,11 @@ private fun RowScope.LiquidBottomBarItem(
                     activePress = interaction
                     if (touchFeedbackEnabled) {
                         latestOnTouchChanged(
-                            Offset(
-                                x = mapBottomBarTouchPosition(
-                                    itemIndex = itemIndex,
-                                    itemCount = itemCount,
-                                    itemWidthPx = itemWidthPx,
-                                    localPosition = interaction.pressPosition,
-                                ).x,
-                                y = interaction.pressPosition.y,
+                            mapBottomBarTouchPosition(
+                                itemIndex = itemIndex,
+                                itemCount = itemCount,
+                                itemWidthPx = itemWidthPx,
+                                localPosition = interaction.pressPosition,
                             ),
                             true,
                         )
