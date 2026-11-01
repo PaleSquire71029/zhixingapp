@@ -207,7 +207,7 @@ internal fun GlassLabScreen(
             )
             TextButton(onClick = { resetMaterial() }) {
                 Text(
-                    text = "恢复默认值",
+                    text = "重置材质参数",
                     style = ZhixingTheme.type.supporting,
                     color = ZhixingTheme.colors.primary,
                 )
