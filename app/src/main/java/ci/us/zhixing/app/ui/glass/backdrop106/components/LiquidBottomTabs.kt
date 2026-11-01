@@ -57,7 +57,6 @@ import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import ci.us.zhixing.app.ui.glass.CatalogBottomBarMaterialParameters
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.drawEnvironmentReflection
 import ci.us.zhixing.app.ui.glass.resolveCatalogBottomBarMaterialParameters
