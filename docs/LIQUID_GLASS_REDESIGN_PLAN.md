@@ -870,8 +870,8 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 |---|---|---|---|
 | P0 | 冻结旧自研玻璃动效并确认可回滚点 | 文档 / 分支 / 主分支状态 | PR #48 未合并；旧拖尾、独立 Spring、速度拉伸标记为待被官方组件替换 |
 | P1 | 直接移植官方 DampedDragAnimation、InteractiveHighlight、DragGestureInspector | 新增隔离源码文件 | ✅ 已完成：与 1.0.6 上游逐字对照（仅包名适配）；PR #49 合并，Android Build #180 成功 |
-| P2.1 | 隔离移植官方 LiquidBottomTabs / LiquidBottomTab 源码及局部状态 | 新增 backdrop106/components；固定 shapes 1.2.0 | 只新增源码和必要依赖，不连接 MainActivity；CI 编译通过 |
-| P2.2 | 建立 Zhixing 官方底栏包装层 | 新增 ZhixingCatalogBottomBar.kt | 适配四个 AppDestination；沿用知行标签/图标/导航回调；不替换线上底栏 |
+| P2.1 | 隔离移植官方 LiquidBottomTabs / LiquidBottomTab 源码及局部状态 | 新增 backdrop106/components；固定 shapes 1.2.0 | ✅ 已完成：PR #50 合并，Android Build #183 全部成功 |
+| P2.2 | 建立 Zhixing 官方底栏包装层 | 新增 ZhixingCatalogBottomBar.kt | ✅ 代码完成待 CI：适配 AppDestination、保留知行标签/符号/文字 Tokens/选中语义；不替换线上底栏 |
 | P2.3 | 为官方底栏建立最小 Compose 测试 | 新增底栏测试 | 检查四项语义、选中状态和点击回调；不依赖无法启动的 Hosted 模拟器 |
 | P2.4 | 将官方底栏接入首页共享 Backdrop | MainActivity.kt 与包装层 | 用官方 LayerBackdrop / CombinedBackdrop；保留现有 Insets、材质设置和四项导航 |
 | P2.5 | 删除旧底栏重复手势与装饰动画 | 旧 ZhixingLiquidBottomBarItems.kt | 只清理官方接管的逻辑，不改业务状态；构建与导航测试通过 |
@@ -910,7 +910,7 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 - 上游源码文件保留版权头和 Apache-2.0 许可证，修改处写明来源、tag 和变更内容。
 - 用户确认参考效果达到预期后，才扩展到其他页面；计算器算法和 AI 服务不在本次移植范围内。
 
-**当前下一步：** P2.1，只搬入官方 LiquidBottomTabs / LiquidBottomTab 两个组件文件和固定 shapes 1.2.0 依赖，放在隔离包中；不接入 MainActivity、不改现有底栏。
+**当前下一步：** P2.2 已完成代码，等待 Android CI。通过后做 P2.3 导航语义与点击测试；目前仍未接入 MainActivity。
 
 
 ### 25.6 全局立体材质系统（这次必须实现，不只停留在底栏）
@@ -952,11 +952,11 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 
 下一次继续本仓库时，直接从本节启动，不再重新讨论路线：
 
-1. 核对 main 最新提交与 PR 状态；P1 已经合并，不要重复导入。
-2. 先完成 P2.1：检查官方 tag 1.0.6 的 LiquidBottomTabs / LiquidBottomTab 源码，保留 Apache-2.0 头并放入隔离包。
-3. P2.1 仅添加上游明确使用的 shapes 1.2.0 依赖，不改 Backdrop、Compose、AGP、Kotlin 或 Gradle 版本。
-4. P2.1 不连接 MainActivity，不删除现有底栏；完成 Android CI 后再开始 P2.2。
-5. 按 P2.2–P2.6 逐小步适配、测试、接入和清理，再进入 P3 背景采样源。
+1. 核对 main 最新提交；P1 已合并（PR #49），P2.1 已合并（PR #50）。
+2. P2.2：在隔离适配层映射 `AppDestination` 的四个目的地、现有标签与符号，保持 selectedIndex 和点击回调由 MainActivity 所有。
+3. P2.2 不修改 MainActivity、不切换生产 UI、不新增导航状态；完成 CI 后执行 P2.3 语义 / 点击测试。
+4. P2.4 才允许接入首页共享 Backdrop；P2.5 再清理旧底栏重复逻辑；P2.6 处理真机交互验收。
+5. 所有步骤均保持官方 1.0.6 源码、Apache-2.0 归属和固定依赖版本。
 
-**本轮 P2.1 只移植官方组件源码与固定依赖；不提前切换生产 UI，不生成 APK。**
+**本轮 P2.2 只新增知行包装层；现有生产底栏保持不变。**
 
