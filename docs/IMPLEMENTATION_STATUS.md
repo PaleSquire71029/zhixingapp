@@ -1278,3 +1278,29 @@
 - [x] PR #63 合并 commit：`2a1a553697229e7c2b485e891425a6595d965470`。
 - [ ] P2.4.3c 真机视觉与性能验收待完成；不能把 CI 编译成功表述为真机表现已通过。
 - [ ] 旧 `ZhixingLiquidBottomBar` 继续保留，直到用户完成 P2.4.3c 验收，之后才进入 P2.5 清理。
+
+
+### 10.57 G1–G2 圆角 Tokens 与首页内容玻璃化（2026-11-01）
+
+- [x] PR [#64](https://github.com/PaleSquire71029/zhixingapp/pull/64) 合并，补充设计规范：按组件尺寸采用 12 / 16 / 20 / 24 / 28 / 32dp 圆角，区分内容层、交互层、悬浮层与面板层；定义按钮、键帽、卡片、开关、弹层和页面转场的动画基线。
+- [x] PR [#65](https://github.com/PaleSquire71029/zhixingapp/pull/65) 合并，commit `7c4ea0d33c0b8b1402e9c861d3dc5c2cf7f85817`；新增 `ZhixingGlassTokens.kt` 和四项 Token JVM 测试；Android Build #229（Run ID `41290656895`）成功。
+- [x] PR [#66](https://github.com/PaleSquire71029/zhixingapp/pull/66) 合并，commit `679e4649e2b5375a1efedd8715a4af55871d5673`；首页 Hero 和三个功能内容条目采用共享 `ZhixingGlassSurface`，文本不启用色散折射；Android Build #232（Run ID `41291006825`）成功。
+- [ ] 真机视觉、阴影强弱和滚动流畅度仍待目标设备验收。
+
+### 10.58 G3 官方 LiquidButton（2026-11-01）
+
+- [x] PR [#67](https://github.com/PaleSquire71029/zhixingapp/pull/67) 合并，commit `e6ba694e3cc2f384156c3a21081127e1c860cb82`。
+- [x] 从固定的 AndroidLiquidGlass Catalog 1.0.6 移植 `LiquidButton.kt`；知行适配层使用 16dp 紧凑控件圆角、48dp 高度、轻量浅色表面，并保留官方透镜与按压高光。
+- [x] 首页“材质设置”入口切换为液态按钮；增加 MainActivity 集成测试，检查按钮可启用并打开 Glass Lab。
+- [x] Android Build #235（Run ID `41292689956`）全部成功；Artifact 上传完成。
+- [ ] CI 编译了 Activity 测试但未实际启动设备；按钮实际触感 / 视觉还需目标手机验收。
+
+### 10.59 G4.1 官方 LiquidToggle（2026-11-01）
+
+- [x] PR [#68](https://github.com/PaleSquire71029/zhixingapp/pull/68) 合并，commit `0eb46ffb3951cbd4539759b9f039903728aeb509`。
+- [x] 移植官方 `LiquidToggle.kt` 的阻尼拖动、玻璃滑块、内外阴影和组合 Backdrop；使用固定浅色主题色，不依赖系统深色模式。
+- [x] 新增 `ZhixingLiquidToggle.kt`：稳定 selected reader / callback 身份；公开 enabled 与 touch-feedback 设置。
+- [x] 仅把 Glass Lab 的“边缘折射”一个设置项替换为液态开关；原 `refractionEnabled` 状态、性能档位禁用条件和 DataStore 写入流程保持不变。
+- [x] 开关补充 `Role.Switch`、`toggleableState`、ContentDescription、语义点击与 disabled 语义。
+- [x] 新增 Activity 集成测试，覆盖开关状态语义与切换后标题更新；Android Build #239（Run ID `41293096869`）全部成功。
+- [ ] CI 只编译仪器测试源；实际拖动、无障碍读屏、折射表现和触控延迟仍需目标手机验收。
