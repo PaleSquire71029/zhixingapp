@@ -31,9 +31,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNode
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
@@ -112,12 +110,12 @@ class ZhixingCatalogBottomBarInsetsOrientationTest {
             insets.imeBottomPx > 0
         }
 
-        val rootBounds = composeRule.onRoot().fetchSemanticsNode().boundsInRoot
+        val windowHeight = composeRule.activity.window.decorView.height.toFloat()
         val barBounds = composeRule
             .onNodeWithTag(BOTTOM_BAR_TAG)
             .fetchSemanticsNode()
-            .boundsInRoot
-        val imeTop = rootBounds.bottom - insets.imeBottomPx
+            .boundsInWindow
+        val imeTop = windowHeight - insets.imeBottomPx
 
         assertTrue(
             "Catalog bottom bar should be lifted above the visible IME.",
