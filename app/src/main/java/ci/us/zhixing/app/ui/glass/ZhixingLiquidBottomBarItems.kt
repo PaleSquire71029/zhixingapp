@@ -148,7 +148,11 @@ internal fun ZhixingLiquidBottomBar(
             val dragTrailOpacity by animateFloatAsState(
                 targetValue = if (
                     dragActive && material.touchFeedbackEnabled && dragStretchTarget > 0.01f
-                ) 0.48f else 0f,
+                ) {
+                    0.20f + (dragStretchTarget / 0.12f).coerceIn(0f, 1f) * 0.28f
+                } else {
+                    0f
+                },
                 animationSpec = tween(durationMillis = 120),
                 label = "zhixingBottomBarDragTrailOpacity",
             )
@@ -163,6 +167,7 @@ internal fun ZhixingLiquidBottomBar(
             val dragTrailWidth = with(density) {
                 (itemWidthPx * (0.22f + dragStretch * 0.50f)).toDp()
             }
+            val dragTrailTint = ZhixingTheme.colors.primary
             val indicatorOffset = remember { Animatable(itemWidthPx * selectedIndex) }
             var dragOffsetPx by remember { mutableStateOf(itemWidthPx * selectedIndex) }
             var settleFromDragPx by remember { mutableStateOf<Float?>(null) }
@@ -363,7 +368,7 @@ internal fun ZhixingLiquidBottomBar(
             ) {
             // A short gradient wake trails the moving capsule and fades on release.
             if (dragTrailOpacity > 0.001f) {
-                val trailColor = Color(0xFFB8DDF0)
+                val trailColor = dragTrailTint
                 val directionProgress = dragTrailDirectionProgress.coerceIn(0f, 1f)
                 val trailColors = listOf(
                     trailColor.copy(alpha = 0.30f * (1f - directionProgress)),
