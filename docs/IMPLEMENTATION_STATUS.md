@@ -1247,3 +1247,13 @@
 - [x] Android Build #209（Run ID `41283758964`）全部成功：资源校验、JUnit、androidTest Kotlin 编译、Debug APK 构建和 Artifact 上传。
 - [ ] CI 编译了 Activity 仪器测试源，但未在 Hosted 模拟器实际启动 Activity；真机四入口、横竖屏、Insets / IME 和视觉仍需验收。
 - [ ] 旧 `ZhixingLiquidBottomBar` 与其手势 / 装饰代码暂时保留，待 P2.4.3 设备验收后在 P2.5 单独清理。
+
+
+### 10.54 P2.4.3a Glass Lab 性能档位与 DataStore 回归（代码已建立，待 CI，2026-11-01）
+
+- [x] 新增 `ZhixingCatalogMaterialPreviewIntegrationTest.kt`，通过实际 MainActivity 打开 Glass Lab。
+- [x] 覆盖 Off → Standard 档位切换，验证 UI 档位标识变化，且返回首页后官方四个 Tab 仍可见 / 可导航。
+- [x] 覆盖“重置材质参数”后回到默认自定义状态，再返回首页确认底栏和导航仍可用。
+- [x] 测试 `@After` 调用 `GlassMaterialSettingsStore.resetToDefaults()`，避免仪器测试把被测设备 DataStore 留在 Off 或自定义档位。
+- [ ] 等待 Android CI；当前工作流只编译仪器测试源码，不在 Hosted 模拟器执行 Activity / DataStore 交互。
+- [ ] 滑块实时拖动、透明度 / blur 即时视觉、横竖屏、IME / Insets 和折射帧率仍需 P2.4.3b / 3c 后续覆盖。
