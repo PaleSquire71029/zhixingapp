@@ -430,10 +430,11 @@ private fun GlassPreviewCard(
             .clip(shape),
     ) {
         if (backdrop != null) {
+            val activeBackdrop = requireNotNull(backdrop)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .layerBackdrop(backdrop),
+                    .layerBackdrop(activeBackdrop),
             ) {
                 Box(
                     modifier = Modifier
@@ -477,7 +478,7 @@ private fun GlassPreviewCard(
                         }
                     }
                     .drawBackdrop(
-                        backdrop = backdrop,
+                        backdrop = activeBackdrop,
                         shape = { shape },
                         effects = {
                             if (blurRadiusDp > 0f) blur(blurRadiusDp.dp.toPx())
