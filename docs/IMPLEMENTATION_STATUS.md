@@ -751,3 +751,17 @@
 - [ ] S4.3 PR #11 的模拟器测试仍未返回最终结果。
 
 **下一小步：** S5.4，仅为选中胶囊添加连续位移动画；不替换首页导航。
+
+### 10.15 S5.4 选中胶囊连续位移动画与合并验收（2026-11-01）
+
+- [x] 修改 `ZhixingLiquidBottomBarItems.kt`，由一个共享选中胶囊替代逐项 selected background。
+- [x] 根据等分项宽度计算目标位置，通过 `animateDpAsState` + `Spring.DampingRatioNoBouncy` / `Spring.StiffnessMediumLow` 连续移动。
+- [x] 快速更改选中索引时，单一动画目标会重新定位；没有独立多指示器或并行动画。
+- [x] 保留原四项点击回调和 `Role.Tab` 选中语义。
+- [x] PR [#15](https://github.com/PaleSquire71029/zhixingapp/pull/15) 已 squash 合并；合并提交：`4e3eac017835ea1548badf3665c8b5db6c59f265`。
+- [x] Android Build #60（Run ID `41262482557`）结果为 `success`；[查看 CI](https://github.com/PaleSquire71029/zhixingapp/actions/runs/41262482557)。
+- [x] 资源校验、Gradle、JVM 单测、Kotlin 编译、Debug APK 构建、Artifact 上传均通过。
+- [ ] 快速连点过程的动画连续性和触控命中尚未完成仪器 / 真机验证。
+- [ ] 仍未替换 MainActivity 的现有 Material 3 NavigationBar。
+
+**下一小步：** S5.5，单独添加图标 / 标签的轻微过渡，不改变每个导航项的测量和触控尺寸。
