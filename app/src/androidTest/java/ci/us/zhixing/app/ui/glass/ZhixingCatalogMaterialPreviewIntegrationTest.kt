@@ -42,10 +42,10 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         composeRule.onNodeWithText("材质设置").performClick()
         composeRule.onNodeWithText("光学效果").assertIsDisplayed()
 
-        composeRule.onAllNodesWithText("关闭").onFirst().performClick()
+        composeRule.onAllNodesWithText("关闭").onLast().performClick()
         composeRule.onAllNodesWithText("关闭").assertCountEquals(2)
 
-        composeRule.onAllNodesWithText("标准").onFirst().performClick()
+        composeRule.onAllNodesWithText("标准").onLast().performClick()
         composeRule.onAllNodesWithText("标准").assertCountEquals(2)
 
         composeRule.onNodeWithText("‹  返回").performClick()
@@ -61,7 +61,7 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
     @Test
     fun resettingMaterialInGlassLabReturnsToDefaultCustomPresetAndHome() {
         composeRule.onNodeWithText("材质设置").performClick()
-        composeRule.onAllNodesWithText("关闭").onFirst().performClick()
+        composeRule.onAllNodesWithText("关闭").onLast().performClick()
         composeRule.onNodeWithText("关闭").assertIsDisplayed()
 
         composeRule.onNodeWithText("恢复默认").performClick()
