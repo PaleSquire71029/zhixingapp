@@ -1349,7 +1349,7 @@
 - [x] `ZhixingCatalogBottomBar` 改为向 Catalog 组件传递明确的 `selectedIndex` 值，去除函数对象身份作为动画状态键的隐式依赖。
 - [x] 外部点击 / 页面切换由单一 `LaunchedEffect` 驱动现有 `DampedDragAnimation`；拖动结束直接回调目标路由并回弹，避免双重动画任务。
 - [x] 新增可控 Compose 时钟测试，验证胶囊在中间帧发生真实位移，而不只是验证动画结束后的坐标。
-- [ ] 本分支 CI 尚未完成；不得将源码修改描述为已通过构建。
+- [x] Android Build Run ID `41473379855`（main commit `c38805b6145eb54a8e942103d371686a7fb92873`）成功：资源校验、JUnit、androidTest 源码编译、Debug APK 组装与 Artifact 上传通过。
 - [ ] 真机视觉、帧率、触摸手感与系统减少动态效果适配仍待验收。
 
 
