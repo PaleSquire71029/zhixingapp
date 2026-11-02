@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -41,10 +42,10 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         composeRule.onNodeWithText("材质设置").performClick()
         composeRule.onNodeWithText("光学效果").assertIsDisplayed()
 
-        composeRule.onAllNodesWithText("关闭").onLast().performClick()
+        composeRule.onNode(hasText("关闭") and hasClickAction()).performClick()
         composeRule.onAllNodesWithText("关闭").assertCountEquals(2)
 
-        composeRule.onAllNodesWithText("标准").onLast().performClick()
+        composeRule.onNode(hasText("标准") and hasClickAction()).performClick()
         composeRule.onAllNodesWithText("标准").assertCountEquals(2)
 
         composeRule.onNodeWithText("‹  返回").performClick()
@@ -60,7 +61,7 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
     @Test
     fun resettingMaterialInGlassLabReturnsToDefaultCustomPresetAndHome() {
         composeRule.onNodeWithText("材质设置").performClick()
-        composeRule.onAllNodesWithText("关闭").onLast().performClick()
+        composeRule.onNode(hasText("关闭") and hasClickAction()).performClick()
         composeRule.onAllNodesWithText("关闭").assertCountEquals(2)
 
         composeRule.onNodeWithText("恢复默认").performClick()
@@ -77,9 +78,11 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         composeRule.onNodeWithText("材质设置").performClick()
         composeRule.onNodeWithText("68%").assertIsDisplayed()
 
-        composeRule.onNodeWithContentDescription("透明程度").performTouchInput {
-            val start = Offset(size.width * 0.35f, size.height / 2f)
-            val end = Offset(size.width * 0.75f, size.height / 2f)
+        val slider = composeRule.onNodeWithContentDescription("透明程度")
+        val sliderBounds = slider.fetchSemanticsNode().boundsInRoot
+        slider.performTouchInput {
+            val start = Offset(sliderBounds.width * 0.35f, sliderBounds.height / 2f)
+            val end = Offset(sliderBounds.width * 0.75f, sliderBounds.height / 2f)
             swipe(start, end, durationMillis = 500)
         }
 
@@ -93,8 +96,10 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         val title = composeRule.onNodeWithText("材质设置")
         val originalTop = title.fetchSemanticsNode().boundsInRoot.top
 
-        composeRule.onNodeWithContentDescription("透明程度").performTouchInput {
-            val start = Offset(size.width * 0.68f, size.height / 2f)
+        val slider = composeRule.onNodeWithContentDescription("透明程度")
+        val sliderBounds = slider.fetchSemanticsNode().boundsInRoot
+        slider.performTouchInput {
+            val start = Offset(sliderBounds.width * 0.68f, sliderBounds.height / 2f)
             val end = Offset(start.x, start.y - 120f)
             swipe(start, end, durationMillis = 500)
         }
