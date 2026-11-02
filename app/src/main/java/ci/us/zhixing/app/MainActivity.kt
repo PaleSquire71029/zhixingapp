@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.os.Build
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
-import androidx.lifecycle.Lifecycle
 import androidx.activity.compose.BackHandler
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -85,17 +84,13 @@ class MainActivity : ComponentActivity() {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         setContent {
-            ZhixingApp(
-                lifecycle = lifecycle,
-                materialSettingsStore = glassMaterialSettingsStore,
-            )
+            ZhixingApp(materialSettingsStore = glassMaterialSettingsStore)
         }
     }
 }
 
 @Composable
 private fun ZhixingApp(
-    lifecycle: Lifecycle,
     materialSettingsStore: GlassMaterialSettingsStore,
 ) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -127,7 +122,6 @@ private fun ZhixingApp(
         if (showGlassLab) {
             GlassLabScreen(
                 onBack = { showGlassLab = false },
-                lifecycle = lifecycle,
                 initialMaterial = glassMaterial,
                 onMaterialChange = { material ->
                     previewMaterial = material
