@@ -24,6 +24,8 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.util.fastFirstOrNull
+import kotlin.math.abs
+import kotlin.math.sign
 
 suspend fun PointerInputScope.inspectDragGestures(
     onDragStart: (down: PointerInputChange) -> Unit = {},
@@ -92,6 +94,71 @@ private suspend inline fun AwaitPointerEventScope.awaitDragOrUp(
             val hasDragged = dragEvent.previousPosition != dragEvent.position
             if (hasDragged) {
                 return dragEvent
+            }
+        }
+    }
+}
+
+
+/**
+ * Horizontal-axis drag inspection for sliders nested in vertical scroll containers.
+ *
+ * The child waits for touch slop without consuming the pointer. A horizontal
+ * movement wins only when its accumulated X distance exceeds both touch slop
+ * and the accumulated Y distance. A vertical movement is left untouched so
+ * the ancestor scroll container can take ownership of the gesture.
+ */
+suspend fun PointerInputScope.inspectHorizontalDragGestures(
+    onDragStart: (down: PointerInputChange) -> Unit = {},
+    onDragEnd: (change: PointerInputChange) -> Unit = {},
+    onDragCancel: () -> Unit = {},
+    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
+) {
+    awaitEachGesture {
+        val down = awaitFirstDown(requireUnconsumed = false)
+        var dragStarted = false
+        var accumulated = Offset.Zero
+
+        while (true) {
+            val event = awaitPointerEvent(PointerEventPass.Main)
+            val change = event.changes.fastFirstOrNull { it.id == down.id }
+
+            if (change == null || change.isConsumed) {
+                if (dragStarted) onDragCancel()
+                break
+            }
+
+            val delta = change.positionChange()
+            if (!dragStarted && change.pressed) {
+                accumulated += delta
+                val horizontalDistance = abs(accumulated.x)
+                val verticalDistance = abs(accumulated.y)
+                val touchSlop = viewConfiguration.touchSlop
+
+                when {
+                    horizontalDistance > touchSlop && horizontalDistance > verticalDistance -> {
+                        dragStarted = true
+                        onDragStart(change)
+                        change.consume()
+                        val overSlop = accumulated.x - sign(accumulated.x) * touchSlop
+                        if (overSlop != 0f) {
+                            onDrag(change, Offset(overSlop, 0f))
+                        }
+                    }
+
+                    verticalDistance > touchSlop && verticalDistance >= horizontalDistance -> {
+                        // Do not consume: the parent verticalScroll must receive this movement.
+                        break
+                    }
+                }
+            } else if (dragStarted && delta.x != 0f) {
+                onDrag(change, Offset(delta.x, 0f))
+                change.consume()
+            }
+
+            if (!change.pressed) {
+                if (dragStarted) onDragEnd(change)
+                break
             }
         }
     }
