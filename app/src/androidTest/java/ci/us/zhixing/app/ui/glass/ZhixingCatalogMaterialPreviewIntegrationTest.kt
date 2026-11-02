@@ -24,6 +24,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotEquals
 
 @RunWith(AndroidJUnit4::class)
 class ZhixingCatalogMaterialPreviewIntegrationTest {
@@ -109,6 +110,25 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         assertTrue("A vertical gesture on the slider should scroll the settings page.", scrolledTop < originalTop)
         composeRule.onNodeWithText("68%").assertIsDisplayed()
     }
+
+
+    @Test
+    fun bottomTouchFeedbackSwitchRemainsInteractive() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        val touchFeedbackSwitch =
+            composeRule.onNodeWithContentDescription("触摸光效与形变")
+        touchFeedbackSwitch.assertIsDisplayed()
+        val before = touchFeedbackSwitch.fetchSemanticsNode()
+            .config[SemanticsProperties.ToggleableState]
+
+        touchFeedbackSwitch.performClick()
+        composeRule.waitForIdle()
+
+        val after = touchFeedbackSwitch.fetchSemanticsNode()
+            .config[SemanticsProperties.ToggleableState]
+        assertNotEquals("The bottom glass switch should change its state.", before, after)
+    }
+
 
     private fun hasTabRole() =
         SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
