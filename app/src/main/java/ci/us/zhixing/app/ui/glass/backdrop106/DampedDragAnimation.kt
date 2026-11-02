@@ -76,13 +76,14 @@ class DampedDragAnimation(
     private var directDragTargetValue = initialValue
 
     init {
-        // A conflated frame queue coalesces fast pointer events. The slider
-        // follows the finger immediately instead of launching a spring job
-        // for every MotionEvent; release still uses the original spring settle.
-        animationScope.launch {
-            for (frame in directDragFrames) {
-                valueAnimation.snapTo(frame.value)
-                velocityAnimation.snapTo(frame.velocity)
+        if (horizontalDragOnly) {
+            // Only sliders need this frame consumer. Other glass controls keep
+            // the original Catalog animation path without extra idle coroutines.
+            animationScope.launch {
+                for (frame in directDragFrames) {
+                    valueAnimation.snapTo(frame.value)
+                    velocityAnimation.snapTo(frame.velocity)
+                }
             }
         }
     }
