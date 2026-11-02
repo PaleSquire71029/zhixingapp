@@ -43,10 +43,10 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         composeRule.onNodeWithText("光学效果").assertIsDisplayed()
 
         composeRule.onAllNodesWithText("关闭").onFirst().performClick()
-        composeRule.onNodeWithText("关闭").assertIsDisplayed()
+        composeRule.onAllNodesWithText("关闭").assertCountEquals(2)
 
         composeRule.onAllNodesWithText("标准").onFirst().performClick()
-        composeRule.onNodeWithText("标准").assertIsDisplayed()
+        composeRule.onAllNodesWithText("标准").assertCountEquals(2)
 
         composeRule.onNodeWithText("‹  返回").performClick()
 
