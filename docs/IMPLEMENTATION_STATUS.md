@@ -1380,5 +1380,7 @@
 - [x] 增加横向拖动修改值与滑块区域纵向手势继续滚动的 Activity 测试源码。
 - [x] 材质设置页加入 WindowInsets.safeDrawing，避免顶部操作与状态栏重叠，并为底部手势区保留空间。
 - [x] 收敛窄屏版式：四档性能模式更换为短中文标签，外层分组间距、滑块行和开关行内边距适度收紧。
-- [ ] Android CI：JVM 单测、androidTest 源码编译与 Debug APK 构建待本 PR 验证。
+- [x] PR #84 已合并，merge commit `0e4f854a40f5eb52f1058ebaa70480a9cbe552e5`。
+- [x] Android Build #278（Run ID `41479660281`）成功：资源检查、JVM 单测、androidTest Kotlin 源码编译、Debug APK 组装与 Artifact 上传全部通过。
+- [x] 构建 Artifact `13160125773`；APK `12,841,371 bytes`；SHA-256 `d782f87baa9cc9b7f5f81efa3d54326cf6563aeefe6d74cba0a94ce7060d4e77`。
 - [ ] 真机验收：横向拖动 3 个滑块、在滑轨上纵向划动页面、状态栏 / 底部手势区、144Hz 流畅度和窄屏文字完整性。
