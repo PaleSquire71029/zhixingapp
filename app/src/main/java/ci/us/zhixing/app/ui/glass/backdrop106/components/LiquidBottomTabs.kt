@@ -35,7 +35,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -70,8 +69,6 @@ import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
 import com.kyant.shapes.Capsule
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.sign
@@ -80,7 +77,7 @@ internal const val LIQUID_BOTTOM_TABS_SELECTION_TAG = "liquid-bottom-tabs-select
 
 @Composable
 internal fun LiquidBottomTabs(
-    selectedTabIndex: () -> Int,
+    selectedTabIndex: Int,
     onTabSelected: (index: Int) -> Unit,
     backdrop: Backdrop,
     tabsCount: Int,
@@ -128,13 +125,15 @@ internal fun LiquidBottomTabs(
 
         val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
         val animationScope = rememberCoroutineScope()
-        var currentIndex by remember(selectedTabIndex) {
-            mutableIntStateOf(selectedTabIndex())
+        // This state tracks the last index already handed to the animation
+        // controller. It is independent of recomposition and callback identity.
+        var currentIndex by remember {
+            mutableIntStateOf(selectedTabIndex)
         }
         val dampedDragAnimation = remember(animationScope, materialParameters.touchFeedbackEnabled) {
             DampedDragAnimation(
                 animationScope = animationScope,
-                initialValue = selectedTabIndex().toFloat(),
+                initialValue = selectedTabIndex.toFloat(),
                 valueRange = 0f..(tabsCount - 1).toFloat(),
                 visibilityThreshold = 0.001f,
                 initialScale = 1f,
@@ -144,6 +143,7 @@ internal fun LiquidBottomTabs(
                 onDragStopped = {
                     val targetIndex = targetValue.fastRoundToInt().fastCoerceIn(0, tabsCount - 1)
                     currentIndex = targetIndex
+                    onTabSelected(targetIndex)
                     animateToValue(targetIndex.toFloat())
                     animationScope.launch {
                         offsetAnimation.animateTo(
@@ -163,19 +163,14 @@ internal fun LiquidBottomTabs(
                 }
             )
         }
-        LaunchedEffect(selectedTabIndex) {
-            snapshotFlow { selectedTabIndex() }
-                .collectLatest { index ->
-                    currentIndex = index
-                }
-        }
-        LaunchedEffect(dampedDragAnimation) {
-            snapshotFlow { currentIndex }
-                .drop(1)
-                .collectLatest { index ->
-                    dampedDragAnimation.animateToValue(index.toFloat())
-                    onTabSelected(index)
-                }
+        // A tap or external navigation update changes the caller-owned index.
+        // Animate from the existing capsule value instead of recreating the
+        // controller or routing the update through a second snapshotFlow loop.
+        LaunchedEffect(selectedTabIndex, dampedDragAnimation) {
+            if (currentIndex != selectedTabIndex) {
+                currentIndex = selectedTabIndex
+                dampedDragAnimation.animateToValue(selectedTabIndex.toFloat())
+            }
         }
 
         val interactiveHighlight = if (materialParameters.touchFeedbackEnabled) {
