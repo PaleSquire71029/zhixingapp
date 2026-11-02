@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -141,10 +144,11 @@ internal fun GlassLabScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = ZhixingTheme.spacing.pageHorizontal)
-                .padding(top = 14.dp, bottom = 36.dp),
-            verticalArrangement = Arrangement.spacedBy(22.dp),
+                .padding(horizontal = 20.dp)
+                .padding(top = 10.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -202,7 +206,7 @@ internal fun GlassLabScreen(
                 ) {
                     PerformanceTierChip(
                         backdrop = backdrop,
-                        label = "Premium",
+                        label = "高性能",
                         selected = selectedTier == GlassPerformanceTier.PREMIUM,
                         touchFeedbackEnabled = touchFeedbackEnabled,
                         modifier = Modifier.weight(1f),
@@ -216,21 +220,21 @@ internal fun GlassLabScreen(
                     ) { applyPerformanceTier(GlassPerformanceTier.STANDARD) }
                     PerformanceTierChip(
                         backdrop = backdrop,
-                        label = "Lite",
+                        label = "轻量",
                         selected = selectedTier == GlassPerformanceTier.LITE,
                         touchFeedbackEnabled = touchFeedbackEnabled,
                         modifier = Modifier.weight(1f),
                     ) { applyPerformanceTier(GlassPerformanceTier.LITE) }
                     PerformanceTierChip(
                         backdrop = backdrop,
-                        label = "Off",
+                        label = "关闭",
                         selected = selectedTier == GlassPerformanceTier.OFF,
                         touchFeedbackEnabled = touchFeedbackEnabled,
                         modifier = Modifier.weight(1f),
                     ) { applyPerformanceTier(GlassPerformanceTier.OFF) }
                 }
                 Text(
-                    text = "高性能效果更完整；轻量模式减少图形处理，关闭模式使用普通浅色表面。",
+                    text = "按设备性能选择效果强度；关闭后使用普通浅色表面。",
                     style = ZhixingTheme.type.supporting,
                     color = ZhixingTheme.colors.onSurfaceVariant,
                 )
@@ -424,7 +428,7 @@ private fun SettingsSection(
     trailing: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -471,8 +475,8 @@ private fun SliderSetting(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 11.dp),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
+            .padding(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -513,7 +517,7 @@ private fun GlassToggleRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
+            .padding(vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
@@ -567,7 +571,7 @@ private fun PerformanceTierChip(
     ZhixingLiquidButton(
         backdrop = backdrop,
         onClick = onClick,
-        modifier = modifier.height(42.dp),
+        modifier = modifier.height(40.dp),
         touchFeedbackEnabled = touchFeedbackEnabled,
         selected = selected,
         shape = ZhixingGlassShapes.pill,
