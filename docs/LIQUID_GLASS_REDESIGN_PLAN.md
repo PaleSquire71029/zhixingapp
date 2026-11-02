@@ -1124,7 +1124,7 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 - [x] 将 Catalog 适配层的选中索引从“函数式读取器”改为明确的整数状态输入，避免动画状态依赖 lambda 对象身份。
 - [x] 合并点击 / 外部页面切换的同步路径：选中索引变化时直接驱动现有 DampedDragAnimation；拖动结束时先更新外部导航，再回弹到目标 Tab，避免第二条 snapshotFlow 动画链重复驱动。
 - [x] 将导航胶囊回归测试升级为可控时钟测试，检查动画中间帧确实经过起点与终点之间，再检查最终落位。
-- [ ] Android Build、JVM 测试、androidTest 源码编译与 Debug APK 组装待 CI 验证。
+- [x] Android Build Run ID `41473379855` 成功：资源校验、JVM 测试、androidTest 源码编译、Debug APK 组装与 Artifact 上传均通过。
 - [ ] CI 不执行目标设备仪器动画；最终帧率、真实触感和系统动画缩放关闭时的表现仍需目标手机验收。
 
 
