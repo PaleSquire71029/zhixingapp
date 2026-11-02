@@ -4,7 +4,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasText
@@ -85,7 +84,7 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         }
 
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("68%").assertDoesNotExist()
+        composeRule.onAllNodesWithText("68%").assertCountEquals(0)
     }
 
     @Test
