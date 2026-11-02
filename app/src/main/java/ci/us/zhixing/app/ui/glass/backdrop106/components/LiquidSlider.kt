@@ -153,10 +153,15 @@ internal fun LiquidSlider(
                 horizontalDragOnly = true,
                 onDragStarted = {
                     didDrag = false
+                    beginDirectDrag()
                 },
                 onDragStopped = {
                     if (enabled && didDrag) {
-                        onValueChangeState.value(snapValue(targetValue))
+                        val settledValue = snapValue(directDragValue)
+                        if (settledValue != directDragValue) {
+                            animateToValue(settledValue)
+                        }
+                        onValueChangeState.value(settledValue)
                         onValueChangeFinishedState.value()
                     }
                     didDrag = false
@@ -169,19 +174,23 @@ internal fun LiquidSlider(
                         val delta =
                             (valueRange.endInclusive - valueRange.start) *
                                 (dragAmount.x / trackWidth)
-                        val candidate = if (isLtr) targetValue + delta else targetValue - delta
-                        onValueChangeState.value(snapValue(candidate))
+                        val candidate = if (isLtr) directDragValue + delta else directDragValue - delta
+                        val next = snapValue(candidate)
+                        updateDirectDrag(next)
+                        onValueChangeState.value(next)
                     }
                 },
             )
         }
 
         LaunchedEffect(dampedDragAnimation) {
-            snapshotFlow { valueReader() }
-                .collectLatest { newValue ->
-                    val snapped = newValue.coerceIn(valueRange)
-                    if (dampedDragAnimation.targetValue != snapped) {
-                        dampedDragAnimation.updateValue(snapped)
+            snapshotFlow { valueReader() to didDrag }
+                .collectLatest { (newValue, isDragging) ->
+                    if (!isDragging) {
+                        val snapped = newValue.coerceIn(valueRange)
+                        if (dampedDragAnimation.targetValue != snapped) {
+                            dampedDragAnimation.updateValue(snapped)
+                        }
                     }
                 }
         }
@@ -237,8 +246,9 @@ internal fun LiquidSlider(
                             .fastCoerceIn(-size.width / 4f, trackWidth - size.width * 3f / 4f) *
                             if (isLtr) 1f else -1f
                 }
-                .then(if (enabled) dampedDragAnimation.modifier else Modifier)
-                // A 48dp target is much easier to grab than the visible glass thumb.
+                // The full rail owns the only drag recognizer. Keeping a
+                // second recognizer on the thumb caused duplicate pointer
+                // streams and competing animation updates.
                 .size(48.dp, 48.dp),
             contentAlignment = Alignment.Center,
         ) {
