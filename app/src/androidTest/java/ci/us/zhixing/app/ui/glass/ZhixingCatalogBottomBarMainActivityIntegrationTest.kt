@@ -58,6 +58,16 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
     }
 
     @Test
+    fun homepageAiShortcutUsesLiquidCardAndSelectsAiDestination() {
+        composeRule.onNode(hasContentDescription("打开知行AI"))
+            .assertIsDisplayed()
+            .performClick()
+
+        composeRule.onNode(tab("知行AI")).assertIsSelected()
+        composeRule.onNodeWithText("让计算与理解连在一起").assertIsDisplayed()
+    }
+
+    @Test
     fun glassSettingsEntryUsesLiquidButtonAndOpensGlassLab() {
         composeRule.onNodeWithText("材质设置")
             .assertIsEnabled()
