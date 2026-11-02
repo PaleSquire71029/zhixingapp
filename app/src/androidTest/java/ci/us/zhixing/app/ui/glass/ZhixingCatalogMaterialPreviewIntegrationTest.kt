@@ -4,11 +4,17 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import ci.us.zhixing.app.MainActivity
@@ -17,6 +23,7 @@ import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.Assert.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class ZhixingCatalogMaterialPreviewIntegrationTest {
@@ -31,17 +38,17 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
     }
 
     @Test
-    fun performancePresetPreviewAndCommitReturnToTheLiveCatalogBottomBar() {
+    fun performancePresetSelectionReturnsToTheLiveCatalogBottomBar() {
         composeRule.onNodeWithText("材质设置").performClick()
-        composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
+        composeRule.onNodeWithText("光学效果").assertIsDisplayed()
 
-        composeRule.onNodeWithText("Off").performClick()
-        composeRule.onNodeWithText("性能模式 · Off").assertIsDisplayed()
+        composeRule.onAllNodesWithText("关闭").onFirst().performClick()
+        composeRule.onNodeWithText("关闭").assertIsDisplayed()
 
-        composeRule.onNodeWithText("Standard").performClick()
-        composeRule.onNodeWithText("性能模式 · Standard").assertIsDisplayed()
+        composeRule.onAllNodesWithText("标准").onFirst().performClick()
+        composeRule.onNodeWithText("标准").assertIsDisplayed()
 
-        composeRule.onNodeWithText("← 返回主界面").performClick()
+        composeRule.onNodeWithText("‹  返回").performClick()
 
         composeRule.onAllNodes(hasTabRole()).assertCountEquals(4)
         composeRule.onNode(tab("计算")).assertIsSelected()
@@ -54,15 +61,49 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
     @Test
     fun resettingMaterialInGlassLabReturnsToDefaultCustomPresetAndHome() {
         composeRule.onNodeWithText("材质设置").performClick()
-        composeRule.onNodeWithText("Off").performClick()
-        composeRule.onNodeWithText("性能模式 · Off").assertIsDisplayed()
+        composeRule.onAllNodesWithText("关闭").onFirst().performClick()
+        composeRule.onNodeWithText("关闭").assertIsDisplayed()
 
-        composeRule.onNodeWithText("重置材质参数").performClick()
-        composeRule.onNodeWithText("性能模式 · 自定义").assertIsDisplayed()
+        composeRule.onNodeWithText("恢复默认").performClick()
+        composeRule.onNodeWithText("自定义").assertIsDisplayed()
 
-        composeRule.onNodeWithText("← 返回主界面").performClick()
+        composeRule.onNodeWithText("‹  返回").performClick()
         composeRule.onAllNodes(hasTabRole()).assertCountEquals(4)
         composeRule.onNode(tab("计算")).assertIsSelected()
+    }
+
+
+    @Test
+    fun horizontalSliderDragChangesValueWithoutNeedingToScrollThePage() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        composeRule.onNodeWithText("68%").assertIsDisplayed()
+
+        composeRule.onNodeWithContentDescription("透明程度").performTouchInput {
+            val start = Offset(size.width * 0.68f, size.height / 2f)
+            val end = Offset(size.width * 0.28f, size.height / 2f)
+            swipe(start, end, durationMillis = 500)
+        }
+
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("68%").assertDoesNotExist()
+    }
+
+    @Test
+    fun verticalSwipeStartedOnSliderStillScrollsTheSettingsPage() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        val title = composeRule.onNodeWithText("材质设置")
+        val originalTop = title.fetchSemanticsNode().boundsInRoot.top
+
+        composeRule.onNodeWithContentDescription("透明程度").performTouchInput {
+            val start = Offset(size.width * 0.68f, size.height / 2f)
+            val end = Offset(start.x, start.y - 120f)
+            swipe(start, end, durationMillis = 500)
+        }
+
+        composeRule.waitForIdle()
+        val scrolledTop = title.fetchSemanticsNode().boundsInRoot.top
+        assertTrue("A vertical gesture on the slider should scroll the settings page.", scrolledTop < originalTop)
+        composeRule.onNodeWithText("68%").assertIsDisplayed()
     }
 
     private fun hasTabRole() =
