@@ -79,8 +79,8 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         composeRule.onNodeWithText("68%").assertIsDisplayed()
 
         composeRule.onNodeWithContentDescription("透明程度").performTouchInput {
-            val start = Offset(size.width * 0.68f, size.height / 2f)
-            val end = Offset(size.width * 0.28f, size.height / 2f)
+            val start = Offset(size.width * 0.35f, size.height / 2f)
+            val end = Offset(size.width * 0.75f, size.height / 2f)
             swipe(start, end, durationMillis = 500)
         }
 
