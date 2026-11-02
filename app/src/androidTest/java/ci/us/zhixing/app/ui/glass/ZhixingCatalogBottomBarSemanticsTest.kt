@@ -197,10 +197,9 @@ class ZhixingCatalogBottomBarSemanticsTest {
 
 
     @Test
-    fun selectionCapsuleSlidesWhenCallerChangesSelectedIndexAfterTabClick() {
+    fun selectionCapsuleMovesContinuouslyBeforeSettlingOnExternallySelectedTab() {
+        val selectedIndex = mutableIntStateOf(0)
         composeRule.setContent {
-            var selectedIndex by remember { mutableIntStateOf(0) }
-
             ZhixingTheme {
                 BackdropHost(
                     modifier = Modifier.fillMaxSize(),
@@ -208,8 +207,8 @@ class ZhixingCatalogBottomBarSemanticsTest {
                     ZhixingCatalogBottomBar(
                         backdrop = backdrop,
                         destinations = AppDestinations.all,
-                        selectedIndex = selectedIndex,
-                        onDestinationSelected = { selectedIndex = it },
+                        selectedIndex = selectedIndex.intValue,
+                        onDestinationSelected = { selectedIndex.intValue = it },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(72.dp),
@@ -218,17 +217,39 @@ class ZhixingCatalogBottomBarSemanticsTest {
             }
         }
 
+        composeRule.waitForIdle()
         val selectionCapsule = composeRule.onNodeWithTag(LIQUID_BOTTOM_TABS_SELECTION_TAG)
         val initialBounds = selectionCapsule.fetchSemanticsNode().boundsInRoot
+        val expectedFinalLeft = initialBounds.left + initialBounds.width * 3f
 
-        composeRule.onNode(tab("工具")).performClick()
-        composeRule.waitForIdle()
+        // Freeze automatic clock advancement so the test can observe the
+        // capsule mid-flight rather than only checking its final location.
+        composeRule.mainClock.autoAdvance = false
+        try {
+            composeRule.runOnUiThread {
+                selectedIndex.intValue = 3
+            }
+            composeRule.mainClock.advanceTimeBy(64L)
+            val intermediateLeft = selectionCapsule.fetchSemanticsNode().boundsInRoot.left
 
-        val selectedBounds = selectionCapsule.fetchSemanticsNode().boundsInRoot
-        assertTrue(
-            "The liquid selection capsule should slide to the newly selected tab.",
-            selectedBounds.left > initialBounds.left + initialBounds.width,
-        )
+            assertTrue(
+                "The capsule should leave its starting tab during the spring animation.",
+                intermediateLeft > initialBounds.left + 1f,
+            )
+            assertTrue(
+                "The capsule should pass through intermediate positions, not jump to the end.",
+                intermediateLeft < expectedFinalLeft - 1f,
+            )
+
+            composeRule.mainClock.advanceTimeBy(500L)
+            val settledLeft = selectionCapsule.fetchSemanticsNode().boundsInRoot.left
+            assertTrue(
+                "The capsule should settle on the externally selected fourth tab.",
+                settledLeft > initialBounds.left + initialBounds.width * 2.8f,
+            )
+        } finally {
+            composeRule.mainClock.autoAdvance = true
+        }
     }
 
     private fun hasTabRole() =
