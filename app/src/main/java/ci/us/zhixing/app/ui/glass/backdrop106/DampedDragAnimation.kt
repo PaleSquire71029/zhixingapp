@@ -22,6 +22,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.IntSize
+import android.os.SystemClock
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.filter
@@ -68,7 +70,23 @@ class DampedDragAnimation(
     private val mutatorMutex = MutatorMutex()
 
     private val velocityTracker = VelocityTracker()
+    private data class DragFrame(val value: Float, val velocity: Float)
+    private val directDragFrames = Channel<DragFrame>(Channel.CONFLATED)
+    private var directDragTargetValue = initialValue
 
+    init {
+        // A conflated frame queue coalesces fast pointer events. The slider
+        // follows the finger immediately instead of launching a spring job
+        // for every MotionEvent; release still uses the original spring settle.
+        animationScope.launch {
+            for (frame in directDragFrames) {
+                valueAnimation.snapTo(frame.value)
+                velocityAnimation.snapTo(frame.velocity)
+            }
+        }
+    }
+
+    val directDragValue: Float get() = directDragTargetValue
     val value: Float get() = valueAnimation.value
     val progress: Float get() = (value - valueRange.start) / (valueRange.endInclusive - valueRange.start)
     val targetValue: Float get() = valueAnimation.targetValue
@@ -132,6 +150,22 @@ class DampedDragAnimation(
             launch { scaleXAnimation.animateTo(initialScale, scaleXAnimationSpec) }
             launch { scaleYAnimation.animateTo(initialScale, scaleYAnimationSpec) }
         }
+    }
+
+    fun beginDirectDrag() {
+        directDragTargetValue = valueAnimation.value
+    }
+
+    fun updateDirectDrag(value: Float) {
+        val next = value.coerceIn(valueRange)
+        directDragTargetValue = next
+        velocityTracker.addPosition(
+            SystemClock.uptimeMillis(),
+            Offset(next, 0f),
+        )
+        val range = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
+        val dragVelocity = velocityTracker.calculateVelocity().x / range
+        directDragFrames.trySend(DragFrame(next, dragVelocity))
     }
 
     fun updateValue(value: Float) {
