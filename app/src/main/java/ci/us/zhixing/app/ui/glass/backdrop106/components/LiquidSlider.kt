@@ -191,6 +191,9 @@ internal fun LiquidSlider(
                 .layerBackdrop(trackBackdrop)
                 .fillMaxWidth()
                 .height(48.dp)
+                // Let the whole rail handle horizontal drags; vertical movement
+                // remains unconsumed for the page's scroll container.
+                .then(if (enabled) dampedDragAnimation.modifier else Modifier)
                 .pointerInput(animationScope, enabled, valueRange, isLtr) {
                     if (!enabled) return@pointerInput
                     detectTapGestures { position ->
