@@ -37,6 +37,7 @@ class DampedDragAnimation(
     val initialScale: Float,
     val pressedScale: Float,
     private val touchFeedbackEnabled: Boolean = true,
+    private val horizontalDragOnly: Boolean = false,
     val onDragStarted: DampedDragAnimation.(position: Offset) -> Unit,
     val onDragStopped: DampedDragAnimation.() -> Unit,
     val onDrag: DampedDragAnimation.(size: IntSize, dragAmount: Offset) -> Unit,
@@ -77,22 +78,35 @@ class DampedDragAnimation(
     val velocity: Float get() = velocityAnimation.value
 
     val modifier: Modifier = Modifier.pointerInput(Unit) {
-        inspectDragGestures(
-            onDragStart = { down ->
-                velocityTracker.resetTracking()
-                onDragStarted(down.position)
-                if (touchFeedbackEnabled) press()
-            },
-            onDragEnd = {
-                onDragStopped()
-                if (touchFeedbackEnabled) release()
-            },
-            onDragCancel = {
-                onDragStopped()
-                if (touchFeedbackEnabled) release()
+        val start: (androidx.compose.ui.input.pointer.PointerInputChange) -> Unit = { down ->
+            velocityTracker.resetTracking()
+            onDragStarted(down.position)
+            if (touchFeedbackEnabled) press()
+        }
+        val end: (androidx.compose.ui.input.pointer.PointerInputChange) -> Unit = {
+            onDragStopped()
+            if (touchFeedbackEnabled) release()
+        }
+        val cancel: () -> Unit = {
+            onDragStopped()
+            if (touchFeedbackEnabled) release()
+        }
+        if (horizontalDragOnly) {
+            inspectHorizontalDragGestures(
+                onDragStart = start,
+                onDragEnd = end,
+                onDragCancel = cancel,
+            ) { change, dragAmount ->
+                onDrag(size, dragAmount)
             }
-        ) { change, dragAmount ->
-            onDrag(size, dragAmount)
+        } else {
+            inspectDragGestures(
+                onDragStart = start,
+                onDragEnd = end,
+                onDragCancel = cancel,
+            ) { change, dragAmount ->
+                onDrag(size, dragAmount)
+            }
         }
     }
 
