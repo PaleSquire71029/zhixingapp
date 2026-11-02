@@ -11,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +39,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -286,11 +289,11 @@ private fun ZhixingApp(
                                 backdrop = backdrop,
                                 material = contentGlassMaterial,
                             )
-                            FeatureLine(
-                                title = "知行浅色设计基线",
-                                detail = "先稳定布局与文字层级",
+                            FeatureShortcutCard(
                                 backdrop = backdrop,
-                                material = contentGlassMaterial,
+                                selected = selectedIndex == 1,
+                                touchFeedbackEnabled = glassMaterial.touchFeedbackEnabled,
+                                onClick = { selectedIndex = 1 },
                             )
                             FeatureLine(
                                 title = "逐步迁移",
@@ -340,6 +343,54 @@ private fun FeatureLine(
                 text = detail,
                 style = ZhixingTheme.type.supporting,
                 color = ZhixingTheme.colors.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun FeatureShortcutCard(
+    backdrop: Backdrop,
+    selected: Boolean,
+    touchFeedbackEnabled: Boolean,
+    onClick: () -> Unit,
+) {
+    ZhixingLiquidButton(
+        backdrop = backdrop,
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = "打开知行AI" },
+        selected = selected,
+        touchFeedbackEnabled = touchFeedbackEnabled,
+        shape = ZhixingGlassShapes.card,
+        height = 88.dp,
+        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(ZhixingTheme.spacing.tight),
+            ) {
+                Text(
+                    text = "知行AI",
+                    style = ZhixingTheme.type.featureTitle,
+                    color = ZhixingTheme.colors.onSurface,
+                )
+                Text(
+                    text = "对话、追问与计算上下文联动",
+                    style = ZhixingTheme.type.supporting,
+                    color = ZhixingTheme.colors.onSurfaceVariant,
+                )
+            }
+            Text(
+                text = "进入  →",
+                style = ZhixingTheme.type.badge,
+                color = ZhixingTheme.colors.primary,
             )
         }
     }
