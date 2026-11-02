@@ -586,9 +586,9 @@ private fun PerformanceTierChip(
 }
 
 private fun tierLabel(tier: GlassPerformanceTier): String = when (tier) {
-    GlassPerformanceTier.PREMIUM -> "Premium"
-    GlassPerformanceTier.STANDARD -> "Standard"
-    GlassPerformanceTier.LITE -> "Lite"
-    GlassPerformanceTier.OFF -> "Off"
+    GlassPerformanceTier.PREMIUM -> "高性能"
+    GlassPerformanceTier.STANDARD -> "标准"
+    GlassPerformanceTier.LITE -> "轻量"
+    GlassPerformanceTier.OFF -> "关闭"
     GlassPerformanceTier.CUSTOM -> "自定义"
 }
