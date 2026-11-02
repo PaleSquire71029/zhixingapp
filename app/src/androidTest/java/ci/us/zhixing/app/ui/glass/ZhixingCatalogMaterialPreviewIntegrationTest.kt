@@ -62,7 +62,7 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
     fun resettingMaterialInGlassLabReturnsToDefaultCustomPresetAndHome() {
         composeRule.onNodeWithText("材质设置").performClick()
         composeRule.onAllNodesWithText("关闭").onLast().performClick()
-        composeRule.onNodeWithText("关闭").assertIsDisplayed()
+        composeRule.onAllNodesWithText("关闭").assertCountEquals(2)
 
         composeRule.onNodeWithText("恢复默认").performClick()
         composeRule.onNodeWithText("自定义").assertIsDisplayed()
