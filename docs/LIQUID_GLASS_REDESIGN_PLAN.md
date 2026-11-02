@@ -1060,7 +1060,7 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 | G1 | 统一圆角与层级 Tokens | `ZhixingGlassTokens.kt`，覆盖 12/16/20/24/28/32dp 尺度与基础 motion values | ✅ PR #65 合并，Build #229 成功；四项 Token 单元测试通过 |
 | G2 | 把首页 Hero / Feature 容器改用共享 `ZhixingGlassSurface` | MainActivity 首页内容卡片 | ✅ PR #66 合并，Build #232 成功；Hero 与三条内容面使用同一共享 Backdrop，关闭折射保持文字清晰 |
 | G3 | 移植并适配官方 `LiquidButton` | 首页材质设置入口（首个接入点） | ✅ PR #67 合并，Build #235 成功；官方按钮源码、16dp 圆角适配和启用状态完成 |
-| G4 | 移植官方 `LiquidSlider` / `LiquidToggle` 并完成材质实验室控件统一 | Glass Lab 的全部开关、参数滑块、性能档位和页面操作 | 🟡 G4.1、G4.2 已完成；G4.3 批量迁移全部剩余开关、3 个滑块、4 档按钮及返回 / 重置操作 |
+| G4 | 移植官方 `LiquidSlider` / `LiquidToggle` 并完成材质实验室控件统一 | Glass Lab 的全部开关、参数滑块、性能档位和页面操作 | ✅ G4.1–G4.3 已完成并合并；待真机验收实际拖动、光学效果与性能 |
 | G5 | 首页功能入口玻璃化 | 计算、AI、工具、历史入口卡片 | 大小屏、单手触控、文字对比度 |
 | G6 | 统一计算器显示区与键帽 | 显示面板、数字键、运算键、功能键 | 连按 / 长按、输入正确性、帧时间 |
 | G7 | AI / 工具 / 历史页分批迁移 | 搜索、消息输入、附件、筛选与列表操作 | 页面业务逻辑不变，IME 与滚动正常 |
@@ -1070,7 +1070,7 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 执行顺序：先 G1，再 G2；每一步单独 PR、CI 通过后再推进下一步。G3 之前先检查官方按钮依赖范围和上游代码，不把整套 Catalog 演示页带进生产。
 
 
-## 27. G1–G4.2 实施记录（2026-11-01）
+## 27. G1–G4.3 实施记录（2026-11-01）
 
 - [x] G1：PR #65 合并（commit `7c4ea0d33c0b8b1402e9c861d3dc5c2cf7f85817`）；统一 12 / 16 / 20 / 24 / 28 / 32dp 圆角和基础 motion tokens；Android Build #229（Run ID `41290656895`）成功，四项 Token 单元测试、androidTest 编译和 APK 组装通过。
 - [x] G2：PR #66 合并（commit `679e4649e2b5375a1efedd8715a4af55871d5673`）；首页 Hero 和三个 Feature 内容面迁移到共享 `ZhixingGlassSurface`；Android Build #232（Run ID `41291006825`）成功。
@@ -1078,7 +1078,7 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 - [x] G4.1：PR #68 合并（commit `0eb46ffb3951cbd4539759b9f039903728aeb509`）；移植官方 `LiquidToggle`，Glass Lab 的“边缘折射”首个切换项改为液态开关，并补充 Switch 状态、点击和禁用语义；Android Build #239（Run ID `41293096869`）成功。
 - [ ] Android CI 只执行 JVM 单测、编译 androidTest 源码和构建 APK；上述 Activity 仪器测试没有在 Hosted 真机 / 模拟器执行。开关实际拖动、读屏操作、光学效果、帧率仍需目标手机验收。
 - [x] G4.2：PR #71 合并（commit `cefb07b22aedf61d3fb29ca9928477671c65418e`）；色散折射改用 LiquidToggle，保留 Android 13+、边缘折射依赖、Off 档禁用、触摸反馈设置与 DataStore 写入；Android Build #245（Run ID `41319607292`）成功。
-- [ ] G4.3：将边缘高光、环境反射、触摸光效与形变三个开关统一为 `ZhixingLiquidToggle`；将透明程度、背景模糊、折射强度三个参数改为官方 `LiquidSlider`；性能档位、返回和重置操作统一使用 `ZhixingLiquidButton`。保留原值域、步进、API 门槛、依赖禁用、预览与松手提交行为。
+- [x] G4.3：PR #73 已合并；边缘高光、环境反射、触摸光效与形变接入 `ZhixingLiquidToggle`；透明程度、背景模糊、折射强度接入官方 `LiquidSlider`；性能档位、返回和重置使用 `ZhixingLiquidButton`。原值域、步进、API 门槛、依赖禁用、预览与松手提交行为均保留。
 
 
 ### 27.1 G4.2 色散折射 LiquidToggle（2026-11-01）
@@ -1101,3 +1101,18 @@ Backdrop 1.0.6 已经作为正式依赖存在于 app/build.gradle.kts，不再�
 - [x] 扩展 Activity 集成测试，覆盖三个新增开关状态切换、三个滑块的无障碍调节、范围条件及结束后恢复默认设置。
 - [ ] Android Build / JVM 测试 / androidTest 源码编译与 Debug APK 构建待本 PR 验证；CI 不会自动在目标手机执行仪器用例。
 - [ ] 真机检查滑块拖动连续性、轨道点击、快速反向拖动、TalkBack、窄屏滚动、帧率和发热。
+
+
+### 27.3 G4.3 构建验收记录（2026-11-02）
+
+- [x] PR [#73](https://github.com/PaleSquire71029/zhixingapp/pull/73) 已 squash 合并；merge commit `77cf6324121ad8ce4fa0c8bd501d87a7cf3d8697`。
+- [x] Android Build Run ID `41321362749` 成功；JVM 单测、androidTest 源码编译、Debug APK 组装与 Artifact 上传均通过。
+- [x] 本次统一迁移三条滑块、三项开关、四档性能按钮、返回和重置操作；保留原业务状态和参数约束。
+- [ ] CI 只编译仪器测试源码；仍需真机检查滑块拖动连续性、轨道点击、TalkBack、帧率、温升和耗电。
+
+### 27.4 G5 首页功能入口玻璃化：执行拆分
+
+- [ ] G5.1：盘点首页信息卡与四个底部导航目标，明确每个入口的真实行为；先做一张入口卡的可访问点击 / 选中反馈样板，不批量替换。
+- [ ] G5.2：将其余首页功能入口按同一组件迁移，复用共享 Backdrop，不为每张卡单独创建采样层。
+- [ ] G5.3：补充点击、选中、返回、窄屏和滚动回归测试。
+- [ ] G5.4：真机检查层级、触摸响应、滚动帧率与文字清晰度。
