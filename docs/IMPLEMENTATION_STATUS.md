@@ -1406,6 +1406,9 @@
 - [x] 滑轨填充长度由每帧改变布局宽度改为 graphicsLayer scaleX，拖动时不再触发 fillMaxWidth 比例布局测量。
 - [x] 将材质设置行中的实时数值文本拆成独立重组作用域；滑块通过稳定值读取器接收状态，避免拖动时重建整个 LiquidSlider / Backdrop 子树。
 - [x] 首屏三张静态说明卡片继续使用共享 Backdrop 采样和边缘高光，但取消每张卡片独立的模糊 / vibrancy / 环境反射通道；主视觉卡片、顶部液态按钮、滑块与导航栏继续保留完整光学效果和交互动效。
-- [ ] Android CI：JVM 单测、androidTest 源码编译和 Debug APK 构建待验证。
+- [x] PR #86 已合并，merge commit `fba4e5ed5e22ef555bbab33f16f2844dd6edcc95`。
+- [x] Android Build #284（Run ID `41679016000`）成功：资源检查、JVM 单测、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传全部通过。
+- [x] 构建 Artifact `13252920600`；APK `12,841,371 bytes`；SHA-256 `0979a1f1a6cae046103aa6ee26d86ea3957d56cb4087f513c9bcc2e5bebccf0e`。
+- [ ] 合并后 main 分支构建仍在运行；真机验收：冷启动首屏帧时间、三个滑块连续往返拖动、松手弹簧、首屏滚动与导航胶囊动画。
 - [ ] 设备实测：iQOO Neo5 活力版冷启动首屏帧时间、三个滑块连续往返拖动、松手弹簧、首屏滚动与导航胶囊动画。
 - [ ] 目前没有接入 Macrobenchmark / 帧时间采集模块，因此不能仅凭 CI 编译结果宣称达到稳定 60 / 90 / 144fps；需要后续真机帧时间数据验收。
