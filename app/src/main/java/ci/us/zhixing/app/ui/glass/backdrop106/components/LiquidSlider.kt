@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
@@ -229,7 +230,16 @@ internal fun LiquidSlider(
                     .clip(Capsule())
                     .background(if (enabled) accentColor else accentColor.copy(alpha = 0.35f))
                     .height(6.dp)
-                    .fillMaxWidth(dampedDragAnimation.progress.fastCoerceIn(0f, 1f)),
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        // Animate the fill as a GPU layer transform, not by
+                        // changing measured width on every touch event.
+                        transformOrigin = TransformOrigin(
+                            pivotFractionX = if (isLtr) 0f else 1f,
+                            pivotFractionY = 0.5f,
+                        )
+                        scaleX = dampedDragAnimation.progress.fastCoerceIn(0f, 1f)
+                    },
             )
         }
 

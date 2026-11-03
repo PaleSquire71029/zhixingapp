@@ -150,6 +150,13 @@ private fun ZhixingApp(
                     refractionEnabled = false,
                     chromaticDispersionEnabled = false,
                 )
+                // Static feature rows keep real backdrop translucency and
+                // edge highlights, but do not each run a full blur/vibrancy
+                // pass during the first home-frame render.
+                val staticFeatureMaterial = contentGlassMaterial.copy(
+                    blurRadiusDp = 0f,
+                    environmentReflectionEnabled = false,
+                )
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Color.Transparent,
@@ -278,19 +285,19 @@ private fun ZhixingApp(
                                 title = "原生 Android 工程",
                                 detail = "Kotlin + Jetpack Compose",
                                 backdrop = backdrop,
-                                material = contentGlassMaterial,
+                                material = staticFeatureMaterial,
                             )
                             FeatureLine(
                                 title = "知行浅色设计基线",
                                 detail = "先稳定布局与文字层级",
                                 backdrop = backdrop,
-                                material = contentGlassMaterial,
+                                material = staticFeatureMaterial,
                             )
                             FeatureLine(
                                 title = "逐步迁移",
                                 detail = "液态玻璃、计算和 AI 分别验收",
                                 backdrop = backdrop,
-                                material = contentGlassMaterial,
+                                material = staticFeatureMaterial,
                             )
                         }
 
