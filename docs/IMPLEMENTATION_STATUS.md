@@ -1393,5 +1393,8 @@
 - [x] 材质设置中的三个滑块将高频数值状态限制在各自 SliderSetting 子树，参数持久化和全局材质更新在松手时提交，减少整个页面与多层 Backdrop 同步重组。
 - [x] 触摸反馈开关轨道从纯色 drawBehind 改为共享 Backdrop 的 blur + lens + ambient highlight + shadow 玻璃轨道；滑块头保留透镜、边缘高光、内阴影与按压形变。
 - [x] 添加最底部「触摸光效与形变」开关的可见与切换回归测试。
-- [ ] Android CI：JVM 单测、androidTest 源码编译和 Debug APK 构建待验证。
+- [x] PR #85 已合并，merge commit `a6f2da42953ebf047ece77b3f1643c0f4da4d88b`。
+- [x] Android Build #282（Run ID `41677099435`）成功：资源检查、JVM 单测、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传全部通过。
+- [x] 构建 Artifact `13250469318`；APK `12,841,371 bytes`；SHA-256 `6313979286d0b0d145b96e7d2c70ca3203f7c54872a2d39902c4820c03e5498d`。
+- [ ] 真机验收：持续拖动与快速往返、松手回弹、纵向页面滚动、最底部触摸反馈开关的静态 / 按压玻璃效果及整页帧率。
 - [ ] 真机验收：持续拖动、快速往返、松手回弹、滚动手势、最底部开关闲置 / 按压玻璃效果和整页帧率。
