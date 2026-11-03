@@ -40,7 +40,7 @@ class DampedDragAnimation(
     val pressedScale: Float,
     private val touchFeedbackEnabled: Boolean = true,
     private val horizontalDragOnly: Boolean = false,
-    private val onTap: ((Offset) -> Unit)? = null,
+    private val onTap: (DampedDragAnimation.(Offset) -> Unit)? = null,
     val onDragStarted: DampedDragAnimation.(position: Offset) -> Unit,
     val onDragStopped: DampedDragAnimation.() -> Unit,
     val onDrag: DampedDragAnimation.(size: IntSize, dragAmount: Offset) -> Unit,
@@ -116,7 +116,7 @@ class DampedDragAnimation(
                 onDragStart = start,
                 onDragEnd = end,
                 onDragCancel = cancel,
-                onTap = onTap,
+                onTap = onTap?.let { callback -> { position -> callback(this, position) } },
             ) { change, dragAmount ->
                 onDrag(size, dragAmount)
             }
