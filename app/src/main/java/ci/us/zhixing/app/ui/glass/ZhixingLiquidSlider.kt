@@ -17,7 +17,7 @@ import com.kyant.backdrop.Backdrop
 @Composable
 internal fun ZhixingLiquidSlider(
     backdrop: Backdrop,
-    value: Float,
+    value: () -> Float,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
@@ -28,7 +28,7 @@ internal fun ZhixingLiquidSlider(
     touchFeedbackEnabled: Boolean = true,
 ) {
     val valueState = rememberUpdatedState(value)
-    val valueReader: () -> Float = remember { { valueState.value } }
+    val valueReader: () -> Float = remember { { valueState.value() } }
     val callbackState = rememberUpdatedState(onValueChange)
     val callback: (Float) -> Unit = remember {
         { next -> callbackState.value(next) }
