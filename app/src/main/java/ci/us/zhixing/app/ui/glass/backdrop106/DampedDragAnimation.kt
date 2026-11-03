@@ -22,6 +22,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.IntSize
+import android.os.SystemClock
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.filter
@@ -38,6 +40,7 @@ class DampedDragAnimation(
     val pressedScale: Float,
     private val touchFeedbackEnabled: Boolean = true,
     private val horizontalDragOnly: Boolean = false,
+    private val onTap: (DampedDragAnimation.(Offset) -> Unit)? = null,
     val onDragStarted: DampedDragAnimation.(position: Offset) -> Unit,
     val onDragStopped: DampedDragAnimation.() -> Unit,
     val onDrag: DampedDragAnimation.(size: IntSize, dragAmount: Offset) -> Unit,
@@ -68,7 +71,24 @@ class DampedDragAnimation(
     private val mutatorMutex = MutatorMutex()
 
     private val velocityTracker = VelocityTracker()
+    private data class DragFrame(val value: Float, val velocity: Float)
+    private val directDragFrames = Channel<DragFrame>(Channel.CONFLATED)
+    private var directDragTargetValue = initialValue
 
+    init {
+        if (horizontalDragOnly) {
+            // Only sliders need this frame consumer. Other glass controls keep
+            // the original Catalog animation path without extra idle coroutines.
+            animationScope.launch {
+                for (frame in directDragFrames) {
+                    valueAnimation.snapTo(frame.value)
+                    velocityAnimation.snapTo(frame.velocity)
+                }
+            }
+        }
+    }
+
+    val directDragValue: Float get() = directDragTargetValue
     val value: Float get() = valueAnimation.value
     val progress: Float get() = (value - valueRange.start) / (valueRange.endInclusive - valueRange.start)
     val targetValue: Float get() = valueAnimation.targetValue
@@ -96,6 +116,7 @@ class DampedDragAnimation(
                 onDragStart = start,
                 onDragEnd = end,
                 onDragCancel = cancel,
+                onTap = onTap?.let { callback -> { position -> callback(this@DampedDragAnimation, position) } },
             ) { change, dragAmount ->
                 onDrag(size, dragAmount)
             }
@@ -132,6 +153,22 @@ class DampedDragAnimation(
             launch { scaleXAnimation.animateTo(initialScale, scaleXAnimationSpec) }
             launch { scaleYAnimation.animateTo(initialScale, scaleYAnimationSpec) }
         }
+    }
+
+    fun beginDirectDrag() {
+        directDragTargetValue = valueAnimation.value
+    }
+
+    fun updateDirectDrag(value: Float) {
+        val next = value.coerceIn(valueRange)
+        directDragTargetValue = next
+        velocityTracker.addPosition(
+            SystemClock.uptimeMillis(),
+            Offset(next, 0f),
+        )
+        val range = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
+        val dragVelocity = velocityTracker.calculateVelocity().x / range
+        directDragFrames.trySend(DragFrame(next, dragVelocity))
     }
 
     fun updateValue(value: Float) {

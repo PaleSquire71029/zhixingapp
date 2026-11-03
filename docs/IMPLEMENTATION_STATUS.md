@@ -1384,3 +1384,14 @@
 - [x] Android Build #278（Run ID `41479660281`）成功：资源检查、JVM 单测、androidTest Kotlin 源码编译、Debug APK 组装与 Artifact 上传全部通过。
 - [x] 构建 Artifact `13160125773`；APK `12,841,371 bytes`；SHA-256 `d782f87baa9cc9b7f5f81efa3d54326cf6563aeefe6d74cba0a94ce7060d4e77`。
 - [ ] 真机验收：横向拖动 3 个滑块、在滑轨上纵向划动页面、状态栏 / 底部手势区、144Hz 流畅度和窄屏文字完整性。
+
+
+### 27.9 保留完整液态动效的滑块性能优化与触摸反馈开关材质修复（2026-11-04）
+
+- [x] LiquidSlider 改为单一轴向锁手势识别器处理横向拖动与轨道点击，移除滑轨 / 滑块头重复 pointerInput，避免同一次触摸被两套识别器争抢。
+- [x] 拖动期间采用合并帧队列直接跟随指尖，避免每个 MotionEvent 都创建新的 spring coroutine；松手后保留原有弹簧收尾、惯性速度、高光和透镜形变。
+- [x] 材质设置中的三个滑块将高频数值状态限制在各自 SliderSetting 子树，参数持久化和全局材质更新在松手时提交，减少整个页面与多层 Backdrop 同步重组。
+- [x] 触摸反馈开关轨道从纯色 drawBehind 改为共享 Backdrop 的 blur + lens + ambient highlight + shadow 玻璃轨道；滑块头保留透镜、边缘高光、内阴影与按压形变。
+- [x] 添加最底部「触摸光效与形变」开关的可见与切换回归测试。
+- [ ] Android CI：JVM 单测、androidTest 源码编译和 Debug APK 构建待验证。
+- [ ] 真机验收：持续拖动、快速往返、松手回弹、滚动手势、最底部开关闲置 / 按压玻璃效果和整页帧率。

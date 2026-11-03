@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -247,18 +248,20 @@ internal fun GlassLabScreen(
             ) {
                 SliderSetting(
                     title = "透明程度",
-                    valueLabel = String.format(Locale.US, "%.0f%%", transparencyPercent),
+                    value = transparencyPercent,
+                    valueLabel = { String.format(Locale.US, "%.0f%%", it) },
                     description = "数值越高，背景越清晰；始终保留轻微浅色底，保证内容易读。",
-                ) {
+                    onValueCommit = { next ->
+                        markCustom()
+                        transparencyPercent = next.coerceIn(0f, 100f)
+                        publishMaterial(commit = true)
+                    },
+                ) { liveValue, onLiveValueChange, onFinished ->
                     ZhixingLiquidSlider(
                         backdrop = backdrop,
-                        value = transparencyPercent,
-                        onValueChange = {
-                            markCustom()
-                            transparencyPercent = it.coerceIn(0f, 100f)
-                            publishMaterial()
-                        },
-                        onValueChangeFinished = { publishMaterial(commit = true) },
+                        value = liveValue,
+                        onValueChange = onLiveValueChange,
+                        onValueChangeFinished = onFinished,
                         valueRange = 0f..100f,
                         steps = 19,
                         label = "透明程度",
@@ -270,22 +273,24 @@ internal fun GlassLabScreen(
 
                 SliderSetting(
                     title = "背景模糊",
-                    valueLabel = String.format(Locale.US, "%.1f dp", blurRadiusDp),
+                    value = blurRadiusDp,
+                    valueLabel = { String.format(Locale.US, "%.1f dp", it) },
                     description = if (blurSupported) {
                         "控制玻璃下方背景的柔化程度。"
                     } else {
                         "当前 Android 版本不支持实时背景模糊，将使用浅色透明材质。"
                     },
-                ) {
+                    onValueCommit = { next ->
+                        markCustom()
+                        blurRadiusDp = next.coerceIn(0f, 24f)
+                        publishMaterial(commit = true)
+                    },
+                ) { liveValue, onLiveValueChange, onFinished ->
                     ZhixingLiquidSlider(
                         backdrop = backdrop,
-                        value = blurRadiusDp,
-                        onValueChange = {
-                            markCustom()
-                            blurRadiusDp = it.coerceIn(0f, 24f)
-                            publishMaterial()
-                        },
-                        onValueChangeFinished = { publishMaterial(commit = true) },
+                        value = liveValue,
+                        onValueChange = onLiveValueChange,
+                        onValueChangeFinished = onFinished,
                         valueRange = 0f..24f,
                         steps = 23,
                         label = "背景模糊",
@@ -322,18 +327,20 @@ internal fun GlassLabScreen(
 
                 SliderSetting(
                     title = "折射强度",
-                    valueLabel = String.format(Locale.US, "%.1f dp", refractionStrength),
+                    value = refractionStrength,
+                    valueLabel = { String.format(Locale.US, "%.1f dp", it) },
                     description = "调整边缘透镜的位移幅度。",
-                ) {
+                    onValueCommit = { next ->
+                        markCustom()
+                        refractionStrength = next.coerceIn(0f, 8f)
+                        publishMaterial(commit = true)
+                    },
+                ) { liveValue, onLiveValueChange, onFinished ->
                     ZhixingLiquidSlider(
                         backdrop = backdrop,
-                        value = refractionStrength,
-                        onValueChange = {
-                            markCustom()
-                            refractionStrength = it.coerceIn(0f, 8f)
-                            publishMaterial()
-                        },
-                        onValueChangeFinished = { publishMaterial(commit = true) },
+                        value = liveValue,
+                        onValueChange = onLiveValueChange,
+                        onValueChangeFinished = onFinished,
                         valueRange = 0f..8f,
                         steps = 15,
                         label = "折射强度",
@@ -468,10 +475,20 @@ private fun SettingsSection(
 @Composable
 private fun SliderSetting(
     title: String,
-    valueLabel: String,
+    value: Float,
+    valueLabel: (Float) -> String,
     description: String,
-    slider: @Composable () -> Unit,
+    onValueCommit: (Float) -> Unit,
+    slider: @Composable (
+        liveValue: Float,
+        onLiveValueChange: (Float) -> Unit,
+        onFinished: () -> Unit,
+    ) -> Unit,
 ) {
+    // Keep high-frequency pointer state inside this small subtree. The parent
+    // screen and its four backdrop surfaces only recompose once on release.
+    var liveValue by remember(value) { mutableFloatStateOf(value) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -489,12 +506,16 @@ private fun SliderSetting(
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = valueLabel,
+                text = valueLabel(liveValue),
                 style = ZhixingTheme.type.supporting,
                 color = ZhixingTheme.colors.secondary,
             )
         }
-        slider()
+        slider(
+            liveValue,
+            { next -> liveValue = next },
+            { onValueCommit(liveValue) },
+        )
         Text(
             text = description,
             style = ZhixingTheme.type.supporting,

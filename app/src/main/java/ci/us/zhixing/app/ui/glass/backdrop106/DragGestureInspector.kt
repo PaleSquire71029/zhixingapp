@@ -112,6 +112,7 @@ suspend fun PointerInputScope.inspectHorizontalDragGestures(
     onDragStart: (down: PointerInputChange) -> Unit = {},
     onDragEnd: (change: PointerInputChange) -> Unit = {},
     onDragCancel: () -> Unit = {},
+    onTap: ((Offset) -> Unit)? = null,
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
 ) {
     awaitEachGesture {
@@ -157,7 +158,11 @@ suspend fun PointerInputScope.inspectHorizontalDragGestures(
             }
 
             if (!change.pressed) {
-                if (dragStarted) onDragEnd(change)
+                if (dragStarted) {
+                    onDragEnd(change)
+                } else {
+                    onTap?.invoke(down.position)
+                }
                 break
             }
         }

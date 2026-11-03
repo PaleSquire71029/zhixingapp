@@ -20,7 +20,6 @@
 package ci.us.zhixing.app.ui.glass.backdrop106.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,7 +41,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
@@ -151,12 +149,29 @@ internal fun LiquidSlider(
                 pressedScale = 1.5f,
                 touchFeedbackEnabled = touchFeedbackEnabled,
                 horizontalDragOnly = true,
+                onTap = { position ->
+                    val fraction = (position.x / trackWidth).fastCoerceIn(0f, 1f)
+                    val candidate = if (isLtr) {
+                        valueRange.start + (valueRange.endInclusive - valueRange.start) * fraction
+                    } else {
+                        valueRange.endInclusive - (valueRange.endInclusive - valueRange.start) * fraction
+                    }
+                    val next = snapValue(candidate)
+                    animateToValue(next)
+                    onValueChangeState.value(next)
+                    onValueChangeFinishedState.value()
+                },
                 onDragStarted = {
                     didDrag = false
+                    beginDirectDrag()
                 },
                 onDragStopped = {
                     if (enabled && didDrag) {
-                        onValueChangeState.value(snapValue(targetValue))
+                        val settledValue = snapValue(directDragValue)
+                        if (settledValue != directDragValue) {
+                            animateToValue(settledValue)
+                        }
+                        onValueChangeState.value(settledValue)
                         onValueChangeFinishedState.value()
                     }
                     didDrag = false
@@ -169,19 +184,23 @@ internal fun LiquidSlider(
                         val delta =
                             (valueRange.endInclusive - valueRange.start) *
                                 (dragAmount.x / trackWidth)
-                        val candidate = if (isLtr) targetValue + delta else targetValue - delta
-                        onValueChangeState.value(snapValue(candidate))
+                        val candidate = if (isLtr) directDragValue + delta else directDragValue - delta
+                        val next = snapValue(candidate)
+                        updateDirectDrag(next)
+                        onValueChangeState.value(next)
                     }
                 },
             )
         }
 
         LaunchedEffect(dampedDragAnimation) {
-            snapshotFlow { valueReader() }
-                .collectLatest { newValue ->
-                    val snapped = newValue.coerceIn(valueRange)
-                    if (dampedDragAnimation.targetValue != snapped) {
-                        dampedDragAnimation.updateValue(snapped)
+            snapshotFlow { valueReader() to didDrag }
+                .collectLatest { (newValue, isDragging) ->
+                    if (!isDragging) {
+                        val snapped = newValue.coerceIn(valueRange)
+                        if (dampedDragAnimation.targetValue != snapped) {
+                            dampedDragAnimation.updateValue(snapped)
+                        }
                     }
                 }
         }
@@ -193,22 +212,7 @@ internal fun LiquidSlider(
                 .height(48.dp)
                 // Let the whole rail handle horizontal drags; vertical movement
                 // remains unconsumed for the page's scroll container.
-                .then(if (enabled) dampedDragAnimation.modifier else Modifier)
-                .pointerInput(animationScope, enabled, valueRange, isLtr) {
-                    if (!enabled) return@pointerInput
-                    detectTapGestures { position ->
-                        val fraction = (position.x / size.width.toFloat()).fastCoerceIn(0f, 1f)
-                        val candidate = if (isLtr) {
-                            valueRange.start + (valueRange.endInclusive - valueRange.start) * fraction
-                        } else {
-                            valueRange.endInclusive - (valueRange.endInclusive - valueRange.start) * fraction
-                        }
-                        val next = snapValue(candidate)
-                        dampedDragAnimation.animateToValue(next)
-                        onValueChangeState.value(next)
-                        onValueChangeFinishedState.value()
-                    }
-                },
+                .then(if (enabled) dampedDragAnimation.modifier else Modifier),
             contentAlignment = Alignment.CenterStart,
         ) {
             Box(
@@ -237,8 +241,9 @@ internal fun LiquidSlider(
                             .fastCoerceIn(-size.width / 4f, trackWidth - size.width * 3f / 4f) *
                             if (isLtr) 1f else -1f
                 }
-                .then(if (enabled) dampedDragAnimation.modifier else Modifier)
-                // A 48dp target is much easier to grab than the visible glass thumb.
+                // The full rail owns the only drag recognizer. Keeping a
+                // second recognizer on the thumb caused duplicate pointer
+                // streams and competing animation updates.
                 .size(48.dp, 48.dp),
             contentAlignment = Alignment.Center,
         ) {

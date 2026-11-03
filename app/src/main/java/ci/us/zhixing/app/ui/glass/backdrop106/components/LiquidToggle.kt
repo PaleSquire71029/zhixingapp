@@ -30,8 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp as lerpColor
 import androidx.compose.ui.graphics.drawscope.scale
@@ -145,11 +143,30 @@ internal fun LiquidToggle(
         Box(
             Modifier
                 .layerBackdrop(trackBackdrop)
-                .clip(Capsule())
-                .drawBehind {
-                    val progress = dampedDragAnimation.value
-                    drawRect(lerpColor(trackColor, accentColor, progress))
-                }
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { Capsule() },
+                    effects = {
+                        blur(8.dp.toPx())
+                        lens(2.5.dp.toPx(), 4.dp.toPx())
+                    },
+                    highlight = {
+                        Highlight.Ambient.copy(
+                            width = Highlight.Ambient.width / 1.6f,
+                            blurRadius = Highlight.Ambient.blurRadius / 1.6f,
+                            alpha = 0.58f,
+                        )
+                    },
+                    shadow = {
+                        Shadow(radius = 4.dp, color = Color.Black.copy(alpha = 0.055f))
+                    },
+                    onDrawSurface = {
+                        val progress = dampedDragAnimation.value
+                        drawRect(
+                            lerpColor(trackColor, accentColor, progress).copy(alpha = 0.48f),
+                        )
+                    },
+                )
                 .size(64.dp, 28.dp),
         )
 
@@ -191,10 +208,12 @@ internal fun LiquidToggle(
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        blur(8f.dp.toPx() * (1f - progress))
+                        // Keep a visible lens at rest; touch feedback adds
+                        // extra distortion instead of switching the glass off.
+                        blur(8f.dp.toPx() * (1f - 0.45f * progress))
                         lens(
-                            5f.dp.toPx() * progress,
-                            10f.dp.toPx() * progress,
+                            lerp(2.5f, 5f, progress).dp.toPx(),
+                            lerp(4f, 10f, progress).dp.toPx(),
                             chromaticAberration = true,
                         )
                     },
@@ -203,7 +222,7 @@ internal fun LiquidToggle(
                         Highlight.Ambient.copy(
                             width = Highlight.Ambient.width / 1.5f,
                             blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = progress,
+                            alpha = 0.28f + 0.62f * progress,
                         )
                     },
                     shadow = {
@@ -228,7 +247,7 @@ internal fun LiquidToggle(
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
-                        drawRect(Color.White.copy(alpha = 1f - progress))
+                        drawRect(Color.White.copy(alpha = 0.68f - 0.26f * progress))
                     },
                 )
                 .size(40.dp, 24.dp),
