@@ -116,7 +116,7 @@ class DampedDragAnimation(
                 onDragStart = start,
                 onDragEnd = end,
                 onDragCancel = cancel,
-                onTap = onTap?.let { callback -> { position -> callback(this, position) } },
+                onTap = onTap?.let { callback -> { position -> callback(this@DampedDragAnimation, position) } },
             ) { change, dragAmount ->
                 onDrag(size, dragAmount)
             }
