@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -259,7 +260,7 @@ internal fun GlassLabScreen(
                 ) { liveValue, onLiveValueChange, onFinished ->
                     ZhixingLiquidSlider(
                         backdrop = backdrop,
-                        value = liveValue,
+                        value = liveValueReader,
                         onValueChange = onLiveValueChange,
                         onValueChangeFinished = onFinished,
                         valueRange = 0f..100f,
@@ -288,7 +289,7 @@ internal fun GlassLabScreen(
                 ) { liveValue, onLiveValueChange, onFinished ->
                     ZhixingLiquidSlider(
                         backdrop = backdrop,
-                        value = liveValue,
+                        value = liveValueReader,
                         onValueChange = onLiveValueChange,
                         onValueChangeFinished = onFinished,
                         valueRange = 0f..24f,
@@ -338,7 +339,7 @@ internal fun GlassLabScreen(
                 ) { liveValue, onLiveValueChange, onFinished ->
                     ZhixingLiquidSlider(
                         backdrop = backdrop,
-                        value = liveValue,
+                        value = liveValueReader,
                         onValueChange = onLiveValueChange,
                         onValueChangeFinished = onFinished,
                         valueRange = 0f..8f,
@@ -480,14 +481,16 @@ private fun SliderSetting(
     description: String,
     onValueCommit: (Float) -> Unit,
     slider: @Composable (
-        liveValue: Float,
+        valueReader: () -> Float,
         onLiveValueChange: (Float) -> Unit,
         onFinished: () -> Unit,
     ) -> Unit,
 ) {
-    // Keep high-frequency pointer state inside this small subtree. The parent
-    // screen and its four backdrop surfaces only recompose once on release.
-    var liveValue by remember(value) { mutableFloatStateOf(value) }
+    // The settings row itself never reads the changing value. The numeric
+    // label is an isolated restart scope; the liquid slider receives a stable
+    // reader and animates its GPU layer without rebuilding the Backdrop subtree.
+    val liveValue = remember(value) { mutableFloatStateOf(value) }
+    val liveValueReader = remember(liveValue) { { liveValue.floatValue } }
 
     Column(
         modifier = Modifier
@@ -505,16 +508,15 @@ private fun SliderSetting(
                 color = ZhixingTheme.colors.onSurface,
             )
             Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = valueLabel(liveValue),
-                style = ZhixingTheme.type.supporting,
-                color = ZhixingTheme.colors.secondary,
+            SliderValueLabel(
+                value = liveValue,
+                formatter = valueLabel,
             )
         }
         slider(
-            liveValue,
-            { next -> liveValue = next },
-            { onValueCommit(liveValue) },
+            liveValueReader,
+            { next -> liveValue.floatValue = next },
+            { onValueCommit(liveValue.floatValue) },
         )
         Text(
             text = description,
@@ -522,6 +524,18 @@ private fun SliderSetting(
             color = ZhixingTheme.colors.onSurfaceVariant,
         )
     }
+}
+
+@Composable
+private fun SliderValueLabel(
+    value: MutableFloatState,
+    formatter: (Float) -> String,
+) {
+    Text(
+        text = formatter(value.floatValue),
+        style = ZhixingTheme.type.supporting,
+        color = ZhixingTheme.colors.secondary,
+    )
 }
 
 @Composable
