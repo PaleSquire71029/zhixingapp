@@ -257,7 +257,7 @@ internal fun GlassLabScreen(
                         transparencyPercent = next.coerceIn(0f, 100f)
                         publishMaterial(commit = true)
                     },
-                ) { liveValue, onLiveValueChange, onFinished ->
+                ) { liveValueReader, onLiveValueChange, onFinished ->
                     ZhixingLiquidSlider(
                         backdrop = backdrop,
                         value = liveValueReader,
@@ -286,7 +286,7 @@ internal fun GlassLabScreen(
                         blurRadiusDp = next.coerceIn(0f, 24f)
                         publishMaterial(commit = true)
                     },
-                ) { liveValue, onLiveValueChange, onFinished ->
+                ) { liveValueReader, onLiveValueChange, onFinished ->
                     ZhixingLiquidSlider(
                         backdrop = backdrop,
                         value = liveValueReader,
@@ -336,7 +336,7 @@ internal fun GlassLabScreen(
                         refractionStrength = next.coerceIn(0f, 8f)
                         publishMaterial(commit = true)
                     },
-                ) { liveValue, onLiveValueChange, onFinished ->
+                ) { liveValueReader, onLiveValueChange, onFinished ->
                     ZhixingLiquidSlider(
                         backdrop = backdrop,
                         value = liveValueReader,
