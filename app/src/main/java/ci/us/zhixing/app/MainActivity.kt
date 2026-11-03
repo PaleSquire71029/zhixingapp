@@ -277,19 +277,19 @@ private fun ZhixingApp(
                             FeatureLine(
                                 title = "原生 Android 工程",
                                 detail = "Kotlin + Jetpack Compose",
-                                backdrop = backdrop,
+                                backdrop = null,
                                 material = contentGlassMaterial,
                             )
                             FeatureLine(
                                 title = "知行浅色设计基线",
                                 detail = "先稳定布局与文字层级",
-                                backdrop = backdrop,
+                                backdrop = null,
                                 material = contentGlassMaterial,
                             )
                             FeatureLine(
                                 title = "逐步迁移",
                                 detail = "液态玻璃、计算和 AI 分别验收",
-                                backdrop = backdrop,
+                                backdrop = null,
                                 material = contentGlassMaterial,
                             )
                         }
@@ -305,7 +305,7 @@ private fun ZhixingApp(
 private fun FeatureLine(
     title: String,
     detail: String,
-    backdrop: Backdrop,
+    backdrop: Backdrop?,
     material: GlassMaterialState,
 ) {
     val shape = ZhixingGlassShapes.card
