@@ -6,6 +6,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -82,14 +83,28 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         val slider = composeRule.onNodeWithContentDescription("透明程度")
         val sliderBounds = slider.fetchSemanticsNode().boundsInRoot
         slider.performTouchInput {
-            val start = Offset(sliderBounds.width * 0.35f, sliderBounds.height / 2f)
-            val end = Offset(sliderBounds.width * 0.75f, sliderBounds.height / 2f)
+            val start = Offset(sliderBounds.width * 0.68f, sliderBounds.height / 2f)
+            val end = Offset(sliderBounds.width * 0.84f, sliderBounds.height / 2f)
             swipe(start, end, durationMillis = 500)
         }
 
         composeRule.waitForIdle()
         composeRule.onAllNodesWithText("68%").assertCountEquals(0)
     }
+
+
+    @Test
+    fun tappingSliderTrackMovesTheThumbWithoutDraggingThePage() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        val slider = composeRule.onNodeWithContentDescription("透明程度")
+        val sliderBounds = slider.fetchSemanticsNode().boundsInRoot
+        slider.performTouchInput {
+            click(Offset(sliderBounds.width * 0.25f, sliderBounds.height / 2f))
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("25%").assertIsDisplayed()
+    }
+
 
     @Test
     fun verticalSwipeStartedOnSliderStillScrollsTheSettingsPage() {
@@ -127,6 +142,34 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         val after = touchFeedbackSwitch.fetchSemanticsNode()
             .config[SemanticsProperties.ToggleableState]
         assertNotEquals("The bottom glass switch should change its state.", before, after)
+    }
+
+
+
+    @Test
+    fun touchFeedbackSwitchCanBeEnabledWhenItsOwnPreferenceIsOff() {
+        runBlocking {
+            GlassMaterialSettingsStore(composeRule.activity).save(
+                DEFAULT_HOME_GLASS_MATERIAL.copy(touchFeedbackEnabled = false),
+            )
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("材质设置").performClick()
+
+        val touchFeedbackSwitch =
+            composeRule.onNodeWithContentDescription("触摸光效与形变")
+        val before = touchFeedbackSwitch.fetchSemanticsNode()
+            .config[SemanticsProperties.ToggleableState]
+        touchFeedbackSwitch.performTouchInput { click() }
+        composeRule.waitForIdle()
+        val after = touchFeedbackSwitch.fetchSemanticsNode()
+            .config[SemanticsProperties.ToggleableState]
+
+        assertNotEquals(
+            "The feedback preference must remain operable when currently off.",
+            before,
+            after,
+        )
     }
 
 

@@ -5,12 +5,11 @@
  * (commit 896a94a3ade1cc1a940b92365f942a34971fecda).
  * Original package: com.kyant.backdrop.catalog.components
  *
- * Zhixing modifications:
- * - package relocated into the isolated backdrop106 namespace;
- * - light palette is fixed to match the app's light-only design;
- * - enabled, touch-feedback and accessible Switch semantics are exposed.
- * The upstream spring-driven drag, track, combined Backdrop and lens effects
- * are otherwise retained.
+ * Zhixing adaptation:
+ * - package and app palette are adapted to the light-only Zhixing UI;
+ * - accessible switch semantics and an enabled flag are added;
+ * - the original flat translucent track and combined-Backdrop glass thumb,
+ *   blur/lens, highlight, shadow and spring deformation are retained.
  * Source: https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6/catalog
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -19,6 +18,8 @@ package ci.us.zhixing.app.ui.glass.backdrop106.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -106,21 +107,22 @@ internal fun LiquidToggle(
             },
             onDrag = { _, dragAmount ->
                 if (enabled) {
-                    if (!didDrag) {
-                        didDrag = dragAmount.x != 0f
-                    }
+                    if (!didDrag) didDrag = dragAmount.x != 0f
                     val delta = dragAmount.x / dragWidth
-                    fraction =
-                        if (isLtr) (fraction + delta).fastCoerceIn(0f, 1f)
-                        else (fraction - delta).fastCoerceIn(0f, 1f)
+                    fraction = if (isLtr) {
+                        (fraction + delta).fastCoerceIn(0f, 1f)
+                    } else {
+                        (fraction - delta).fastCoerceIn(0f, 1f)
+                    }
                 }
             },
         )
     }
+
     LaunchedEffect(dampedDragAnimation) {
         snapshotFlow { fraction }
-            .collectLatest { fraction ->
-                dampedDragAnimation.updateValue(fraction)
+            .collectLatest { currentFraction ->
+                dampedDragAnimation.updateValue(currentFraction)
             }
     }
     LaunchedEffect(selected) {
@@ -140,49 +142,36 @@ internal fun LiquidToggle(
         modifier,
         contentAlignment = Alignment.CenterStart,
     ) {
+        // Match the original Catalog track: translucent tint, no extra blur
+        // sampling layer. This keeps the switch transparent rather than matte.
         Box(
             Modifier
                 .layerBackdrop(trackBackdrop)
-                .drawBackdrop(
-                    backdrop = backdrop,
-                    shape = { Capsule() },
-                    effects = {
-                        blur(8.dp.toPx())
-                        lens(2.5.dp.toPx(), 4.dp.toPx())
-                    },
-                    highlight = {
-                        Highlight.Ambient.copy(
-                            width = Highlight.Ambient.width / 1.6f,
-                            blurRadius = Highlight.Ambient.blurRadius / 1.6f,
-                            alpha = 0.58f,
-                        )
-                    },
-                    shadow = {
-                        Shadow(radius = 4.dp, color = Color.Black.copy(alpha = 0.055f))
-                    },
-                    onDrawSurface = {
-                        val progress = dampedDragAnimation.value
-                        drawRect(
-                            lerpColor(trackColor, accentColor, progress).copy(alpha = 0.48f),
-                        )
-                    },
-                )
+                .clip(Capsule())
+                .drawBehind {
+                    val current = dampedDragAnimation.value
+                    drawRect(lerpColor(trackColor, accentColor, current))
+                }
                 .size(64.dp, 28.dp),
         )
 
         Box(
             Modifier
                 .graphicsLayer {
-                    val progress = dampedDragAnimation.value
+                    val current = dampedDragAnimation.value
                     val padding = 2f.dp.toPx()
-                    translationX =
-                        if (isLtr) lerp(padding, padding + dragWidth, progress)
-                        else lerp(-padding, -(padding + dragWidth), progress)
+                    translationX = if (isLtr) {
+                        lerp(padding, padding + dragWidth, current)
+                    } else {
+                        lerp(-padding, -(padding + dragWidth), current)
+                    }
                 }
+                .size(40.dp, 24.dp)
                 .semantics {
                     role = Role.Switch
                     contentDescription = label
-                    toggleableState = if (selected()) ToggleableState.On else ToggleableState.Off
+                    toggleableState =
+                        if (selected()) ToggleableState.On else ToggleableState.Off
                     if (enabled) {
                         onClick(label) {
                             onSelect(!selected())
@@ -208,12 +197,10 @@ internal fun LiquidToggle(
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        // Keep a visible lens at rest; touch feedback adds
-                        // extra distortion instead of switching the glass off.
-                        blur(8f.dp.toPx() * (1f - 0.45f * progress))
+                        blur(8f.dp.toPx() * (1f - progress))
                         lens(
-                            lerp(2.5f, 5f, progress).dp.toPx(),
-                            lerp(4f, 10f, progress).dp.toPx(),
+                            5f.dp.toPx() * progress,
+                            10f.dp.toPx() * progress,
                             chromaticAberration = true,
                         )
                     },
@@ -222,7 +209,7 @@ internal fun LiquidToggle(
                         Highlight.Ambient.copy(
                             width = Highlight.Ambient.width / 1.5f,
                             blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = 0.28f + 0.62f * progress,
+                            alpha = progress,
                         )
                     },
                     shadow = {
@@ -247,10 +234,9 @@ internal fun LiquidToggle(
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
-                        drawRect(Color.White.copy(alpha = 0.68f - 0.26f * progress))
+                        drawRect(Color.White.copy(alpha = 1f - progress))
                     },
-                )
-                .size(40.dp, 24.dp),
+                ),
         )
     }
 }

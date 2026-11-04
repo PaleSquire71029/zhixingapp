@@ -1412,3 +1412,17 @@
 - [ ] 合并后 main 分支构建仍在运行；真机验收：冷启动首屏帧时间、三个滑块连续往返拖动、松手弹簧、首屏滚动与导航胶囊动画。
 - [ ] 设备实测：iQOO Neo5 活力版冷启动首屏帧时间、三个滑块连续往返拖动、松手弹簧、首屏滚动与导航胶囊动画。
 - [ ] 目前没有接入 Macrobenchmark / 帧时间采集模块，因此不能仅凭 CI 编译结果宣称达到稳定 60 / 90 / 144fps；需要后续真机帧时间数据验收。
+
+
+### 27.11 回归原版 Catalog 滑块 / 开关交互并修复启动闪帧（2026-11-05）
+
+- [x] 检查用户之前上传的 `base.apk`：DEX 中包含 `Backdrop Catalog` 与 `com/kyant/backdrop/catalog/MainActivity` 标识；按 Backdrop Catalog 1.0.6 源码逐项对照滑块、开关、手势检测和滚动容器实现。
+- [x] 滑块恢复为原版交互分工：轨道负责点击定位，玻璃滑块头负责拖动；滑块头使用 Compose Foundation `detectHorizontalDragGestures`，横向触摸越过 touch slop 后才接管，纵向意图会取消该检测器，让设置页 `Column.verticalScroll` 接管，不再使用自定义轴向指针循环。
+- [x] 保留 48dp 滑块头触控区域、无障碍进度语义、步进吸附，以及 GPU 图层填充缩放；恢复 Catalog Animatable + spring + VelocityTracker 的原始拖动与松手回弹状态链。
+- [x] 开关轨道恢复 Catalog 原版半透明色带（`layerBackdrop + clip + drawBehind`），移除新增的模糊 / lens 轨道采样；玻璃旋钮恢复 combined Backdrop、lens、高光、内阴影、速度形变。
+- [x] “触摸光效与形变”开关自身常驻触摸反馈，不再把自身是否启用的值作为自身触摸动效开关，关闭状态下仍能通过按压预览动效并重新启用。
+- [x] 启动时先读取 DataStore 的真实材质配置再创建主页 Backdrop；读取期间显示与正式背景一致的静态渐变，避免先绘制默认材质再切换用户配置导致首帧闪烁。
+- [x] Android 窗口启动背景改为与主页渐变一致的 drawable，避免系统启动窗口的纯白底与应用首屏产生明显色差闪帧。
+- [x] 增加回归测试：滑块头横向拖动、轨道点击、从滑块头开始纵向滚动、触摸反馈开关在关闭状态下重新启用。
+- [ ] Android CI：JVM 单测、androidTest 源码编译和 Debug APK 构建待验证。
+- [ ] 真机验收：iQOO Neo5 活力版检查滑块连续拖动、从滑块处纵向滚动、开关透明玻璃与按压形变、冷启动过渡是否消除闪帧。

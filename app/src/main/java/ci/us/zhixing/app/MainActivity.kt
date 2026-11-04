@@ -24,18 +24,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -54,7 +57,6 @@ import ci.us.zhixing.app.ui.theme.ZhixingGlassShapes
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import ci.us.zhixing.app.R
 import com.kyant.backdrop.Backdrop
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -95,20 +97,32 @@ private fun ZhixingApp(
 ) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     var showGlassLab by rememberSaveable { mutableStateOf(false) }
-    val persistedMaterial by materialSettingsStore.material.collectAsState(
-        initial = DEFAULT_HOME_GLASS_MATERIAL,
-    )
-    var previewMaterial by remember { mutableStateOf<GlassMaterialState?>(null) }
-    var materialSettingsLoaded by remember { mutableStateOf(false) }
-    val persistenceScope = rememberCoroutineScope()
-    val glassMaterial = previewMaterial ?: persistedMaterial
-
-    LaunchedEffect(materialSettingsStore) {
-        materialSettingsStore.material.first()
-        materialSettingsLoaded = true
+    // Do not draw a default-material frame before DataStore has restored the
+    // user's actual optical values. That first-frame swap used to make every
+    // backdrop surface visibly flash when the app cold-started.
+    val persistedMaterial by produceState<GlassMaterialState?>(
+        initialValue = null,
+        key1 = materialSettingsStore,
+    ) {
+        materialSettingsStore.material.collect { restored ->
+            value = restored
+        }
     }
-    LaunchedEffect(persistedMaterial) {
-        if (previewMaterial == persistedMaterial) {
+    var previewMaterial by remember { mutableStateOf<GlassMaterialState?>(null) }
+    val persistenceScope = rememberCoroutineScope()
+
+    if (persistedMaterial == null) {
+        ZhixingTheme {
+            ZhixingStartupSurface()
+        }
+        return
+    }
+
+    val restoredMaterial = checkNotNull(persistedMaterial)
+    val glassMaterial = previewMaterial ?: restoredMaterial
+
+    LaunchedEffect(restoredMaterial) {
+        if (previewMaterial == restoredMaterial) {
             previewMaterial = null
         }
     }
@@ -222,7 +236,6 @@ private fun ZhixingApp(
 
                             ZhixingLiquidButton(
                                 backdrop = backdrop,
-                                enabled = materialSettingsLoaded,
                                 onClick = { showGlassLab = true },
                             ) {
                                 Text(
@@ -344,4 +357,51 @@ private fun FeatureLine(
             )
         }
     }
+}
+
+
+/**
+ * Same light gradient as BackdropHost, but without creating a Backdrop or
+ * compiling glass effects while the first DataStore emission is pending.
+ * Matching the final background prevents a white-to-glass launch flash.
+ */
+@Composable
+private fun ZhixingStartupSurface() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .drawWithCache {
+                val minDimension = size.minDimension
+                val baseGradient = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFFF2F8FC),
+                        Color(0xFFF3F1FA),
+                        Color(0xFFFFF7EF),
+                    ),
+                    start = Offset.Zero,
+                    end = Offset(size.width, size.height),
+                )
+                val upperGlow = Brush.radialGradient(
+                    colors = listOf(Color(0x38A9D6EE), Color(0x00A9D6EE)),
+                    center = Offset(size.width * 0.16f, size.height * 0.12f),
+                    radius = minDimension * 0.78f,
+                )
+                val lowerGlow = Brush.radialGradient(
+                    colors = listOf(Color(0x25C5B9E9), Color(0x00C5B9E9)),
+                    center = Offset(size.width * 0.88f, size.height * 0.82f),
+                    radius = minDimension * 0.72f,
+                )
+                val warmGlow = Brush.radialGradient(
+                    colors = listOf(Color(0x1EDDC6A8), Color(0x00DDC6A8)),
+                    center = Offset(size.width * 0.72f, size.height * 0.28f),
+                    radius = minDimension * 0.58f,
+                )
+                onDrawBehind {
+                    drawRect(baseGradient)
+                    drawCircle(upperGlow, minDimension * 0.78f, Offset(size.width * 0.16f, size.height * 0.12f))
+                    drawCircle(lowerGlow, minDimension * 0.72f, Offset(size.width * 0.88f, size.height * 0.82f))
+                    drawCircle(warmGlow, minDimension * 0.58f, Offset(size.width * 0.72f, size.height * 0.28f))
+                }
+            },
+    )
 }
