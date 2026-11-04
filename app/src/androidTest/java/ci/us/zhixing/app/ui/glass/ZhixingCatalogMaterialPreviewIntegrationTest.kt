@@ -192,7 +192,7 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
 
         val after = slider.fetchSemanticsNode()
             .config[SemanticsProperties.ProgressBarRangeInfo].current
-        val nearestFive = (after / 5f).toInt() * 5f
+        val nearestFive = kotlin.math.round(after / 5f) * 5f
         assertTrue("The thumb should move continuously beyond the initial value.", after > before + 1f)
         assertTrue("The slider must not quantize pointer movement to 5% steps.", kotlin.math.abs(after - nearestFive) > 0.35f)
     }
