@@ -82,8 +82,8 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         val slider = composeRule.onNodeWithContentDescription("透明程度")
         val sliderBounds = slider.fetchSemanticsNode().boundsInRoot
         slider.performTouchInput {
-            val start = Offset(sliderBounds.width * 0.35f, sliderBounds.height / 2f)
-            val end = Offset(sliderBounds.width * 0.75f, sliderBounds.height / 2f)
+            val start = Offset(sliderBounds.width * 0.68f, sliderBounds.height / 2f)
+            val end = Offset(sliderBounds.width * 0.84f, sliderBounds.height / 2f)
             swipe(start, end, durationMillis = 500)
         }
 
