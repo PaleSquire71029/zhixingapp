@@ -1424,5 +1424,8 @@
 - [x] 启动时先读取 DataStore 的真实材质配置再创建主页 Backdrop；读取期间显示与正式背景一致的静态渐变，避免先绘制默认材质再切换用户配置导致首帧闪烁。
 - [x] Android 窗口启动背景改为与主页渐变一致的 drawable，避免系统启动窗口的纯白底与应用首屏产生明显色差闪帧。
 - [x] 增加回归测试：滑块头横向拖动、轨道点击、从滑块头开始纵向滚动、触摸反馈开关在关闭状态下重新启用。
-- [ ] Android CI：JVM 单测、androidTest 源码编译和 Debug APK 构建待验证。
+- [x] PR #87 已合并，merge commit `a76eae5b3daf9ac152df63d6b2579b79cf46f301`。
+- [x] Android Build #289（Run ID `41874462608`）成功：资源校验、JVM 单测、androidTest Kotlin 源码编译、Debug APK 组装与 Artifact 上传全部通过。
+- [x] 构建 Artifact `13345538217`；APK `12,842,023 bytes`；SHA-256 `f1f5641d68c56e6d449ecb8ceb8f175bf2b8a6218271ccef8cebd90163fece3f`。
+- [ ] 真机验收：iQOO Neo5 活力版上测试滑块拖动 / 轨道点击 / 从滑块头纵向滚动、开关透明玻璃与按压反馈、冷启动闪帧。
 - [ ] 真机验收：iQOO Neo5 活力版检查滑块连续拖动、从滑块处纵向滚动、开关透明玻璃与按压形变、冷启动过渡是否消除闪帧。
