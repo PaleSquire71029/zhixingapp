@@ -91,6 +91,20 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         composeRule.onAllNodesWithText("68%").assertCountEquals(0)
     }
 
+
+    @Test
+    fun tappingSliderTrackMovesTheThumbWithoutDraggingThePage() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        val slider = composeRule.onNodeWithContentDescription("透明程度")
+        val sliderBounds = slider.fetchSemanticsNode().boundsInRoot
+        slider.performTouchInput {
+            click(Offset(sliderBounds.width * 0.25f, sliderBounds.height / 2f))
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("25%").assertIsDisplayed()
+    }
+
+
     @Test
     fun verticalSwipeStartedOnSliderStillScrollsTheSettingsPage() {
         composeRule.onNodeWithText("材质设置").performClick()
