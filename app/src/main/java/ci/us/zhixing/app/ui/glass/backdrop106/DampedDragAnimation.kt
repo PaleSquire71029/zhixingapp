@@ -20,12 +20,17 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.IntSize
+import android.os.SystemClock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.filter
@@ -72,14 +77,73 @@ class DampedDragAnimation(
     private val mutatorMutex = MutatorMutex()
     private val velocityTracker = VelocityTracker()
 
-    val value: Float get() = valueAnimation.value
+    // During slider drag, read this state from graphicsLayer properties and
+    // follow the pointer directly. Do not start a new Animatable spring for
+    // every MotionEvent; the spring/velocity animations remain responsible
+    // for release, press, squash and rebound.
+    private var directDragging by mutableStateOf(false)
+    private var directValue by mutableFloatStateOf(initialValue)
+    private var directVelocity by mutableFloatStateOf(0f)
+
+    val isDirectDragging: Boolean get() = directDragging
+    val directDragValue: Float get() = directValue
+    val value: Float get() = if (directDragging) directValue else valueAnimation.value
     val progress: Float get() =
         (value - valueRange.start) / (valueRange.endInclusive - valueRange.start)
-    val targetValue: Float get() = valueAnimation.targetValue
+    val targetValue: Float get() = if (directDragging) directValue else valueAnimation.targetValue
     val pressProgress: Float get() = pressProgressAnimation.value
     val scaleX: Float get() = scaleXAnimation.value
     val scaleY: Float get() = scaleYAnimation.value
-    val velocity: Float get() = velocityAnimation.value
+    val velocity: Float get() = if (directDragging) directVelocity else velocityAnimation.value
+
+    fun beginDirectDrag() {
+        directValue = valueAnimation.value
+        directVelocity = 0f
+        directDragging = true
+        velocityTracker.resetTracking()
+        velocityTracker.addPosition(
+            SystemClock.uptimeMillis(),
+            Offset(directValue, 0f),
+        )
+    }
+
+    fun updateDirectDragValue(value: Float) {
+        val next = value.coerceIn(valueRange)
+        directValue = next
+        velocityTracker.addPosition(
+            SystemClock.uptimeMillis(),
+            Offset(next, 0f),
+        )
+        val range = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
+        directVelocity = velocityTracker.calculateVelocity().x / range
+    }
+
+    fun finishDirectDrag(finalValue: Float = directValue) {
+        val position = directValue
+        val dragVelocity = directVelocity
+        val target = finalValue.coerceIn(valueRange)
+        animationScope.launch {
+            // Cancel any stale spring and synchronize once on release.
+            valueAnimation.snapTo(position)
+            velocityAnimation.snapTo(dragVelocity)
+            directDragging = false
+            launch {
+                valueAnimation.animateTo(
+                    targetValue = target,
+                    animationSpec = valueAnimationSpec,
+                    initialVelocity = dragVelocity,
+                )
+            }
+            launch {
+                velocityAnimation.animateTo(0f, velocityAnimationSpec)
+            }
+        }
+    }
+
+    fun cancelDirectDrag() {
+        if (!directDragging) return
+        finishDirectDrag(directValue)
+    }
 
     val modifier: Modifier = Modifier.pointerInput(Unit) {
         if (horizontalDragOnly) {
@@ -149,6 +213,7 @@ class DampedDragAnimation(
     }
 
     fun updateValue(value: Float) {
+        if (directDragging) return
         val targetValue = value.coerceIn(valueRange)
         animationScope.launch {
             launch {
