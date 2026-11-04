@@ -5,8 +5,11 @@
  * (commit 896a94a3ade1cc1a940b92365f942a34971fecda).
  * Original package: com.kyant.backdrop.catalog.utils
  *
- * Modified for Zhixing: package namespace relocated and optional touch-only
- * press animation can be disabled while retaining the original drag physics.
+ * Zhixing adaptation:
+ * - keep the upstream Animatable / spring / velocity pipeline intact;
+ * - optionally use Compose's horizontal drag detector for sliders inside
+ *   verticalScroll containers, allowing vertical gestures to reach the parent;
+ * - allow the touch-feedback preference to gate press/release effects.
  * Source: https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6/catalog
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -16,17 +19,13 @@ package ci.us.zhixing.app.ui.glass.backdrop106
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.MutatorMutex
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.IntSize
-import android.os.SystemClock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.filter
@@ -43,7 +42,6 @@ class DampedDragAnimation(
     val pressedScale: Float,
     private val touchFeedbackEnabled: Boolean = true,
     private val horizontalDragOnly: Boolean = false,
-    private val onTap: (DampedDragAnimation.(Offset) -> Unit)? = null,
     val onDragStarted: DampedDragAnimation.(position: Offset) -> Unit,
     val onDragStopped: DampedDragAnimation.() -> Unit,
     val onDrag: DampedDragAnimation.(size: IntSize, dragAmount: Offset) -> Unit,
@@ -72,64 +70,54 @@ class DampedDragAnimation(
         Animatable(initialScale, 0.001f)
 
     private val mutatorMutex = MutatorMutex()
-
     private val velocityTracker = VelocityTracker()
 
-    // Slider movement is stored directly in snapshot state. This removes the
-    // per-pointer coroutine/channel hop; graphics-layer readers can update
-    // translation and fill scale on the next frame without a layout pass.
-    private var directDragging by mutableStateOf(false)
-    private var directDragPosition by mutableFloatStateOf(initialValue)
-    private var directDragVelocity by mutableFloatStateOf(0f)
-
-    val directDragValue: Float get() = directDragPosition
-    val value: Float get() = if (directDragging) directDragPosition else valueAnimation.value
-    val progress: Float get() = (value - valueRange.start) / (valueRange.endInclusive - valueRange.start)
-    val targetValue: Float get() = if (directDragging) directDragPosition else valueAnimation.targetValue
+    val value: Float get() = valueAnimation.value
+    val progress: Float get() =
+        (value - valueRange.start) / (valueRange.endInclusive - valueRange.start)
+    val targetValue: Float get() = valueAnimation.targetValue
     val pressProgress: Float get() = pressProgressAnimation.value
     val scaleX: Float get() = scaleXAnimation.value
     val scaleY: Float get() = scaleYAnimation.value
-    val velocity: Float get() = if (directDragging) directDragVelocity else velocityAnimation.value
+    val velocity: Float get() = velocityAnimation.value
 
     val modifier: Modifier = Modifier.pointerInput(Unit) {
-        val start: (androidx.compose.ui.input.pointer.PointerInputChange) -> Unit = { down ->
-            velocityTracker.resetTracking()
-            onDragStarted(down.position)
-            if (touchFeedbackEnabled) press()
-        }
-        val finish: () -> Unit = {
-            if (horizontalDragOnly && directDragging) {
-                // Snap the Animatable to the last pointer value exactly once,
-                // after the finger lifts. No Animatable mutation is scheduled
-                // for each MotionEvent during the drag itself.
-                animationScope.launch {
-                    valueAnimation.snapTo(directDragPosition)
-                    velocityAnimation.snapTo(directDragVelocity)
-                    directDragging = false
+        if (horizontalDragOnly) {
+            // The Foundation detector waits for horizontal touch slop and
+            // cancels on vertical intent. Parent verticalScroll therefore
+            // receives vertical gestures without a competing custom recognizer.
+            detectHorizontalDragGestures(
+                onDragStart = { position ->
+                    velocityTracker.resetTracking()
+                    onDragStarted(position)
+                    if (touchFeedbackEnabled) press()
+                },
+                onDragEnd = {
                     onDragStopped()
                     if (touchFeedbackEnabled) release()
-                }
-            } else {
-                onDragStopped()
-                if (touchFeedbackEnabled) release()
-            }
-        }
-        val end: (androidx.compose.ui.input.pointer.PointerInputChange) -> Unit = { finish() }
-        val cancel: () -> Unit = { finish() }
-        if (horizontalDragOnly) {
-            inspectHorizontalDragGestures(
-                onDragStart = start,
-                onDragEnd = end,
-                onDragCancel = cancel,
-                onTap = onTap?.let { callback -> { position -> callback(this@DampedDragAnimation, position) } },
+                },
+                onDragCancel = {
+                    onDragStopped()
+                    if (touchFeedbackEnabled) release()
+                },
             ) { change, dragAmount ->
-                onDrag(size, dragAmount)
+                onDrag(size, Offset(dragAmount, 0f))
             }
         } else {
             inspectDragGestures(
-                onDragStart = start,
-                onDragEnd = end,
-                onDragCancel = cancel,
+                onDragStart = { down ->
+                    velocityTracker.resetTracking()
+                    onDragStarted(down.position)
+                    if (touchFeedbackEnabled) press()
+                },
+                onDragEnd = {
+                    onDragStopped()
+                    if (touchFeedbackEnabled) release()
+                },
+                onDragCancel = {
+                    onDragStopped()
+                    if (touchFeedbackEnabled) release()
+                },
             ) { change, dragAmount ->
                 onDrag(size, dragAmount)
             }
@@ -160,28 +148,14 @@ class DampedDragAnimation(
         }
     }
 
-    fun beginDirectDrag() {
-        velocityTracker.resetTracking()
-        directDragPosition = valueAnimation.value
-        directDragVelocity = velocityAnimation.value
-        directDragging = true
-    }
-
-    fun updateDirectDrag(value: Float) {
-        val next = value.coerceIn(valueRange)
-        directDragPosition = next
-        velocityTracker.addPosition(
-            SystemClock.uptimeMillis(),
-            Offset(next, 0f),
-        )
-        val range = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
-        directDragVelocity = velocityTracker.calculateVelocity().x / range
-    }
-
     fun updateValue(value: Float) {
         val targetValue = value.coerceIn(valueRange)
         animationScope.launch {
-            launch { valueAnimation.animateTo(targetValue, valueAnimationSpec) { updateVelocity() } }
+            launch {
+                valueAnimation.animateTo(targetValue, valueAnimationSpec) {
+                    updateVelocity()
+                }
+            }
         }
     }
 
@@ -202,9 +176,12 @@ class DampedDragAnimation(
     private fun updateVelocity() {
         velocityTracker.addPosition(
             System.currentTimeMillis(),
-            Offset(value, 0f)
+            Offset(value, 0f),
         )
-        val targetVelocity = velocityTracker.calculateVelocity().x / (valueRange.endInclusive - valueRange.start)
-        animationScope.launch { velocityAnimation.animateTo(targetVelocity, velocityAnimationSpec) }
+        val targetVelocity =
+            velocityTracker.calculateVelocity().x / (valueRange.endInclusive - valueRange.start)
+        animationScope.launch {
+            velocityAnimation.animateTo(targetVelocity, velocityAnimationSpec)
+        }
     }
 }
