@@ -18,8 +18,8 @@ package ci.us.zhixing.app.ui.glass.backdrop106.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.drawBehind
-import androidx.compose.foundation.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
