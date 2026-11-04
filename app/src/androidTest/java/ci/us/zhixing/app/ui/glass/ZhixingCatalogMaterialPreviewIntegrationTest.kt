@@ -173,6 +173,68 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
     }
 
 
+
+    @Test
+    fun sliderDragUsesContinuousValuesInsteadOfFivePercentSteps() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        val slider = composeRule.onNodeWithContentDescription("透明程度")
+        val before = slider.fetchSemanticsNode()
+            .config[SemanticsProperties.ProgressBarRangeInfo].current
+        assertTrue("The test starts from the default 68 percent.", before == 68f)
+
+        val bounds = slider.fetchSemanticsNode().boundsInRoot
+        slider.performTouchInput {
+            val start = Offset(bounds.width * 0.68f, bounds.height / 2f)
+            val end = Offset(bounds.width * 0.76f, bounds.height / 2f)
+            swipe(start, end, durationMillis = 500)
+        }
+        composeRule.waitForIdle()
+
+        val after = slider.fetchSemanticsNode()
+            .config[SemanticsProperties.ProgressBarRangeInfo].current
+        val nearestFive = (after / 5f).toInt() * 5f
+        assertTrue("The thumb should move continuously beyond the initial value.", after > before + 1f)
+        assertTrue("The slider must not quantize pointer movement to 5% steps.", kotlin.math.abs(after - nearestFive) > 0.35f)
+    }
+
+
+
+    @Test
+    fun longPressOnSwitchLocksThePointerAndDoesNotScrollTheSettingsPage() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        val root = composeRule.onRoot()
+        repeat(3) {
+            root.performTouchInput {
+                val start = Offset(size.width * 0.78f, size.height * 0.82f)
+                val end = Offset(size.width * 0.78f, size.height * 0.28f)
+                swipe(start, end, durationMillis = 300)
+            }
+            composeRule.waitForIdle()
+        }
+
+        val touchFeedbackSwitch =
+            composeRule.onNodeWithContentDescription("触摸光效与形变")
+        touchFeedbackSwitch.assertIsDisplayed()
+        val sectionTitle = composeRule.onNodeWithText("触摸反馈")
+        val beforeTop = sectionTitle.fetchSemanticsNode().boundsInRoot.top
+
+        touchFeedbackSwitch.performTouchInput {
+            down(Offset(size.width / 2f, size.height / 2f))
+            advanceEventTime(900)
+            moveBy(Offset(0f, 90f))
+            advanceEventTime(120)
+            up()
+        }
+        composeRule.waitForIdle()
+
+        val afterTop = sectionTitle.fetchSemanticsNode().boundsInRoot.top
+        assertTrue(
+            "A vertical movement after long-pressing the switch must not move the scroll container.",
+            kotlin.math.abs(afterTop - beforeTop) < 1f,
+        )
+    }
+
+
     private fun hasTabRole() =
         SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
