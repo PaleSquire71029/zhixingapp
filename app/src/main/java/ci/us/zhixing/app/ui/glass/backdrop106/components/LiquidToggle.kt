@@ -17,6 +17,7 @@
 package ci.us.zhixing.app.ui.glass.backdrop106.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.clip
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp as lerpColor
 import androidx.compose.ui.graphics.drawscope.scale
@@ -92,16 +94,14 @@ internal fun LiquidToggle(
             initialScale = 1f,
             pressedScale = 1.5f,
             touchFeedbackEnabled = touchFeedbackEnabled,
+            horizontalDragOnly = true,
             onDragStarted = {},
             onDragStopped = {
-                if (enabled) {
-                    if (didDrag) {
-                        fraction = if (targetValue >= 0.5f) 1f else 0f
-                        onSelect(fraction == 1f)
-                    } else {
-                        fraction = if (selected()) 0f else 1f
-                        onSelect(fraction == 1f)
-                    }
+                // Taps are handled by the root tap/long-press detector below.
+                // This callback only commits an actual horizontal thumb drag.
+                if (enabled && didDrag) {
+                    fraction = if (fraction >= 0.5f) 1f else 0f
+                    onSelect(fraction == 1f)
                 }
                 didDrag = false
             },
@@ -138,8 +138,33 @@ internal fun LiquidToggle(
 
     val trackBackdrop = rememberLayerBackdrop()
 
+    // The thumb drag detector is horizontal-only. This tap detector owns
+    // click and long-press; once the long-press timeout is reached it consumes
+    // subsequent movement so the containing verticalScroll cannot steal a
+    // held switch gesture. Before long-press, vertical intent still scrolls.
+    val pressGesture = if (enabled) {
+        Modifier.pointerInput(enabled, touchFeedbackEnabled, dampedDragAnimation) {
+            detectTapGestures(
+                onPress = {
+                    if (touchFeedbackEnabled) dampedDragAnimation.press()
+                    tryAwaitRelease()
+                    if (touchFeedbackEnabled) dampedDragAnimation.release()
+                },
+                onTap = {
+                    if (enabled) onSelect(!selected())
+                },
+                onLongPress = {
+                    // Intentionally empty: recognizing the long press is
+                    // enough to lock this pointer stream to the switch.
+                },
+            )
+        }
+    } else {
+        Modifier
+    }
+
     Box(
-        modifier,
+        modifier.then(pressGesture),
         contentAlignment = Alignment.CenterStart,
     ) {
         // Match the original Catalog track: translucent tint, no extra blur
