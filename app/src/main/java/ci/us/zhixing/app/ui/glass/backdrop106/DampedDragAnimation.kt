@@ -84,6 +84,7 @@ class DampedDragAnimation(
     private var directDragging by mutableStateOf(false)
     private var directValue by mutableFloatStateOf(initialValue)
     private var directVelocity by mutableFloatStateOf(0f)
+    private var directDragGeneration: Long = 0L
 
     val isDirectDragging: Boolean get() = directDragging
     val directDragValue: Float get() = directValue
@@ -97,7 +98,10 @@ class DampedDragAnimation(
     val velocity: Float get() = if (directDragging) directVelocity else velocityAnimation.value
 
     fun beginDirectDrag() {
-        directValue = valueAnimation.value
+        directDragGeneration += 1L
+        if (!directDragging) {
+            directValue = valueAnimation.value
+        }
         directVelocity = 0f
         directDragging = true
         velocityTracker.resetTracking()
@@ -122,10 +126,14 @@ class DampedDragAnimation(
         val position = directValue
         val dragVelocity = directVelocity
         val target = finalValue.coerceIn(valueRange)
+        val generation = directDragGeneration
         animationScope.launch {
-            // Cancel any stale spring and synchronize once on release.
+            // Cancel any stale spring and synchronize once on release. A
+            // quick re-grab creates a new generation and must not be cleared
+            // by this older release coroutine.
             valueAnimation.snapTo(position)
             velocityAnimation.snapTo(dragVelocity)
+            if (generation != directDragGeneration) return@launch
             directDragging = false
             launch {
                 valueAnimation.animateTo(
