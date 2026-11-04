@@ -5,8 +5,8 @@
  * (commit 896a94a3ade1cc1a940b92365f942a34971fecda).
  * Original package: com.kyant.backdrop.catalog.utils
  *
- * Modified for Zhixing: package namespace relocated only. The upstream
- * animation, gesture, velocity, cancellation, and shader logic is retained.
+ * Package relocation only. Slider axis arbitration is handled by Compose's
+ * detectHorizontalDragGestures in DampedDragAnimation.
  * Source: https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6/catalog
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -17,35 +17,30 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
-import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.util.fastFirstOrNull
-import kotlin.math.abs
-import kotlin.math.sign
 
 suspend fun PointerInputScope.inspectDragGestures(
     onDragStart: (down: PointerInputChange) -> Unit = {},
     onDragEnd: (change: PointerInputChange) -> Unit = {},
     onDragCancel: () -> Unit = {},
-    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
+    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
 ) {
     awaitEachGesture {
-        val initialDown = awaitFirstDown(false, PointerEventPass.Initial)
-
+        val initialDown = awaitFirstDown(false, androidx.compose.ui.input.pointer.PointerEventPass.Initial)
         val down = awaitFirstDown(false)
         val drag = initialDown
 
         onDragStart(down)
         onDrag(drag, Offset.Zero)
-        val upEvent =
-            drag(
-                pointerId = drag.id,
-                onDrag = { onDrag(it, it.positionChange()) }
-            )
+        val upEvent = drag(
+            pointerId = drag.id,
+            onDrag = { onDrag(it, it.positionChange()) },
+        )
         if (upEvent == null) {
             onDragCancel()
         } else {
@@ -56,28 +51,24 @@ suspend fun PointerInputScope.inspectDragGestures(
 
 private suspend inline fun AwaitPointerEventScope.drag(
     pointerId: PointerId,
-    onDrag: (PointerInputChange) -> Unit
+    onDrag: (PointerInputChange) -> Unit,
 ): PointerInputChange? {
-    val isPointerUp = currentEvent.changes.fastFirstOrNull { it.id == pointerId }?.pressed != true
-    if (isPointerUp) {
-        return null
-    }
+    val isPointerUp =
+        currentEvent.changes.fastFirstOrNull { it.id == pointerId }?.pressed != true
+    if (isPointerUp) return null
+
     var pointer = pointerId
     while (true) {
         val change = awaitDragOrUp(pointer) ?: return null
-        if (change.isConsumed) {
-            return null
-        }
-        if (change.changedToUpIgnoreConsumed()) {
-            return change
-        }
+        if (change.isConsumed) return null
+        if (change.changedToUpIgnoreConsumed()) return change
         onDrag(change)
         pointer = change.id
     }
 }
 
 private suspend inline fun AwaitPointerEventScope.awaitDragOrUp(
-    pointerId: PointerId
+    pointerId: PointerId,
 ): PointerInputChange? {
     var pointer = pointerId
     while (true) {
@@ -85,86 +76,11 @@ private suspend inline fun AwaitPointerEventScope.awaitDragOrUp(
         val dragEvent = event.changes.fastFirstOrNull { it.id == pointer } ?: return null
         if (dragEvent.changedToUpIgnoreConsumed()) {
             val otherDown = event.changes.fastFirstOrNull { it.pressed }
-            if (otherDown == null) {
-                return dragEvent
-            } else {
-                pointer = otherDown.id
-            }
+            if (otherDown == null) return dragEvent
+            pointer = otherDown.id
         } else {
             val hasDragged = dragEvent.previousPosition != dragEvent.position
-            if (hasDragged) {
-                return dragEvent
-            }
-        }
-    }
-}
-
-
-/**
- * Horizontal-axis drag inspection for sliders nested in vertical scroll containers.
- *
- * The child waits for touch slop without consuming the pointer. A horizontal
- * movement wins only when its accumulated X distance exceeds both touch slop
- * and the accumulated Y distance. A vertical movement is left untouched so
- * the ancestor scroll container can take ownership of the gesture.
- */
-suspend fun PointerInputScope.inspectHorizontalDragGestures(
-    onDragStart: (down: PointerInputChange) -> Unit = {},
-    onDragEnd: (change: PointerInputChange) -> Unit = {},
-    onDragCancel: () -> Unit = {},
-    onTap: ((Offset) -> Unit)? = null,
-    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
-) {
-    awaitEachGesture {
-        val down = awaitFirstDown(requireUnconsumed = false)
-        var dragStarted = false
-        var accumulated = Offset.Zero
-
-        while (true) {
-            val event = awaitPointerEvent(PointerEventPass.Main)
-            val change = event.changes.fastFirstOrNull { it.id == down.id }
-
-            if (change == null || change.isConsumed) {
-                if (dragStarted) onDragCancel()
-                break
-            }
-
-            val delta = change.positionChange()
-            if (!dragStarted && change.pressed) {
-                accumulated += delta
-                val horizontalDistance = abs(accumulated.x)
-                val verticalDistance = abs(accumulated.y)
-                val touchSlop = viewConfiguration.touchSlop
-
-                when {
-                    horizontalDistance > touchSlop && horizontalDistance > verticalDistance -> {
-                        dragStarted = true
-                        onDragStart(change)
-                        change.consume()
-                        val overSlop = accumulated.x - sign(accumulated.x) * touchSlop
-                        if (overSlop != 0f) {
-                            onDrag(change, Offset(overSlop, 0f))
-                        }
-                    }
-
-                    verticalDistance > touchSlop && verticalDistance >= horizontalDistance -> {
-                        // Do not consume: the parent verticalScroll must receive this movement.
-                        break
-                    }
-                }
-            } else if (dragStarted && delta.x != 0f) {
-                onDrag(change, Offset(delta.x, 0f))
-                change.consume()
-            }
-
-            if (!change.pressed) {
-                if (dragStarted) {
-                    onDragEnd(change)
-                } else {
-                    onTap?.invoke(down.position)
-                }
-                break
-            }
+            if (hasDragged) return dragEvent
         }
     }
 }
