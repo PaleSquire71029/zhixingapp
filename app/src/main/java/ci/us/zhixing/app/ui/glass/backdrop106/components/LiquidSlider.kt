@@ -5,14 +5,11 @@
  * (commit 896a94a3ade1cc1a940b92365f942a34971fecda).
  * Original package: com.kyant.backdrop.catalog.components
  *
- * Zhixing modifications:
- * - relocated into the isolated backdrop106 namespace;
- * - fixed the palette for the app's light-only visual system;
- * - added enabled and touch-feedback gates;
- * - retained optional Material Slider step intervals and commit-on-release;
- * - exposed accessible Slider range / set-progress semantics and a 48dp hit area.
- * The upstream spring-driven drag, combined Backdrop, lens and highlight
- * rendering remain the visual foundation.
+ * Zhixing adaptation:
+ * - keep upstream track-tap + thumb-drag interaction structure;
+ * - use Foundation horizontal drag detection so verticalScroll owns vertical intent;
+ * - keep the existing accessibility range, step snapping and enlarged thumb target;
+ * - keep the progress fill on a graphics layer to avoid layout measurement per frame.
  * Source: https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6/catalog
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -20,6 +17,7 @@
 package ci.us.zhixing.app.ui.glass.backdrop106.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,19 +27,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
@@ -150,90 +147,89 @@ internal fun LiquidSlider(
                 pressedScale = 1.5f,
                 touchFeedbackEnabled = touchFeedbackEnabled,
                 horizontalDragOnly = true,
-                onTap = { position ->
-                    val fraction = (position.x / trackWidth).fastCoerceIn(0f, 1f)
-                    val candidate = if (isLtr) {
-                        valueRange.start + (valueRange.endInclusive - valueRange.start) * fraction
-                    } else {
-                        valueRange.endInclusive - (valueRange.endInclusive - valueRange.start) * fraction
-                    }
-                    val next = snapValue(candidate)
-                    animateToValue(next)
-                    onValueChangeState.value(next)
-                    onValueChangeFinishedState.value()
-                },
                 onDragStarted = {
                     didDrag = false
-                    beginDirectDrag()
                 },
                 onDragStopped = {
                     if (enabled && didDrag) {
-                        val settledValue = snapValue(directDragValue)
-                        if (settledValue != directDragValue) {
-                            animateToValue(settledValue)
-                        }
-                        onValueChangeState.value(settledValue)
+                        onValueChangeState.value(snapValue(targetValue))
                         onValueChangeFinishedState.value()
                     }
                     didDrag = false
                 },
                 onDrag = { _, dragAmount ->
                     if (enabled && trackWidth > 0f) {
-                        if (!didDrag) {
-                            didDrag = dragAmount.x != 0f
-                        }
+                        if (!didDrag) didDrag = dragAmount.x != 0f
                         val delta =
                             (valueRange.endInclusive - valueRange.start) *
                                 (dragAmount.x / trackWidth)
-                        val candidate = if (isLtr) directDragValue + delta else directDragValue - delta
-                        val next = snapValue(candidate)
-                        updateDirectDrag(next)
-                        onValueChangeState.value(next)
+                        val candidate = if (isLtr) targetValue + delta else targetValue - delta
+                        onValueChangeState.value(snapValue(candidate))
                     }
                 },
             )
         }
 
         LaunchedEffect(dampedDragAnimation) {
-            snapshotFlow { valueReader() to didDrag }
-                .collectLatest { (newValue, isDragging) ->
-                    if (!isDragging) {
-                        val snapped = newValue.coerceIn(valueRange)
-                        if (dampedDragAnimation.targetValue != snapped) {
-                            dampedDragAnimation.updateValue(snapped)
-                        }
+            snapshotFlow { valueReader() }
+                .collectLatest { nextValue ->
+                    val next = nextValue.coerceIn(valueRange)
+                    if (dampedDragAnimation.targetValue != next) {
+                        dampedDragAnimation.updateValue(next)
                     }
                 }
         }
 
+        // The full rail is a generous tap target, like the Catalog's thin
+        // visual track. It does not own drag gestures: horizontal dragging is
+        // reserved for the glass thumb below; vertical gestures bubble to the
+        // settings page's verticalScroll.
         Box(
             Modifier
                 .layerBackdrop(trackBackdrop)
                 .fillMaxWidth()
                 .height(48.dp)
-                // Let the whole rail handle horizontal drags; vertical movement
-                // remains unconsumed for the page's scroll container.
-                .then(if (enabled) dampedDragAnimation.modifier else Modifier),
+                .then(
+                    if (enabled) {
+                        Modifier.pointerInput(animationScope, trackWidth, isLtr, valueRange) {
+                            detectTapGestures { position ->
+                                val fraction = (position.x / trackWidth).fastCoerceIn(0f, 1f)
+                                val delta =
+                                    (valueRange.endInclusive - valueRange.start) * fraction
+                                val next = snapValue(
+                                    if (isLtr) valueRange.start + delta
+                                    else valueRange.endInclusive - delta,
+                                )
+                                dampedDragAnimation.animateToValue(next)
+                                onValueChangeState.value(next)
+                                onValueChangeFinishedState.value()
+                            }
+                        }
+                    } else {
+                        Modifier
+                    },
+                ),
             contentAlignment = Alignment.CenterStart,
         ) {
             Box(
                 Modifier
+                    .align(Alignment.CenterStart)
                     .clip(Capsule())
-                    .background(if (enabled) trackColor else trackColor.copy(alpha = trackColor.alpha * 0.65f))
-                    .height(6.dp)
-                    .fillMaxWidth(),
+                    .background(
+                        if (enabled) trackColor
+                        else trackColor.copy(alpha = trackColor.alpha * 0.65f),
+                    )
+                    .fillMaxWidth()
+                    .height(6.dp),
             )
-
             Box(
                 Modifier
                     .align(Alignment.CenterStart)
                     .clip(Capsule())
                     .background(if (enabled) accentColor else accentColor.copy(alpha = 0.35f))
-                    .height(6.dp)
                     .fillMaxWidth()
+                    .height(6.dp)
                     .graphicsLayer {
-                        // Animate the fill as a GPU layer transform, not by
-                        // changing measured width on every touch event.
                         transformOrigin = TransformOrigin(
                             pivotFractionX = if (isLtr) 0f else 1f,
                             pivotFractionY = 0.5f,
@@ -245,16 +241,15 @@ internal fun LiquidSlider(
 
         Box(
             Modifier
+                .align(Alignment.CenterStart)
                 .graphicsLayer {
                     translationX =
                         (-size.width / 2f + trackWidth * dampedDragAnimation.progress)
                             .fastCoerceIn(-size.width / 4f, trackWidth - size.width * 3f / 4f) *
                             if (isLtr) 1f else -1f
                 }
-                // The full rail owns the only drag recognizer. Keeping a
-                // second recognizer on the thumb caused duplicate pointer
-                // streams and competing animation updates.
-                .size(48.dp, 48.dp),
+                .size(48.dp)
+                .then(if (enabled) dampedDragAnimation.modifier else Modifier),
             contentAlignment = Alignment.Center,
         ) {
             Box(
