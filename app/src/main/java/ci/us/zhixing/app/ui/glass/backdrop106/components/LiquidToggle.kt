@@ -32,7 +32,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.lerp as lerpColor
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -150,7 +150,7 @@ internal fun LiquidToggle(
                 .clip(Capsule())
                 .drawBehind {
                     val current = dampedDragAnimation.value
-                    drawRect(lerp(trackColor, accentColor, current))
+                    drawRect(lerpColor(trackColor, accentColor, current))
                 }
                 .size(64.dp, 28.dp),
         )
