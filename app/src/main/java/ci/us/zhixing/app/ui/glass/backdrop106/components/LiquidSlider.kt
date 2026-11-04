@@ -151,11 +151,16 @@ internal fun LiquidSlider(
                 horizontalDragOnly = true,
                 onDragStarted = {
                     didDrag = false
+                    beginDirectDrag()
                 },
                 onDragStopped = {
                     if (enabled && didDrag) {
-                        onValueChangeState.value(snapValue(targetValue))
+                        val finalValue = directDragValue.coerceIn(valueRange)
+                        finishDirectDrag(finalValue)
+                        onValueChangeState.value(finalValue)
                         onValueChangeFinishedState.value()
+                    } else {
+                        cancelDirectDrag()
                     }
                     didDrag = false
                 },
@@ -165,19 +170,23 @@ internal fun LiquidSlider(
                         val delta =
                             (valueRange.endInclusive - valueRange.start) *
                                 (dragAmount.x / trackWidth)
-                        val candidate = if (isLtr) targetValue + delta else targetValue - delta
-                        onValueChangeState.value(snapValue(candidate))
+                        val candidate = if (isLtr) directDragValue + delta else directDragValue - delta
+                        val next = candidate.coerceIn(valueRange)
+                        updateDirectDragValue(next)
+                        onValueChangeState.value(next)
                     }
                 },
             )
         }
 
         LaunchedEffect(dampedDragAnimation) {
-            snapshotFlow { valueReader() }
-                .collectLatest { nextValue ->
-                    val next = nextValue.coerceIn(valueRange)
-                    if (dampedDragAnimation.targetValue != next) {
-                        dampedDragAnimation.updateValue(next)
+            snapshotFlow { valueReader() to dampedDragAnimation.isDirectDragging }
+                .collectLatest { (nextValue, isDragging) ->
+                    if (!isDragging) {
+                        val next = nextValue.coerceIn(valueRange)
+                        if (dampedDragAnimation.targetValue != next) {
+                            dampedDragAnimation.updateValue(next)
+                        }
                     }
                 }
         }
