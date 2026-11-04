@@ -412,6 +412,7 @@ internal fun GlassLabScreen(
                     enabled = backdropEnabled,
                     touchFeedbackEnabled = touchFeedbackEnabled,
                     label = "触摸光效与形变",
+                    alwaysAnimate = true,
                 ) { checked ->
                     markCustom()
                     touchFeedbackEnabled = checked
@@ -547,6 +548,7 @@ private fun GlassToggleRow(
     enabled: Boolean,
     touchFeedbackEnabled: Boolean,
     label: String,
+    alwaysAnimate: Boolean = false,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
@@ -577,7 +579,10 @@ private fun GlassToggleRow(
             backdrop = backdrop,
             checked = checked,
             enabled = enabled,
-            touchFeedbackEnabled = touchFeedbackEnabled,
+            // The setting that controls touch feedback must remain animated
+            // itself; otherwise it becomes impossible to feel the effect when
+            // the preference is currently off.
+            touchFeedbackEnabled = touchFeedbackEnabled || alwaysAnimate,
             label = label,
             onCheckedChange = onCheckedChange,
         )
