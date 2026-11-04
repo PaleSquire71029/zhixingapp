@@ -130,6 +130,34 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
     }
 
 
+
+    @Test
+    fun touchFeedbackSwitchCanBeEnabledWhenItsOwnPreferenceIsOff() {
+        runBlocking {
+            GlassMaterialSettingsStore(composeRule.activity).save(
+                DEFAULT_HOME_GLASS_MATERIAL.copy(touchFeedbackEnabled = false),
+            )
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("材质设置").performClick()
+
+        val touchFeedbackSwitch =
+            composeRule.onNodeWithContentDescription("触摸光效与形变")
+        val before = touchFeedbackSwitch.fetchSemanticsNode()
+            .config[SemanticsProperties.ToggleableState]
+        touchFeedbackSwitch.performTouchInput { click() }
+        composeRule.waitForIdle()
+        val after = touchFeedbackSwitch.fetchSemanticsNode()
+            .config[SemanticsProperties.ToggleableState]
+
+        assertNotEquals(
+            "The feedback preference must remain operable when currently off.",
+            before,
+            after,
+        )
+    }
+
+
     private fun hasTabRole() =
         SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
