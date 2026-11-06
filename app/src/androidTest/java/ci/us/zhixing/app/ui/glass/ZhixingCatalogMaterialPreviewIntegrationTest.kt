@@ -272,7 +272,7 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         root.performTouchInput {
             swipe(
                 center,
-                center + Offset(0f, 100f),
+                center - Offset(0f, 100f),
                 durationMillis = 250,
             )
         }
@@ -281,7 +281,7 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         val afterTop = sectionTitle.fetchSemanticsNode().boundsInRoot.top
         assertTrue(
             "A vertical swipe before the long-press timeout should still scroll the page.",
-            afterTop > beforeTop + 1f,
+            afterTop < beforeTop - 1f,
         )
     }
 
