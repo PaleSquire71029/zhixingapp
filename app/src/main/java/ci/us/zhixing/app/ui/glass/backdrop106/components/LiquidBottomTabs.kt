@@ -216,6 +216,19 @@ internal fun LiquidBottomTabs(
                         lens(lensAmount, lensAmount)
                     }
                 },
+                highlight = {
+                    if (materialParameters.edgeHighlightEnabled) {
+                        Highlight.Default.copy(alpha = 0.30f + 0.12f * pressProgress)
+                    } else {
+                        null
+                    }
+                },
+                shadow = {
+                    Shadow(alpha = 0.13f + 0.06f * pressProgress)
+                },
+                innerShadow = {
+                    InnerShadow(radius = 3f.dp, alpha = 0.10f + 0.04f * pressProgress)
+                },
                 layerBlock = {
                     val scale = lerp(1f, 1f + 16f.dp.toPx() / size.width, pressProgress)
                     scaleX = scale
