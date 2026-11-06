@@ -234,19 +234,6 @@ internal fun LiquidBottomTabs(
                 },
                 highlight = {
                     if (materialParameters.edgeHighlightEnabled) {
-                        Highlight.Default.copy(alpha = 0.30f + 0.12f * pressProgress)
-                    } else {
-                        null
-                    }
-                },
-                shadow = {
-                    Shadow(alpha = 0.13f + 0.06f * pressProgress)
-                },
-                innerShadow = {
-                    InnerShadow(radius = 3f.dp, alpha = 0.10f + 0.04f * pressProgress)
-                },
-                highlight = {
-                    if (materialParameters.edgeHighlightEnabled) {
                         Highlight.Default.copy(alpha = 0.62f + pressProgress * 0.18f)
                     } else {
                         null
