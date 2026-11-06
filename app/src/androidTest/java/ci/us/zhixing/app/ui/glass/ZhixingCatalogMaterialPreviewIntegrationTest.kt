@@ -13,6 +13,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.geometry.Offset
@@ -169,6 +170,118 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
             "The feedback preference must remain operable when currently off.",
             before,
             after,
+        )
+    }
+
+
+
+    @Test
+    fun sliderDragUsesContinuousValuesInsteadOfFivePercentSteps() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        val slider = composeRule.onNodeWithContentDescription("透明程度")
+        val before = slider.fetchSemanticsNode()
+            .config[SemanticsProperties.ProgressBarRangeInfo].current
+        assertTrue("The test starts from the default 68 percent.", before == 68f)
+
+        val bounds = slider.fetchSemanticsNode().boundsInRoot
+        slider.performTouchInput {
+            val start = Offset(bounds.width * 0.68f, bounds.height / 2f)
+            val end = Offset(bounds.width * 0.76f, bounds.height / 2f)
+            swipe(start, end, durationMillis = 500)
+        }
+        composeRule.waitForIdle()
+
+        val after = slider.fetchSemanticsNode()
+            .config[SemanticsProperties.ProgressBarRangeInfo].current
+        val nearestFive = kotlin.math.round(after / 5f) * 5f
+        assertTrue("The thumb should move continuously beyond the initial value.", after > before + 1f)
+        assertTrue("The slider must not quantize pointer movement to 5% steps.", kotlin.math.abs(after - nearestFive) > 0.35f)
+    }
+
+
+
+    @Test
+    fun longPressOnSwitchLocksThePointerAndDoesNotScrollTheSettingsPage() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        val root = composeRule.onRoot()
+        val rootBounds = root.fetchSemanticsNode().boundsInRoot
+        repeat(3) {
+            root.performTouchInput {
+                val start = Offset(rootBounds.width * 0.78f, rootBounds.height * 0.82f)
+                val end = Offset(rootBounds.width * 0.78f, rootBounds.height * 0.28f)
+                swipe(start, end, durationMillis = 300)
+            }
+            composeRule.waitForIdle()
+        }
+
+        val touchFeedbackSwitch =
+            composeRule.onNodeWithContentDescription("触摸光效与形变")
+        touchFeedbackSwitch.assertIsDisplayed()
+        val sectionTitle = composeRule.onNodeWithText("触摸反馈")
+        val beforeTop = sectionTitle.fetchSemanticsNode().boundsInRoot.top
+        val switchBounds = touchFeedbackSwitch.fetchSemanticsNode().boundsInRoot
+        val switchCenterInRoot = Offset(
+            switchBounds.center.x - rootBounds.left,
+            switchBounds.center.y - rootBounds.top,
+        )
+
+        root.performTouchInput {
+            down(switchCenterInRoot)
+            advanceEventTime(900)
+            moveBy(Offset(0f, -90f))
+            advanceEventTime(120)
+            up()
+        }
+        composeRule.waitForIdle()
+
+        val afterTop = sectionTitle.fetchSemanticsNode().boundsInRoot.top
+        assertTrue(
+            "A vertical movement after long-pressing the switch must not move the scroll container.",
+            kotlin.math.abs(afterTop - beforeTop) < 1f,
+        )
+    }
+
+
+
+    @Test
+    fun verticalSwipeOnSwitchBeforeLongPressStillScrollsTheSettingsPage() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        val root = composeRule.onRoot()
+        val rootBounds = root.fetchSemanticsNode().boundsInRoot
+        repeat(3) {
+            root.performTouchInput {
+                swipe(
+                    Offset(rootBounds.width * 0.78f, rootBounds.height * 0.82f),
+                    Offset(rootBounds.width * 0.78f, rootBounds.height * 0.28f),
+                    durationMillis = 300,
+                )
+            }
+            composeRule.waitForIdle()
+        }
+
+        val switch = composeRule.onNodeWithContentDescription("触摸光效与形变")
+        switch.assertIsDisplayed()
+        val switchBounds = switch.fetchSemanticsNode().boundsInRoot
+        val center = Offset(
+            switchBounds.center.x - rootBounds.left,
+            switchBounds.center.y - rootBounds.top,
+        )
+        val sectionTitle = composeRule.onNodeWithText("触摸反馈")
+        val beforeTop = sectionTitle.fetchSemanticsNode().boundsInRoot.top
+
+        root.performTouchInput {
+            swipe(
+                center,
+                center - Offset(0f, 100f),
+                durationMillis = 250,
+            )
+        }
+        composeRule.waitForIdle()
+
+        val afterTop = sectionTitle.fetchSemanticsNode().boundsInRoot.top
+        assertTrue(
+            "A vertical swipe before the long-press timeout should still scroll the page.",
+            afterTop < beforeTop - 1f,
         )
     }
 

@@ -1429,3 +1429,59 @@
 - [x] 构建 Artifact `13345538217`；APK `12,842,023 bytes`；SHA-256 `f1f5641d68c56e6d449ecb8ceb8f175bf2b8a6218271ccef8cebd90163fece3f`。
 - [ ] 真机验收：iQOO Neo5 活力版上测试滑块拖动 / 轨道点击 / 从滑块头纵向滚动、开关透明玻璃与按压反馈、冷启动闪帧。
 - [ ] 真机验收：iQOO Neo5 活力版检查滑块连续拖动、从滑块处纵向滚动、开关透明玻璃与按压形变、冷启动过渡是否消除闪帧。
+
+
+### 27.12 连续滑块帧更新与开关长按滚动仲裁（2026-11-05）
+
+- [x] 找到滑块不顺畅的两个叠加原因：设置页传入 19 / 23 / 15 个步进，拖动过程每帧都量化到约 5% 档位；同时每次状态变化通过 snapshotFlow 启动新的 Animatable.animateTo，导致指针输入期间反复取消 / 创建弹簧动画。
+- [x] 三个材质滑块改为连续值（steps = 0），不在拖动途中做档位吸附。
+- [x] DampedDragAnimation 增加直接拖动快照：滑块拖动时直接更新 mutableFloatState，graphicsLayer 读取连续进度跟手；指针事件期间不启动 Animatable 动画协程，松手时一次性同步 Animatable 与速度，然后保留原有弹簧、速度压缩、按压形变与回弹。
+- [x] 页面外部状态更新仍使用原 Catalog Animatable 路径；直接拖动状态期间暂停 snapshotFlow 对同一值重复启动动画。
+- [x] 开关将横向拖动交给 Foundation 横向手势检测器消费；根区域增加 tap / long-press 检测，长按达到系统阈值后消费后续移动，避免父级 verticalScroll 抢走长按后的手势；长按前明显纵向移动仍可滚动页面。
+- [x] 测试新增：连续值不按 5% 步进量化；长按开关后移动手指不应滚动设置页；原有轨道点击、滑块头拖动、纵向滚动与自开关启用测试继续保留。
+- [ ] Android CI：JVM 单测、androidTest 源码编译和 Debug APK 构建待验证。
+- [ ] 真机验收：iQOO Neo5 活力版测试滑块连续缓慢移动、快速往返、松手回弹，以及长按开关后页面不移动 / 普通纵向手势仍正常滚动。
+
+
+### 27.13 本轮附加审查与回归整理（2026-11-06）
+
+- [x] 开关从原本每次 fraction 变化都通过 snapshotFlow 启动 Animatable，改为与滑块相同的直接帧状态更新；长按 / 横向拖动 / 点击 / 普通纵向滚动由一个根指针状态机统一仲裁。
+- [x] 修复按压和释放的重复调用：DampedDragAnimation 的 press / release 增加幂等状态与 generation，旧释放任务不会覆盖快速再次按下产生的新动画。
+- [x] 修正直接拖动松手速度的单位：VelocityTracker 得到的是归一化速度，Animatable 初始速度需乘以值域跨度；视觉速度动画继续使用归一化值。
+- [x] 将性能档位折射强度字段统一命名为 Dp，移除未被材质状态或渲染器使用的色散强度占位字段。
+- [x] 修正透明度 100% 时仍声称保留浅色覆盖底的错误说明。
+- [x] 增补开关普通纵向手势的测试，与长按后锁定滚动的测试形成正反向覆盖。
+- [x] Build #295（Run ID `42191585864`，commit `64150a3bd780a1478ade8bbade12747d39092feb`）通过：JVM 单测、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传。
+- [ ] 当前 CI **只编译仪器测试源码，没有启动 Android Emulator 执行这些手势测试**；仍需真机验证 long-press / vertical-scroll 的实际事件分发与拖动帧率。
+
+
+### 27.14 120Hz 窗口偏好与手势回归测试强化（2026-11-06）
+
+- [x] MainActivity 在窗口创建时请求 120Hz preferredRefreshRate；Android 14/API 34+ 可请求任意目标刷新率，旧系统只在当前显示器报告 120Hz 模式时请求。
+- [x] 不指定 preferredDisplayModeId、不强制切换显示分辨率；最终刷新率仍由 Android 显示调度器按屏幕模式、省电设置、温度和前台场景决定。
+- [x] 抽取纯策略函数并添加单测，覆盖 API 34+ 任意偏好、旧系统严格检查支持模式与 0.5Hz 容差。
+- [x] Android 8/9 兼容：API 30 以下通过 WindowManager.defaultDisplay 读取模式，不访问 API 30 新增的 Activity.display。
+- [x] 修正普通纵向滚动测试方向，并将长按锁定测试的后续移动改为页面仍可滚动的方向，避免滚动已经到边界造成假通过。
+- [ ] 最新 PR CI：JVM 测试、instrumentation test 源码编译、API 35 emulator 实际执行及 Debug APK 构建待完整验证。
+- [ ] iQOO Neo5 活力版实机验收：确认系统最终选择的刷新率、滑块拖动连续性、开关长按锁定和普通纵向滚动。
+
+
+### 27.15 120Hz 输入帧路径与模拟器测试环境修订（2026-11-06）
+
+- [x] 将 VelocityTracker 的完整最小二乘速度计算从每次滑块 MotionEvent 移到松手结算时执行；拖动期间采用按时间间隔计算的平滑瞬时速度，仅用于实时速度形变，减轻 120Hz 输入路径 CPU 开销。
+- [x] 保留松手时的完整 VelocityTracker 速度用于 Animatable 弹簧初速度，动画曲线 / 折射 / 高光 / 按压形变参数不做降级。
+- [x] API 35 / x86_64 模拟器曾因云端 runner 禁用 KVM 硬件加速而 ADB offline，10 分钟后超时；不是测试断言失败。
+- [x] API 30 / default / x86 方案因 SDK 仓库不存在 `system-images;android-30;default;x86` 包而失败；已切换到存在的 API 30 / default / x86_64 镜像。
+- [ ] API 30 / x86_64 模拟器真实执行手势测试待完成；对应运行 Build #306（Run ID `42195067089`）及最新速度采样提交 Build #307（Run ID `42195258269`）。
+- [ ] 真机确认 Activity 窗口 120Hz 偏好被 iQOO 系统接受，并采集实际刷新率 / 帧时间；窗口偏好不是对系统的强制锁帧。
+
+
+### 27.16 120Hz 兼容偏好与真机预览包（2026-11-06）
+
+- [x] API 34+ 窗口请求 120Hz preferredRefreshRate；API 33 及以下只在 Display.supportedModes 中找到接近 120Hz 的模式时请求，并传入设备实际报告值。
+- [x] 120Hz 策略单测覆盖 API 34+ 任意偏好、旧版真实模式值、无 120Hz 模式、NaN / Infinity 与非法目标值。
+- [x] 滑块直接拖动时使用轻量时间差速度平滑用于实时形变；完整 VelocityTracker.calculateVelocity 推迟到松手时计算，保留弹簧回弹与速度形变。
+- [x] Android Build #322（Run ID `42196358207`，commit `a31ba53cc3d76007b4d4127843eed5333af39d01`）通过 JVM 单测、instrumentation test Kotlin 源码编译、Debug APK 组装与 Artifact 上传。
+- [x] Artifact ID `13492426182`，APK `12,858,407 bytes`，SHA-256 `5c228a6577aa25b716857479d2000d1e805058ea3852771964fa1a7e8773550b`。
+- [ ] API 30 x86_64 模拟器的 `connectedDebugAndroidTest` 仍在执行；尚未确认长按 / 滚动事件测试结果。
+- [ ] iQOO Neo5 活力版实机确认窗口最终刷新率、实际帧时间和滑块 / 开关手势。

@@ -20,12 +20,17 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.IntSize
+import android.os.SystemClock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.filter
@@ -72,14 +77,104 @@ class DampedDragAnimation(
     private val mutatorMutex = MutatorMutex()
     private val velocityTracker = VelocityTracker()
 
-    val value: Float get() = valueAnimation.value
+    // During slider drag, read this state from graphicsLayer properties and
+    // follow the pointer directly. Do not start a new Animatable spring for
+    // every MotionEvent; the spring/velocity animations remain responsible
+    // for release, press, squash and rebound.
+    private var directDragging by mutableStateOf(false)
+    private var directValue by mutableFloatStateOf(initialValue)
+    private var directVelocity by mutableFloatStateOf(0f)
+    private var lastDirectValue = initialValue
+    private var lastDirectTimeMillis = 0L
+    private var directDragGeneration: Long = 0L
+    private var isPressed: Boolean = false
+    private var pressGeneration: Long = 0L
+
+    val isDirectDragging: Boolean get() = directDragging
+    val directDragValue: Float get() = directValue
+    val value: Float get() = if (directDragging) directValue else valueAnimation.value
     val progress: Float get() =
         (value - valueRange.start) / (valueRange.endInclusive - valueRange.start)
-    val targetValue: Float get() = valueAnimation.targetValue
+    val targetValue: Float get() = if (directDragging) directValue else valueAnimation.targetValue
     val pressProgress: Float get() = pressProgressAnimation.value
     val scaleX: Float get() = scaleXAnimation.value
     val scaleY: Float get() = scaleYAnimation.value
-    val velocity: Float get() = velocityAnimation.value
+    val velocity: Float get() = if (directDragging) directVelocity else velocityAnimation.value
+
+    fun beginDirectDrag() {
+        directDragGeneration += 1L
+        if (!directDragging) {
+            directValue = valueAnimation.value
+        }
+        directVelocity = 0f
+        directDragging = true
+        velocityTracker.resetTracking()
+        val now = SystemClock.uptimeMillis()
+        lastDirectValue = directValue
+        lastDirectTimeMillis = now
+        velocityTracker.addPosition(
+            now,
+            Offset(directValue, 0f),
+        )
+    }
+
+    fun updateDirectDragValue(value: Float) {
+        val next = value.coerceIn(valueRange)
+        val now = SystemClock.uptimeMillis()
+        val elapsedMillis = (now - lastDirectTimeMillis).coerceAtLeast(1L)
+        val range = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
+        val instantaneousVelocity =
+            ((next - lastDirectValue) * 1000f / elapsedMillis) / range
+        if (instantaneousVelocity.isFinite()) {
+            // Low-cost velocity smoothing for the live squash effect. The
+            // full least-squares VelocityTracker calculation is deferred
+            // until release, keeping the 120Hz pointer path lightweight.
+            directVelocity = directVelocity * 0.65f + instantaneousVelocity * 0.35f
+        }
+        directValue = next
+        lastDirectValue = next
+        lastDirectTimeMillis = now
+        velocityTracker.addPosition(
+            now,
+            Offset(next, 0f),
+        )
+    }
+
+    fun finishDirectDrag(finalValue: Float = directValue) {
+        val position = directValue
+        val range = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
+        val trackedVelocity = velocityTracker.calculateVelocity().x / range
+        val dragVelocity = trackedVelocity.takeIf { it.isFinite() } ?: directVelocity
+        val target = finalValue.coerceIn(valueRange)
+        val generation = directDragGeneration
+        animationScope.launch {
+            // Cancel any stale spring and synchronize once on release. A
+            // quick re-grab creates a new generation and must not be cleared
+            // by this older release coroutine.
+            valueAnimation.snapTo(position)
+            velocityAnimation.snapTo(dragVelocity)
+            if (generation != directDragGeneration) return@launch
+            directDragging = false
+            launch {
+                valueAnimation.animateTo(
+                    targetValue = target,
+                    animationSpec = valueAnimationSpec,
+                    // directVelocity is normalized to the 0..1 range for
+                    // the squash effect; Animatable expects value-units/sec.
+                    initialVelocity = dragVelocity *
+                        (valueRange.endInclusive - valueRange.start),
+                )
+            }
+            launch {
+                velocityAnimation.animateTo(0f, velocityAnimationSpec)
+            }
+        }
+    }
+
+    fun cancelDirectDrag() {
+        if (!directDragging) return
+        finishDirectDrag(directValue)
+    }
 
     val modifier: Modifier = Modifier.pointerInput(Unit) {
         if (horizontalDragOnly) {
@@ -88,9 +183,14 @@ class DampedDragAnimation(
             // receives vertical gestures without a competing custom recognizer.
             detectHorizontalDragGestures(
                 onDragStart = { position ->
-                    velocityTracker.resetTracking()
+                    if (touchFeedbackEnabled) {
+                        press()
+                    } else {
+                        velocityTracker.resetTracking()
+                    }
+                    // Begin after press(), because press resets the velocity
+                    // tracker; direct dragging then seeds the first sample.
                     onDragStarted(position)
-                    if (touchFeedbackEnabled) press()
                 },
                 onDragEnd = {
                     onDragStopped()
@@ -106,9 +206,12 @@ class DampedDragAnimation(
         } else {
             inspectDragGestures(
                 onDragStart = { down ->
-                    velocityTracker.resetTracking()
+                    if (touchFeedbackEnabled) {
+                        press()
+                    } else {
+                        velocityTracker.resetTracking()
+                    }
                     onDragStarted(down.position)
-                    if (touchFeedbackEnabled) press()
                 },
                 onDragEnd = {
                     onDragStopped()
@@ -125,6 +228,9 @@ class DampedDragAnimation(
     }
 
     fun press() {
+        if (isPressed) return
+        isPressed = true
+        pressGeneration += 1L
         velocityTracker.resetTracking()
         animationScope.launch {
             launch { pressProgressAnimation.animateTo(1f, pressProgressAnimationSpec) }
@@ -134,14 +240,21 @@ class DampedDragAnimation(
     }
 
     fun release() {
+        if (!isPressed) return
+        isPressed = false
+        val generation = pressGeneration
         animationScope.launch {
             awaitFrame()
+            // A new press may begin before this release frame. Ignore stale
+            // release work so a quick re-grab does not collapse the new press.
+            if (generation != pressGeneration || isPressed) return@launch
             if (value != targetValue) {
                 val threshold = (valueRange.endInclusive - valueRange.start) * 0.025f
                 snapshotFlow { valueAnimation.value }
                     .filter { abs(it - valueAnimation.targetValue) < threshold }
                     .first()
             }
+            if (generation != pressGeneration || isPressed) return@launch
             launch { pressProgressAnimation.animateTo(0f, pressProgressAnimationSpec) }
             launch { scaleXAnimation.animateTo(initialScale, scaleXAnimationSpec) }
             launch { scaleYAnimation.animateTo(initialScale, scaleYAnimationSpec) }
@@ -149,6 +262,7 @@ class DampedDragAnimation(
     }
 
     fun updateValue(value: Float) {
+        if (directDragging) return
         val targetValue = value.coerceIn(valueRange)
         animationScope.launch {
             launch {
@@ -175,7 +289,7 @@ class DampedDragAnimation(
 
     private fun updateVelocity() {
         velocityTracker.addPosition(
-            System.currentTimeMillis(),
+            SystemClock.uptimeMillis(),
             Offset(value, 0f),
         )
         val targetVelocity =

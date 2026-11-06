@@ -13,6 +13,12 @@ on:
 
 # Every push/PR runs tests and builds a temporary artifact. Updating the tracked preview APK
 # is an explicit manual workflow_dispatch action only; routine source changes never rewrite it.
+# Keep only the newest build for a pull request/ref. Gesture-emulator runs are
+# expensive, and stale commits must not occupy runners after newer fixes land.
+concurrency:
+  group: android-build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -52,6 +58,18 @@ jobs:
           name: zhixingapp-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Run instrumentation tests on lightweight API 30 emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: default
+          arch: x86_64
+          profile: pixel_2
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          emulator-boot-timeout: 1200
+          disable-animations: true
+          script: ./gradlew --no-daemon --stacktrace :app:connectedDebugAndroidTest
 
       - name: Commit installable preview APK to main repository
         if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, 'build-preview-apk-once')))

@@ -122,7 +122,7 @@ internal fun GlassLabScreen(
             selectedTier = tier
             blurRadiusDp = config.blurRadiusDp
             refractionEnabled = config.refractionEnabled
-            refractionStrength = config.refractionStrengthPx
+            refractionStrength = config.refractionStrengthDp
             chromaticDispersionEnabled = config.chromaticDispersionEnabled
             edgeHighlightEnabled = config.edgeHighlightEnabled
             environmentReflectionEnabled = tier != GlassPerformanceTier.LITE
@@ -251,7 +251,7 @@ internal fun GlassLabScreen(
                     title = "透明程度",
                     value = transparencyPercent,
                     valueLabel = { String.format(Locale.US, "%.0f%%", it) },
-                    description = "数值越高，背景越清晰；始终保留轻微浅色底，保证内容易读。",
+                    description = "数值越高，背景越清晰；可结合背景模糊与边缘高光保持玻璃层次。",
                     onValueCommit = { next ->
                         markCustom()
                         transparencyPercent = next.coerceIn(0f, 100f)
@@ -264,7 +264,7 @@ internal fun GlassLabScreen(
                         onValueChange = onLiveValueChange,
                         onValueChangeFinished = onFinished,
                         valueRange = 0f..100f,
-                        steps = 19,
+                        steps = 0,
                         label = "透明程度",
                         touchFeedbackEnabled = touchFeedbackEnabled,
                     )
@@ -293,7 +293,7 @@ internal fun GlassLabScreen(
                         onValueChange = onLiveValueChange,
                         onValueChangeFinished = onFinished,
                         valueRange = 0f..24f,
-                        steps = 23,
+                        steps = 0,
                         label = "背景模糊",
                         enabled = blurSupported && backdropEnabled,
                         touchFeedbackEnabled = touchFeedbackEnabled,
@@ -343,7 +343,7 @@ internal fun GlassLabScreen(
                         onValueChange = onLiveValueChange,
                         onValueChangeFinished = onFinished,
                         valueRange = 0f..8f,
-                        steps = 15,
+                        steps = 0,
                         label = "折射强度",
                         enabled = refractionSupported && refractionEnabled && backdropEnabled,
                         touchFeedbackEnabled = touchFeedbackEnabled,

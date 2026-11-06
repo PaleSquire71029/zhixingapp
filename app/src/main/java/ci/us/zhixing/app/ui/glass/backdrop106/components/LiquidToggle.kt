@@ -6,20 +6,20 @@
  * Original package: com.kyant.backdrop.catalog.components
  *
  * Zhixing adaptation:
- * - package and app palette are adapted to the light-only Zhixing UI;
- * - accessible switch semantics and an enabled flag are added;
- * - the original flat translucent track and combined-Backdrop glass thumb,
- *   blur/lens, highlight, shadow and spring deformation are retained.
+ * - preserves the Catalog translucent tint track and combined-Backdrop glass thumb;
+ * - unifies tap, horizontal drag, long-press and vertical-scroll arbitration
+ *   on one pointer stream so a held switch cannot leak movement to verticalScroll;
+ * - uses direct frame state during dragging and commits one spring settle on release.
  * Source: https://github.com/Kyant0/AndroidLiquidGlass/tree/1.0.6/catalog
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package ci.us.zhixing.app.ui.glass.backdrop106.components
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,10 +31,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp as lerpColor
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
@@ -63,6 +69,8 @@ import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
 import com.kyant.shapes.Capsule
 import kotlinx.coroutines.flow.collectLatest
+import kotlin.math.abs
+import kotlin.math.sign
 
 @Composable
 internal fun LiquidToggle(
@@ -81,9 +89,16 @@ internal fun LiquidToggle(
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     val dragWidth = with(density) { 20f.dp.toPx() }
     val animationScope = rememberCoroutineScope()
-    var didDrag by remember { mutableStateOf(false) }
     var fraction by remember { mutableFloatStateOf(if (selected()) 1f else 0f) }
-    val dampedDragAnimation = remember(animationScope, enabled, touchFeedbackEnabled) {
+    var skipNextSelectedAnimation by remember { mutableStateOf(false) }
+
+    val dampedDragAnimation = remember(
+        animationScope,
+        enabled,
+        touchFeedbackEnabled,
+        dragWidth,
+        isLtr,
+    ) {
         DampedDragAnimation(
             animationScope = animationScope,
             initialValue = fraction,
@@ -92,58 +107,179 @@ internal fun LiquidToggle(
             initialScale = 1f,
             pressedScale = 1.5f,
             touchFeedbackEnabled = touchFeedbackEnabled,
+            horizontalDragOnly = false,
             onDragStarted = {},
-            onDragStopped = {
-                if (enabled) {
-                    if (didDrag) {
-                        fraction = if (targetValue >= 0.5f) 1f else 0f
-                        onSelect(fraction == 1f)
-                    } else {
-                        fraction = if (selected()) 0f else 1f
-                        onSelect(fraction == 1f)
-                    }
-                }
-                didDrag = false
-            },
-            onDrag = { _, dragAmount ->
-                if (enabled) {
-                    if (!didDrag) didDrag = dragAmount.x != 0f
-                    val delta = dragAmount.x / dragWidth
-                    fraction = if (isLtr) {
-                        (fraction + delta).fastCoerceIn(0f, 1f)
-                    } else {
-                        (fraction - delta).fastCoerceIn(0f, 1f)
-                    }
-                }
-            },
+            onDragStopped = {},
+            onDrag = { _, _ -> },
         )
     }
 
-    LaunchedEffect(dampedDragAnimation) {
-        snapshotFlow { fraction }
-            .collectLatest { currentFraction ->
-                dampedDragAnimation.updateValue(currentFraction)
-            }
-    }
-    LaunchedEffect(selected) {
+    // External state changes animate the toggle. Drag updates are handled by
+    // the direct frame state below, not by repeatedly launching updateValue().
+    LaunchedEffect(dampedDragAnimation, selected) {
         snapshotFlow { selected() }
             .collectLatest { isSelected ->
                 val target = if (isSelected) 1f else 0f
-                if (target != fraction) {
+                if (skipNextSelectedAnimation) {
+                    skipNextSelectedAnimation = false
+                    fraction = target
+                } else if (target != fraction) {
                     fraction = target
                     dampedDragAnimation.animateToValue(target)
                 }
             }
     }
 
+    fun selectAndAnimate(next: Boolean) {
+        val target = if (next) 1f else 0f
+        fraction = target
+        skipNextSelectedAnimation = true
+        dampedDragAnimation.animateToValue(target)
+        onSelect(next)
+    }
+
     val trackBackdrop = rememberLayerBackdrop()
 
+    // One recognizer owns the switch. It waits for horizontal / vertical
+    // touch slop, recognizes a long press by event timestamps, and consumes
+    // movement in Initial pass after long-press so the ancestor verticalScroll
+    // never receives those later moves. Vertical intent before long-press is
+    // deliberately left unconsumed for normal page scrolling.
+    val switchGesture = if (enabled) {
+        Modifier.pointerInput(
+            enabled,
+            touchFeedbackEnabled,
+            dampedDragAnimation,
+            dragWidth,
+            isLtr,
+            selected,
+        ) {
+            awaitEachGesture {
+                val down = awaitFirstDown(
+                    requireUnconsumed = false,
+                    pass = PointerEventPass.Initial,
+                )
+                val pointerId = down.id
+                val downTime = down.uptimeMillis
+                val touchSlop = viewConfiguration.touchSlop
+                val longPressTimeout = viewConfiguration.longPressTimeoutMillis
+                var accumulated = Offset.Zero
+                var mode = SwitchGestureMode.Pending
+                var ended = false
+
+                if (touchFeedbackEnabled) dampedDragAnimation.press()
+
+                while (!ended) {
+                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                    val change = event.changes.firstOrNull { it.id == pointerId }
+                    if (change == null) {
+                        if (mode == SwitchGestureMode.Drag) {
+                            dampedDragAnimation.finishDirectDrag(
+                                if (selected()) 1f else 0f,
+                            )
+                        }
+                        ended = true
+                        continue
+                    }
+
+                    // Long-press wins over movement that begins after the
+                    // timeout. The first such movement is consumed right here
+                    // in Initial pass, before verticalScroll handles Main pass.
+                    if (
+                        mode == SwitchGestureMode.Pending &&
+                        change.uptimeMillis - downTime >= longPressTimeout
+                    ) {
+                        mode = SwitchGestureMode.LongPressed
+                    }
+
+                    val delta = change.positionChange()
+                    if (!change.pressed) {
+                        when (mode) {
+                            SwitchGestureMode.Pending -> {
+                                change.consume()
+                                selectAndAnimate(!selected())
+                            }
+                            SwitchGestureMode.Drag -> {
+                                val next = dampedDragAnimation.directDragValue
+                                    .coerceIn(0f, 1f) >= 0.5f
+                                val target = if (next) 1f else 0f
+                                fraction = target
+                                dampedDragAnimation.finishDirectDrag(target)
+                                if (next != selected()) {
+                                    skipNextSelectedAnimation = true
+                                    onSelect(next)
+                                }
+                            }
+                            SwitchGestureMode.LongPressed,
+                            SwitchGestureMode.Scroll -> Unit
+                        }
+                        ended = true
+                    } else {
+                        when (mode) {
+                            SwitchGestureMode.Pending -> {
+                                accumulated += delta
+                                val absX = abs(accumulated.x)
+                                val absY = abs(accumulated.y)
+                                when {
+                                    absX > touchSlop && absX > absY -> {
+                                        mode = SwitchGestureMode.Drag
+                                        dampedDragAnimation.beginDirectDrag()
+                                        val overSlop = accumulated.x -
+                                            sign(accumulated.x) * touchSlop
+                                        if (overSlop != 0f) {
+                                            val amount = overSlop / dragWidth
+                                            val next = if (isLtr) {
+                                                dampedDragAnimation.directDragValue + amount
+                                            } else {
+                                                dampedDragAnimation.directDragValue - amount
+                                            }
+                                            dampedDragAnimation.updateDirectDragValue(next)
+                                        }
+                                        change.consume()
+                                    }
+                                    absY > touchSlop && absY >= absX -> {
+                                        mode = SwitchGestureMode.Scroll
+                                        ended = true
+                                    }
+                                }
+                            }
+                            SwitchGestureMode.Drag -> {
+                                if (delta.x != 0f) {
+                                    val amount = delta.x / dragWidth
+                                    val next = if (isLtr) {
+                                        dampedDragAnimation.directDragValue + amount
+                                    } else {
+                                        dampedDragAnimation.directDragValue - amount
+                                    }
+                                    dampedDragAnimation.updateDirectDragValue(next)
+                                }
+                                change.consume()
+                            }
+                            SwitchGestureMode.LongPressed -> change.consume()
+                            SwitchGestureMode.Scroll -> ended = true
+                        }
+                    }
+                }
+
+                if (mode == SwitchGestureMode.Scroll) {
+                    // The movement that crossed vertical touch slop remains
+                    // unconsumed, so the parent scroll container takes over.
+                    if (touchFeedbackEnabled) dampedDragAnimation.release()
+                } else if (touchFeedbackEnabled) {
+                    dampedDragAnimation.release()
+                }
+            }
+        }
+    } else {
+        Modifier
+    }
+
     Box(
-        modifier,
+        modifier.then(switchGesture),
         contentAlignment = Alignment.CenterStart,
     ) {
-        // Match the original Catalog track: translucent tint, no extra blur
-        // sampling layer. This keeps the switch transparent rather than matte.
+        // Catalog's transparent track: only a tinted translucent fill, without
+        // an extra blur/lens pass that would turn it into matte glass.
         Box(
             Modifier
                 .layerBackdrop(trackBackdrop)
@@ -174,14 +310,13 @@ internal fun LiquidToggle(
                         if (selected()) ToggleableState.On else ToggleableState.Off
                     if (enabled) {
                         onClick(label) {
-                            onSelect(!selected())
+                            selectAndAnimate(!selected())
                             true
                         }
                     } else {
                         disabled()
                     }
                 }
-                .then(if (enabled) dampedDragAnimation.modifier else Modifier)
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(
                         backdrop,
@@ -239,4 +374,11 @@ internal fun LiquidToggle(
                 ),
         )
     }
+}
+
+private enum class SwitchGestureMode {
+    Pending,
+    Drag,
+    LongPressed,
+    Scroll,
 }

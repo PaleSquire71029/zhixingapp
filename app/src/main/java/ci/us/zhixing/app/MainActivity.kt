@@ -64,6 +64,33 @@ class MainActivity : ComponentActivity() {
         GlassMaterialSettingsStore(applicationContext)
     }
 
+    /**
+     * Requests a 120 Hz window cadence while leaving the final decision to
+     * Android's display scheduler. API 34+ accepts an arbitrary preference;
+     * older releases are only asked when 120 Hz is an advertised display mode.
+     *
+     * This does not synthesize frames: Compose animations remain driven by
+     * Choreographer and render at the cadence actually granted by the system.
+     */
+    private fun requestPreferredRefreshRate(targetHz: Float) {
+        @Suppress("DEPRECATION")
+        val supportedRates = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display?.supportedModes?.map { mode -> mode.refreshRate }.orEmpty()
+        } else {
+            windowManager.defaultDisplay.supportedModes.map { mode -> mode.refreshRate }
+        }
+
+        val preferredRate = resolvePreferredRefreshRate(
+            apiLevel = Build.VERSION.SDK_INT,
+            supportedRefreshRates = supportedRates,
+            targetHz = targetHz,
+        ) ?: return
+
+        window.attributes = window.attributes.apply {
+            preferredRefreshRate = preferredRate
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -84,6 +111,7 @@ class MainActivity : ComponentActivity() {
             window.isNavigationBarContrastEnforced = false
         }
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        requestPreferredRefreshRate(120f)
 
         setContent {
             ZhixingApp(materialSettingsStore = glassMaterialSettingsStore)
