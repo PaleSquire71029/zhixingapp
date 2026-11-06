@@ -1488,3 +1488,17 @@
 - [ ] 本项不包含计算核心、AI 客户端、账号、本地历史存储和应用设置偏好迁移；这些仍按独立计划推进。
 - 过程中 CI 曾分别发现缺少 `dp` 导入及备用导航预览仍引用 `destination.symbol`；已修正，最终成功构建对应 Commit 为 `62104cc`。
 - Actions：<https://github.com/PaleSquire71029/zhixingapp/actions/runs/42226324380>
+
+
+## 25. 2026-11-06：圆角图标与整条液态玻璃导航底座
+
+- [x] 一级导航与「我的」二级入口统一使用 Material Symbols Rounded：calculate、smart_toy、handyman、person、history、tune。
+- [x] 将 Google Material Symbols Rounded 源图形转换为 Android 原生 VectorDrawable，资源本地打包；主导航支持描边与填充态的轻量交叉动画，选中色与图标填充同步变化。
+- [x] 添加 Material Symbols Apache 2.0 许可证及来源说明：`app/src/main/assets/licenses/`。
+- [x] 整条底部导航底座应用浅色玻璃渐变、Backdrop 采样、模糊 / 折射（受系统 API 能力约束）、环境反射、边缘高光和柔和内外阴影；选中胶囊采用浅蓝玻璃层，保留原有拖动弹簧与滑动动画。
+- [x] 修复首轮 CI 暴露的两个问题：移除整条底座上重复的 drawBackdrop 参数；修正 `animateColorAsState` 的 Compose 导入路径。
+- [x] GitHub Actions Run `42230609031`（Commit：`338de5ad167fac89bc255cda141e15b1055d5aca`）通过：`:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug` 均成功。
+- [x] Debug APK 工作流 Artifact：`zhixingapp-debug`，Artifact ID `13507224321`，ZIP 大小 12,374,313 bytes（此数值为压缩包大小，不是 APK 大小）。
+- [ ] 本轮仪器测试只完成 Kotlin 编译，尚未在模拟器 / 真机执行；iQOO Neo5 活力版仍需验收玻璃折射、图标视觉权重、标签对齐、窄屏和系统字体放大。
+- [ ] 仓库内可安装 APK 需通过一次性预览归档工作流生成并核验。
+- Actions：<https://github.com/PaleSquire71029/zhixingapp/actions/runs/42230609031>
