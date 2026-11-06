@@ -80,12 +80,14 @@ class MainActivity : ComponentActivity() {
             windowManager.defaultDisplay.supportedModes.map { mode -> mode.refreshRate }
         }
 
-        if (!shouldRequestPreferredRefreshRate(Build.VERSION.SDK_INT, supportedRates, targetHz)) {
-            return
-        }
+        val preferredRate = resolvePreferredRefreshRate(
+            apiLevel = Build.VERSION.SDK_INT,
+            supportedRefreshRates = supportedRates,
+            targetHz = targetHz,
+        ) ?: return
 
         window.attributes = window.attributes.apply {
-            preferredRefreshRate = targetHz
+            preferredRefreshRate = preferredRate
         }
     }
 
