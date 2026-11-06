@@ -84,6 +84,8 @@ class DampedDragAnimation(
     private var directDragging by mutableStateOf(false)
     private var directValue by mutableFloatStateOf(initialValue)
     private var directVelocity by mutableFloatStateOf(0f)
+    private var lastDirectValue = initialValue
+    private var lastDirectTimeMillis = 0L
     private var directDragGeneration: Long = 0L
     private var isPressed: Boolean = false
     private var pressGeneration: Long = 0L
@@ -107,26 +109,42 @@ class DampedDragAnimation(
         directVelocity = 0f
         directDragging = true
         velocityTracker.resetTracking()
+        val now = SystemClock.uptimeMillis()
+        lastDirectValue = directValue
+        lastDirectTimeMillis = now
         velocityTracker.addPosition(
-            SystemClock.uptimeMillis(),
+            now,
             Offset(directValue, 0f),
         )
     }
 
     fun updateDirectDragValue(value: Float) {
         val next = value.coerceIn(valueRange)
+        val now = SystemClock.uptimeMillis()
+        val elapsedMillis = (now - lastDirectTimeMillis).coerceAtLeast(1L)
+        val range = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
+        val instantaneousVelocity =
+            ((next - lastDirectValue) * 1000f / elapsedMillis) / range
+        if (instantaneousVelocity.isFinite()) {
+            // Low-cost velocity smoothing for the live squash effect. The
+            // full least-squares VelocityTracker calculation is deferred
+            // until release, keeping the 120Hz pointer path lightweight.
+            directVelocity = directVelocity * 0.65f + instantaneousVelocity * 0.35f
+        }
         directValue = next
+        lastDirectValue = next
+        lastDirectTimeMillis = now
         velocityTracker.addPosition(
-            SystemClock.uptimeMillis(),
+            now,
             Offset(next, 0f),
         )
-        val range = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
-        directVelocity = velocityTracker.calculateVelocity().x / range
     }
 
     fun finishDirectDrag(finalValue: Float = directValue) {
         val position = directValue
-        val dragVelocity = directVelocity
+        val range = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
+        val trackedVelocity = velocityTracker.calculateVelocity().x / range
+        val dragVelocity = trackedVelocity.takeIf { it.isFinite() } ?: directVelocity
         val target = finalValue.coerceIn(valueRange)
         val generation = directDragGeneration
         animationScope.launch {
