@@ -58,25 +58,25 @@ internal object CalculatorGoldenCases {
         TokenGoldenCase(
             id = "tokenize-ascii-and-multiply-glyph",
             input = "2 + 3 × 4",
-            expectedTokens = listOf("2", "+", "3", "*", "4"),
+            expectedTokens = listOf("num:2.0", "+", "num:3.0", "*", "num:4.0"),
             tags = setOf("unicode", "operators", "whitespace"),
         ),
         TokenGoldenCase(
             id = "tokenize-fullwidth-parentheses-and-minus",
             input = "（2−3）×4",
-            expectedTokens = listOf("(", "2", "-", "3", ")", "*", "4"),
+            expectedTokens = listOf("(", "num:2.0", "-", "num:3.0", ")", "*", "num:4.0"),
             tags = setOf("unicode", "normalization"),
         ),
         TokenGoldenCase(
             id = "tokenize-fullwidth-x-and-superscript",
             input = "ｘ²",
-            expectedTokens = listOf("x", "^", "2"),
+            expectedTokens = listOf("x", "^", "num:2.0"),
             tags = setOf("unicode", "normalization", "power"),
         ),
         TokenGoldenCase(
             id = "tokenize-division-glyph",
             input = "−3 ÷ 2",
-            expectedTokens = listOf("-", "3", "/", "2"),
+            expectedTokens = listOf("-", "num:3.0", "/", "num:2.0"),
             tags = setOf("unicode", "operators"),
         ),
         TokenGoldenCase(
