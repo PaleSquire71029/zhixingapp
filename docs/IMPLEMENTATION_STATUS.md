@@ -1474,3 +1474,14 @@
 - [x] API 30 / default / x86 方案因 SDK 仓库不存在 `system-images;android-30;default;x86` 包而失败；已切换到存在的 API 30 / default / x86_64 镜像。
 - [ ] API 30 / x86_64 模拟器真实执行手势测试待完成；对应运行 Build #306（Run ID `42195067089`）及最新速度采样提交 Build #307（Run ID `42195258269`）。
 - [ ] 真机确认 Activity 窗口 120Hz 偏好被 iQOO 系统接受，并采集实际刷新率 / 帧时间；窗口偏好不是对系统的强制锁帧。
+
+
+### 27.16 120Hz 兼容偏好与真机预览包（2026-11-06）
+
+- [x] API 34+ 窗口请求 120Hz preferredRefreshRate；API 33 及以下只在 Display.supportedModes 中找到接近 120Hz 的模式时请求，并传入设备实际报告值。
+- [x] 120Hz 策略单测覆盖 API 34+ 任意偏好、旧版真实模式值、无 120Hz 模式、NaN / Infinity 与非法目标值。
+- [x] 滑块直接拖动时使用轻量时间差速度平滑用于实时形变；完整 VelocityTracker.calculateVelocity 推迟到松手时计算，保留弹簧回弹与速度形变。
+- [x] Android Build #322（Run ID `42196358207`，commit `a31ba53cc3d76007b4d4127843eed5333af39d01`）通过 JVM 单测、instrumentation test Kotlin 源码编译、Debug APK 组装与 Artifact 上传。
+- [x] Artifact ID `13492426182`，APK `12,858,407 bytes`，SHA-256 `5c228a6577aa25b716857479d2000d1e805058ea3852771964fa1a7e8773550b`。
+- [ ] API 30 x86_64 模拟器的 `connectedDebugAndroidTest` 仍在执行；尚未确认长按 / 滚动事件测试结果。
+- [ ] iQOO Neo5 活力版实机确认窗口最终刷新率、实际帧时间和滑块 / 开关手势。
