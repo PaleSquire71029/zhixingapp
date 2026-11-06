@@ -30,6 +30,7 @@ internal data class EquationGoldenCase(
     val input: String,
     val expectedRealRoots: List<Double> = emptyList(),
     val expectedAllRealExcept: List<Double> = emptyList(),
+    val expectedExcludedDomainPoints: List<Double> = emptyList(),
     val expectedError: String? = null,
     val tags: Set<String> = emptySet(),
 )
@@ -134,7 +135,7 @@ internal object CalculatorGoldenCases {
         EquationGoldenCase("cubic-three-roots", "x^3-6x^2+11x-6=0", expectedRealRoots = listOf(1.0, 2.0, 3.0), tags = setOf("cubic", "three-roots")),
         EquationGoldenCase("fraction-equation-extraneous-root", "(x^2-1)/(x-1)=0", expectedRealRoots = listOf(-1.0), tags = setOf("rational-equation", "domain-pole", "extraneous-root")),
         EquationGoldenCase("identity-keeps-original-hole", "(x-1)/(x-1)=1", expectedAllRealExcept = listOf(1.0), tags = setOf("identity", "domain-pole")),
-        EquationGoldenCase("nonzero-constant-over-zero-point", "1/(x-1)=0", expectedExcludedPoints = listOf(1.0), tags = setOf("rational-equation", "domain-pole", "no-solution")),
+        EquationGoldenCase("nonzero-constant-over-zero-point", "1/(x-1)=0", expectedExcludedDomainPoints = listOf(1.0), tags = setOf("rational-equation", "domain-pole", "no-solution")),
     )
 
     val inequalities = listOf(

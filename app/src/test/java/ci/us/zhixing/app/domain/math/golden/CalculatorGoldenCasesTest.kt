@@ -43,10 +43,10 @@ class CalculatorGoldenCasesTest {
     fun equationCasesKeepRootAndDomainExpectationsSeparate() {
         CalculatorGoldenCases.equations.forEach { case ->
             assertTrue(case.expectedRealRoots.all { it.isFinite() })
-            assertTrue(case.expectedExcludedPoints.all { it.isFinite() })
+            assertTrue(case.expectedExcludedDomainPoints.all { it.isFinite() })
             assertFalse(
                 "A case with an excluded point must carry the domain-pole tag: ${case.id}",
-                case.expectedExcludedPoints.isNotEmpty() && "domain-pole" !in case.tags,
+                case.expectedExcludedDomainPoints.isNotEmpty() && "domain-pole" !in case.tags,
             )
             assertTrue(
                 "A case with a finite root and an error is contradictory: ${case.id}",
@@ -70,10 +70,10 @@ class CalculatorGoldenCasesTest {
                     }
                 }
             }
-            assertTrue(case.expectedExcludedPoints.all { it.isFinite() })
+            assertTrue(case.expectedExcludedDomainPoints.all { it.isFinite() })
             assertFalse(
                 "A case with an excluded point must carry the domain-pole tag: ${case.id}",
-                case.expectedExcludedPoints.isNotEmpty() && "domain-pole" !in case.tags,
+                case.expectedExcludedDomainPoints.isNotEmpty() && "domain-pole" !in case.tags,
             )
             assertTrue(case.expectedError == null || case.expectedIntervals.isEmpty())
         }
