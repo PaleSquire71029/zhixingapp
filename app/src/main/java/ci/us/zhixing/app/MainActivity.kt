@@ -73,16 +73,14 @@ class MainActivity : ComponentActivity() {
      * Choreographer and render at the cadence actually granted by the system.
      */
     private fun requestPreferredRefreshRate(targetHz: Float) {
-        val supportsExactRate = if (Build.VERSION.SDK_INT >= 34) {
-            true
-        } else {
-            @Suppress("DEPRECATION")
-            display?.supportedModes?.any { mode ->
-                kotlin.math.abs(mode.refreshRate - targetHz) < 0.5f
-            } == true
-        }
+        @Suppress("DEPRECATION")
+        val supportedRates = display?.supportedModes
+            ?.map { mode -> mode.refreshRate }
+            .orEmpty()
 
-        if (!supportsExactRate) return
+        if (!shouldRequestPreferredRefreshRate(Build.VERSION.SDK_INT, supportedRates, targetHz)) {
+            return
+        }
 
         window.attributes = window.attributes.apply {
             preferredRefreshRate = targetHz
