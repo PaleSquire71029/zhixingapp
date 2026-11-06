@@ -1480,6 +1480,11 @@
 - [x] 为根页面与「我的」二级页面加入可保存状态容器，支持返回时恢复页面滚动与设置页面状态。
 - [x] 将 Debug 版本提升至 0.1.2 / versionCode 3。
 - [x] 新增 / 更新导航契约单测与主界面仪器测试。
-- [ ] GitHub Actions 单元测试、仪器测试 Kotlin 编译和 Debug APK 构建待本次提交触发后核验。
+- [x] GitHub Actions Android Build #336（Run ID：`42226324380`，Commit：`62104cc39d047e232f45596f8d88d58a4eeb622c`）整体成功。
+- [x] `:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin` 和 `:app:assembleDebug` 均通过；仪器测试本轮只完成 Kotlin 编译，没有在模拟器 / 真机上执行。
+- [x] Debug APK 已上传为 Artifact：`zhixingapp-debug`，Artifact ID `13506396489`，压缩包大小 12,360,525 bytes；这是工作流 ZIP 的大小，不是 APK 文件大小。
+- [ ] 通过带有 `build-preview-apk-once` 标记的后续提交触发仓库自动归档；归档完成后核验 `artifacts/zhixingapp-preview.apk`。
 - [ ] iQOO Neo5 活力版真机需检查四个图标对齐、导航胶囊动画、历史 / 材质页返回、窄屏与系统字体放大。
 - [ ] 本项不包含计算核心、AI 客户端、账号、本地历史存储和应用设置偏好迁移；这些仍按独立计划推进。
+- 过程中 CI 曾分别发现缺少 `dp` 导入及备用导航预览仍引用 `destination.symbol`；已修正，最终成功构建对应 Commit 为 `62104cc`。
+- Actions：<https://github.com/PaleSquire71029/zhixingapp/actions/runs/42226324380>
