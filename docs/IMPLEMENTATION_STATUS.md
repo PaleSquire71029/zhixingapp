@@ -1440,6 +1440,6 @@
 - [x] 新增 `docs/CALCULATOR_CORE_MIGRATION_PLAN.md`，将阶段 4 拆为 C0–C12，明确语法语义、黄金样例、代码包结构、算法依赖与验收门槛。
 - [x] 当前下一项：C0.1 建立表达式 / 方程 / 不等式黄金样例；这一步只整理测试夹具和旧逻辑对照，不实现 parser、不接 UI。
 - [ ] PR #88（连续滑块、开关长按滚动仲裁、120Hz 窗口偏好）仍未合并；材质手势与显示刷新率工作必须单独收尾，不与数学内核混在同一个 PR。
-- [ ] 最近一次 Android Build #? 的 APK 组装和 Artifact 上传通过，但 API 30 模拟器仪器测试因 ADB device offline / 无兼容设备连接而失败；这是自动化设备环境未成功运行，不能记为手势断言通过。
+- [ ] Android Build Run ID `42196358207`（Build #322）的 APK 组装和 Artifact 上传通过，但 API 30 模拟器仪器测试因 ADB `device offline` / `No compatible devices connected` 而失败；自动化设备环境未成功运行，不能记为手势断言通过。
 - [ ] iQOO Neo5 活力版真机验收仍未完成：连续拖动、长按开关锁定滚动、正常纵向滚动、系统最终刷新率与真实帧时间均待实测。
 - [ ] 120Hz 使用窗口 preferredRefreshRate 偏好；系统是否授予 120Hz、是否稳定 120fps，仍取决于屏幕模式、省电 / 温控和真实帧时间数据，不能把 API 请求等同于实测结果。
