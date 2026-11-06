@@ -56,6 +56,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestination
+import ci.us.zhixing.app.ui.navigation.ZhixingNavigationIcon
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
@@ -544,18 +545,13 @@ private fun RowScope.LiquidBottomBarSampleItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text(
-                text = destination.symbol,
+            ZhixingNavigationIcon(
+                icon = destination.icon,
+                selected = selected,
                 modifier = Modifier.graphicsLayer {
                     alpha = if (selected) 1f else 0.88f
                     scaleX = if (selected) 1f else 0.96f
                     scaleY = if (selected) 1f else 0.96f
-                },
-                style = ZhixingTheme.type.navigationSymbol,
-                color = if (selected) {
-                    ZhixingTheme.colors.primary
-                } else {
-                    ZhixingTheme.colors.onSurfaceVariant
                 },
             )
             Text(
@@ -698,18 +694,13 @@ private fun RowScope.LiquidBottomBarItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text(
-                text = destination.symbol,
+            ZhixingNavigationIcon(
+                icon = destination.icon,
+                selected = selected,
                 modifier = Modifier.graphicsLayer {
                     scaleX = iconScale
                     scaleY = iconScale
                     alpha = iconAlpha
-                },
-                style = ZhixingTheme.type.navigationSymbol,
-                color = if (selected) {
-                    ZhixingTheme.colors.primary
-                } else {
-                    ZhixingTheme.colors.onSurfaceVariant
                 },
             )
             Text(
