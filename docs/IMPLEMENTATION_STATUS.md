@@ -1502,3 +1502,13 @@
 - [ ] 本轮仪器测试只完成 Kotlin 编译，尚未在模拟器 / 真机执行；iQOO Neo5 活力版仍需验收玻璃折射、图标视觉权重、标签对齐、窄屏和系统字体放大。
 - [ ] 仓库内可安装 APK 需通过一次性预览归档工作流生成并核验。
 - Actions：<https://github.com/PaleSquire71029/zhixingapp/actions/runs/42230609031>
+
+
+### 27.19 C0.1：表达式、方程与不等式黄金样例（2026-11-06）
+
+- [x] 审计旧仓库 `calculator.html` 的 tokenizer、递归下降解析器、有理函数表示、方程与不等式求解路径。
+- [x] 新增 `CalculatorGoldenCases.kt`，建立 token 归一化 / 错误、基础算术与优先级、百分号、方程根与分母排除、不等式开闭区间与高次边界样例。
+- [x] 明确使用语义结果记录解集与定义域排除，不把解释文字排版当成数学结果契约。
+- [x] 新增 `CalculatorGoldenCasesTest.kt`，验证样例 ID、期望结果互斥关系、区间结构、定义域标记和覆盖标签。
+- [ ] 本步的 JUnit 仅验证黄金样例数据完整性；尚无 Kotlin parser / evaluator / solver，因此**不代表旧数学算法已经迁移或通过等价性测试**。
+- [ ] C1 Tokenizer 尚未开始；后续实现必须逐项匹配本批词法期望，并扩展更多异常情况。
