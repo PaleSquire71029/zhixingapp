@@ -122,7 +122,7 @@ internal fun GlassLabScreen(
             selectedTier = tier
             blurRadiusDp = config.blurRadiusDp
             refractionEnabled = config.refractionEnabled
-            refractionStrength = config.refractionStrengthPx
+            refractionStrength = config.refractionStrengthDp
             chromaticDispersionEnabled = config.chromaticDispersionEnabled
             edgeHighlightEnabled = config.edgeHighlightEnabled
             environmentReflectionEnabled = tier != GlassPerformanceTier.LITE
