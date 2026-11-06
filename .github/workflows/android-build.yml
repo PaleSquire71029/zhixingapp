@@ -13,6 +13,12 @@ on:
 
 # Every push/PR runs tests and builds a temporary artifact. Updating the tracked preview APK
 # is an explicit manual workflow_dispatch action only; routine source changes never rewrite it.
+# Keep only the newest build for a pull request/ref. Gesture-emulator runs are
+# expensive, and stale commits must not occupy runners after newer fixes land.
+concurrency:
+  group: android-build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
