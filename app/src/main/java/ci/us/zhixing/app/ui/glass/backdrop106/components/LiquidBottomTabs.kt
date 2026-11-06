@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -91,7 +92,22 @@ internal fun LiquidBottomTabs(
         apiLevel = Build.VERSION.SDK_INT,
     )
     val accentColor = Color(0xFF0088FF)
-    val containerColor = Color(0xFFFAFAFA).copy(alpha = materialParameters.overlayAlpha)
+    val glassTintAlpha = materialParameters.overlayAlpha
+    val containerColor = Color(0xFFF4F9FD).copy(alpha = glassTintAlpha * 0.58f)
+    val containerGradient = Brush.verticalGradient(
+        colors = listOf(
+            Color.White.copy(alpha = glassTintAlpha * 0.92f),
+            Color(0xFFEAF4FB).copy(alpha = glassTintAlpha * 0.66f),
+            Color(0xFFFCF9FF).copy(alpha = glassTintAlpha * 0.78f),
+        ),
+    )
+    val glassRim = Brush.verticalGradient(
+        colors = listOf(
+            Color.White.copy(alpha = 0.98f),
+            Color(0xFFD8EAF5).copy(alpha = 0.72f),
+            Color.White.copy(alpha = 0.90f),
+        ),
+    )
 
     val tabsBackdrop = if (materialParameters.useRefraction) {
         rememberLayerBackdrop()
@@ -229,6 +245,22 @@ internal fun LiquidBottomTabs(
                 innerShadow = {
                     InnerShadow(radius = 3f.dp, alpha = 0.10f + 0.04f * pressProgress)
                 },
+                highlight = {
+                    if (materialParameters.edgeHighlightEnabled) {
+                        Highlight.Default.copy(alpha = 0.62f + pressProgress * 0.18f)
+                    } else {
+                        null
+                    }
+                },
+                shadow = {
+                    Shadow(alpha = 0.10f + pressProgress * 0.04f)
+                },
+                innerShadow = {
+                    InnerShadow(
+                        radius = 5f.dp,
+                        alpha = 0.10f + pressProgress * 0.05f,
+                    )
+                },
                 layerBlock = {
                     val scale = lerp(1f, 1f + 16f.dp.toPx() / size.width, pressProgress)
                     scaleX = scale
@@ -236,6 +268,7 @@ internal fun LiquidBottomTabs(
                 },
                 onDrawSurface = {
                     drawRect(containerColor)
+                    drawRect(containerGradient)
                     if (materialParameters.environmentReflectionEnabled) {
                         drawEnvironmentReflection()
                     }
@@ -244,8 +277,8 @@ internal fun LiquidBottomTabs(
         } else {
             Modifier
                 .clip(Capsule())
-                .background(containerColor)
-                .border(1.dp, Color.White.copy(alpha = 0.82f), Capsule())
+                .background(containerGradient)
+                .border(1.dp, glassRim, Capsule())
         }
 
         Row(
@@ -353,13 +386,13 @@ internal fun LiquidBottomTabs(
                 },
                 onDrawSurface = {
                     drawRect(
-                        Color.Black.copy(alpha = 0.1f * materialParameters.overlayAlpha),
+                        Color(0xFFDCECF8).copy(
+                            alpha = 0.34f * materialParameters.overlayAlpha,
+                        ),
                         alpha = 1f - pressProgress,
                     )
                     drawRect(
-                        Color.Black.copy(
-                            alpha = 0.03f * pressProgress * materialParameters.overlayAlpha,
-                        ),
+                        Color.White.copy(alpha = 0.12f * pressProgress),
                     )
                     if (materialParameters.environmentReflectionEnabled) {
                         drawEnvironmentReflection()
