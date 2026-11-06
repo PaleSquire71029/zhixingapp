@@ -85,6 +85,8 @@ class DampedDragAnimation(
     private var directValue by mutableFloatStateOf(initialValue)
     private var directVelocity by mutableFloatStateOf(0f)
     private var directDragGeneration: Long = 0L
+    private var isPressed: Boolean = false
+    private var pressGeneration: Long = 0L
 
     val isDirectDragging: Boolean get() = directDragging
     val directDragValue: Float get() = directValue
@@ -139,7 +141,10 @@ class DampedDragAnimation(
                 valueAnimation.animateTo(
                     targetValue = target,
                     animationSpec = valueAnimationSpec,
-                    initialVelocity = dragVelocity,
+                    // directVelocity is normalized to the 0..1 range for
+                    // the squash effect; Animatable expects value-units/sec.
+                    initialVelocity = dragVelocity *
+                        (valueRange.endInclusive - valueRange.start),
                 )
             }
             launch {
@@ -160,9 +165,14 @@ class DampedDragAnimation(
             // receives vertical gestures without a competing custom recognizer.
             detectHorizontalDragGestures(
                 onDragStart = { position ->
-                    velocityTracker.resetTracking()
+                    if (touchFeedbackEnabled) {
+                        press()
+                    } else {
+                        velocityTracker.resetTracking()
+                    }
+                    // Begin after press(), because press resets the velocity
+                    // tracker; direct dragging then seeds the first sample.
                     onDragStarted(position)
-                    if (touchFeedbackEnabled) press()
                 },
                 onDragEnd = {
                     onDragStopped()
@@ -178,9 +188,12 @@ class DampedDragAnimation(
         } else {
             inspectDragGestures(
                 onDragStart = { down ->
-                    velocityTracker.resetTracking()
+                    if (touchFeedbackEnabled) {
+                        press()
+                    } else {
+                        velocityTracker.resetTracking()
+                    }
                     onDragStarted(down.position)
-                    if (touchFeedbackEnabled) press()
                 },
                 onDragEnd = {
                     onDragStopped()
@@ -197,6 +210,9 @@ class DampedDragAnimation(
     }
 
     fun press() {
+        if (isPressed) return
+        isPressed = true
+        pressGeneration += 1L
         velocityTracker.resetTracking()
         animationScope.launch {
             launch { pressProgressAnimation.animateTo(1f, pressProgressAnimationSpec) }
@@ -206,14 +222,21 @@ class DampedDragAnimation(
     }
 
     fun release() {
+        if (!isPressed) return
+        isPressed = false
+        val generation = pressGeneration
         animationScope.launch {
             awaitFrame()
+            // A new press may begin before this release frame. Ignore stale
+            // release work so a quick re-grab does not collapse the new press.
+            if (generation != pressGeneration || isPressed) return@launch
             if (value != targetValue) {
                 val threshold = (valueRange.endInclusive - valueRange.start) * 0.025f
                 snapshotFlow { valueAnimation.value }
                     .filter { abs(it - valueAnimation.targetValue) < threshold }
                     .first()
             }
+            if (generation != pressGeneration || isPressed) return@launch
             launch { pressProgressAnimation.animateTo(0f, pressProgressAnimationSpec) }
             launch { scaleXAnimation.animateTo(initialScale, scaleXAnimationSpec) }
             launch { scaleYAnimation.animateTo(initialScale, scaleYAnimationSpec) }
@@ -248,7 +271,7 @@ class DampedDragAnimation(
 
     private fun updateVelocity() {
         velocityTracker.addPosition(
-            System.currentTimeMillis(),
+            SystemClock.uptimeMillis(),
             Offset(value, 0f),
         )
         val targetVelocity =
