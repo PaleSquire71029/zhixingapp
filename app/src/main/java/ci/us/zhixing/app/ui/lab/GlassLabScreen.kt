@@ -251,7 +251,7 @@ internal fun GlassLabScreen(
                     title = "透明程度",
                     value = transparencyPercent,
                     valueLabel = { String.format(Locale.US, "%.0f%%", it) },
-                    description = "数值越高，背景越清晰；始终保留轻微浅色底，保证内容易读。",
+                    description = "数值越高，背景越清晰；可结合背景模糊与边缘高光保持玻璃层次。",
                     onValueCommit = { next ->
                         markCustom()
                         transparencyPercent = next.coerceIn(0f, 100f)
