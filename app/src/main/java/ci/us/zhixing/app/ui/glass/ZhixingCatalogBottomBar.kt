@@ -1,6 +1,7 @@
 package ci.us.zhixing.app.ui.glass
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -10,6 +11,7 @@ import androidx.compose.ui.semantics.semantics
 import ci.us.zhixing.app.navigation.AppDestination
 import ci.us.zhixing.app.ui.glass.backdrop106.components.LiquidBottomTab
 import ci.us.zhixing.app.ui.glass.backdrop106.components.LiquidBottomTabs
+import ci.us.zhixing.app.ui.navigation.ZhixingNavigationIcon
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import com.kyant.backdrop.Backdrop
 
@@ -74,15 +76,10 @@ private fun RowScope.ZhixingCatalogBottomTab(
             this.selected = selected
         },
     ) {
-        Text(
-            text = destination.symbol,
-            style = ZhixingTheme.type.navigationSymbol,
-            color = if (selected) {
-                ZhixingTheme.colors.primary
-            } else {
-                ZhixingTheme.colors.onSurfaceVariant
-            },
-            maxLines = 1,
+        ZhixingNavigationIcon(
+            icon = destination.icon,
+            selected = selected,
+            modifier = Modifier.size(24.dp),
         )
         Text(
             text = destination.label,

@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.produceState
@@ -51,8 +52,9 @@ import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.ZhixingGlassSurface
 import ci.us.zhixing.app.ui.glass.ZhixingCatalogBottomBar
 import ci.us.zhixing.app.ui.glass.ZhixingLiquidBottomBarPlacement
-import ci.us.zhixing.app.ui.glass.ZhixingLiquidButton
 import ci.us.zhixing.app.ui.lab.GlassLabScreen
+import ci.us.zhixing.app.ui.history.HistoryScreen
+import ci.us.zhixing.app.ui.my.MyScreen
 import ci.us.zhixing.app.ui.theme.ZhixingGlassShapes
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import ci.us.zhixing.app.R
@@ -96,7 +98,8 @@ private fun ZhixingApp(
     materialSettingsStore: GlassMaterialSettingsStore,
 ) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
-    var showGlassLab by rememberSaveable { mutableStateOf(false) }
+    var mySubpage by rememberSaveable { mutableStateOf<String?>(null) }
+    val saveableStateHolder = rememberSaveableStateHolder()
     // Do not draw a default-material frame before DataStore has restored the
     // user's actual optical values. That first-frame swap used to make every
     // backdrop surface visibly flash when the app cold-started.
@@ -130,31 +133,36 @@ private fun ZhixingApp(
     val selectedDestination = destinations[selectedIndex]
 
     ZhixingTheme {
-        BackHandler(enabled = showGlassLab) {
-            showGlassLab = false
+        BackHandler(enabled = mySubpage != null) {
+            mySubpage = null
         }
-        if (showGlassLab) {
-            GlassLabScreen(
-                onBack = { showGlassLab = false },
-                initialMaterial = glassMaterial,
-                onMaterialChange = { material ->
-                    previewMaterial = material
-                },
-                onMaterialCommit = { material ->
-                    previewMaterial = material
-                    persistenceScope.launch {
-                        materialSettingsStore.save(material)
-                    }
-                },
-                onMaterialReset = {
-                    previewMaterial = DEFAULT_HOME_GLASS_MATERIAL
-                    persistenceScope.launch {
-                        materialSettingsStore.resetToDefaults()
-                    }
-                },
-            )
-        } else {
-            BackdropHost(
+        when (mySubpage) {
+            "material" -> saveableStateHolder.SaveableStateProvider("my-material") {
+                GlassLabScreen(
+                    onBack = { mySubpage = null },
+                    initialMaterial = glassMaterial,
+                    onMaterialChange = { material ->
+                        previewMaterial = material
+                    },
+                    onMaterialCommit = { material ->
+                        previewMaterial = material
+                        persistenceScope.launch {
+                            materialSettingsStore.save(material)
+                        }
+                    },
+                    onMaterialReset = {
+                        previewMaterial = DEFAULT_HOME_GLASS_MATERIAL
+                        persistenceScope.launch {
+                            materialSettingsStore.resetToDefaults()
+                        }
+                    },
+                )
+            }
+            "history" -> saveableStateHolder.SaveableStateProvider("my-history") {
+                HistoryScreen(onBack = { mySubpage = null })
+            }
+            else -> {
+                BackdropHost(
                 modifier = Modifier.fillMaxSize(),
             ) { backdrop ->
                 // Content containers stay optically calm: preserve the user's
@@ -191,6 +199,20 @@ private fun ZhixingApp(
                         }
                     },
                 ) { innerPadding ->
+                    if (selectedDestination.route == "my") {
+                        saveableStateHolder.SaveableStateProvider("root-my") {
+                            MyScreen(
+                                backdrop = backdrop,
+                                material = staticFeatureMaterial,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding),
+                                onOpenHistory = { mySubpage = "history" },
+                                onOpenMaterial = { mySubpage = "material" },
+                            )
+                        }
+                    } else {
+                        saveableStateHolder.SaveableStateProvider("root-${selectedDestination.route}") {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -234,16 +256,6 @@ private fun ZhixingApp(
                                 }
                             }
 
-                            ZhixingLiquidButton(
-                                backdrop = backdrop,
-                                onClick = { showGlassLab = true },
-                            ) {
-                                Text(
-                                    text = "材质设置",
-                                    style = ZhixingTheme.type.badge,
-                                    color = ZhixingTheme.colors.primary,
-                                )
-                            }
                         }
 
                         val heroShape = ZhixingGlassShapes.hero
@@ -315,7 +327,10 @@ private fun ZhixingApp(
                         }
 
                     }
+                        }
+                    }
                 }
+            }
             }
         }
     }

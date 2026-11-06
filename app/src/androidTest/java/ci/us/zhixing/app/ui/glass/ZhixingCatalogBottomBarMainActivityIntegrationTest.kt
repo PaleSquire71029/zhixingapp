@@ -37,9 +37,9 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
         composeRule.onAllNodes(hasTabRole()).assertCountEquals(4)
         composeRule.onNode(tab("计算")).assertIsSelected()
 
-        composeRule.onNode(tab("知行AI")).performClick()
+        composeRule.onNode(tab("知行 AI")).performClick()
 
-        composeRule.onNode(tab("知行AI")).assertIsSelected()
+        composeRule.onNode(tab("知行 AI")).assertIsSelected()
         composeRule.onNodeWithText("让计算与理解连在一起").assertIsDisplayed()
 
         composeRule.onNode(tab("工具")).performClick()
@@ -58,12 +58,30 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
     }
 
     @Test
-    fun glassSettingsEntryUsesLiquidButtonAndOpensGlassLab() {
+    fun myPageMaterialEntryOpensGlassLabAndBackReturnsToMy() {
+        composeRule.onNode(tab("我的")).performClick()
         composeRule.onNodeWithText("材质设置")
             .assertIsEnabled()
             .performClick()
 
         composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
+        composeRule.onNodeWithText("‹  返回").performClick()
+        composeRule.onNode(tab("我的")).assertIsSelected()
+        composeRule.onNodeWithText("历史记录").assertIsDisplayed()
+    }
+
+    @Test
+    fun myPageHistoryEntryShowsAnHonestEmptyStateAndReturnsToMy() {
+        composeRule.onNode(tab("我的")).performClick()
+        composeRule.onNodeWithText("历史记录").performClick()
+
+        composeRule.onNodeWithText("还没有计算记录").assertIsDisplayed()
+        composeRule.onNodeWithText("本阶段尚未接入本地历史存储。计算功能与历史迁移完成后，这里才会显示真实记录。")
+            .assertIsDisplayed()
+
+        composeRule.onNodeWithText("‹  返回").performClick()
+        composeRule.onNode(tab("我的")).assertIsSelected()
+        composeRule.onNodeWithText("材质设置").assertIsDisplayed()
     }
 
     @After
@@ -75,7 +93,7 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
 
     @Test
     fun glassLabMigratesEverySwitchAndSliderWithoutChangingMaterialStateRules() {
-        composeRule.onNodeWithText("材质设置").performClick()
+        openGlassLab()
         composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
         composeRule.onNodeWithText("Standard").performClick()
         composeRule.onNodeWithText("性能模式 · Standard").assertIsDisplayed()
@@ -135,7 +153,7 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
 
     @Test
     fun refractionSettingUsesAccessibleLiquidSwitch() {
-        composeRule.onNodeWithText("材质设置").performClick()
+        openGlassLab()
         composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
 
         val refractionSwitch = composeRule.onNode(
@@ -151,7 +169,7 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
 
     @Test
     fun chromaticDispersionUsesLiquidSwitchAndRequiresRefraction() {
-        composeRule.onNodeWithText("材质设置").performClick()
+        openGlassLab()
         composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
 
         fun switchNode(label: String) = composeRule.onNode(
@@ -192,6 +210,12 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
         if (!refractionWasOn) {
             refractionSwitch.performClick()
         }
+    }
+
+    private fun openGlassLab() {
+        composeRule.onNode(tab("我的")).performClick()
+        composeRule.onNodeWithText("材质设置").performClick()
+        composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
     }
 
     private fun hasTabRole() =
