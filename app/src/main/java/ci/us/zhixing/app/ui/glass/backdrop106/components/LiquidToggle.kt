@@ -187,7 +187,7 @@ internal fun LiquidToggle(
                     // in Initial pass, before verticalScroll handles Main pass.
                     if (
                         mode == SwitchGestureMode.Pending &&
-                        event.uptimeMillis - downTime >= longPressTimeout
+                        change.uptimeMillis - downTime >= longPressTimeout
                     ) {
                         mode = SwitchGestureMode.LongPressed
                     }
