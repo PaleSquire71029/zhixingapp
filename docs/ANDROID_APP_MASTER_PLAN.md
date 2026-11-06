@@ -1587,3 +1587,24 @@ GitHub Actions 至少执行：
 
 不要用“等有空再一起做”的大任务表达后续计划。每次只取最靠前的一个未完成小步。
 
+
+
+ 
+## 22. 2026-11-06：下一阶段转入计算器原生核心迁移
+
+主壳与材质设置已完成主要代码落地，但材质手势 / 120Hz 请求的 PR #88 仍处于独立收尾状态，且目标真机验收未完成。此时不继续扩大玻璃效果，也不把空的首页入口伪装成业务功能。
+
+下一阶段按 **阶段 4：计算器核心迁移** 推进。专门执行计划见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)，实施进度以 `IMPLEMENTATION_STATUS.md` 为准。
+
+执行顺序：
+1. 先单独收尾 PR #88：区分 Kotlin / JUnit / APK 构建结果、模拟器环境问题和真机交互验收；不要因云端 ADB 离线而误报手势通过。
+2. C0.1：从旧 `calculator.html` 的 `zxTokenize` / `zxParseRational` / `zxEvalArithmetic`、方程、不等式实现提取黄金样例；先加测试，不动旧仓库。
+3. C1：迁移 tokenizer；C2：迁移 AST / 递归下降解析器；C3：迁移常数表达式求值。每步独立 JUnit 与 Debug 构建通过后再前进。
+4. 后续再迁移多项式 / 有理函数、方程、不等式、函数拟合、单位换算和化学工具。
+5. 最后接入原生计算页和数学键盘；继续坚持本地计算不强制登录。
+
+架构决策：
+- 继续保留一个 `:app` Gradle 模块，在 `ci.us.zhixing.app.domain.math` 下按职责分包；不为初期纯 Kotlin 代码过度拆分模块。
+- 数学域不得依赖 Android / Compose；普通计算首轮按旧引擎 Double 语义对照；多项式有理式必须保留定义域；化学配平使用独立精确整数 / 分数实现。
+- 不使用 WebView 或 JavaScript 引擎作为最终计算后端，不把算法写入 Activity / Composable。
+- 120Hz 窗口偏好属于主壳体验；不宣称已获得 120Hz 或达到稳定 120fps，必须真机测量刷新率和帧时间。
