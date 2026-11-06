@@ -204,10 +204,11 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
     fun longPressOnSwitchLocksThePointerAndDoesNotScrollTheSettingsPage() {
         composeRule.onNodeWithText("材质设置").performClick()
         val root = composeRule.onRoot()
+        val rootBounds = root.fetchSemanticsNode().boundsInRoot
         repeat(3) {
             root.performTouchInput {
-                val start = Offset(size.width * 0.78f, size.height * 0.82f)
-                val end = Offset(size.width * 0.78f, size.height * 0.28f)
+                val start = Offset(rootBounds.width * 0.78f, rootBounds.height * 0.82f)
+                val end = Offset(rootBounds.width * 0.78f, rootBounds.height * 0.28f)
                 swipe(start, end, durationMillis = 300)
             }
             composeRule.waitForIdle()
@@ -218,9 +219,14 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         touchFeedbackSwitch.assertIsDisplayed()
         val sectionTitle = composeRule.onNodeWithText("触摸反馈")
         val beforeTop = sectionTitle.fetchSemanticsNode().boundsInRoot.top
+        val switchBounds = touchFeedbackSwitch.fetchSemanticsNode().boundsInRoot
+        val switchCenterInRoot = Offset(
+            switchBounds.center.x - rootBounds.left,
+            switchBounds.center.y - rootBounds.top,
+        )
 
-        touchFeedbackSwitch.performTouchInput {
-            down(Offset(size.width / 2f, size.height / 2f))
+        root.performTouchInput {
+            down(switchCenterInRoot)
             advanceEventTime(900)
             moveBy(Offset(0f, 90f))
             advanceEventTime(120)
