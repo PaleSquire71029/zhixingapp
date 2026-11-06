@@ -45,14 +45,15 @@ jobs:
       - name: Run unit tests, compile instrumentation tests and assemble Debug APK
         run: ./gradlew --no-daemon --stacktrace :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:assembleDebug
 
-      - name: Run instrumentation tests on API 35 emulator
+      - name: Run instrumentation tests on lightweight API 30 emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
-          target: google_apis
-          arch: x86_64
+          api-level: 30
+          target: default
+          arch: x86
           profile: pixel_2
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          emulator-boot-timeout: 1200
           disable-animations: true
           script: ./gradlew --no-daemon --stacktrace :app:connectedDebugAndroidTest
 
