@@ -74,9 +74,11 @@ class MainActivity : ComponentActivity() {
      */
     private fun requestPreferredRefreshRate(targetHz: Float) {
         @Suppress("DEPRECATION")
-        val supportedRates = display?.supportedModes
-            ?.map { mode -> mode.refreshRate }
-            .orEmpty()
+        val supportedRates = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display?.supportedModes?.map { mode -> mode.refreshRate }.orEmpty()
+        } else {
+            windowManager.defaultDisplay.supportedModes.map { mode -> mode.refreshRate }
+        }
 
         if (!shouldRequestPreferredRefreshRate(Build.VERSION.SDK_INT, supportedRates, targetHz)) {
             return
