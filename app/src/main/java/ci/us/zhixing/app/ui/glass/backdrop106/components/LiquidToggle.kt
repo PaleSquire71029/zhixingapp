@@ -130,6 +130,14 @@ internal fun LiquidToggle(
             }
     }
 
+    fun selectAndAnimate(next: Boolean) {
+        val target = if (next) 1f else 0f
+        fraction = target
+        skipNextSelectedAnimation = true
+        dampedDragAnimation.animateToValue(target)
+        onSelect(next)
+    }
+
     val trackBackdrop = rememberLayerBackdrop()
 
     // One recognizer owns the switch. It waits for horizontal / vertical
@@ -189,7 +197,7 @@ internal fun LiquidToggle(
                         when (mode) {
                             SwitchGestureMode.Pending -> {
                                 change.consume()
-                                onSelect(!selected())
+                                selectAndAnimate(!selected())
                             }
                             SwitchGestureMode.Drag -> {
                                 val next = dampedDragAnimation.directDragValue
@@ -302,7 +310,7 @@ internal fun LiquidToggle(
                         if (selected()) ToggleableState.On else ToggleableState.Off
                     if (enabled) {
                         onClick(label) {
-                            onSelect(!selected())
+                            selectAndAnimate(!selected())
                             true
                         }
                     } else {
