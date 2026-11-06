@@ -272,7 +272,7 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         root.performTouchInput {
             swipe(
                 center,
-                center + Offset(0f, 100f),
+                center - Offset(0f, 100f),
                 durationMillis = 250,
             )
         }
