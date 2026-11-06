@@ -242,6 +242,50 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
     }
 
 
+
+    @Test
+    fun verticalSwipeOnSwitchBeforeLongPressStillScrollsTheSettingsPage() {
+        composeRule.onNodeWithText("材质设置").performClick()
+        val root = composeRule.onRoot()
+        val rootBounds = root.fetchSemanticsNode().boundsInRoot
+        repeat(3) {
+            root.performTouchInput {
+                swipe(
+                    Offset(rootBounds.width * 0.78f, rootBounds.height * 0.82f),
+                    Offset(rootBounds.width * 0.78f, rootBounds.height * 0.28f),
+                    durationMillis = 300,
+                )
+            }
+            composeRule.waitForIdle()
+        }
+
+        val switch = composeRule.onNodeWithContentDescription("触摸光效与形变")
+        switch.assertIsDisplayed()
+        val switchBounds = switch.fetchSemanticsNode().boundsInRoot
+        val center = Offset(
+            switchBounds.center.x - rootBounds.left,
+            switchBounds.center.y - rootBounds.top,
+        )
+        val sectionTitle = composeRule.onNodeWithText("触摸反馈")
+        val beforeTop = sectionTitle.fetchSemanticsNode().boundsInRoot.top
+
+        root.performTouchInput {
+            swipe(
+                center,
+                center + Offset(0f, 100f),
+                durationMillis = 250,
+            )
+        }
+        composeRule.waitForIdle()
+
+        val afterTop = sectionTitle.fetchSemanticsNode().boundsInRoot.top
+        assertTrue(
+            "A vertical swipe before the long-press timeout should still scroll the page.",
+            afterTop < beforeTop - 1f,
+        )
+    }
+
+
     private fun hasTabRole() =
         SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
