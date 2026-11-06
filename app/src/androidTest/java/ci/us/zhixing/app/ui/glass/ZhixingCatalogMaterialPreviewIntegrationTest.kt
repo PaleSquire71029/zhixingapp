@@ -228,7 +228,7 @@ class ZhixingCatalogMaterialPreviewIntegrationTest {
         root.performTouchInput {
             down(switchCenterInRoot)
             advanceEventTime(900)
-            moveBy(Offset(0f, 90f))
+            moveBy(Offset(0f, -90f))
             advanceEventTime(120)
             up()
         }
