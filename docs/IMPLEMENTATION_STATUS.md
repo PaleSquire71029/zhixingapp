@@ -1512,3 +1512,16 @@
 - [x] 新增 `CalculatorGoldenCasesTest.kt`，验证样例 ID、期望结果互斥关系、区间结构、定义域标记和覆盖标签。
 - [ ] 本步的 JUnit 仅验证黄金样例数据完整性；尚无 Kotlin parser / evaluator / solver，因此**不代表旧数学算法已经迁移或通过等价性测试**。
 - [ ] C1 Tokenizer 尚未开始；后续实现必须逐项匹配本批词法期望，并扩展更多异常情况。
+
+
+### 27.20 C1：纯 Kotlin Tokenizer（2026-11-06）
+
+- [x] 新增 `domain/math/model/MathToken.kt`：定义 token 类型、原始词面、数字值、源偏移和类型化词法错误。
+- [x] 新增 `domain/math/parser/MathTokenizer.kt`：实现纯 Kotlin 词法扫描，不依赖 Android / Compose / JavaScript。
+- [x] 保留旧版运算符、Unicode 乘除号与负号别名、全角括号、全角 x、上标 ² / ³ 归一化规则；仍保持 ASCII 大写 X 为非法字符，与旧版 tokenizer 一致。
+- [x] 数字扫描支持 `.5`、`1.`；单独小数点和多个小数点按旧版中文错误语义返回失败。
+- [x] token 与错误均映射回原始输入偏移；上标展开生成的两个 token 都指向原始上标字符。
+- [x] 新增 `MathTokenizerTest.kt`：消费 C0.1 全部 tokenizer 黄金样例，并增加源偏移、空白处理、别名和大写 X 回归测试。
+- [ ] CI 构建 / JUnit / androidTest 源码编译结果待本提交对应 Actions Run 验证；没有 parser / evaluator，尚不能进行端到端计算等价性验证。
+- [ ] 尚未接入计算器 UI；下一小步为 C2 AST 与递归下降解析器。
+- 过程记录：C0.1 初次编译发现黄金样例域模型字段名错配，已拆分为方程定义域排除点与不等式排除点，并修正相应完整性测试；本次 C1 CI 将同时复验 C0.1 与 Tokenizer。
