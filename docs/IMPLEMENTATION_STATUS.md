@@ -1453,3 +1453,14 @@
 - [x] 增补开关普通纵向手势的测试，与长按后锁定滚动的测试形成正反向覆盖。
 - [x] Build #295（Run ID `42191585864`，commit `64150a3bd780a1478ade8bbade12747d39092feb`）通过：JVM 单测、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传。
 - [ ] 当前 CI **只编译仪器测试源码，没有启动 Android Emulator 执行这些手势测试**；仍需真机验证 long-press / vertical-scroll 的实际事件分发与拖动帧率。
+
+
+### 27.14 120Hz 窗口偏好与手势回归测试强化（2026-11-06）
+
+- [x] MainActivity 在窗口创建时请求 120Hz preferredRefreshRate；Android 14/API 34+ 可请求任意目标刷新率，旧系统只在当前显示器报告 120Hz 模式时请求。
+- [x] 不指定 preferredDisplayModeId、不强制切换显示分辨率；最终刷新率仍由 Android 显示调度器按屏幕模式、省电设置、温度和前台场景决定。
+- [x] 抽取纯策略函数并添加单测，覆盖 API 34+ 任意偏好、旧系统严格检查支持模式与 0.5Hz 容差。
+- [x] Android 8/9 兼容：API 30 以下通过 WindowManager.defaultDisplay 读取模式，不访问 API 30 新增的 Activity.display。
+- [x] 修正普通纵向滚动测试方向，并将长按锁定测试的后续移动改为页面仍可滚动的方向，避免滚动已经到边界造成假通过。
+- [ ] 最新 PR CI：JVM 测试、instrumentation test 源码编译、API 35 emulator 实际执行及 Debug APK 构建待完整验证。
+- [ ] iQOO Neo5 活力版实机验收：确认系统最终选择的刷新率、滑块拖动连续性、开关长按锁定和普通纵向滚动。
