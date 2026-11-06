@@ -3,6 +3,15 @@ package ci.us.zhixing.app
 import android.os.Bundle
 import android.os.Build
 import android.view.WindowManager
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.SystemBarStyle
@@ -136,7 +145,22 @@ private fun ZhixingApp(
         BackHandler(enabled = mySubpage != null) {
             mySubpage = null
         }
-        when (mySubpage) {
+        AnimatedContent(
+            targetState = mySubpage,
+            transitionSpec = {
+                (
+                    fadeIn(tween(230)) +
+                        slideInHorizontally(tween(280)) { it / 9 } +
+                        scaleIn(initialScale = 0.985f, animationSpec = tween(280))
+                    ) togetherWith (
+                    fadeOut(tween(170)) +
+                        slideOutHorizontally(tween(220)) { -it / 14 } +
+                        scaleOut(targetScale = 0.99f, animationSpec = tween(220))
+                    )
+            },
+            label = "zhixingSecondaryPageTransition",
+        ) { activeSubpage ->
+        when (activeSubpage) {
             "material" -> saveableStateHolder.SaveableStateProvider("my-material") {
                 GlassLabScreen(
                     onBack = { mySubpage = null },
@@ -182,23 +206,8 @@ private fun ZhixingApp(
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Color.Transparent,
-                    bottomBar = {
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            ZhixingLiquidBottomBarPlacement {
-                                ZhixingCatalogBottomBar(
-                                    backdrop = backdrop,
-                                    material = glassMaterial,
-                                    destinations = destinations,
-                                    selectedIndex = selectedIndex,
-                                    onDestinationSelected = { selectedIndex = it },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(68.dp),
-                                )
-                            }
-                        }
-                    },
                 ) { innerPadding ->
+                    Box(modifier = Modifier.fillMaxSize()) {
                     if (selectedDestination.route == "my") {
                         saveableStateHolder.SaveableStateProvider("root-my") {
                             MyScreen(
@@ -329,9 +338,25 @@ private fun ZhixingApp(
                     }
                         }
                     }
+                    Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+                        ZhixingLiquidBottomBarPlacement {
+                            ZhixingCatalogBottomBar(
+                                backdrop = backdrop,
+                                material = glassMaterial,
+                                destinations = destinations,
+                                selectedIndex = selectedIndex,
+                                onDestinationSelected = { selectedIndex = it },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(68.dp),
+                            )
+                        }
+                    }
+                    }
                 }
             }
             }
+        }
         }
     }
 }

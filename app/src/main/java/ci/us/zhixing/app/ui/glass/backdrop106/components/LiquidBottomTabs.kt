@@ -93,12 +93,12 @@ internal fun LiquidBottomTabs(
     )
     val accentColor = Color(0xFF0088FF)
     val glassTintAlpha = materialParameters.overlayAlpha
-    val containerColor = Color(0xFFF4F9FD).copy(alpha = glassTintAlpha * 0.58f)
+    val containerColor = Color(0xFFF7FAFF).copy(alpha = glassTintAlpha * 0.34f)
     val containerGradient = Brush.verticalGradient(
         colors = listOf(
-            Color.White.copy(alpha = glassTintAlpha * 0.92f),
-            Color(0xFFEAF4FB).copy(alpha = glassTintAlpha * 0.66f),
-            Color(0xFFFCF9FF).copy(alpha = glassTintAlpha * 0.78f),
+            Color.White.copy(alpha = glassTintAlpha * 0.66f),
+            Color(0xFFEAF4FB).copy(alpha = glassTintAlpha * 0.38f),
+            Color(0xFFFCF9FF).copy(alpha = glassTintAlpha * 0.52f),
         ),
     )
     val glassRim = Brush.verticalGradient(
@@ -225,7 +225,7 @@ internal fun LiquidBottomTabs(
                 effects = {
                     if (materialParameters.useVibrancy) vibrancy()
                     if (materialParameters.useBlur) {
-                        blur(materialParameters.blurRadiusDp.dp.toPx())
+                        blur((materialParameters.blurRadiusDp * 0.72f).coerceAtLeast(6f).dp.toPx())
                     }
                     if (materialParameters.useRefraction) {
                         val lensAmount = 24f.dp.toPx() * materialParameters.refractionScale
@@ -373,8 +373,8 @@ internal fun LiquidBottomTabs(
                 },
                 onDrawSurface = {
                     drawRect(
-                        Color(0xFFDCECF8).copy(
-                            alpha = 0.34f * materialParameters.overlayAlpha,
+                        Color(0xFFD9EAFE).copy(
+                            alpha = 0.28f * materialParameters.overlayAlpha,
                         ),
                         alpha = 1f - pressProgress,
                     )
