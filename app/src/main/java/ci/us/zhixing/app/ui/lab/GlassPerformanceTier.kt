@@ -15,7 +15,7 @@ internal enum class GlassPerformanceTier {
 internal data class GlassPerformanceConfig(
     val blurRadiusDp: Float,
     val refractionEnabled: Boolean,
-    val refractionStrengthPx: Float,
+    val refractionStrengthDp: Float,
     val edgeHighlightEnabled: Boolean,
     val chromaticDispersionEnabled: Boolean,
     val chromaticDispersionStrengthPx: Float,
@@ -35,7 +35,7 @@ internal fun resolveGlassPerformanceConfig(
         GlassPerformanceTier.PREMIUM -> GlassPerformanceConfig(
             blurRadiusDp = if (blurSupported) 10f else 0f,
             refractionEnabled = shaderSupported,
-            refractionStrengthPx = if (shaderSupported) 3.5f else 0f,
+            refractionStrengthDp = if (shaderSupported) 3.5f else 0f,
             edgeHighlightEnabled = shaderSupported,
             chromaticDispersionEnabled = shaderSupported,
             chromaticDispersionStrengthPx = 0.25f,
@@ -47,7 +47,7 @@ internal fun resolveGlassPerformanceConfig(
         GlassPerformanceTier.STANDARD -> GlassPerformanceConfig(
             blurRadiusDp = if (blurSupported) 6f else 0f,
             refractionEnabled = shaderSupported,
-            refractionStrengthPx = if (shaderSupported) 1.8f else 0f,
+            refractionStrengthDp = if (shaderSupported) 1.8f else 0f,
             edgeHighlightEnabled = shaderSupported,
             chromaticDispersionEnabled = false,
             chromaticDispersionStrengthPx = 0.25f,
@@ -59,7 +59,7 @@ internal fun resolveGlassPerformanceConfig(
         GlassPerformanceTier.LITE -> GlassPerformanceConfig(
             blurRadiusDp = 0f,
             refractionEnabled = false,
-            refractionStrengthPx = 0f,
+            refractionStrengthDp = 0f,
             edgeHighlightEnabled = false,
             chromaticDispersionEnabled = false,
             chromaticDispersionStrengthPx = 0f,
@@ -71,7 +71,7 @@ internal fun resolveGlassPerformanceConfig(
         GlassPerformanceTier.OFF -> GlassPerformanceConfig(
             blurRadiusDp = 0f,
             refractionEnabled = false,
-            refractionStrengthPx = 0f,
+            refractionStrengthDp = 0f,
             edgeHighlightEnabled = false,
             chromaticDispersionEnabled = false,
             chromaticDispersionStrengthPx = 0f,
@@ -83,7 +83,7 @@ internal fun resolveGlassPerformanceConfig(
         GlassPerformanceTier.CUSTOM -> GlassPerformanceConfig(
             blurRadiusDp = 0f,
             refractionEnabled = false,
-            refractionStrengthPx = 0f,
+            refractionStrengthDp = 0f,
             edgeHighlightEnabled = false,
             chromaticDispersionEnabled = false,
             chromaticDispersionStrengthPx = 0f,
