@@ -3,6 +3,8 @@ package ci.us.zhixing.app.domain.math.algebra
 import ci.us.zhixing.app.domain.math.model.Polynomial
 import ci.us.zhixing.app.domain.math.model.PolynomialEvaluationResult
 import ci.us.zhixing.app.domain.math.model.PolynomialOperationResult
+import ci.us.zhixing.app.domain.math.model.PolynomialRootsResult
+import ci.us.zhixing.app.domain.math.model.PolynomialErrorCode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -140,6 +142,76 @@ class PolynomialArithmeticTest {
         assertEquals(0.0, (rounded as PolynomialEvaluationResult.Success).value, 0.0)
         assertFalse(PolynomialArithmetic.isExactlyZeroAt(cancellation, 1.0))
     }
+
+    @Test
+    fun zeroPolynomialHasEveryRealNumberAsARoot() {
+        assertTrue(
+            PolynomialArithmetic.solveRealRoots(Polynomial.of(0.0)) ===
+                PolynomialRootsResult.AllRealNumbers,
+        )
+    }
+
+    @Test
+    fun nonZeroConstantPolynomialHasNoRealRoots() {
+        assertTrue(
+            PolynomialArithmetic.solveRealRoots(Polynomial.constant(3.0)) ===
+                PolynomialRootsResult.NoRealRoots,
+        )
+        assertTrue(
+            PolynomialArithmetic.solveRealRoots(Polynomial.constant(Polynomial.ZERO_TOLERANCE)) ===
+                PolynomialRootsResult.NoRealRoots,
+        )
+    }
+
+    @Test
+    fun solvesLinearPolynomialsAndReportsNormalizedResidual() {
+        val cases = listOf(
+            Polynomial.of(3.0, 2.0) to -1.5,
+            Polynomial.of(0.0, 4.0) to 0.0,
+            Polynomial.of(-Double.MAX_VALUE, 1.0) to Double.MAX_VALUE,
+        )
+
+        cases.forEach { (polynomial, expectedRoot) ->
+            val result = PolynomialArithmetic.solveRealRoots(polynomial)
+            assertTrue(result is PolynomialRootsResult.FiniteRoots)
+            val root = (result as PolynomialRootsResult.FiniteRoots).roots.single()
+            assertEquals(expectedRoot, root.value, 0.0)
+            assertTrue(root.normalizedResidual.isFinite())
+            assertTrue(root.normalizedResidual <= 1e-12)
+        }
+    }
+
+    @Test
+    fun rejectsLinearRootsOutsideDoubleRange() {
+        val polynomial = Polynomial.of(Double.MAX_VALUE, Polynomial.ZERO_TOLERANCE)
+        val result = PolynomialArithmetic.solveRealRoots(polynomial)
+
+        assertTrue(result is PolynomialRootsResult.Failure)
+        assertEquals(
+            PolynomialErrorCode.NON_FINITE_RESULT,
+            (result as PolynomialRootsResult.Failure).error.code,
+        )
+    }
+
+    @Test
+    fun rejectsLinearRootsThatUnderflowToZero() {
+        val polynomial = Polynomial.of(1e-300, 1e25)
+        val result = PolynomialArithmetic.solveRealRoots(polynomial)
+
+        assertTrue(result is PolynomialRootsResult.Failure)
+        assertEquals(
+            PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+            (result as PolynomialRootsResult.Failure).error.code,
+        )
+    }
+
+    @Test
+    fun reportsHigherDegreeAsUnsupportedUntilQuadraticSolverIsAdded() {
+        val result = PolynomialArithmetic.solveRealRoots(Polynomial.of(1.0, 2.0, 1.0))
+
+        assertEquals(PolynomialRootsResult.UnsupportedDegree(2), result)
+    }
+
     private fun assertPolynomial(
         expected: List<Double>,
         actual: PolynomialOperationResult,

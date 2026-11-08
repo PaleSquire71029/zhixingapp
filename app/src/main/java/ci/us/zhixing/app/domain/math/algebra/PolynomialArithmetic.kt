@@ -2,10 +2,14 @@ package ci.us.zhixing.app.domain.math.algebra
 
 import ci.us.zhixing.app.domain.math.model.Polynomial
 import java.math.BigInteger
+import kotlin.math.abs
+import kotlin.math.max
 import ci.us.zhixing.app.domain.math.model.PolynomialError
 import ci.us.zhixing.app.domain.math.model.PolynomialErrorCode
 import ci.us.zhixing.app.domain.math.model.PolynomialEvaluationResult
 import ci.us.zhixing.app.domain.math.model.PolynomialOperationResult
+import ci.us.zhixing.app.domain.math.model.PolynomialRootsResult
+import ci.us.zhixing.app.domain.math.model.PolynomialRealRoot
 
 /** Pure polynomial operations. Coefficients are stored from constant term upward. */
 internal object PolynomialArithmetic {
@@ -97,6 +101,70 @@ internal object PolynomialArithmetic {
         return PolynomialEvaluationResult.Success(value)
     }
 
+
+    /**
+     * Solves the real roots currently supported by the first C4.3 slice:
+     * zero / non-zero constant polynomials and linear polynomials.
+     *
+     * Higher degrees are reported explicitly instead of being approximated
+     * by an incomplete algorithm; quadratic solving is the next isolated step.
+     */
+    fun solveRealRoots(polynomial: Polynomial): PolynomialRootsResult {
+        if (polynomial.isZero()) {
+            return PolynomialRootsResult.AllRealNumbers
+        }
+        if (polynomial.degree == 0) {
+            return PolynomialRootsResult.NoRealRoots
+        }
+        if (polynomial.degree != 1) {
+            return PolynomialRootsResult.UnsupportedDegree(polynomial.degree)
+        }
+
+        val intercept = polynomial.coefficients[0]
+        val slope = polynomial.coefficients[1]
+        val rawRoot = -intercept / slope
+        if (!rawRoot.isFinite()) {
+            return rootsFailure(
+                PolynomialErrorCode.NON_FINITE_RESULT,
+                "一次多项式的实根超出 Double 可表示范围",
+            )
+        }
+        if (rawRoot == 0.0 && intercept != 0.0) {
+            return rootsFailure(
+                PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                "一次多项式的非零实根在 Double 中下溢为零",
+            )
+        }
+
+        val root = if (rawRoot == 0.0) 0.0 else rawRoot
+        val linearTerm = slope * root
+        if (!linearTerm.isFinite()) {
+            return rootsFailure(
+                PolynomialErrorCode.NON_FINITE_RESULT,
+                "一次多项式根的残差检查产生非有限值",
+            )
+        }
+
+        // Scale both terms before adding, so the residual remains meaningful
+        // for very large or very small finite coefficients.
+        val residualScale = max(abs(intercept), abs(linearTerm))
+        val normalizedResidual = if (residualScale == 0.0) {
+            0.0
+        } else {
+            abs(intercept / residualScale + linearTerm / residualScale)
+        }
+        if (!normalizedResidual.isFinite() || normalizedResidual > ROOT_RESIDUAL_TOLERANCE) {
+            return rootsFailure(
+                PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                "一次多项式根未通过归一化残差检查",
+            )
+        }
+
+        return PolynomialRootsResult.FiniteRoots(
+            listOf(PolynomialRealRoot(root, normalizedResidual)),
+        )
+    }
+
     /**
      * Tests whether the polynomial is exactly zero at [x] when every finite
      * Double is interpreted as its exact IEEE-754 binary value.
@@ -116,6 +184,14 @@ internal object PolynomialArithmetic {
         }
         return exactValue.isZero
     }
+
+    private const val ROOT_RESIDUAL_TOLERANCE = 1e-12
+
+    private fun rootsFailure(
+        code: PolynomialErrorCode,
+        message: String,
+    ) = PolynomialRootsResult.Failure(PolynomialError(code, message))
+
     private fun build(coefficients: List<Double>): PolynomialOperationResult {
         if (coefficients.any { !it.isFinite() }) {
             return failure(

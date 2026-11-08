@@ -3,6 +3,7 @@ package ci.us.zhixing.app.domain.math.model
 internal enum class PolynomialErrorCode {
     NON_FINITE_RESULT,
     NON_FINITE_INPUT,
+    NUMERIC_PRECISION_LOSS,
 }
 
 internal data class PolynomialError(
