@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前处于 C4.1 多项式基础运算验收：代码复核补齐了全系数近零时统一归一为 `[0]` 的规则和回归测试，修正提交等待最新 CI。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
+**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前处于 C4.1 多项式基础运算与零多项式规范化已通过 Android Build #365（Run ID `42444758613`）；当前进入 C4.2.1 有理函数模型与定义域不变量，代码已提交，最新 CI 待验证。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C4.1 修正已提交，最新 CI 待验证 | C0.1–C3 均已通过 CI；C4.1 包含多项式模型、加减乘、缩放、Horner 求值、零多项式规范化及异常处理；尚未接入有理函数或 Compose 页面 |
+| 计算迁移 | C4.1 已通过；C4.2.1 模型已提交待 CI | C0.1–C3 与 C4.1 均已通过 CI；C4.2.1 新增有理函数模型、原始定义域限制集合和创建不变量；运算传播与求值尚未实现 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1590,3 +1590,16 @@
 - [x] Android Build #364（Run ID `42444575859`，提交 `3618078`）最终结论为 `success`；首版 C4.1 的 JUnit、androidTest 源码编译、Debug APK 组装与 Artifact 上传通过。Artifact ID `13602144195`，ZIP 大小 12,410,686 bytes。
 - [ ] 修正提交 `d6f411f` 对应 Android Build #365（Run ID `42444758613`）目前状态为 `in_progress`；该构建才是零多项式规范化补丁的验收依据，尚未取得最终结论或 Artifact。
 - [ ] C4.2 有理函数与原式定义域约束传播仍未开始；本轮没有接入 Compose、键盘或 UI。
+
+
+### 27.26 C4.1 验收完成与 C4.2.1 有理函数模型（2026-11-08）
+
+- [x] 零多项式规范化补丁提交：`d6f411fa7e6cc740e5f2147c0d4cfac237ecf8b5`。
+- [x] Android Build #365（Run ID `42444758613`）最终结论为 `success`；JUnit、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传通过。
+- [x] Artifact `zhixingapp-debug`，ID `13603335893`，ZIP 大小 12,411,287 bytes；哈希 `sha256:82d711aaac03b9fda0254199e38d62254464b5620f6fce9ab54f101d17f80379`。
+- [x] C4.1 完成：多项式模型、加减乘、缩放、Horner 求值、零多项式规范化和非有限值边界全部已通过 CI。
+- [x] 新增 `domain/math/model/RationalFunction.kt`：分子 / 分母之外，独立保存原式定义域限制；创建时自动加入当前非恒定分母，并去重。
+- [x] 有理函数模型拒绝零多项式分母；拒绝会造成空定义域的恒零限制；非零常数限制不进入排除集合；定义域输入列表被复制，避免外部修改污染对象。
+- [x] 新增 `RationalFunctionModelTest.kt`，覆盖自动加入分母、继承限制合并 / 去重、常数限制、零分母、空定义域与输入列表隔离。
+- [ ] C4.2.1 本次提交的 JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传待最新 CI 验证。
+- [ ] C4.2.2 加减乘除 / 幂的约束传播，以及 C4.2.3 定义域判定与有理函数求值尚未实现；本阶段没有接入 Parser、Solver 或 Compose。
