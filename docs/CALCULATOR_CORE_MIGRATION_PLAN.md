@@ -1,7 +1,7 @@
 # 知行计算器原生核心迁移计划
 
 > 版本：1.0  
-> 更新日期：2026-11-06  
+> 更新日期：2026-11-08  
 > 目标仓库：`PaleSquire71029/zhixingapp`  
 > 旧逻辑基线：`PaleSquire71029/calculator` 的 `calculator.html`、`js/chemistry-balancer.js`、`js/chemistry-predictor.js`
 
@@ -130,6 +130,6 @@ app/src/main/java/ci/us/zhixing/app/
 
 ## 8. 本阶段当前入口
 
-**C0.1 已完成：** 已建立 tokenizer、基础算术、方程、不等式的首批黄金样例，覆盖旧版可观察语义、定义域排除和错误边界。**C1 Tokenizer 已实现：** 纯 Kotlin 词法层已消费所有 tokenizer 黄金样例，保留原始 UTF-16 偏移；下一项为 **C2 AST 与递归下降解析器**。
+**C0.1 已完成：** 已建立 tokenizer、基础算术、方程、不等式的首批黄金样例，且样例完整性 JUnit 已通过。**C1 Tokenizer 已通过 CI：** 纯 Kotlin 词法层已消费全部 tokenizer 黄金样例，保留原始 UTF-16 偏移。**C2 AST 与递归下降解析器已实现，等待对应 CI 验证。**
 
-C0.1 仅整理黄金样例；C1 只实现词法分析，不构建 AST、不求值、不改 UI。当前未完成的 PR #88（材质手势与 120Hz 请求）应单独收尾，不能把它的设备 / 模拟器验证失败算成计算器阶段的结果，也不能把两个阶段合并成一个大 PR。
+C0.1 仅整理黄金样例；C1 只实现词法分析；C2 只构建 AST 与语法树，不做常数计算、不求值、不接 UI。当前未完成的 PR #88（材质手势与 120Hz 请求）应单独收尾，不能把它的设备 / 模拟器验证失败算成计算器阶段的结果，也不能把两个阶段合并成一个大 PR。

@@ -1,6 +1,6 @@
 # 知行 Android App 实施状态
 
-> 最后更新：2026-11-06  
+> 最后更新：2026-11-08  
 > 当前仓库：PaleSquire71029/zhixingapp  
 > 当前分支：main  
 > 项目接手指南：[docs/PROJECT_STATUS_AND_GUIDE.md](./PROJECT_STATUS_AND_GUIDE.md)  
@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**截至 2026-10-31：首版 APK 的图标截断问题已在 PR #3 修复；0.1.1 已通过 Android Build #32 并归档。用户真机安装与启动仍待验收。设计系统的颜色、间距、形状与文字 Tokens 已集中到 ZhixingTheme 统一入口；Glass Lab 已加入 GraphicsLayer 局部背景快照、默认关闭的前台动态采样（每秒最多一次）和 API 33+ AGSL 单通道边缘折射实验；低版本使用快照/模糊回退。折射只作用于实验样本，不含 RGB 色散或窗口级 backdrop。编译与真机观感仍待验收。本轮按要求未触发 CI、未创建新 APK。计算器、AI 等业务功能仍未迁移。**
+**当前进度：** 首版 APK 的图标截断问题已在 PR #3 修复；导航壳、我的页及材质设置已进入主分支。计算器数学内核正在按 C0.1–C2 小步迁移：黄金样例已提交，C1 Tokenizer 已通过 CI，C2 AST / Parser 已实现并等待 CI。计算页、常数求值器、方程 / 不等式求解器、函数 / 单位 / 化学能力仍未接入；AI、账号与云历史也尚未迁移。主导航、材质视觉和 120Hz 真机体验的历史验收记录请以各自小节为准。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 部分实现，官方移植中 | 当前主分支底栏仍为旧实现；官方 Backdrop Catalog 1.0.6 辅助类已合并，LiquidBottomTabs 源码正在 P2.1 PR 中隔离编译 |
-| 计算迁移 | 未开始 | 尚无旧算法迁移 |
+| 计算迁移 | 核心内核迁移中 | C0.1 黄金样例已建立；C1 Tokenizer 已通过 CI；C2 AST / Parser 已实现待 CI；尚无 evaluator 或计算页接入 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 0.1.1 已归档 | `artifacts/zhixingapp-preview.apk`，11,490,765 bytes；后续主分支成功构建会自动更新 |
@@ -1510,7 +1510,7 @@
 - [x] 新增 `CalculatorGoldenCases.kt`，建立 token 归一化 / 错误、基础算术与优先级、百分号、方程根与分母排除、不等式开闭区间与高次边界样例。
 - [x] 明确使用语义结果记录解集与定义域排除，不把解释文字排版当成数学结果契约。
 - [x] 新增 `CalculatorGoldenCasesTest.kt`，验证样例 ID、期望结果互斥关系、区间结构、定义域标记和覆盖标签。
-- [ ] 本步的 JUnit 仅验证黄金样例数据完整性；尚无 Kotlin parser / evaluator / solver，因此**不代表旧数学算法已经迁移或通过等价性测试**。
+- [x] 本步 JUnit 已通过，验证的是黄金样例数据完整性；尚无 parser / evaluator / solver，因此**不代表旧数学算法已经迁移或通过等价性测试**。
 - [ ] C1 Tokenizer 尚未开始；后续实现必须逐项匹配本批词法期望，并扩展更多异常情况。
 
 
@@ -1522,6 +1522,20 @@
 - [x] 数字扫描支持 `.5`、`1.`；单独小数点和多个小数点按旧版中文错误语义返回失败。
 - [x] token 与错误均映射回原始输入偏移；上标展开生成的两个 token 都指向原始上标字符。
 - [x] 新增 `MathTokenizerTest.kt`：消费 C0.1 全部 tokenizer 黄金样例，并增加源偏移、空白处理、别名和大写 X 回归测试。
-- [ ] CI 构建 / JUnit / androidTest 源码编译结果待本提交对应 Actions Run 验证；没有 parser / evaluator，尚不能进行端到端计算等价性验证。
+- [x] GitHub Actions Run `42234439958`（提交 `a17c579`）成功：JVM 单元测试、androidTest Kotlin 源码编译、Debug APK 组装及 Artifact 上传均通过。
+- [ ] 尚无 parser / evaluator，不能进行端到端计算等价性验证；仪器测试源码仅编译，未在模拟器 / 真机执行。
 - [ ] 尚未接入计算器 UI；下一小步为 C2 AST 与递归下降解析器。
 - 过程记录：C0.1 初次编译发现黄金样例域模型字段名错配，已拆分为方程定义域排除点与不等式排除点，并修正相应完整性测试；本次 C1 CI 将同时复验 C0.1 与 Tokenizer。
+
+
+### 27.21 C2：AST 与递归下降解析器（2026-11-08）
+
+- [x] 新增 `domain/math/model/MathExpression.kt`：定义数字、变量、一元表达式、二元表达式、百分号和显式分组节点，并为每个节点保留原始输入半开区间。
+- [x] 新增 `domain/math/parser/MathExpressionParser.kt`：递归下降实现加减、乘除、隐式乘法、一元正负、幂链、后缀百分号和括号。
+- [x] 乘方高于一元正负；乘除按左结合；幂指数链按右结合；保留旧版只接受非负整数指数链、指数中间值上限 64 的词法后语法限制。
+- [x] 显式乘法与隐式乘法在 AST 中有独立标记；显式括号保留为 GroupExpression，不提前丢失输入分组。
+- [x] 解析器只构建 AST，不执行运算、不处理除零、不做多项式化简或求根；常数表达式求值留在 C3。
+- [x] 新增 `MathExpressionParserTest.kt`：覆盖 -2^2、(-2)^2、-(2^2)、幂右结合、除法左结合、隐式乘法、百分号、错误类型和 Unicode 原始位置。
+- [ ] C2 对应 CI 的 JUnit、androidTest 源码编译和 Debug APK 构建待验证；仪器测试如未实际启动设备，只记录源码编译通过。
+- [ ] 未接入 Compose 页面或键盘；下一步 C3 常数表达式求值与错误边界。
+
