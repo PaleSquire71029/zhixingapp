@@ -4,7 +4,6 @@ import ci.us.zhixing.app.domain.math.model.Polynomial
 import ci.us.zhixing.app.domain.math.model.RationalFunction
 import ci.us.zhixing.app.domain.math.model.RationalFunctionErrorCode
 import ci.us.zhixing.app.domain.math.model.RationalFunctionOperationResult
-import ci.us.zhixing.app.domain.math.algebra.RationalFunctionArithmetic
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -194,9 +193,19 @@ class RationalFunctionModelTest {
         )
     }
 
+    private fun rational(
+        numerator: Polynomial,
+        denominator: Polynomial,
+    ): RationalFunction = success(
+        RationalFunction.create(
+            numerator = numerator,
+            denominator = denominator,
+        ),
+    )
+
     private fun success(result: RationalFunctionOperationResult): RationalFunction {
         assertTrue(
-            "Expected rational-function creation to succeed",
+            "Expected rational-function operation to succeed",
             result is RationalFunctionOperationResult.Success,
         )
         return (result as RationalFunctionOperationResult.Success).value
