@@ -1597,12 +1597,12 @@ GitHub Actions 至少执行：
 当前进度：
 - C0.1：黄金样例已建立，完整性 JUnit 通过。
 - C1：Tokenizer 已实现并通过 CI，保留 Unicode 归一化与原始 UTF-16 输入偏移。
-- C2：AST / 递归下降 Parser 已实现；首轮 CI Kotlin 编译通过，右结合幂链测试断言错误已由 commit `782dd334f40d4ab17e6c87dd5962e3f3be65475f` 修正，修正后完整 CI 尚待验证。
-- C3：常数表达式求值尚未开始。
+- C2：AST / 递归下降 Parser 已实现并通过 Android Build #350（Run ID `42443214070`）；JUnit、androidTest 源码编译和 Debug APK 组装均成功。
+- C3：常数表达式求值器代码已提交，CI 待验证；范围为 Double 四则、幂、正负号、百分号、除零、非有限结果、变量拒绝和黄金样例回归。
 
 接续执行：
-1. 先验证 C2 修正提交对应的 JUnit、androidTest Kotlin 源码编译与 Debug APK 组装。
-2. 全部通过后，单独推进 C3 常数表达式求值与错误边界；AST 与 evaluator 继续分层。
+1. C2 已通过 Android Build #350；设备端仪器测试未实际执行，后续真机验收仍需单独完成。
+2. 当前单独推进 C3 常数表达式求值与错误边界；AST 与 evaluator 继续分层。
 3. C3 完成前不接入计算器 Compose 页面、数字键盘或复杂玻璃动画。
 4. PR #88 的材质滑块 / 开关手势与 120Hz 窗口偏好继续独立收尾，不并入 C3。
 

@@ -130,9 +130,9 @@ app/src/main/java/ci/us/zhixing/app/
 
 ## 8. 本阶段当前入口
 
-**C0.1 已完成：** 首批 Tokenizer、基础算术、方程与不等式黄金样例已建立，样例完整性 JUnit 通过。**C1 Tokenizer 已通过 CI：** 纯 Kotlin 词法层已消费全部词法黄金样例，并保留原始 UTF-16 偏移。**C2 AST / 递归下降 Parser 已实现：** 首轮 CI 的 Kotlin 编译通过，测试因右结合幂链断言写错而失败；已在提交 `782dd334f40d4ab17e6c87dd5962e3f3be65475f` 修正测试，修正后的完整 CI 仍待验证。
+**C0.1 已完成：** 首批词法、算术、方程与不等式黄金样例已建立，完整性 JUnit 通过。**C1 Tokenizer 已通过 CI。C2 AST / Parser 已通过 CI：** 修正提交 `782dd334` 对应 Android Build #350（Run ID `42443214070`）的资源校验、JUnit、androidTest 源码编译、Debug APK 组装及 Artifact 上传全部成功。
 
-C0.1 只整理黄金样例；C1 只实现词法分析；C2 只构建 AST，不做常数计算、不执行求值、不接 UI。C2 CI 通过后进入 C3 常数表达式求值与错误边界。PR #88 的材质滑块 / 开关手势与 120Hz 窗口偏好属于独立主壳任务，继续单独跟踪，不把它的设备 / 模拟器问题混入数学内核验收。
+**C3 正在实施：** 新增纯 Kotlin AST 求值器和 `MathArithmeticCalculator` 入口，覆盖 Double 四则、幂、正负号、百分号、除零、非有限结果与变量拒绝；全量算术黄金样例回归已写入测试，C3 CI 待验证。C0.1 只整理黄金样例；C1 只实现词法分析；C2 只构建 AST；C3 才执行常数求值。PR #88 的材质滑块 / 开关手势与 120Hz 窗口偏好属于独立主壳任务，不与数学内核混合。
 
 
 ## 9. C2 首轮 CI 问题与修正记录（2026-11-08）
@@ -143,3 +143,33 @@ C0.1 只整理黄金样例；C1 只实现词法分析；C2 只构建 AST，不�
 - 修正提交：`782dd334f40d4ab17e6c87dd5962e3f3be65475f`。
 - 当前判定：Parser 代码与断言修复均已提交，但修正提交尚未取得完整 CI 成功记录，暂不勾选 C2 CI 通过。
 - 下一项：C2 完整 CI 通过后再开始 C3；C3 仍只做纯 Kotlin 常数表达式求值，不接 Compose 页面。
+
+
+## 10. C3：常数表达式求值（2026-11-08）
+
+### 本步范围
+
+- 输入流程固定为 Tokenizer → AST Parser → Evaluator；三个阶段保持独立，错误需要标出发生阶段和原始输入偏移。
+- 普通数值首轮沿用旧计算器的 IEEE-754 `Double` 语义，不在 evaluator 内做舍入、分数化简、千分位或科学计数法格式化。
+- 支持 AST 已定义的数字、显式分组、一元正负、加减乘除、整数幂和后缀百分号；隐式乘法由 Parser 生成的同一 Multiply AST 节点参与求值。
+- 百分号按旧逻辑逐层乘以 `0.01`，所以 `50% = 0.5`、`200 + 10% = 200.1`、`50%% = 0.005`。
+- 对正零、负零除数都返回“除数不能为 0”；溢出、Infinity 与 NaN 不允许作为成功结果。
+- 常数计算遇到变量 `x` 时返回旧版提示“含 x 的式子请用「方程求解」”，不返回部分数值。
+- 保留 Tokenizer / Parser 的原始错误消息和输入偏移；不要把格式化、UI 状态或代数求解混入本步。
+
+### 本步实现文件
+
+- `domain/math/model/MathEvaluation.kt`
+- `domain/math/evaluator/MathExpressionEvaluator.kt`
+- `domain/math/evaluator/MathArithmeticCalculator.kt`
+- `test/domain/math/evaluator/MathExpressionEvaluatorTest.kt`
+
+### C3 完成条件
+
+1. 所有 `CalculatorGoldenCases.arithmetic` 成功样例按数值容差通过；
+2. 所有算术错误样例保留预期错误消息；
+3. 覆盖除负零、溢出 / 非有限数、百分号连用、0^0、变量拒绝和错误阶段 / 偏移；
+4. `:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug` 在 CI 成功；
+5. 不接 Compose 页面、系统输入法、玻璃键盘或方程 / 不等式 solver。
+
+C3 通过后，下一项是 C4 多项式 / 有理函数代数表示与定义域记录；不在 C4 之前开始方程 UI。

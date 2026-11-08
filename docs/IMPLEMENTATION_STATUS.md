@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段：一级导航为「计算 / 知行 AI / 工具 / 我的」，「我的」页已接入历史与材质设置入口，底部导航采用圆润填色图标和浮动液态玻璃底座，二级页面已有淡入、轻微位移与缩放转场。计算器数学内核已完成 C0.1 黄金样例、C1 Tokenizer 和 C2 AST / 递归下降 Parser 的代码；C2 首轮 CI 发现的是测试断言写错，已在 `782dd334` 修正为正确的右结合树，修正提交的完整 CI 尚待验证。C3 常数表达式求值尚未开始；计算页、方程 / 不等式求解、函数 / 单位 / 化学、AI、账号和云历史仍未接入。**
+**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。当前正在实现 C3 常数表达式求值器与全量算术黄金样例回归；本轮代码的 CI 尚待验证。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C2 已实现，修正后 CI 待验证 | C0.1 黄金样例与 C1 Tokenizer 已通过 CI；C2 AST / Parser 已实现，测试断言修正提交 `782dd334`；C3 evaluator 尚未开始，当前没有端到端计算或页面接入 |
+| 计算迁移 | C3 代码已提交，CI 待验证 | C0.1–C2 均已实现；C2 已通过 CI；C3 新增 AST 求值器、分阶段计算入口和算术黄金样例回归；尚未接入 Compose 页面 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1536,7 +1536,7 @@
 - [x] 显式乘法与隐式乘法在 AST 中有独立标记；显式括号保留为 GroupExpression，不提前丢失输入分组。
 - [x] 解析器只构建 AST，不执行运算、不处理除零、不做多项式化简或求根；常数表达式求值留在 C3。
 - [x] 新增 `MathExpressionParserTest.kt`：覆盖 -2^2、(-2)^2、-(2^2)、幂右结合、除法左结合、隐式乘法、百分号、错误类型和 Unicode 原始位置。
-- [ ] C2 对应 CI 的 JUnit、androidTest 源码编译和 Debug APK 构建待验证；仪器测试如未实际启动设备，只记录源码编译通过。
+- [x] C2 对应 Android Build #350（Run ID `42443214070`）已通过 JUnit、androidTest Kotlin 源码编译和 Debug APK 构建；未执行设备端仪器测试。
 - [ ] 未接入 Compose 页面或键盘；下一步 C3 常数表达式求值与错误边界。
 
 
@@ -1545,7 +1545,7 @@
 
 - [x] Android Build Run `42443068196` 的 Kotlin 编译已通过，失败仅发生在 `powerChainsAreRightAssociative` 的 AST 测试断言。
 - [x] 确认实现生成的是预期右结合树 `2^(3^2)`；测试错误地把内层幂节点左侧常数写成 2，已修正为 3，并同时断言右侧常数为 2。
-- [ ] 修正后的 C2 完整 CI 结果待新提交验证。
+- [x] 修正后的 C2 Android Build #350（Run ID `42443214070`）完整 CI 成功；资源校验、JUnit、androidTest 源码编译、Debug APK 组装与 Artifact 上传均通过。
 
 
 ### 27.22 C2 右结合 AST 断言修正（2026-11-08）
@@ -1555,4 +1555,16 @@
 - [x] 复核 `2^3^2` 的 AST 应为 `2^(3^2)`；修正测试，要求根节点右侧为幂节点，内层幂的左侧常数为 3、右侧常数为 2。
 - [x] 修正提交：`782dd334f40d4ab17e6c87dd5962e3f3be65475f`（`test: correct right-associative power AST assertion`）。
 - [ ] 修正提交当前尚无可核实的完整 CI 成功记录；必须重新运行并确认 JUnit、androidTest 源码编译和 Debug APK 组装后，才能把 C2 标记为 CI 通过。
-- [ ] C2 仍只负责构建 AST，不做求值；CI 通过后下一项为 C3 常数表达式求值与错误边界。
+- [x] C2 仍只负责构建 AST，不做求值；CI 通过后进入 C3。
+
+
+### 27.23 C3：常数表达式求值器与算术回归（2026-11-08）
+
+- [x] 新增 `domain/math/model/MathEvaluation.kt`：定义 evaluator 错误码、求值结果，以及 tokenizer / parser / evaluator 三阶段的统一计算结果。
+- [x] 新增 `domain/math/evaluator/MathExpressionEvaluator.kt`：递归求值 Number / Group / Unary / Binary / Percent AST；实现加减乘除、幂、正负号与百分号缩放。
+- [x] 新增 `MathArithmeticCalculator` 纯 Kotlin 入口，串联 Tokenizer → Parser → Evaluator；保留各阶段错误消息、来源偏移和词面信息。
+- [x] 除数为正零或负零均明确返回“除数不能为 0”；溢出、Infinity、NaN 不作为成功数值返回；包含 x 的表达式返回旧版常数计算提示。
+- [x] 不在本步进行小数格式化、分数化简、科学计数法显示或 UI 接入；成功结果保留原始 Double。
+- [x] 新增 `MathExpressionEvaluatorTest.kt`：遍历全部算术黄金样例，另测除负零、非有限数、百分号连用、0^0、正号、变量错误偏移和 tokenizer / parser 阶段错误。
+- [ ] C3 的 JUnit、androidTest 源码编译和 Debug APK 构建待本次提交 CI 验证；若 CI 暴露错误，只修复当前失败项。
+- [ ] C3 只验证常数计算；不代表方程 / 不等式、函数、单位、化学或计算 UI 已完成。
