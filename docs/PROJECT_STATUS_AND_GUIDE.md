@@ -676,11 +676,18 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 ### 11.3 C4.2.3 分母精度损失分类验收（2026-11-08）
 
-新增 `NUMERIC_PRECISION_LOSS`：分母 Double Horner 结果为零、但 BigInteger 精确二进制求值证明其非零时，返回数值精度错误。测试覆盖 `x²` 在 `1e-200` 处下溢以及高消去多项式。Build #381（Run ID `42454900909`）成功，资源检查、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传全部通过；未运行模拟器 / 真机。分子下溢 / 消去保护已提交（`924f495`），Build #383（Run ID `42455402733`）已成功，Artifact ID `13607311903`；尚未进行设备验收。
+新增 `NUMERIC_PRECISION_LOSS`：分母 Double Horner 结果为零、但 BigInteger 精确二进制求值证明其非零时，返回数值精度错误。测试覆盖 `x²` 在 `1e-200` 处下溢以及高消去多项式。Build #381（Run ID `42454900909`）成功，资源检查、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传全部通过；未运行模拟器 / 真机。C4.2.3 的定义域、精确零点、分子 / 分母精度保护、非有限与溢出边界均已完成 CI 验收（Build #372 / #379 / #381 / #383）；设备端验收仍未执行。C4.3.1 的一次根首步已通过 Build #388（Run ID `42456084109`），下一步处理二次多项式实根。
 
 
 ### 11.4 C4.2.3 分子精度损失保护（2026-11-08）
 
 已在 `RationalFunctionArithmetic.evaluate` 中补充分子数值精度检查：当分子 Double Horner 结果为 `0.0`，但 `PolynomialArithmetic.isExactlyZeroAt` 证明精确二进制值非零时，返回 `NUMERIC_PRECISION_LOSS`；真正精确为零的分子仍返回数值 0。测试覆盖 `x²` 在 `1e-200` 处下溢、高消去多项式以及真正零分子。
 
-代码提交 `924f4958c2132b09ff016938ba4070c099c18a52`。Android Build #383（Run ID `42455402733`）已完整成功：JUnit、androidTest 源码编译、Debug APK 组装与 Artifact 上传通过；Artifact ID `13607311903`，12,421,616 bytes。该步已通过 CI，但未执行模拟器 / 真机测试。下一步是复核 C4.2.3 整体验收条件，不跳入 C4.3。
+代码提交 `924f4958c2132b09ff016938ba4070c099c18a52`。Android Build #383（Run ID `42455402733`）已完整成功：JUnit、androidTest 源码编译、Debug APK 组装与 Artifact 上传通过；Artifact ID `13607311903`，12,421,616 bytes。该步已通过 CI，但未执行模拟器 / 真机测试。C4.2.3 已完成 CI 整体验收；当前进入 C4.3.1 / C4.3.2，设备端测试仍待单独执行。
+
+
+### 11.5 C4.3.1 零 / 常数 / 一次多项式实根（2026-11-08）
+
+已新增 `PolynomialRootsResult` 根集模型，并在 `PolynomialArithmetic.solveRealRoots` 中支持零多项式（全体实数）、非零常数（无实根）和一次多项式。有限根携带归一化残差；根溢出返回 `NON_FINITE_RESULT`，非零根下溢或残差检查失败返回 `NUMERIC_PRECISION_LOSS`；二次及以上目前返回 `UnsupportedDegree`。
+
+首版提交 `860429b699492d0471cf4ac5deb53e7906b0440c` 在 Build #387 中暴露出新错误码漏加 exhaustive `when` 映射，已在 `c6f59062cd89765d4affa3fa4dd1952ffed8c332` 修复。Build #388（Run ID `42456084109`）完整成功；Artifact ID `13606854310`，12,423,470 bytes。未执行模拟器 / 真机测试。下一步实现二次多项式实根的判别式与稳定求根。

@@ -234,7 +234,7 @@ C4.2.3 首个单点求值子步骤已通过 Android Build #372（Run ID `4245357
 
 CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损失分类 Build #381（Run ID `42454900909`）均成功。Build #381 的资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过；Artifact ID `13607088513`，12,421,567 bytes，digest `sha256:a542ca67e6923cbd143b4dc7fa24472e4f0be5a1e7f9ff282b4f82186d44fe94`。未执行模拟器 / 真机仪器测试。
 
-分母和分子 Double Horner 结果为 0、但精确二进制值非零时，现均返回 `NUMERIC_PRECISION_LOSS`，并分别使用下溢 / 消去误差样例验证。Build #383（Run ID `42455402733`）已成功，Artifact ID `13607311903`。下一步复核 C4.2.3 全部验收条件，包括原始定义域限制、精确真零、非有限中间值和最终商溢出；全部满足后才进入 C4.3。未执行模拟器 / 真机仪器测试。
+分母和分子 Double Horner 结果为 0、但精确二进制值非零时，现均返回 `NUMERIC_PRECISION_LOSS`；精确零点、近零非零值、原式定义域空洞、非有限中间值和最终商溢出均有回归测试。Build #372、#379、#381、#383 全部成功，故 C4.2.3 已完成 CI 验收；未执行模拟器 / 真机仪器测试。当前进入 C4.3.1，零 / 常数多项式分类与一次实根已通过 Build #388。
 
 
 ### 27.32 C4.2.3 分子求值精度损失保护（2026-11-08）
@@ -246,3 +246,21 @@ CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损�
 - [x] Android Build #383（Run ID `42455402733`）完整成功：JUnit、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传通过。Artifact ID `13607311903`，12,421,616 bytes，SHA-256 `54dfd80e7956ebefa7f1ea5a4ae9bd59c28d9a7ba03140a103d1e9e9c494f058`。
 - [ ] 未运行模拟器或真机仪器测试。
 - [ ] 下一步复核分子 / 分母的舍入零值、精确零值、非有限中间值、最终商溢出与原始定义域约束，再决定 C4.2.3 是否满足整体验收标准。
+
+
+## 15. C4.3.1：零 / 常数多项式分类与一次多项式实根（2026-11-08）
+
+本步把多项式求根从有理函数求值中独立出来，采用明确的根集结果模型：
+- `AllRealNumbers`：零多项式，所有实数均为根。
+- `NoRealRoots`：非零常数多项式，没有实根。
+- `FiniteRoots`：有限实根列表，每个 `PolynomialRealRoot` 同时携带 `value` 与 `normalizedResidual`。
+- `UnsupportedDegree`：当前子步骤未实现的次数；本步对二次及以上次数明确返回，不伪造结果。
+- `Failure`：根超出 Double 表示范围或数值精度不足等类型化失败。
+
+`PolynomialArithmetic.solveRealRoots` 当前只解决零多项式、非零常数和一次多项式。一次根按 `-c0/c1` 计算；计算结果必须有限，非零常数项对应的根不得下溢成 0，并检查归一化残差 `|c0/scale + c1*r/scale|`（`scale=max(|c0|, |c1*r|)`），阈值为 `1e-12`。超范围返回 `NON_FINITE_RESULT`；根下溢或残差不合格返回 `NUMERIC_PRECISION_LOSS`。
+
+测试覆盖零多项式、非零常数、常规一次根、零根、接近 Double 上界的有限根、根溢出、根下溢，以及二次输入明确标记为暂不支持。
+
+代码提交：首版 `860429b699492d0471cf4ac5deb53e7906b0440c`；错误映射修正 `c6f59062cd89765d4affa3fa4dd1952ffed8c332`。Build #387（Run ID `42456067278`）因新错误码缺少一个 exhaustive `when` 分支而失败，日志已确认；修正后的 Build #388（Run ID `42456084109`）完整成功，JUnit、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传全部通过。Artifact ID `13606854310`，12,423,470 bytes，SHA-256 `47c53f359a01803891be43029b17db0489460b55d6561fcc092db2a79ac8d157`。未执行模拟器 / 真机仪器测试。
+
+**下一小步 C4.3.2：** 实现二次多项式实根。先确定判别式在极端系数下的可靠符号判定与缩放策略，再使用数值稳定的求根公式；分别覆盖两个不同实根、重根、无实根、根溢出 / 下溢与归一化残差。不要直接复用旧 JS 中固定 `1e-12` 判别式阈值和朴素求根公式。

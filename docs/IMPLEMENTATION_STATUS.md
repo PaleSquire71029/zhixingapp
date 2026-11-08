@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前处于 C4.1 多项式基础运算与零多项式规范化已通过 Android Build #365（Run ID `42444758613`）；当前进入 C4.2.1 有理函数模型与定义域不变量已通过 Android Build #366（Run ID `42444984226`）；C4.2.2 有理函数加减乘除与幂的定义域传播已通过 Android Build #370（Run ID `42445627892`）；C4.2.3 单点求值 / 原式定义域检查已通过 Android Build #372（Run ID `42453575710`）；使用 BigInteger 二进制精确运算的零点判定修正已通过 Android Build #379（Run ID `42454420363`）；分母 Double 求值舍入为零但精确值非零时返回 `NUMERIC_PRECISION_LOSS`，已通过 Android Build #381（Run ID `42454900909`）；分子相同精度损失保护已通过 Android Build #383（Run ID `42455402733`），Artifact ID `13607311903`。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
+**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前处于 C4.1 多项式基础运算与零多项式规范化已通过 Android Build #365（Run ID `42444758613`）；当前进入 C4.2.1 有理函数模型与定义域不变量已通过 Android Build #366（Run ID `42444984226`）；C4.2.2 有理函数加减乘除与幂的定义域传播已通过 Android Build #370（Run ID `42445627892`）；C4.2.3 有理函数单点求值 / 原式定义域检查、BigInteger 精确零点判定及分子 / 分母精度损失分类已完成 CI 验收（Build #372 / #379 / #381 / #383）；未执行模拟器 / 真机仪器测试。C4.3.1 已实现零 / 常数多项式根集分类和一次多项式实根求解，Build #388（Run ID `42456084109`）通过，Artifact ID `13606854310`。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C4.2.3 单点求值、精确定义域零点判定、分母精度保护已通过 CI；分子精度保护已通过 Build #383 | 不使用 epsilon；分子 Double 结果为零但精确二进制值非零时返回 `NUMERIC_PRECISION_LOSS`；CI 通过后复核 C4.2.3 完整边界 |
+| 计算迁移 | C4.2.3 已完成 CI 验收；C4.3.1 一次实根首步已通过 Build #388 | 零多项式 / 非零常数分类、一次根、归一化残差与 Double 表示边界已覆盖；下一步实现二次实根 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1658,3 +1658,23 @@
 - [x] Android Build #383（Run ID `42455402733`）完整成功：资源校验、JUnit、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传全部通过。Artifact `zhixingapp-debug`，ID `13607311903`，12,421,616 bytes；SHA-256 `54dfd80e7956ebefa7f1ea5a4ae9bd59c28d9a7ba03140a103d1e9e9c494f058`。
 - [ ] 本步骤未执行模拟器或真机仪器测试；CI 也不代表设备端验收。
 - [ ] 下一步复核 C4.2.3 全部边界与整体验收定义；本项通过不代表 C4.2.3 整体验收完成。
+
+
+### 27.33 C4.2.3 整体验收与 C4.3.1 一次实根基础（2026-11-08）
+
+**C4.2.3 CI 验收完成：**
+- [x] 普通求值、NaN / Infinity 拒绝、Horner 中间非有限值与最终商溢出有回归测试。
+- [x] 所有原始 `domainRestrictions` 在求值前逐项检查；`x/x` 的可去间断点与 `(1/x)^0` 的原始排除点不因代数形式化简而消失。
+- [x] `PolynomialArithmetic.isExactlyZeroAt` 以 BigInteger 精确二进制有理数 Horner 判零，不使用 epsilon；覆盖近零非零值和 Double Horner 消去。
+- [x] 分子 / 分母 Double 求值舍入为 `0.0`、但精确值非零时均返回 `NUMERIC_PRECISION_LOSS`；精确零分子仍正常返回 0。
+- [x] Build #372、#379、#381、#383 全部成功；其中 Build #383 Run ID `42455402733` 完整通过 JUnit、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传。
+- [ ] 未执行模拟器或真机仪器测试；C4.2.3 的 CI 验收完成不代表设备端验收完成。
+
+**C4.3.1：**
+- [x] 新增 `PolynomialRootsResult`，明确区分全体实数、无实根、有限根、暂不支持次数和类型化失败。
+- [x] `solveRealRoots` 支持零多项式、非零常数和一次多项式；线性根附带归一化残差。
+- [x] 根超出 Double 范围时返回 `NON_FINITE_RESULT`；非零根下溢为零或残差超限时返回 `NUMERIC_PRECISION_LOSS`。
+- [x] 二次及以上次数返回 `UnsupportedDegree`，不会输出未经实现的近似结果。
+- [x] 首版提交 `860429b699492d0471cf4ac5deb53e7906b0440c` 的 Build #387 因新增错误码遗漏 `RationalFunctionArithmetic.mapFailure` 分支而编译失败；修正提交 `c6f59062cd89765d4affa3fa4dd1952ffed8c332` 补齐映射后，Build #388（Run ID `42456084109`）完整成功。
+- [x] Build #388 Artifact `zhixingapp-debug` ID `13606854310`，12,423,470 bytes，SHA-256 `47c53f359a01803891be43029b17db0489460b55d6561fcc092db2a79ac8d157`。
+- [ ] 未执行模拟器 / 真机测试；下一步 C4.3.2 实现二次多项式实根，重点处理判别式符号、稳定求根公式、根去重和残差边界。
