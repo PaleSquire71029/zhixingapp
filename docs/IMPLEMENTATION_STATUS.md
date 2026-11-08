@@ -1626,6 +1626,6 @@
 - [x] 新增 `RationalFunctionEvaluationResult`，沿用 `RationalFunctionError` / `RationalFunctionErrorCode` 类型化错误体系。
 - [x] `RationalFunctionArithmetic.evaluate(function, x)` 先检查所有原始 `domainRestrictions`，再计算分子 / 分母；显式防御分母为零与最终商溢出。
 - [x] 新增测试：普通代入、多条继承限制、`x/x` 在零点仍未定义、零次幂保留排除点、NaN / Infinity 输入、多项式中间溢出、最终除法溢出。
-- [ ] 本次提交的 Android Build / JUnit / Debug APK 结果待 CI；尚未执行模拟器或真机仪器测试。
+- [x] Android Build #372（Run ID `42453575710`）成功：JUnit、androidTest Kotlin 源码编译、Debug APK 组装与 Artifact 上传通过；Artifact ID `13606083998`，12,418,755 bytes。未执行模拟器或真机仪器测试。
 - [ ] 后续还需评估定义域近似零点策略、与 AST / parser 集成及边界行为；本子步骤只使用现有 Double 求值器的精确 `0.0` 判断。
-- [ ] 下一小步：CI 通过后进入 C4.3 多项式实根基础。
+- [ ] 下一小步：进入 C4.3 多项式实根基础。
