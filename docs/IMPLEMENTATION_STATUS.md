@@ -1601,7 +1601,7 @@
 - [x] 新增 `domain/math/model/RationalFunction.kt`：分子 / 分母之外，独立保存原式定义域限制；创建时自动加入当前非恒定分母，并去重。
 - [x] 有理函数模型拒绝零多项式分母；拒绝会造成空定义域的恒零限制；非零常数限制不进入排除集合；定义域输入列表被复制，避免外部修改污染对象。
 - [x] 新增 `RationalFunctionModelTest.kt`，覆盖自动加入分母、继承限制合并 / 去重、常数限制、零分母、空定义域与输入列表隔离。
-- [ ] C4.2.1 本次提交的 JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传待最新 CI 验证。
+- [x] C4.2.1 对应 Android Build #366（Run ID `42444984226`）完整成功：JUnit、androidTest Kotlin 源码编译、Debug APK 组装与 Artifact 上传通过；Artifact ID `13603028718`。
 - [ ] C4.2.2 加减乘除 / 幂的约束传播，以及 C4.2.3 定义域判定与有理函数求值尚未实现；本阶段没有接入 Parser、Solver 或 Compose。
 
 
@@ -1615,5 +1615,6 @@
 - [x] 幂运算使用平方求幂；指数 0 会把当前分式变成 1/1，但保留底式原始限制，因此 `(1/x)^0` 仍排除 x=0。
 - [x] 不执行最大公因式约分，避免在域层尚未完成时抹掉原式定义域；多项式溢出映射为有理函数类型化错误。
 - [x] 扩展 `RationalFunctionModelTest.kt`：增加加减通分、乘法限制继承、除法分子限制、恒零除数、零次幂定义域保留、正次幂和非法 / 溢出指数测试。
-- [ ] C4.2.2 最新 Android Build（JUnit、androidTest 源码编译、Debug APK 组装与 Artifact 上传）待验证。
+- [x] Build #367（Run ID `42445399522`）失败原因已定位为误导入 `domain.math.model.PolynomialArithmetic`，实际类位于 `domain.math.algebra` 同包；修正提交 `8913a3b` 已删除错误导入。
+- [ ] 修正后的 Build #368（Run ID `42445421203`）仍在验证，必须以此构建的最终结论验收 C4.2.2。
 - [ ] C4.2.3 代入求值与定义域判定尚未实现；本轮仍未接入 Parser / Solver / Compose。
