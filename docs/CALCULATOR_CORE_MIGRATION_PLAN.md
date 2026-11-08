@@ -14,7 +14,7 @@
 ### 当前事实基线
 
 - 新 App 目前只有一个 Gradle 模块 `:app`，继续在该模块内按包分层，暂不拆分多个 Gradle module。
-- 首页四个 Tab 目前是导航壳；点击 Tab 只切换 Hero 文案，没有真实计算器页面和数学引擎。
+- 一级导航现为「计算 / 知行 AI / 工具 / 我的」；「我的」页已有历史空状态和材质设置入口，历史仍无本地持久化记录。计算 Tab 当前仍未接入真正的计算器页面，C0–C2 数学内核已在纯 Kotlin 层分步迁移。
 - 旧计算器的数学解析器位于 `calculator.html`：`zxTokenize`、`zxParseExpr/Term/Unary/Power/Primary`、`zxParseRational`、`zxEvalArithmetic`。
 - 旧方程 / 不等式求解、实根与区间运算也在同一个文件中；多项式表达式使用系数数组，有理表达式使用 numerator / denominator 多项式表示。
 - 旧化学配平与反应预测分别位于 `js/chemistry-balancer.js` 和 `js/chemistry-predictor.js`。
