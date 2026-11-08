@@ -133,10 +133,17 @@ internal object RationalFunctionArithmetic {
         }
 
         if (denominator == 0.0) {
-            return evaluationFailure(
-                RationalFunctionErrorCode.ZERO_DENOMINATOR_AT_INPUT,
-                "代入后分母为零",
-            )
+            return if (PolynomialArithmetic.isExactlyZeroAt(function.denominator, x)) {
+                evaluationFailure(
+                    RationalFunctionErrorCode.ZERO_DENOMINATOR_AT_INPUT,
+                    "代入后分母为零",
+                )
+            } else {
+                evaluationFailure(
+                    RationalFunctionErrorCode.NUMERIC_PRECISION_LOSS,
+                    "分母的精确值非零，但 Double 求值舍入为零，无法可靠计算",
+                )
+            }
         }
         val result = numerator / denominator
         if (!result.isFinite()) {

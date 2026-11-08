@@ -293,6 +293,25 @@ class RationalFunctionModelTest {
         assertTrue(result is RationalFunctionEvaluationResult.Success)
         assertEquals(1.0, (result as RationalFunctionEvaluationResult.Success).value, 0.0)
     }
+    @Test
+    fun reportsPrecisionLossWhenNonZeroDenominatorRoundsToZero() {
+        val cases = listOf(
+            // x² is exactly non-zero at 1e-200, but Double underflows to zero.
+            Polynomial.of(0.0, 0.0, 1.0) to 1e-200,
+            // Exact value is 1; Double Horner loses it during cancellation.
+            Polynomial.of(-1e16, 1e16, 1.0) to 1.0,
+        )
+
+        cases.forEach { (denominator, x) ->
+            assertTrue(!PolynomialArithmetic.isExactlyZeroAt(denominator, x))
+            val function = rational(Polynomial.constant(1.0), denominator)
+            assertEvaluationFailureCode(
+                RationalFunctionErrorCode.NUMERIC_PRECISION_LOSS,
+                RationalFunctionArithmetic.evaluate(function, x),
+            )
+        }
+    }
+
     private fun rational(
         numerator: Polynomial,
         denominator: Polynomial,

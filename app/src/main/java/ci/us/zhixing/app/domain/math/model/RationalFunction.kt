@@ -78,6 +78,7 @@ internal enum class RationalFunctionErrorCode {
     NON_FINITE_RESULT,
     DOMAIN_RESTRICTION_VIOLATION,
     ZERO_DENOMINATOR_AT_INPUT,
+    NUMERIC_PRECISION_LOSS,
 }
 
 internal data class RationalFunctionError(
