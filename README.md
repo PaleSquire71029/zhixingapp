@@ -42,7 +42,7 @@
 
 ## APK 下载
 
-- [下载知行 Android 0.1.1 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)（已存入仓库，后续构建成功会自动更新）
+- [下载仓库归档的 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)（该归档可能落后于当前源码；安装前请核对 APK 版本与最新成功构建记录）
 - [GitHub Actions 构建记录与备用 Artifact](https://github.com/PaleSquire71029/zhixingapp/actions/workflows/android-build.yml)
 
 ## 旧项目参考
