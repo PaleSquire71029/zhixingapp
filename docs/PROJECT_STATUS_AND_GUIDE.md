@@ -676,11 +676,11 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 ### 11.3 C4.2.3 分母精度损失分类验收（2026-11-08）
 
-新增 `NUMERIC_PRECISION_LOSS`：分母 Double Horner 结果为零、但 BigInteger 精确二进制求值证明其非零时，返回数值精度错误。测试覆盖 `x²` 在 `1e-200` 处下溢以及高消去多项式。Build #381（Run ID `42454900909`）成功，资源检查、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传全部通过；未运行模拟器 / 真机。分子下溢 / 消去保护已提交（`924f495`），Build #383（Run ID `42455402733`）待 CI 最终结论；尚未进行设备验收。
+新增 `NUMERIC_PRECISION_LOSS`：分母 Double Horner 结果为零、但 BigInteger 精确二进制求值证明其非零时，返回数值精度错误。测试覆盖 `x²` 在 `1e-200` 处下溢以及高消去多项式。Build #381（Run ID `42454900909`）成功，资源检查、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传全部通过；未运行模拟器 / 真机。分子下溢 / 消去保护已提交（`924f495`），Build #383（Run ID `42455402733`）已成功，Artifact ID `13607311903`；尚未进行设备验收。
 
 
 ### 11.4 C4.2.3 分子精度损失保护（2026-11-08）
 
 已在 `RationalFunctionArithmetic.evaluate` 中补充分子数值精度检查：当分子 Double Horner 结果为 `0.0`，但 `PolynomialArithmetic.isExactlyZeroAt` 证明精确二进制值非零时，返回 `NUMERIC_PRECISION_LOSS`；真正精确为零的分子仍返回数值 0。测试覆盖 `x²` 在 `1e-200` 处下溢、高消去多项式以及真正零分子。
 
-代码提交 `924f4958c2132b09ff016938ba4070c099c18a52`。Android Build #383（Run ID `42455402733`）正在执行，最终 CI 结果待核实；当前不能标记该步通过，也未执行模拟器 / 真机测试。下一步是复核 C4.2.3 整体验收条件，不跳入 C4.3。
+代码提交 `924f4958c2132b09ff016938ba4070c099c18a52`。Android Build #383（Run ID `42455402733`）已完整成功：JUnit、androidTest 源码编译、Debug APK 组装与 Artifact 上传通过；Artifact ID `13607311903`，12,421,616 bytes。该步已通过 CI，但未执行模拟器 / 真机测试。下一步是复核 C4.2.3 整体验收条件，不跳入 C4.3。
