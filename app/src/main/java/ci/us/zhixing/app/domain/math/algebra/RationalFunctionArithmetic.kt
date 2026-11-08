@@ -233,6 +233,7 @@ internal object RationalFunctionArithmetic {
         val code = when (error.code) {
             PolynomialErrorCode.NON_FINITE_INPUT -> RationalFunctionErrorCode.NON_FINITE_INPUT
             PolynomialErrorCode.NON_FINITE_RESULT -> RationalFunctionErrorCode.NON_FINITE_RESULT
+            PolynomialErrorCode.NUMERIC_PRECISION_LOSS -> RationalFunctionErrorCode.NUMERIC_PRECISION_LOSS
         }
         return RationalFunctionOperationResult.Failure(RationalFunctionError(code, error.message))
     }
