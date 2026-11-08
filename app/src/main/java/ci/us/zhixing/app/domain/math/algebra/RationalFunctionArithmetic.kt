@@ -1,7 +1,6 @@
 package ci.us.zhixing.app.domain.math.algebra
 
 import ci.us.zhixing.app.domain.math.model.Polynomial
-import ci.us.zhixing.app.domain.math.model.PolynomialArithmetic
 import ci.us.zhixing.app.domain.math.model.PolynomialError
 import ci.us.zhixing.app.domain.math.model.PolynomialErrorCode
 import ci.us.zhixing.app.domain.math.model.PolynomialOperationResult
