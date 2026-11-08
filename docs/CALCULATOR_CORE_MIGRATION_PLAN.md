@@ -235,3 +235,14 @@ C4.2.3 首个单点求值子步骤已通过 Android Build #372（Run ID `4245357
 CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损失分类 Build #381（Run ID `42454900909`）均成功。Build #381 的资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过；Artifact ID `13607088513`，12,421,567 bytes，digest `sha256:a542ca67e6923cbd143b4dc7fa24472e4f0be5a1e7f9ff282b4f82186d44fe94`。未执行模拟器 / 真机仪器测试。
 
 分母 Double Horner 结果为 0、但精确二进制值非零时，现已返回 `NUMERIC_PRECISION_LOSS`，并用下溢与消去误差样例验证。下一小步仍属于 C4.2.3：检查分子 Double 求值为 0、但精确二进制值非零时是否会错误返回 0；完成后再复核 C4.2.3 全部验收条件，之后才进入 C4.3。
+
+
+### 27.32 C4.2.3 分子求值精度损失保护（2026-11-08）
+
+- [x] 在有理函数分母检查通过后，增加分子下溢 / 消去保护：当 Double Horner 结果为 `0.0`，但 `PolynomialArithmetic.isExactlyZeroAt` 判定精确 IEEE-754 二进制多项式值非零时，返回 `NUMERIC_PRECISION_LOSS`。
+- [x] 只在 Double 结果恰为零时额外执行精确判定；普通非零数值仍沿用现有 Double Horner 路径，不引入固定 epsilon。
+- [x] 测试覆盖 `x²` 在 `1e-200` 处下溢、多项式 `x² + 10¹⁶x − 10¹⁶` 在 `x=1` 处消去，以及精确零分子仍返回 0。
+- [x] 源码和 JUnit 回归提交：`924f4958c2132b09ff016938ba4070c099c18a52`。
+- [ ] Android Build #383（Run ID `42455402733`）待 CI 最终结论；在其成功前，本小步状态为“代码已提交，待验证”。
+- [ ] 未运行模拟器或真机仪器测试。
+- [ ] CI 通过后复核分子 / 分母的舍入零值、精确零值、非有限中间值、最终商溢出与原始定义域约束，再决定 C4.2.3 是否满足整体验收标准。
