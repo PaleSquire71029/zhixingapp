@@ -232,6 +232,6 @@ C4.2.3 首个单点求值子步骤已通过 Android Build #372（Run ID `4245357
 
 回归测试覆盖普通代入、多个继承限制、`x/x` 可去间断点、零次幂保留限制、NaN / Infinity、Horner 中间溢出和最终商溢出。
 
-CI：单点求值 Build #372（Run ID `42453575710`）成功；精确零点判定 Build #379（Run ID `42454420363`）成功，资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过。Artifact ID `13607222086`，12,421,460 bytes，digest `sha256:a1ce35b340731cd6a4eba9cd362b423973a0a9171c9f21a6988ef61f9a08ab5e`。未执行模拟器 / 真机仪器测试。
+CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损失分类 Build #381（Run ID `42454900909`）均成功。Build #381 的资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过；Artifact ID `13607088513`，12,421,567 bytes，digest `sha256:a542ca67e6923cbd143b4dc7fa24472e4f0be5a1e7f9ff282b4f82186d44fe94`。未执行模拟器 / 真机仪器测试。
 
-下一小步仍属于 C4.2.3：若分母 Double Horner 结果为 0，但精确二进制判定非零，应返回数值精度错误，而不是误报分母为零；完成该边界后再复核 C4.2.3，之后进入 C4.3。
+分母 Double Horner 结果为 0、但精确二进制值非零时，现已返回 `NUMERIC_PRECISION_LOSS`，并用下溢与消去误差样例验证。下一小步仍属于 C4.2.3：检查分子 Double 求值为 0、但精确二进制值非零时是否会错误返回 0；完成后再复核 C4.2.3 全部验收条件，之后才进入 C4.3。
