@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。当前正在实现 C3 常数表达式求值器与全量算术黄金样例回归；本轮代码的 CI 尚待验证。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
+**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前进入 C4.1 多项式基础运算，代码已提交，CI 待验证。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C3 代码已提交，CI 待验证 | C0.1–C2 均已实现；C2 已通过 CI；C3 新增 AST 求值器、分阶段计算入口和算术黄金样例回归；尚未接入 Compose 页面 |
+| 计算迁移 | C4.1 代码已提交，CI 待验证 | C0.1–C3 均已通过 CI；C4.1 新增多项式模型、加减乘、缩放、Horner 求值及异常处理；尚未接入有理函数或 Compose 页面 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1566,5 +1566,17 @@
 - [x] 除数为正零或负零均明确返回“除数不能为 0”；溢出、Infinity、NaN 不作为成功数值返回；包含 x 的表达式返回旧版常数计算提示。
 - [x] 不在本步进行小数格式化、分数化简、科学计数法显示或 UI 接入；成功结果保留原始 Double。
 - [x] 新增 `MathExpressionEvaluatorTest.kt`：遍历全部算术黄金样例，另测除负零、非有限数、百分号连用、0^0、正号、变量错误偏移和 tokenizer / parser 阶段错误。
-- [ ] C3 的 JUnit、androidTest 源码编译和 Debug APK 构建待本次提交 CI 验证；若 CI 暴露错误，只修复当前失败项。
+- [x] C3 Android Build #363（Run ID `42444326915`）成功：JUnit、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传通过。
 - [ ] C3 只验证常数计算；不代表方程 / 不等式、函数、单位、化学或计算 UI 已完成。
+
+
+### 27.24 C3 完整 CI 验收与 C4.1 多项式基础运算（2026-11-08）
+
+- [x] C3 Android Build #363（Run ID `42444326915`）结果为 success；Artifact `zhixingapp-debug`，Artifact ID `13603006686`。
+- [x] C3 已通过算术黄金样例回归，覆盖四则、优先级、幂、百分号、除零、变量拒绝和错误阶段 / 偏移。
+- [x] 新增 `domain/math/model/Polynomial.kt`：系数按常数项到高次项升序保存；规范化尾部近零系数，零多项式保持 `[0]`。
+- [x] 新增 `domain/math/model/PolynomialOperation.kt`：定义多项式运算 / 求值成功与错误结果。
+- [x] 新增 `domain/math/algebra/PolynomialArithmetic.kt`：实现多项式加、减、乘、常数缩放与 Horner 求值；非有限输入 / 中间结果返回类型化错误。
+- [x] 新增 `PolynomialArithmeticTest.kt`：覆盖系数顺序、次数、零多项式、尾项裁剪、加减乘、缩放、求值与非有限数边界。
+- [ ] C4.1 的 JUnit、androidTest 源码编译和 Debug APK 构建待本次提交 CI 验证。
+- [ ] 有理函数、原式定义域约束的合并 / 传播和实根求解尚未实现；不得将多项式基础运算标记为整个 C4 已完成。
