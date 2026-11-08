@@ -1534,7 +1534,7 @@ GitHub Actions 至少执行：
 - **迁移：分阶段、逐项对照、每阶段测试，不整体复制旧网页；**
 - **仓库：所有新 App 文件放在 PaleSquire71029/zhixingapp。**
 
-当前已经建立最小原生 Compose 工程骨架和四个主导航占位入口，用户图标、Gradle Wrapper 与系统窗口适配代码已加入。液态玻璃、计算器算法、AI、账号和云历史仍未迁移。本文件是长期需求和架构基线；真实实施进度以 `docs/IMPLEMENTATION_STATUS.md` 为准，详细接手步骤见 `docs/PROJECT_STATUS_AND_GUIDE.md`。
+当前已建立原生 Compose 工程、四项一级导航、「我的」页面、历史空状态、材质设置入口和浮动液态玻璃导航 Dock；底部图标为圆润填色风格，二级页面已有过渡动画。计算器纯 Kotlin 内核已完成 C0.1 黄金样例、C1 Tokenizer 和 C2 AST / Parser 代码，C2 修正提交的完整 CI 待验证。计算页、求值器、方程 / 不等式、函数 / 单位 / 化学、AI 客户端、原生账号与云历史仍在后续阶段。本文件是长期需求和架构基线；真实实施进度以 `docs/IMPLEMENTATION_STATUS.md` 为准，详细接手步骤见 `docs/PROJECT_STATUS_AND_GUIDE.md`。
 
 ## 21. 小步开发规则（强制）
 
