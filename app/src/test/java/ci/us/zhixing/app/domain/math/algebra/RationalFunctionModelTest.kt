@@ -136,6 +136,18 @@ class RationalFunctionModelTest {
     }
 
     @Test
+    fun xOverXRetainsTheExcludedZeroWithoutCancellingTheOriginalExpression() {
+        val x = Polynomial.variable()
+        val variable = rational(x, Polynomial.constant(1.0))
+
+        val result = success(RationalFunctionArithmetic.divide(variable, variable))
+
+        assertEquals(x, result.numerator)
+        assertEquals(x, result.denominator)
+        assertEquals(listOf(x), result.domainRestrictions)
+    }
+
+    @Test
     fun divisionRejectsAnIdenticallyZeroRationalFunction() {
         val nonZero = rational(Polynomial.constant(1.0), Polynomial.constant(1.0))
         val zero = rational(Polynomial.of(0.0), Polynomial.variable())
