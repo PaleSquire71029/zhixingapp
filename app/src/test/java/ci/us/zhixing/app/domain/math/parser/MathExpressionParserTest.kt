@@ -70,11 +70,9 @@ class MathExpressionParserTest {
         assertEquals(BinaryMathOperator.POWER, result.operator)
         assertTrue(result.right is BinaryExpression)
         assertEquals(BinaryMathOperator.POWER, (result.right as BinaryExpression).operator)
-        assertEquals(
-            2.0,
-            ((result.right as BinaryExpression).left as NumberExpression).value,
-            0.0,
-        )
+        val exponentPower = result.right as BinaryExpression
+        assertEquals(3.0, (exponentPower.left as NumberExpression).value, 0.0)
+        assertEquals(2.0, (exponentPower.right as NumberExpression).value, 0.0)
     }
 
     @Test
