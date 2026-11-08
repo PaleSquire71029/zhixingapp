@@ -665,3 +665,7 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 
 上述导航与「我的」页面已在主分支落地：MainActivity.kt 接入 MyScreen、历史 / 材质二级页面和 AnimatedContent 转场；导航 Dock 使用 Backdrop 玻璃组件。当前仍需目标真机验收玻璃采样、遮挡、安全区、图标视觉平衡与切页连续性。详细视觉基准见 [CALCULATOR_NATIVE_UI_DESIGN.md](./CALCULATOR_NATIVE_UI_DESIGN.md) 第 9–11 节。
 
+
+### 11.1 C4.2.3 有理函数求值首步（2026-11-08）
+
+已提交单点求值入口 `RationalFunctionArithmetic.evaluate(function, x)`：先检查全部原始定义域限制，再用 Horner 求值分子与分母，拒绝非有限输入 / 中间值 / 最终商，并保留 `x/x` 在零点的原式定义域空洞。新增测试覆盖普通值、继承限制、零次幂、非有限输入和溢出。该提交仍需 GitHub Actions 验证；CI 只编译 androidTest 源码，不等于启动模拟器或真机验收。

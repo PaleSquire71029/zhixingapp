@@ -1639,3 +1639,7 @@ GitHub Actions 至少执行：
 - 重要前置：旧 Worker 的 `/api/chat` 目前强制要求受信任网页 Origin；原生 HTTP 客户端没有浏览器 Origin，不能伪造来源或简单放宽检查。必须先实现独立的移动端请求认证（建议 Android Keystore P-256 安装密钥 + 一次性服务端 nonce / 时间戳 / 请求体摘要签名，服务端仍执行 IP 和设备限流），再开放移动端 AI 请求。
 - Worker 的真实 API 地址、`calculator-ai` 当前映射到的配置命名空间、提示词与模型配置范围必须先从部署配置核实；不把旧 `workers.dev` 默认值直接当作新 App 的最终生产地址。
 - 详细分层、交互、请求状态、隐私提示、网络错误和分阶段实施见 [AI_CALCULATOR_ANDROID_INTEGRATION_PLAN.md](./AI_CALCULATOR_ANDROID_INTEGRATION_PLAN.md)。
+
+## 32. C4.2.3 有理函数单点求值首步（2026-11-08）
+
+实现 `RationalFunctionArithmetic.evaluate(function, x)`，先逐项检查 `domainRestrictions`，再对分子 / 分母执行 Horner 求值，并将原式定义域违规、非有限输入、中间溢出、分母为零和最终商溢出映射为类型化错误。`x/x` 在 `x=0` 仍判定为未定义。该步骤源码已提交，CI 结果待定；未进行模拟器 / 真机运行。

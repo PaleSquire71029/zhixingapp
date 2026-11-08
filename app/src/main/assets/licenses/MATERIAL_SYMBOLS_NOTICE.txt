@@ -1,7 +1,0 @@
-Material Symbols Rounded icons used by 知行计算器
-Source: https://github.com/marella/material-symbols/tree/main/svg/400/rounded
-Original icon family: Google Material Symbols, Rounded style, weight 400.
-Icons: calculate, smart_toy, handyman, person, history, tune.
-The optimized source SVG path data was converted to Android VectorDrawable XML.
-License: Apache License 2.0 (see MATERIAL_SYMBOLS_APACHE_2_0.txt).
-The source package is maintained by marella and automatically updated from Google's Material Symbols.

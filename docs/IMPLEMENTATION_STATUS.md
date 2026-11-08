@@ -1620,3 +1620,12 @@
 - [x] Build #368（Run ID `42445421203`）发现新增运算用例调用了未定义的 `rational(...)` 测试工厂函数；已补充工厂函数，并移除测试中同包冗余导入。
 - [ ] Build #369 验证修复后的基础运算测试；增加 `x/x` 专项回归后的 Build #370 将作为本小步最终验收依据。
 - [ ] C4.2.3 代入求值与定义域判定尚未实现；本轮仍未接入 Parser / Solver / Compose。
+
+### 27.29 C4.2.3 首个子步骤：有理函数单点求值与原式定义域检查（2026-11-08）
+
+- [x] 新增 `RationalFunctionEvaluationResult`，沿用 `RationalFunctionError` / `RationalFunctionErrorCode` 类型化错误体系。
+- [x] `RationalFunctionArithmetic.evaluate(function, x)` 先检查所有原始 `domainRestrictions`，再计算分子 / 分母；显式防御分母为零与最终商溢出。
+- [x] 新增测试：普通代入、多条继承限制、`x/x` 在零点仍未定义、零次幂保留排除点、NaN / Infinity 输入、多项式中间溢出、最终除法溢出。
+- [ ] 本次提交的 Android Build / JUnit / Debug APK 结果待 CI；尚未执行模拟器或真机仪器测试。
+- [ ] 后续还需评估定义域近似零点策略、与 AST / parser 集成及边界行为；本子步骤只使用现有 Double 求值器的精确 `0.0` 判断。
+- [ ] 下一小步：CI 通过后进入 C4.3 多项式实根基础。
