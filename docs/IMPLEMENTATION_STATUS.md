@@ -1587,6 +1587,6 @@
 - [x] 复核 C4.1 的 Polynomial 规范化逻辑，发现仅裁剪尾部近零项时，若所有系数都在容差内，最终会留下一个近零常数项，未统一成约定的零多项式表示 `[0.0]`。
 - [x] 修复 `Polynomial.from`：先统一 `-0.0` 为 `0.0`，再裁剪尾部近零项；若全部剩余系数均严格小于 `ZERO_TOLERANCE`，统一归一为 `[0.0]`。
 - [x] 扩展 `PolynomialArithmeticTest`：覆盖全系数近零、多项式常数项近零、负零规范化，并明确验证恰好等于容差的系数不会被误裁剪。
-- [ ] 本修正提交后的最新 Android Build 仍待验证；Build #364（Run ID `42444575859`）在修正前的查询状态为 `in_progress`，虽已出现 Artifact `13602144195`，但尚无可核实的最终 run conclusion，不能作为本修正通过的证据。
-- [ ] C4.1 只有在最新提交的 JUnit、androidTest Kotlin 源码编译、Debug APK 组装及 Artifact 上传均成功后，才标记为 CI 通过。
+- [x] Android Build #364（Run ID `42444575859`，提交 `3618078`）最终结论为 `success`；首版 C4.1 的 JUnit、androidTest 源码编译、Debug APK 组装与 Artifact 上传通过。Artifact ID `13602144195`，ZIP 大小 12,410,686 bytes。
+- [ ] 修正提交 `d6f411f` 对应 Android Build #365（Run ID `42444758613`）目前状态为 `in_progress`；该构建才是零多项式规范化补丁的验收依据，尚未取得最终结论或 Artifact。
 - [ ] C4.2 有理函数与原式定义域约束传播仍未开始；本轮没有接入 Compose、键盘或 UI。
