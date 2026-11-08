@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前处于 C4.1 多项式基础运算与零多项式规范化已通过 Android Build #365（Run ID `42444758613`）；当前进入 C4.2.1 有理函数模型与定义域不变量已通过 Android Build #366（Run ID `42444984226`）；C4.2.2 有理函数加减乘除与幂的定义域传播已通过 Android Build #370（Run ID `42445627892`）；C4.2.3 单点求值与原式定义域检查首步已通过 Android Build #372（Run ID `42453575710`）。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
+**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前处于 C4.1 多项式基础运算与零多项式规范化已通过 Android Build #365（Run ID `42444758613`）；当前进入 C4.2.1 有理函数模型与定义域不变量已通过 Android Build #366（Run ID `42444984226`）；C4.2.2 有理函数加减乘除与幂的定义域传播已通过 Android Build #370（Run ID `42445627892`）；C4.2.3 单点求值 / 原式定义域检查已通过 Android Build #372（Run ID `42453575710`）；使用 BigInteger 二进制精确运算的零点判定修正已通过 Android Build #379（Run ID `42454420363`）。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C4.2.3 首个求值子步骤已通过 CI | C0.1–C4.2.2 已通过 CI；C4.2.3 已新增单点求值、原始定义域逐项检查和非有限值保护；下一步明确定义域限制的数值零点判定策略；C4.2.3 完整验收后进入 C4.3 |
+| 计算迁移 | C4.2.3 单点求值与精确定义域零点判定已通过 CI | 单点求值先逐项检查原式限制；BigInteger 按存储 Double 的精确二进制值判零，不使用 epsilon；下一步处理分母结果舍入为零时的精度错误分类 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1629,3 +1629,12 @@
 - [x] Android Build #372（Run ID `42453575710`）成功：JUnit、androidTest Kotlin 源码编译、Debug APK 组装与 Artifact 上传通过；Artifact ID `13606083998`，12,418,755 bytes。未执行模拟器或真机仪器测试。
 - [ ] 后续还需评估定义域近似零点策略、与 AST / parser 集成及边界行为；本子步骤只使用现有 Double 求值器的精确 `0.0` 判断。
 - [ ] 下一小步：定义限制多项式的数值零点判定策略，并补充接近零但非零值的回归测试。
+
+### 27.30 C4.2.3 精确零点判定与近零回归（2026-11-08）
+
+- [x] `PolynomialArithmetic.isExactlyZeroAt` 将有限 Double 系数和自变量解释为精确 IEEE-754 二进制有理数，以 `BigInteger` 执行精确 Horner 运算，判断多项式值是否严格为零。
+- [x] 常规 `PolynomialArithmetic.evaluate` 仍先执行，保持非有限输入 / 中间值的既有类型化错误；精确判零只决定定义域零点，不替换最终数值求值。
+- [x] 增加近零但非零输入测试 `x=1e-300`；增加消去误差回归：Double Horner 对 `x² + 10¹⁶x − 10¹⁶` 在 `x=1` 得到 0，但存储系数所定义的精确值为 1，不能将该点误判为定义域外。
+- [x] Android Build #379（Run ID `42454420363`）完整成功：资源检查、JUnit、androidTest Kotlin 源码编译、Debug APK 组装与 Artifact 上传均通过。Artifact `zhixingapp-debug` ID `13607222086`，12,421,460 bytes，SHA-256 `a1ce35b340731cd6a4eba9cd362b423973a0a9171c9f21a6988ef61f9a08ab5e`。
+- [ ] 未运行模拟器或真机仪器测试。
+- [ ] 下一步 C4.2.3：如果分母的 Double Horner 结果为 0，但精确二进制判定非零，应返回明确的数值精度错误，而不是误报“分母为零”；同时补充回归测试。

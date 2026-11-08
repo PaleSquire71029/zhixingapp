@@ -228,10 +228,10 @@ C4.2.3 首个单点求值子步骤已通过 Android Build #372（Run ID `4245357
 - 逐项检查所有原始 `domainRestrictions`；限制多项式在该点为零时返回 `DOMAIN_RESTRICTION_VIOLATION`。因此 `x/x` 在 `x=0` 仍未定义，`(1/x)^0` 也保留 `x=0` 排除点。
 - 再用现有 Horner 求值器计算分子 / 分母，传播 `NON_FINITE_INPUT` / `NON_FINITE_RESULT` 类型化错误。
 - 对分母零值做防御性检查，并拒绝最终商溢出。
-- 当前以 Double 计算结果精确等于 `0.0` 作为限制零点判断；本步不引入 epsilon 近似根判定，也不做约分或实根求解。
+- 定义域零点判定不直接比较 Double Horner 结果或 epsilon。`PolynomialArithmetic.isExactlyZeroAt` 将有限 Double 系数与自变量解释为精确 IEEE-754 二进制有理数，以 BigInteger 精确 Horner 运算判零；常规 Double Horner 仍先执行以检查非有限输入 / 中间值，不改变最终数值求值语义。
 
 回归测试覆盖普通代入、多个继承限制、`x/x` 可去间断点、零次幂保留限制、NaN / Infinity、Horner 中间溢出和最终商溢出。
 
-CI：Android Build #372（Run ID `42453575710`）成功，JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过；未执行模拟器 / 真机仪器测试。
+CI：单点求值 Build #372（Run ID `42453575710`）成功；精确零点判定 Build #379（Run ID `42454420363`）成功，资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过。Artifact ID `13607222086`，12,421,460 bytes，digest `sha256:a1ce35b340731cd6a4eba9cd362b423973a0a9171c9f21a6988ef61f9a08ab5e`。未执行模拟器 / 真机仪器测试。
 
-下一小步仍属于 C4.2.3：明确限制多项式数值零点判定策略，补充接近零但非零值的回归测试；C4.2.3 完整验收后再进入 C4.3。
+下一小步仍属于 C4.2.3：若分母 Double Horner 结果为 0，但精确二进制判定非零，应返回数值精度错误，而不是误报分母为零；完成该边界后再复核 C4.2.3，之后进入 C4.3。
