@@ -266,6 +266,33 @@ class RationalFunctionModelTest {
         val function = rational(Polynomial.constant(Double.MAX_VALUE), Polynomial.constant(0.5))
         assertEvaluationFailureCode(RationalFunctionErrorCode.NON_FINITE_RESULT, RationalFunctionArithmetic.evaluate(function, 4.0))
     }
+    @Test
+    fun nearZeroButNonZeroRestrictionValueRemainsInDomain() {
+        val variable = Polynomial.variable()
+        val function = success(RationalFunction.create(
+            numerator = Polynomial.constant(1.0),
+            denominator = Polynomial.constant(1.0),
+            domainRestrictions = listOf(variable),
+        ))
+
+        val result = RationalFunctionArithmetic.evaluate(function, 1e-300)
+        assertTrue(result is RationalFunctionEvaluationResult.Success)
+        assertEquals(1.0, (result as RationalFunctionEvaluationResult.Success).value, 0.0)
+    }
+
+    @Test
+    fun cancellationToZeroInDoubleHornerDoesNotCreateFalseDomainHole() {
+        val cancellation = Polynomial.of(-1e16, 1e16, 1.0)
+        val function = success(RationalFunction.create(
+            numerator = Polynomial.constant(1.0),
+            denominator = Polynomial.constant(1.0),
+            domainRestrictions = listOf(cancellation),
+        ))
+
+        val result = RationalFunctionArithmetic.evaluate(function, 1.0)
+        assertTrue(result is RationalFunctionEvaluationResult.Success)
+        assertEquals(1.0, (result as RationalFunctionEvaluationResult.Success).value, 0.0)
+    }
     private fun rational(
         numerator: Polynomial,
         denominator: Polynomial,

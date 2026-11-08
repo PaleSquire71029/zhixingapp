@@ -109,7 +109,7 @@ internal object RationalFunctionArithmetic {
                     return RationalFunctionEvaluationResult.Failure(mapFailure(evaluated.error).error)
                 }
                 is PolynomialEvaluationResult.Success -> {
-                    if (evaluated.value == 0.0) {
+                    if (PolynomialArithmetic.isExactlyZeroAt(restriction, x)) {
                         return evaluationFailure(
                             RationalFunctionErrorCode.DOMAIN_RESTRICTION_VIOLATION,
                             "输入值不属于原式定义域",

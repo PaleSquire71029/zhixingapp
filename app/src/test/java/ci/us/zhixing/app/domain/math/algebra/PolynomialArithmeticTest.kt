@@ -4,6 +4,7 @@ import ci.us.zhixing.app.domain.math.model.Polynomial
 import ci.us.zhixing.app.domain.math.model.PolynomialEvaluationResult
 import ci.us.zhixing.app.domain.math.model.PolynomialOperationResult
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -125,6 +126,20 @@ class PolynomialArithmeticTest {
         assertTrue(overflow is PolynomialEvaluationResult.Failure)
     }
 
+    @Test
+    fun exactZeroDetectionDoesNotUseAnEpsilonOrRoundedHornerResult() {
+        val tinyNonZeroAtInput = Polynomial.variable()
+        assertFalse(PolynomialArithmetic.isExactlyZeroAt(tinyNonZeroAtInput, 1e-300))
+        assertTrue(PolynomialArithmetic.isExactlyZeroAt(Polynomial.of(-1.0, 1.0), 1.0))
+
+        // Double Horner loses the +1 while adding it to 1e16, then returns 0.
+        // The exact polynomial represented by these Double coefficients has value 1.
+        val cancellation = Polynomial.of(-1e16, 1e16, 1.0)
+        val rounded = PolynomialArithmetic.evaluate(cancellation, 1.0)
+        assertTrue(rounded is PolynomialEvaluationResult.Success)
+        assertEquals(0.0, (rounded as PolynomialEvaluationResult.Success).value, 0.0)
+        assertFalse(PolynomialArithmetic.isExactlyZeroAt(cancellation, 1.0))
+    }
     private fun assertPolynomial(
         expected: List<Double>,
         actual: PolynomialOperationResult,
