@@ -233,3 +233,5 @@ C4.2.3 首个单点求值子步骤已通过 Android Build #372（Run ID `4245357
 回归测试覆盖普通代入、多个继承限制、`x/x` 可去间断点、零次幂保留限制、NaN / Infinity、Horner 中间溢出和最终商溢出。
 
 CI：Android Build #372（Run ID `42453575710`）成功，JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过；未执行模拟器 / 真机仪器测试。
+
+下一小步仍属于 C4.2.3：明确限制多项式数值零点判定策略，补充接近零但非零值的回归测试；C4.2.3 完整验收后再进入 C4.3。
