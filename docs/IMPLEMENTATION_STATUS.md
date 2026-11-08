@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前处于 C4.1 多项式基础运算与零多项式规范化已通过 Android Build #365（Run ID `42444758613`）；当前进入 C4.2.1 有理函数模型与定义域不变量，代码已提交，最新 CI 待验证。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
+**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前处于 C4.1 多项式基础运算与零多项式规范化已通过 Android Build #365（Run ID `42444758613`）；当前进入 C4.2.1 有理函数模型与定义域不变量已通过 Android Build #366（Run ID `42444984226`）；当前 C4.2.2 有理函数加减乘除与幂的定义域传播已提交，CI 待验证。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C4.1 已通过；C4.2.1 模型已提交待 CI | C0.1–C3 与 C4.1 均已通过 CI；C4.2.1 新增有理函数模型、原始定义域限制集合和创建不变量；运算传播与求值尚未实现 |
+| 计算迁移 | C4.2.1 已通过；C4.2.2 运算传播待 CI | C0.1–C4.2.1 均已通过 CI；C4.2.2 新增有理式加减乘除、非负整数幂与原始定义域限制传播；代入求值尚未实现 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1603,3 +1603,17 @@
 - [x] 新增 `RationalFunctionModelTest.kt`，覆盖自动加入分母、继承限制合并 / 去重、常数限制、零分母、空定义域与输入列表隔离。
 - [ ] C4.2.1 本次提交的 JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传待最新 CI 验证。
 - [ ] C4.2.2 加减乘除 / 幂的约束传播，以及 C4.2.3 定义域判定与有理函数求值尚未实现；本阶段没有接入 Parser、Solver 或 Compose。
+
+
+### 27.27 C4.2.1 CI 验收与 C4.2.2 有理式运算传播（2026-11-08）
+
+- [x] C4.2.1 提交 `cb04270c297bf9e5596351974034dd40f1e634b2` 的 Android Build #366（Run ID `42444984226`）结果为 `success`。
+- [x] Artifact `zhixingapp-debug`，ID `13603028718`，ZIP 大小 12,414,498 bytes；SHA-256 digest `cea4caba2eda9e42d5786b781069ffd9b60f72caf8d17eef614ae0547706c2b7`。
+- [x] C4.2.1 模型测试通过：当前分母自动加入排除集合、上游限制合并去重、非零常数不增加排除点、零分母与空定义域拒绝、输入列表防外部修改。
+- [x] 新增 `domain/math/algebra/RationalFunctionArithmetic.kt`：实现有理函数加、减、乘、除和非负整数幂；通分与乘除使用纯多项式算法。
+- [x] 所有运算合并两个操作数的原始定义域限制；除法额外把除数分子作为非零限制，拒绝恒零有理函数作为除数。
+- [x] 幂运算使用平方求幂；指数 0 会把当前分式变成 1/1，但保留底式原始限制，因此 `(1/x)^0` 仍排除 x=0。
+- [x] 不执行最大公因式约分，避免在域层尚未完成时抹掉原式定义域；多项式溢出映射为有理函数类型化错误。
+- [x] 扩展 `RationalFunctionModelTest.kt`：增加加减通分、乘法限制继承、除法分子限制、恒零除数、零次幂定义域保留、正次幂和非法 / 溢出指数测试。
+- [ ] C4.2.2 最新 Android Build（JUnit、androidTest 源码编译、Debug APK 组装与 Artifact 上传）待验证。
+- [ ] C4.2.3 代入求值与定义域判定尚未实现；本轮仍未接入 Parser / Solver / Compose。

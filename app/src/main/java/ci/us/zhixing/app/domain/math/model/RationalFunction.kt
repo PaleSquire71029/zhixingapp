@@ -72,6 +72,10 @@ internal class RationalFunction private constructor(
 internal enum class RationalFunctionErrorCode {
     ZERO_DENOMINATOR_POLYNOMIAL,
     EMPTY_DOMAIN,
+    ZERO_DIVISOR_FUNCTION,
+    INVALID_EXPONENT,
+    NON_FINITE_INPUT,
+    NON_FINITE_RESULT,
 }
 
 internal data class RationalFunctionError(
