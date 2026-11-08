@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前进入 C4.1 多项式基础运算，代码已提交，CI 待验证。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
+**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前处于 C4.1 多项式基础运算验收：代码复核补齐了全系数近零时统一归一为 `[0]` 的规则和回归测试，修正提交等待最新 CI。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C4.1 代码已提交，CI 待验证 | C0.1–C3 均已通过 CI；C4.1 新增多项式模型、加减乘、缩放、Horner 求值及异常处理；尚未接入有理函数或 Compose 页面 |
+| 计算迁移 | C4.1 修正已提交，最新 CI 待验证 | C0.1–C3 均已通过 CI；C4.1 包含多项式模型、加减乘、缩放、Horner 求值、零多项式规范化及异常处理；尚未接入有理函数或 Compose 页面 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1580,3 +1580,13 @@
 - [x] 新增 `PolynomialArithmeticTest.kt`：覆盖系数顺序、次数、零多项式、尾项裁剪、加减乘、缩放、求值与非有限数边界。
 - [ ] C4.1 的 JUnit、androidTest 源码编译和 Debug APK 构建待本次提交 CI 验证。
 - [ ] 有理函数、原式定义域约束的合并 / 传播和实根求解尚未实现；不得将多项式基础运算标记为整个 C4 已完成。
+
+
+### 27.25 C4.1 代码复核：零多项式规范化补强（2026-11-08）
+
+- [x] 复核 C4.1 的 Polynomial 规范化逻辑，发现仅裁剪尾部近零项时，若所有系数都在容差内，最终会留下一个近零常数项，未统一成约定的零多项式表示 `[0.0]`。
+- [x] 修复 `Polynomial.from`：先统一 `-0.0` 为 `0.0`，再裁剪尾部近零项；若全部剩余系数均严格小于 `ZERO_TOLERANCE`，统一归一为 `[0.0]`。
+- [x] 扩展 `PolynomialArithmeticTest`：覆盖全系数近零、多项式常数项近零、负零规范化，并明确验证恰好等于容差的系数不会被误裁剪。
+- [ ] 本修正提交后的最新 Android Build 仍待验证；Build #364（Run ID `42444575859`）在修正前的查询状态为 `in_progress`，虽已出现 Artifact `13602144195`，但尚无可核实的最终 run conclusion，不能作为本修正通过的证据。
+- [ ] C4.1 只有在最新提交的 JUnit、androidTest Kotlin 源码编译、Debug APK 组装及 Artifact 上传均成功后，才标记为 CI 通过。
+- [ ] C4.2 有理函数与原式定义域约束传播仍未开始；本轮没有接入 Compose、键盘或 UI。

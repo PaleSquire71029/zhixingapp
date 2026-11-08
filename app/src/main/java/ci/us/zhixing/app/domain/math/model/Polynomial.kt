@@ -31,12 +31,18 @@ internal class Polynomial private constructor(
                 "Polynomial coefficients must be finite"
             }
 
-            val normalized = coefficients.toMutableList()
+            // Canonicalize signed zero without rounding meaningful coefficients.
+            val normalized = coefficients.map { if (it == 0.0) 0.0 else it }.toMutableList()
             while (
                 normalized.size > 1 &&
                 kotlin.math.abs(normalized.last()) < ZERO_TOLERANCE
             ) {
                 normalized.removeAt(normalized.lastIndex)
+            }
+            // If every remaining coefficient is below the normalization tolerance,
+            // represent the polynomial canonically as [0.0].
+            if (normalized.all { kotlin.math.abs(it) < ZERO_TOLERANCE }) {
+                normalized.clear()
             }
             if (normalized.isEmpty()) normalized += 0.0
             return Polynomial(normalized)

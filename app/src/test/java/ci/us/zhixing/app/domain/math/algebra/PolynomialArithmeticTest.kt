@@ -23,7 +23,19 @@ class PolynomialArithmeticTest {
 
         val zero = Polynomial.of(0.0, 1e-13, -1e-13)
         assertTrue(zero.isZero())
+        assertEquals(listOf(0.0), zero.coefficients)
         assertEquals(0, zero.degree)
+
+        // A polynomial whose every coefficient is within tolerance must use [0].
+        assertEquals(listOf(0.0), Polynomial.of(1e-13, -1e-13).coefficients)
+        assertEquals(listOf(0.0), Polynomial.constant(-1e-13).coefficients)
+        assertEquals(listOf(0.0), Polynomial.of(-0.0).coefficients)
+
+        // The tolerance is strict: a coefficient exactly at the threshold is retained.
+        assertEquals(
+            listOf(Polynomial.ZERO_TOLERANCE),
+            Polynomial.constant(Polynomial.ZERO_TOLERANCE).coefficients,
+        )
     }
 
     @Test
