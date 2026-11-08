@@ -145,6 +145,12 @@ internal object RationalFunctionArithmetic {
                 )
             }
         }
+        if (numerator == 0.0 && !PolynomialArithmetic.isExactlyZeroAt(function.numerator, x)) {
+            return evaluationFailure(
+                RationalFunctionErrorCode.NUMERIC_PRECISION_LOSS,
+                "分子的精确值非零，但 Double 求值舍入为零，无法可靠计算",
+            )
+        }
         val result = numerator / denominator
         if (!result.isFinite()) {
             return evaluationFailure(
