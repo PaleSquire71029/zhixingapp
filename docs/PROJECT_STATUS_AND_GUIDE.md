@@ -1,6 +1,6 @@
 # 知行 Android App 项目现状、操作指南与后续开发手册
 
-> **核对日期：2026-11-01（UTC）**  
+> **核对日期：2026-11-08（UTC）**  
 > **仓库：** PaleSquire71029/zhixingapp  
 > **分支：** main  
 > **文档目的：** 让新对话、开发者或未来的维护者不依赖聊天记录，也能准确知道项目做到哪里、哪些只是代码落地、如何构建 APK，以及下一步应该怎么做。
@@ -9,9 +9,9 @@
 
 ## 1. 先看结论
 
-目前项目已经从空仓库变成一个**原生 Android + Kotlin + Jetpack Compose 的最小可启动工程骨架**。用户提供的蓝紫渐变知行图标已经进入 App 资源，并配置为应用图标和首页品牌标识。首页具有四个底部导航入口，系统栏和键盘窗口的基础适配代码也已经写入。
+目前项目已从原生 Compose 工程骨架推进到包含「我的」页面、历史空状态、材质设置入口和浮动液态玻璃底部导航的 0.1.2 版本基线。一级导航为 **计算 / 知行 AI / 工具 / 我的**；普通本地计算不强制登录。导航图标已调整为圆润、带填色的 Apple 风格面性图标，底部 Dock 使用轻透玻璃材质，二级页面有淡入、轻微横移和缩放转场。
 
-但目前还**不是一个能完成计算的计算器 App**。四个入口主要是占位页面，尚未迁移旧计算器算法、数学键盘、AI 对话、账号、云端历史、函数图像或化学工具。液态玻璃已接入 Backdrop 1.0.6，但此前主界面是自研原型，并未达到用户提供的官方 Catalog APK 效果；2026-11-01 起改为直接移植官方 tag 1.0.6 的 Catalog 组件源码，避免继续重复自研。
+计算器核心正在进行纯 Kotlin 迁移：C0.1 黄金样例已建立，C1 Tokenizer 已通过 CI，C2 AST 与递归下降 Parser 已写入主分支。2026-11-08 的首轮 CI 已通过 Kotlin 编译，但右结合幂链测试断言写错；修正提交 `782dd334f40d4ab17e6c87dd5962e3f3be65475f` 已提交，完整 CI 结果仍待确认。**下一步不是开始画计算器页面，而是在 C2 修正提交通过 CI 后，进入 C3 常数表达式求值。** 目前还没有完整计算器页面、常数求值器、方程 / 不等式求解器、函数 / 单位 / 化学、AI 客户端、原生账号或云历史迁移完成。
 
 必须区分三种状态：
 
@@ -21,7 +21,16 @@
 
 不要把“提交成功”“GitHub Actions 已启动”“模拟器能打开”混写成“功能验收通过”。
 
-**液态玻璃最新执行要求（2026-11-01）：** 以 Backdrop Catalog 官方 tag 1.0.6 直接移植为基础，不再只优化底栏。目标覆盖首页及后续主要页面的大部分交互控件和主要容器，包括功能卡片、计算器键帽、AI 输入区、工具 / 历史条目、设置浮层等，并建立 Z0–Z4 空间层次与统一动画 tokens。文字和公式本身必须清晰，不做模糊化。详见 [液态玻璃专项计划第 25 节](./LIQUID_GLASS_REDESIGN_PLAN.md)；下次对话从 P1 移植三个官方辅助类开始。
+**当前接续顺序（2026-11-08）：**
+
+1. 先阅读 [计算器核心迁移计划](./CALCULATOR_CORE_MIGRATION_PLAN.md) 和 [计算器原生页面设计](./CALCULATOR_NATIVE_UI_DESIGN.md)；核心迁移与 UI 实现分开处理。
+2. 核对最新 main commit `782dd334f40d4ab17e6c87dd5962e3f3be65475f` 的 CI；只有 JUnit、androidTest Kotlin 源码编译和 Debug APK 组装均成功，才将 C2 标记为通过。
+3. CI 通过后只做 C3：纯 Kotlin 常数表达式求值、除零 / 非有限结果 / 类型错误等边界；不接 Compose、不做键盘和玻璃动画。
+4. PR #88 的材质滑块连续拖动、开关长按滚动仲裁和 120Hz 窗口偏好继续作为独立主壳事项；不要和 C3 混在同一 PR。
+
+**液态玻璃执行基准：** 官方 Backdrop Catalog 1.0.6 是移植来源；当前主分支已有浮动玻璃 Dock 与圆润填色图标。主界面大面积玻璃扩展和真机光学验收按 [液态玻璃专项计划](./LIQUID_GLASS_REDESIGN_PLAN.md) 执行，但不能因此打乱计算内核的小步顺序。
+
+
 
 ## 2. 当前仓库与项目配置
 
@@ -31,7 +40,7 @@
 - 默认分支：`main`
 - Android applicationId：`ci.us.zhixing.app`
 - App 显示名称：`知行`
-- 当前版本：`0.1.1`，versionCode 为 `2`；首版 `0.1.0` / versionCode `1` 因 WebP 图标资源损坏，不再建议使用。
+- 当前工程版本配置：`0.1.2`，versionCode 为 `3`；是否已有同版本仓库归档 APK，以最新成功构建 / 归档记录为准。
 - 当前 Gradle 工程只有一个 `:app` 模块；暂时不拆成很多独立 Gradle module，避免早期维护成本。
 
 ### 2.2 已核对的构建配置
@@ -83,21 +92,25 @@
 
 **液态玻璃专项执行路线已于 2026-11-01 重置：** 以用户上传的 Backdrop Catalog APK 为视觉 / 交互基准，锁定上游 tag 1.0.6，直接移植官方 LiquidBottomTabs、DampedDragAnimation、InteractiveHighlight、LiquidButton、LiquidSlider、LiquidToggle 等源码；不升级 Backdrop 2.x，不复制整套 Demo App。详细步骤见 [LIQUID_GLASS_REDESIGN_PLAN.md 第 25 节](./LIQUID_GLASS_REDESIGN_PLAN.md)。
 
-### 3.1 原生工程骨架
+### 3.1 原生工程与主导航
 
-**状态：已实现并提交。**
+**状态：原生壳、我的页和导航底座已实现；真正业务页面仍在逐步迁移。**
 
-- 已建立 Android Gradle 工程。
-- 有单一 `:app` 模块和启动 Activity。
-- Kotlin 与 Jetpack Compose 已接入。
-- 建立四个主入口：计算、知行AI、工具、历史。
-- 底部导航可以切换当前选中目的地。
-- 当前页面内容从导航目的地数据读取，属于演示占位，不是业务功能。
+- 已建立单一 `:app` 原生 Android 工程，使用 Kotlin + Jetpack Compose。
+- 一级导航为「计算 / 知行 AI / 工具 / 我的」；原来的「历史」不再单独占用一级 Tab。
+- 「我的」原生页面已包含轻量身份区、最近使用空状态、历史记录入口、材质设置入口与动态应用版本信息。
+- 历史页面当前只呈现真实空状态；尚无 Room 本地计算历史存储，不允许显示虚构记录。
+- 材质设置从首页入口迁入「我的」；进入历史 / 材质二级页面有淡入、轻微水平位移和缩放转场，返回时保留主页面状态。
+- 底部导航已采用浮动液态玻璃 Dock 和圆润填色图标；玻璃透出页面背景，内容需为 Dock 和系统手势区域留足安全空间。
+- 计算、AI、工具 Tab 的业务页面仍未接入；当前展示内容仍有占位性质，不能把导航切换视为功能已经完成。
 
 相关文件：
-
 - `app/src/main/java/ci/us/zhixing/app/MainActivity.kt`
 - `app/src/main/java/ci/us/zhixing/app/navigation/AppDestination.kt`
+- `app/src/main/java/ci/us/zhixing/app/ui/my/MyScreen.kt`
+- `app/src/main/java/ci/us/zhixing/app/ui/history/HistoryScreen.kt`
+- `app/src/main/java/ci/us/zhixing/app/ui/glass/` 下的导航玻璃适配组件
+
 
 ### 3.2 知行品牌图标
 
@@ -163,6 +176,10 @@
 下面这些能力目前**没有完成原生迁移**，不能在测试 APK 中期待它们已经能用。
 
 ### 4.1 计算器核心
+
+**当前迁移进度：** C0.1 黄金样例、C1 Tokenizer 已通过 CI；C2 AST / Parser 已实现，右结合幂链测试断言已于 `782dd334` 修正，修正后的完整 CI 待验证。C2 只构建语法树，不执行计算；下一步为 C3 常数表达式求值。详见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)。
+
+
 
 - [ ] 可输入并计算完整表达式
 - [ ] 自定义数字与数学键盘
@@ -326,6 +343,8 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 ## 7. 下一步应该怎么做（严格按顺序）
 
 每个小步骤都要独立提交、执行构建，并更新 `docs/IMPLEMENTATION_STATUS.md`。不要跳过前面的构建门槛，也不要把一轮塞进多个大功能。
+
+**当前唯一的数学内核入口：C2 修正提交的 CI 验证 → C3 常数表达式求值。** 旧手册下面的历史分步记录用于追溯，不应覆盖 `CALCULATOR_CORE_MIGRATION_PLAN.md` 的最新阶段状态。
 
 ### 第 0 步：修复损坏图标并重新验收
 
