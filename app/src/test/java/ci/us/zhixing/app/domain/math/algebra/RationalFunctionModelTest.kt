@@ -3,6 +3,7 @@ package ci.us.zhixing.app.domain.math.algebra
 import ci.us.zhixing.app.domain.math.model.Polynomial
 import ci.us.zhixing.app.domain.math.model.RationalFunction
 import ci.us.zhixing.app.domain.math.model.RationalFunctionErrorCode
+import ci.us.zhixing.app.domain.math.model.RationalFunctionEvaluationResult
 import ci.us.zhixing.app.domain.math.model.RationalFunctionOperationResult
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -205,6 +206,66 @@ class RationalFunctionModelTest {
         )
     }
 
+    @Test
+    fun evaluatesOrdinaryRationalValues() {
+        val function = rational(Polynomial.of(1.0, 1.0), Polynomial.of(-1.0, 1.0))
+        val result = RationalFunctionArithmetic.evaluate(function, 3.0)
+        assertTrue(result is RationalFunctionEvaluationResult.Success)
+        assertEquals(2.0, (result as RationalFunctionEvaluationResult.Success).value, 0.0)
+    }
+
+    @Test
+    fun rejectsEveryInheritedDomainRestriction() {
+        val x = Polynomial.variable()
+        val xMinusOne = Polynomial.of(-1.0, 1.0)
+        val function = success(RationalFunction.create(
+            numerator = Polynomial.constant(1.0),
+            denominator = Polynomial.constant(1.0),
+            domainRestrictions = listOf(x, xMinusOne),
+        ))
+        assertEvaluationFailureCode(RationalFunctionErrorCode.DOMAIN_RESTRICTION_VIOLATION, RationalFunctionArithmetic.evaluate(function, 0.0))
+        assertEvaluationFailureCode(RationalFunctionErrorCode.DOMAIN_RESTRICTION_VIOLATION, RationalFunctionArithmetic.evaluate(function, 1.0))
+        val valid = RationalFunctionArithmetic.evaluate(function, 2.0)
+        assertTrue(valid is RationalFunctionEvaluationResult.Success)
+        assertEquals(1.0, (valid as RationalFunctionEvaluationResult.Success).value, 0.0)
+    }
+
+    @Test
+    fun xOverXRemainsUndefinedAtTheRemovableHole() {
+        val x = Polynomial.variable()
+        val variable = rational(x, Polynomial.constant(1.0))
+        val xOverX = success(RationalFunctionArithmetic.divide(variable, variable))
+        assertEvaluationFailureCode(RationalFunctionErrorCode.DOMAIN_RESTRICTION_VIOLATION, RationalFunctionArithmetic.evaluate(xOverX, 0.0))
+        val defined = RationalFunctionArithmetic.evaluate(xOverX, 2.0)
+        assertTrue(defined is RationalFunctionEvaluationResult.Success)
+        assertEquals(1.0, (defined as RationalFunctionEvaluationResult.Success).value, 0.0)
+    }
+
+    @Test
+    fun zeroPowerStillRejectsTheOriginalExcludedPoint() {
+        val x = Polynomial.variable()
+        val reciprocal = rational(Polynomial.constant(1.0), x)
+        val zeroPower = success(RationalFunctionArithmetic.power(reciprocal, 0))
+        assertEvaluationFailureCode(RationalFunctionErrorCode.DOMAIN_RESTRICTION_VIOLATION, RationalFunctionArithmetic.evaluate(zeroPower, 0.0))
+        val defined = RationalFunctionArithmetic.evaluate(zeroPower, 2.0)
+        assertTrue(defined is RationalFunctionEvaluationResult.Success)
+        assertEquals(1.0, (defined as RationalFunctionEvaluationResult.Success).value, 0.0)
+    }
+
+    @Test
+    fun rejectsNonFiniteInputsAndPolynomialIntermediateOverflow() {
+        val identity = rational(Polynomial.variable(), Polynomial.constant(1.0))
+        assertEvaluationFailureCode(RationalFunctionErrorCode.NON_FINITE_INPUT, RationalFunctionArithmetic.evaluate(identity, Double.NaN))
+        assertEvaluationFailureCode(RationalFunctionErrorCode.NON_FINITE_INPUT, RationalFunctionArithmetic.evaluate(identity, Double.POSITIVE_INFINITY))
+        val square = rational(Polynomial.of(0.0, 0.0, 1.0), Polynomial.constant(1.0))
+        assertEvaluationFailureCode(RationalFunctionErrorCode.NON_FINITE_RESULT, RationalFunctionArithmetic.evaluate(square, Double.MAX_VALUE))
+    }
+
+    @Test
+    fun rejectsOverflowInFinalDivision() {
+        val function = rational(Polynomial.constant(Double.MAX_VALUE), Polynomial.constant(0.5))
+        assertEvaluationFailureCode(RationalFunctionErrorCode.NON_FINITE_RESULT, RationalFunctionArithmetic.evaluate(function, 4.0))
+    }
     private fun rational(
         numerator: Polynomial,
         denominator: Polynomial,
@@ -223,6 +284,13 @@ class RationalFunctionModelTest {
         return (result as RationalFunctionOperationResult.Success).value
     }
 
+    private fun assertEvaluationFailureCode(
+        expected: RationalFunctionErrorCode,
+        result: RationalFunctionEvaluationResult,
+    ) {
+        assertTrue("Expected rational-function evaluation to fail", result is RationalFunctionEvaluationResult.Failure)
+        assertEquals(expected, (result as RationalFunctionEvaluationResult.Failure).error.code)
+    }
     private fun assertFailureCode(
         expected: RationalFunctionErrorCode,
         result: RationalFunctionOperationResult,

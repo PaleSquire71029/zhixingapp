@@ -4,6 +4,8 @@ import ci.us.zhixing.app.domain.math.model.Polynomial
 import ci.us.zhixing.app.domain.math.model.PolynomialError
 import ci.us.zhixing.app.domain.math.model.PolynomialErrorCode
 import ci.us.zhixing.app.domain.math.model.PolynomialOperationResult
+import ci.us.zhixing.app.domain.math.model.PolynomialEvaluationResult
+import ci.us.zhixing.app.domain.math.model.RationalFunctionEvaluationResult
 import ci.us.zhixing.app.domain.math.model.RationalFunction
 import ci.us.zhixing.app.domain.math.model.RationalFunctionError
 import ci.us.zhixing.app.domain.math.model.RationalFunctionErrorCode
@@ -89,6 +91,62 @@ internal object RationalFunctionArithmetic {
         )
     }
 
+    /**
+     * Evaluates the stored fraction only after validating every restriction
+     * inherited from the original expression tree.
+     *
+     * Restrictions are checked before the current numerator and denominator,
+     * so removable holes (for example x/x at x = 0) remain undefined.
+     */
+    fun evaluate(function: RationalFunction, x: Double): RationalFunctionEvaluationResult {
+        if (!x.isFinite()) {
+            return evaluationFailure(RationalFunctionErrorCode.NON_FINITE_INPUT, "自变量必须是有限数")
+        }
+
+        for (restriction in function.domainRestrictions) {
+            when (val evaluated = PolynomialArithmetic.evaluate(restriction, x)) {
+                is PolynomialEvaluationResult.Failure -> {
+                    return RationalFunctionEvaluationResult.Failure(mapFailure(evaluated.error).error)
+                }
+                is PolynomialEvaluationResult.Success -> {
+                    if (evaluated.value == 0.0) {
+                        return evaluationFailure(
+                            RationalFunctionErrorCode.DOMAIN_RESTRICTION_VIOLATION,
+                            "输入值不属于原式定义域",
+                        )
+                    }
+                }
+            }
+        }
+
+        val numerator = when (val evaluated = PolynomialArithmetic.evaluate(function.numerator, x)) {
+            is PolynomialEvaluationResult.Success -> evaluated.value
+            is PolynomialEvaluationResult.Failure -> {
+                return RationalFunctionEvaluationResult.Failure(mapFailure(evaluated.error).error)
+            }
+        }
+        val denominator = when (val evaluated = PolynomialArithmetic.evaluate(function.denominator, x)) {
+            is PolynomialEvaluationResult.Success -> evaluated.value
+            is PolynomialEvaluationResult.Failure -> {
+                return RationalFunctionEvaluationResult.Failure(mapFailure(evaluated.error).error)
+            }
+        }
+
+        if (denominator == 0.0) {
+            return evaluationFailure(
+                RationalFunctionErrorCode.ZERO_DENOMINATOR_AT_INPUT,
+                "代入后分母为零",
+            )
+        }
+        val result = numerator / denominator
+        if (!result.isFinite()) {
+            return evaluationFailure(
+                RationalFunctionErrorCode.NON_FINITE_RESULT,
+                "有理函数求值结果不是有限数",
+            )
+        }
+        return RationalFunctionEvaluationResult.Success(result)
+    }
     private fun crossCombine(
         left: RationalFunction,
         right: RationalFunction,
@@ -166,6 +224,10 @@ internal object RationalFunctionArithmetic {
         return RationalFunctionOperationResult.Failure(RationalFunctionError(code, error.message))
     }
 
+    private fun evaluationFailure(
+        code: RationalFunctionErrorCode,
+        message: String,
+    ) = RationalFunctionEvaluationResult.Failure(RationalFunctionError(code, message))
     private fun failure(
         code: RationalFunctionErrorCode,
         message: String,

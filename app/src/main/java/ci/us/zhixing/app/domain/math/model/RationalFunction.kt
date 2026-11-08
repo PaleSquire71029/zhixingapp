@@ -76,6 +76,8 @@ internal enum class RationalFunctionErrorCode {
     INVALID_EXPONENT,
     NON_FINITE_INPUT,
     NON_FINITE_RESULT,
+    DOMAIN_RESTRICTION_VIOLATION,
+    ZERO_DENOMINATOR_AT_INPUT,
 }
 
 internal data class RationalFunctionError(
