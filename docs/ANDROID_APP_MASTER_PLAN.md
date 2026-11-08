@@ -1642,7 +1642,7 @@ GitHub Actions 至少执行：
 
 ## 32. C4.2.3 有理函数单点求值首步（2026-11-08）
 
-实现 `RationalFunctionArithmetic.evaluate(function, x)`，先逐项检查 `domainRestrictions`，再对分子 / 分母执行 Horner 求值，并将原式定义域违规、非有限输入、中间溢出、分母为零和最终商溢出映射为类型化错误。`x/x` 在 `x=0` 仍判定为未定义。该步骤源码已提交，CI 结果待定；未进行模拟器 / 真机运行。
+实现 `RationalFunctionArithmetic.evaluate(function, x)`，先逐项检查 `domainRestrictions`，再对分子 / 分母执行 Horner 求值，并将原式定义域违规、非有限输入、中间溢出、分母为零和最终商溢出映射为类型化错误。`x/x` 在 `x=0` 仍判定为未定义。该首步对应 Build #372（Run ID `42453575710`）已通过；后续精确零点、分母精度损失与分子精度损失分别由 Build #379、#381、#383 验证通过，见第 33 节。未进行模拟器 / 真机运行。
 
 
 ## 33. C4.2.3 分子求值精度损失保护（2026-11-08）

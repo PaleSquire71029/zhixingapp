@@ -234,7 +234,7 @@ C4.2.3 首个单点求值子步骤已通过 Android Build #372（Run ID `4245357
 
 CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损失分类 Build #381（Run ID `42454900909`）均成功。Build #381 的资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过；Artifact ID `13607088513`，12,421,567 bytes，digest `sha256:a542ca67e6923cbd143b4dc7fa24472e4f0be5a1e7f9ff282b4f82186d44fe94`。未执行模拟器 / 真机仪器测试。
 
-分母 Double Horner 结果为 0、但精确二进制值非零时，现已返回 `NUMERIC_PRECISION_LOSS`，并用下溢与消去误差样例验证。下一小步仍属于 C4.2.3：检查分子 Double 求值为 0、但精确二进制值非零时是否会错误返回 0；完成后再复核 C4.2.3 全部验收条件，之后才进入 C4.3。
+分母和分子 Double Horner 结果为 0、但精确二进制值非零时，现均返回 `NUMERIC_PRECISION_LOSS`，并分别使用下溢 / 消去误差样例验证。Build #383（Run ID `42455402733`）已成功，Artifact ID `13607311903`。下一步复核 C4.2.3 全部验收条件，包括原始定义域限制、精确真零、非有限中间值和最终商溢出；全部满足后才进入 C4.3。未执行模拟器 / 真机仪器测试。
 
 
 ### 27.32 C4.2.3 分子求值精度损失保护（2026-11-08）
