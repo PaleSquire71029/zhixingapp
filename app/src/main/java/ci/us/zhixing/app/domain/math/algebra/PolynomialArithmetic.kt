@@ -102,13 +102,6 @@ internal object PolynomialArithmetic {
     }
 
 
-    /**
-     * Solves the real roots currently supported by the first C4.3 slice:
-     * zero / non-zero constant polynomials and linear polynomials.
-     *
-     * Higher degrees are reported explicitly instead of being approximated
-     * by an incomplete algorithm; quadratic solving is the next isolated step.
-     */
     fun solveRealRoots(polynomial: Polynomial): PolynomialRootsResult {
         if (polynomial.isZero()) {
             return PolynomialRootsResult.AllRealNumbers
@@ -116,10 +109,14 @@ internal object PolynomialArithmetic {
         if (polynomial.degree == 0) {
             return PolynomialRootsResult.NoRealRoots
         }
-        if (polynomial.degree != 1) {
-            return PolynomialRootsResult.UnsupportedDegree(polynomial.degree)
+        return when (polynomial.degree) {
+            1 -> solveLinear(polynomial)
+            2 -> solveQuadratic(polynomial)
+            else -> PolynomialRootsResult.UnsupportedDegree(polynomial.degree)
         }
+    }
 
+    private fun solveLinear(polynomial: Polynomial): PolynomialRootsResult {
         val intercept = polynomial.coefficients[0]
         val slope = polynomial.coefficients[1]
         val rawRoot = -intercept / slope
@@ -145,8 +142,6 @@ internal object PolynomialArithmetic {
             )
         }
 
-        // Scale both terms before adding, so the residual remains meaningful
-        // for very large or very small finite coefficients.
         val residualScale = max(abs(intercept), abs(linearTerm))
         val normalizedResidual = if (residualScale == 0.0) {
             0.0
@@ -165,6 +160,212 @@ internal object PolynomialArithmetic {
         )
     }
 
+    /**
+     * Uses an exact binary-rational discriminant sign and a scaled, stable
+     * q-formula. This avoids both b*b overflow and cancellation in the small
+     * root of b*b - 4*a*c.
+     */
+    private fun solveQuadratic(polynomial: Polynomial): PolynomialRootsResult {
+        val constant = polynomial.coefficients[0]
+        val linear = polynomial.coefficients[1]
+        val quadratic = polynomial.coefficients[2]
+
+        val exactA = ExactDyadic.fromDouble(quadratic)
+        val exactB = ExactDyadic.fromDouble(linear)
+        val exactC = ExactDyadic.fromDouble(constant)
+        val discriminant = exactB * exactB -
+            ExactDyadic.fromDouble(4.0) * exactA * exactC
+
+        return when (discriminant.signum()) {
+            -1 -> PolynomialRootsResult.NoRealRoots
+            0 -> {
+                val denominator = ScaledDouble.fromDyadic(exactA) *
+                    ScaledDouble.fromDouble(2.0)
+                val root = ScaledDouble.fromDyadic(exactB).negate() / denominator
+                finiteRoots(polynomial, listOf(root))
+            }
+            else -> {
+                val squareRoot = ScaledDouble.fromDyadic(discriminant).sqrt()
+                // q = -0.5 * (b + copySign(sqrt(discriminant), b)).
+                // The terms have the same sign, avoiding catastrophic cancellation.
+                val signedSquareRoot = if (linear < 0.0) squareRoot.negate() else squareRoot
+                val q = (ScaledDouble.fromDyadic(exactB) + signedSquareRoot) *
+                    ScaledDouble.fromDouble(-0.5)
+                if (q.isZero) {
+                    return rootsFailure(
+                        PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                        "二次多项式的稳定求根中间值下溢为零",
+                    )
+                }
+
+                val firstRoot = q / ScaledDouble.fromDyadic(exactA)
+                val secondRoot = ScaledDouble.fromDyadic(exactC) / q
+                finiteRoots(polynomial, listOf(firstRoot, secondRoot), requireDistinct = true)
+            }
+        }
+    }
+
+    private fun finiteRoots(
+        polynomial: Polynomial,
+        scaledRoots: List<ScaledDouble>,
+        requireDistinct: Boolean = false,
+    ): PolynomialRootsResult {
+        val roots = mutableListOf<PolynomialRealRoot>()
+        for (scaledRoot in scaledRoots) {
+            val value = scaledRoot.toDouble()
+            if (!value.isFinite()) {
+                return rootsFailure(
+                    PolynomialErrorCode.NON_FINITE_RESULT,
+                    "多项式实根超出 Double 可表示范围",
+                )
+            }
+            if (value == 0.0 && !scaledRoot.isZero) {
+                return rootsFailure(
+                    PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                    "非零多项式实根在 Double 中下溢为零",
+                )
+            }
+
+            val normalizedResidual = normalizedResidualAt(polynomial, value)
+            if (!normalizedResidual.isFinite() || normalizedResidual > ROOT_RESIDUAL_TOLERANCE) {
+                return rootsFailure(
+                    PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                    "多项式实根未通过归一化残差检查",
+                )
+            }
+            roots += PolynomialRealRoot(value, normalizedResidual)
+        }
+
+        if (requireDistinct && roots.map { it.value }.distinct().size != roots.size) {
+            return rootsFailure(
+                PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                "两个不同实根无法在 Double 中可靠区分",
+            )
+        }
+        return PolynomialRootsResult.FiniteRoots(roots.sortedBy { it.value })
+    }
+
+    /**
+     * Computes |p(x)| / (|a*x²| + |b*x| + |c|) using exact dyadic
+     * arithmetic for the already-rounded Double root. This keeps the
+     * backward-error check finite even when direct polynomial evaluation
+     * would overflow or underflow.
+     */
+    private fun normalizedResidualAt(polynomial: Polynomial, x: Double): Double {
+        val coefficients = polynomial.coefficients
+        val exactX = ExactDyadic.fromDouble(x)
+        val quadraticTerm = ExactDyadic.fromDouble(coefficients[2]) * exactX * exactX
+        val linearTerm = ExactDyadic.fromDouble(coefficients[1]) * exactX
+        val constantTerm = ExactDyadic.fromDouble(coefficients[0])
+        val residual = (quadraticTerm + linearTerm + constantTerm).abs()
+        val scale = quadraticTerm.abs() + linearTerm.abs() + constantTerm.abs()
+        return if (scale.isZero) 0.0 else residual.ratioTo(scale)
+    }
+
+    private const val ROOT_RESIDUAL_TOLERANCE = 1e-12
+
+    private fun rootsFailure(
+        code: PolynomialErrorCode,
+        message: String,
+    ) = PolynomialRootsResult.Failure(PolynomialError(code, message))
+
+    /**
+     * A binary-scaled finite value: mantissa * 2^exponent, with |mantissa|
+     * normalized to [0.5, 1). Intermediate exponents may exceed Double's
+     * range until the final root conversion.
+     */
+    private data class ScaledDouble(
+        val mantissa: Double,
+        val exponent: Int,
+    ) {
+        val isZero: Boolean
+            get() = mantissa == 0.0
+
+        fun negate(): ScaledDouble = copy(mantissa = -mantissa)
+
+        operator fun plus(other: ScaledDouble): ScaledDouble {
+            if (isZero) return other
+            if (other.isZero) return this
+            val (larger, smaller) = if (exponent >= other.exponent) {
+                this to other
+            } else {
+                other to this
+            }
+            val difference = smaller.exponent - larger.exponent
+            val aligned = if (difference < -1074) {
+                0.0
+            } else {
+                Math.scalb(smaller.mantissa, difference)
+            }
+            return normalized(larger.mantissa + aligned, larger.exponent)
+        }
+
+        operator fun times(other: ScaledDouble): ScaledDouble =
+            normalized(mantissa * other.mantissa, exponent + other.exponent)
+
+        operator fun div(other: ScaledDouble): ScaledDouble {
+            require(!other.isZero) { "Cannot divide by a zero scaled value" }
+            return normalized(mantissa / other.mantissa, exponent - other.exponent)
+        }
+
+        fun sqrt(): ScaledDouble {
+            require(mantissa > 0.0) { "Square root requires a positive scaled value" }
+            val oddExponent = exponent % 2 != 0
+            val adjustedMantissa = if (oddExponent) mantissa * 2.0 else mantissa
+            val adjustedExponent = if (oddExponent) exponent - 1 else exponent
+            return normalized(kotlin.math.sqrt(adjustedMantissa), adjustedExponent / 2)
+        }
+
+        fun toDouble(): Double = Math.scalb(mantissa, exponent)
+
+        companion object {
+            private const val TWO_TO_53 = 9_007_199_254_740_992.0
+            val ZERO = ScaledDouble(0.0, 0)
+
+            fun fromDouble(value: Double): ScaledDouble =
+                fromDyadic(ExactDyadic.fromDouble(value))
+
+            fun fromDyadic(value: ExactDyadic): ScaledDouble {
+                if (value.isZero) return ZERO
+                val absolute = value.significand.abs()
+                val bitLength = absolute.bitLength()
+                val shift = max(0, bitLength - 53)
+                var top = if (shift == 0) {
+                    absolute.shiftLeft(53 - bitLength)
+                } else {
+                    absolute.shiftRight(shift)
+                }
+                var scaledExponent = value.exponent + bitLength
+
+                if (shift > 0) {
+                    val remainder = absolute.subtract(top.shiftLeft(shift))
+                    val halfway = BigInteger.ONE.shiftLeft(shift - 1)
+                    if (remainder >= halfway) top = top.add(BigInteger.ONE)
+                    if (top.bitLength() > 53) {
+                        top = top.shiftRight(1)
+                        scaledExponent += 1
+                    }
+                }
+
+                val unsignedMantissa = top.toDouble() / TWO_TO_53
+                val signedMantissa = if (value.signum() < 0) {
+                    -unsignedMantissa
+                } else {
+                    unsignedMantissa
+                }
+                return ScaledDouble(signedMantissa, scaledExponent)
+            }
+
+            private fun normalized(value: Double, exponent: Int): ScaledDouble {
+                if (value == 0.0) return ZERO
+                val adjustment = Math.getExponent(kotlin.math.abs(value)) + 1
+                return ScaledDouble(
+                    mantissa = Math.scalb(value, -adjustment),
+                    exponent = exponent + adjustment,
+                )
+            }
+        }
+    }
     /**
      * Tests whether the polynomial is exactly zero at [x] when every finite
      * Double is interpreted as its exact IEEE-754 binary value.
@@ -210,6 +411,13 @@ internal object PolynomialArithmetic {
         val isZero: Boolean
             get() = significand.signum() == 0
 
+        fun signum(): Int = significand.signum()
+
+        fun abs(): ExactDyadic = if (signum() < 0) -this else this
+
+        operator fun unaryMinus(): ExactDyadic =
+            ExactDyadic(significand.negate(), exponent)
+
         operator fun plus(other: ExactDyadic): ExactDyadic {
             if (isZero) return other
             if (other.isZero) return this
@@ -219,8 +427,25 @@ internal object PolynomialArithmetic {
             return normalized(left.add(right), commonExponent)
         }
 
+        operator fun minus(other: ExactDyadic): ExactDyadic = this + (-other)
+
         operator fun times(other: ExactDyadic): ExactDyadic =
             normalized(significand.multiply(other.significand), exponent + other.exponent)
+
+        fun ratioTo(denominator: ExactDyadic): Double {
+            require(!denominator.isZero) { "A dyadic ratio cannot have a zero denominator" }
+            if (isZero) return 0.0
+            val numeratorMagnitude = significand.abs()
+            val denominatorMagnitude = denominator.significand.abs()
+            val numeratorShift = max(0, numeratorMagnitude.bitLength() - 53)
+            val denominatorShift = max(0, denominatorMagnitude.bitLength() - 53)
+            val numeratorTop = numeratorMagnitude.shiftRight(numeratorShift).toDouble()
+            val denominatorTop = denominatorMagnitude.shiftRight(denominatorShift).toDouble()
+            val mantissaRatio = numeratorTop / denominatorTop
+            val exponentDifference = exponent - denominator.exponent +
+                numeratorShift - denominatorShift
+            return Math.scalb(mantissaRatio, exponentDifference)
+        }
 
         companion object {
             val ZERO = ExactDyadic(BigInteger.ZERO, 0)

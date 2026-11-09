@@ -206,10 +206,78 @@ class PolynomialArithmeticTest {
     }
 
     @Test
-    fun reportsHigherDegreeAsUnsupportedUntilQuadraticSolverIsAdded() {
-        val result = PolynomialArithmetic.solveRealRoots(Polynomial.of(1.0, 2.0, 1.0))
+    fun solvesQuadraticsWithTwoDistinctRealRootsAndStableSmallRoot() {
+        val simple = PolynomialArithmetic.solveRealRoots(Polynomial.of(2.0, -3.0, 1.0))
+        assertTrue(simple is PolynomialRootsResult.FiniteRoots)
+        val simpleRoots = (simple as PolynomialRootsResult.FiniteRoots).roots
+        assertEquals(listOf(1.0, 2.0), simpleRoots.map { it.value })
+        assertTrue(simpleRoots.all { it.normalizedResidual <= 1e-12 })
 
-        assertEquals(PolynomialRootsResult.UnsupportedDegree(2), result)
+        // The direct (-b - sqrt(D)) / (2a) formula loses the small root here.
+        val illConditioned = PolynomialArithmetic.solveRealRoots(
+            Polynomial.of(1.0, -1e16, 1.0),
+        )
+        assertTrue(illConditioned is PolynomialRootsResult.FiniteRoots)
+        val roots = (illConditioned as PolynomialRootsResult.FiniteRoots).roots
+        assertEquals(2, roots.size)
+        assertTrue(kotlin.math.abs(roots[0].value - 1e-16) <= 1e-28)
+        assertEquals(1e16, roots[1].value, 2.0)
+        assertTrue(roots.all { it.normalizedResidual <= 1e-12 })
+    }
+
+    @Test
+    fun classifiesRepeatedAndNonRealQuadraticRootsExactly() {
+        val repeated = PolynomialArithmetic.solveRealRoots(Polynomial.of(1.0, -2.0, 1.0))
+        assertTrue(repeated is PolynomialRootsResult.FiniteRoots)
+        val repeatedRoots = (repeated as PolynomialRootsResult.FiniteRoots).roots
+        assertEquals(1, repeatedRoots.size)
+        assertEquals(1.0, repeatedRoots.single().value, 0.0)
+        assertTrue(repeatedRoots.single().normalizedResidual <= 1e-12)
+
+        val noRealRoots = PolynomialArithmetic.solveRealRoots(Polynomial.of(1.0, 0.0, 1.0))
+        assertTrue(noRealRoots === PolynomialRootsResult.NoRealRoots)
+    }
+
+    @Test
+    fun discriminantSignSurvivesNearCancellation() {
+        val negative = PolynomialArithmetic.solveRealRoots(
+            Polynomial.of(Math.nextUp(1.0), -2.0, 1.0),
+        )
+        assertTrue(negative === PolynomialRootsResult.NoRealRoots)
+
+        val positive = PolynomialArithmetic.solveRealRoots(
+            Polynomial.of(Math.nextDown(1.0), -2.0, 1.0),
+        )
+        assertTrue(positive is PolynomialRootsResult.FiniteRoots)
+        assertEquals(2, (positive as PolynomialRootsResult.FiniteRoots).roots.size)
+    }
+
+    @Test
+    fun reportsQuadraticRootOverflowAndUnderflowWithTypedErrors() {
+        val overflow = PolynomialArithmetic.solveRealRoots(
+            Polynomial.of(1.0, Double.MAX_VALUE, Polynomial.ZERO_TOLERANCE),
+        )
+        assertTrue(overflow is PolynomialRootsResult.Failure)
+        assertEquals(
+            PolynomialErrorCode.NON_FINITE_RESULT,
+            (overflow as PolynomialRootsResult.Failure).error.code,
+        )
+
+        val underflow = PolynomialArithmetic.solveRealRoots(
+            Polynomial.of(1e-300, 1e300, 1e25),
+        )
+        assertTrue(underflow is PolynomialRootsResult.Failure)
+        assertEquals(
+            PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+            (underflow as PolynomialRootsResult.Failure).error.code,
+        )
+    }
+
+    @Test
+    fun reportsHigherDegreeAsUnsupportedUntilCubicSolverIsAdded() {
+        val result = PolynomialArithmetic.solveRealRoots(Polynomial.of(1.0, 2.0, 3.0, 4.0))
+
+        assertEquals(PolynomialRootsResult.UnsupportedDegree(3), result)
     }
 
     private fun assertPolynomial(
