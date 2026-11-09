@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser 均已实现；C2 修正提交 `782dd334` 的 Android Build #350 已通过资源校验、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传。C3 常数表达式求值器与全量算术黄金样例回归已通过 Android Build #363（Run ID `42444326915`）；当前处于 C4.1 多项式基础运算与零多项式规范化已通过 Android Build #365（Run ID `42444758613`）；当前进入 C4.2.1 有理函数模型与定义域不变量已通过 Android Build #366（Run ID `42444984226`）；C4.2.2 有理函数加减乘除与幂的定义域传播已通过 Android Build #370（Run ID `42445627892`）；C4.2.3 有理函数单点求值 / 原式定义域检查、BigInteger 精确零点判定及分子 / 分母精度损失分类已完成 CI 验收（Build #372 / #379 / #381 / #383）；未执行模拟器 / 真机仪器测试。C4.3.1 已实现零 / 常数多项式根集分类和一次多项式实根求解，Build #388（Run ID `42456084109`）通过，Artifact ID `13606854310`。计算页面、方程 / 不等式、函数 / 单位 / 化学、AI、账号与云历史仍未接入。**
+**当前进度：** 原生主壳已进入 0.1.2 阶段。计算器核心 C0.1、C1、C2、C3、C4.1、C4.2.1、C4.2.2 和 C4.2.3 均已完成相应 CI / JUnit 验收；C4.2.3 的原式定义域、精确零点与分子 / 分母精度损失保护通过 Build #372 / #379 / #381 / #383。C4.3.1 零 / 常数分类与一次实根通过 Build #388；C4.3.2 二次实根最终提交 `9db9d21c9506b401959654bc6ecefc3ec7c043ff` 对应 Android Build #391（Run ID `42544184281`）完整成功，Artifact ID `13642063693`，12,428,103 bytes。C4.3.2 覆盖稳定 q 公式、精确判别式符号、重根 / 无实根、近消去、根溢出 / 下溢与归一化残差。Build #390 曾因重复声明辅助函数失败，已按日志修复后由 Build #391 验证通过。以上仅证明 CI、JUnit、androidTest 源码编译和 Debug APK 组装 / Artifact 上传成功；未执行模拟器或真机仪器测试。当前下一阶段为 C5 方程求解。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C4.2.3 已完成 CI 验收；C4.3.1 一次实根首步已通过 Build #388 | 零多项式 / 非零常数分类、一次根、归一化残差与 Double 表示边界已覆盖；下一步实现二次实根 |
+| 计算迁移 | C4.3.2 二次实根已通过 Build #391 | 精确判别式符号、稳定 q 公式、两根 / 重根 / 无实根、近消去、根溢出 / 下溢与归一化残差均有 JUnit；未做模拟器 / 真机验收 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1678,3 +1678,16 @@
 - [x] 首版提交 `860429b699492d0471cf4ac5deb53e7906b0440c` 的 Build #387 因新增错误码遗漏 `RationalFunctionArithmetic.mapFailure` 分支而编译失败；修正提交 `c6f59062cd89765d4affa3fa4dd1952ffed8c332` 补齐映射后，Build #388（Run ID `42456084109`）完整成功。
 - [x] Build #388 Artifact `zhixingapp-debug` ID `13606854310`，12,423,470 bytes，SHA-256 `47c53f359a01803891be43029b17db0489460b55d6561fcc092db2a79ac8d157`。
 - [ ] 未执行模拟器 / 真机测试；下一步 C4.3.2 实现二次多项式实根，重点处理判别式符号、稳定求根公式、根去重和残差边界。
+
+### 27.34 C4.3.2 二次多项式实根（2026-11-09）
+
+**实现范围：** 在现有 `PolynomialRootsResult` 与 `PolynomialError` 类型模型上扩展 `PolynomialArithmetic.solveRealRoots`，不增加 UI、输入键盘、图像或 AI。
+
+- [x] 使用 `ExactDyadic` / `BigInteger` 将有限 Double 系数解释为精确二进制有理数，精确计算判别式符号；不使用固定 epsilon 判定重根或无实根。
+- [x] 使用二进制缩放数表示中间值，避免直接计算 `b*b` 和 `4*a*c` 时溢出 / 下溢；正判别式采用稳定 q 公式，两个根分别由 `q/a` 与 `c/q` 得到，避免小根相减消去；零判别式返回单个重根，负判别式返回 `NoRealRoots`。
+- [x] 对最终 Double 根执行精确二进制项求和的归一化残差检查 `|a*r²+b*r+c|/(|a*r²|+|b*r|+|c|)`，阈值保持 `1e-12`；根溢出映射 `NON_FINITE_RESULT`，非零根下溢、两个不同根无法区分或残差不合格映射 `NUMERIC_PRECISION_LOSS`。
+- [x] JUnit 覆盖常规两个不同实根、`x²-1e16x+1` 的稳定小根、重根、无实根、判别式近抵消两侧、根溢出、根下溢和三次多项式仍返回 `UnsupportedDegree`。
+- [x] 初次实现提交 `9a955bd2b3b61fb9fdc4980b14ebf9abd6ceb886` 对应 Build #390（Run ID `42544038191`）失败；日志定位为 `ROOT_RESIDUAL_TOLERANCE` 与 `rootsFailure` 被重复声明。未删除测试断言；修复提交 `9db9d21c9506b401959654bc6ecefc3ec7c043ff` 删除重复定义并复用既有类型化错误辅助函数。
+- [x] Android Build #391（Run ID `42544184281`）完整成功：资源校验、JUnit、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传通过。Artifact `zhixingapp-debug`，ID `13642063693`，12,428,103 bytes；SHA-256 `e3708be725e4f8adced35b6c09801c4e150a3ce686dba559111242440510cc3f`。
+- [ ] 未启动模拟器或执行真机仪器测试；CI 成功不等于设备端验收。
+- [ ] 下一阶段 C5 方程求解；先单独建立方程结果模型与常数 / 一次方程基础测试，不接 Compose 页面。

@@ -1,7 +1,7 @@
 # 知行计算器原生核心迁移计划
 
 > 版本：1.0  
-> 更新日期：2026-11-08  
+> 更新日期：2026-11-09  
 > 目标仓库：`PaleSquire71029/zhixingapp`  
 > 旧逻辑基线：`PaleSquire71029/calculator` 的 `calculator.html`、`js/chemistry-balancer.js`、`js/chemistry-predictor.js`
 
@@ -132,10 +132,11 @@ app/src/main/java/ci/us/zhixing/app/
 
 ## 8. 本阶段当前入口
 
-**C0.1、C1、C2 均已通过 CI。C3 已通过 CI：** Android Build #363（Run ID `42444326915`）成功，常数表达式 AST 求值器已通过全部算术黄金样例和边界测试。
+**C0.1–C4.3 已完成当前计划内的纯 Kotlin 数学基础步骤并通过 CI：** C0.1 黄金样例、C1 Tokenizer、C2 AST / Parser、C3 常数表达式求值、C4.1 多项式基础运算、C4.2.1–C4.2.3 有理函数模型 / 运算 / 原式定义域与数值精度保护，以及 C4.3.1 零 / 常数 / 一次根和 C4.3.2 二次实根均已取得对应 Android Build 成功记录。
 
-**C4.1 已通过：** Android Build #365 已成功验证多项式运算与零多项式规范化。当前进入 C4.2.1：有理函数模型与定义域不变量；本步只建立数据结构和创建约束，不实现运算传播或求值。有理函数与原式定义域约束传播留在 C4.2，不与本步混合。C0.1 只整理黄金样例；C1 只实现词法分析；C2 只构建 AST；C3 才执行常数求值。PR #88 的材质滑块 / 开关手势与 120Hz 窗口偏好属于独立主壳任务，不与数学内核混合。
+C4.3.2 最终提交 `9db9d21c9506b401959654bc6ecefc3ec7c043ff` 对应 Build #391（Run ID `42544184281`）完整成功；Artifact ID `13642063693`。本次只修改纯 Kotlin 多项式根求解和 JUnit，不接 Compose、专用键盘、函数图像或 AI。C4.3 阶段通过 CI / JVM 测试，不代表模拟器或真机运行验收。
 
+**当前下一阶段：C5 方程求解。** 先建立独立方程结果模型与常数 / 一次方程最小求解切片，逐步复用已验证的多项式根能力；分式方程增根剔除留待后续独立步骤。每次只做一个可独立测试的小步，失败先读取日志修根因，不放宽有效断言。
 
 ## 9. C2 首轮 CI 问题与修正记录（2026-11-08）
 
@@ -263,4 +264,20 @@ CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损�
 
 代码提交：首版 `860429b699492d0471cf4ac5deb53e7906b0440c`；错误映射修正 `c6f59062cd89765d4affa3fa4dd1952ffed8c332`。Build #387（Run ID `42456067278`）因新错误码缺少一个 exhaustive `when` 分支而失败，日志已确认；修正后的 Build #388（Run ID `42456084109`）完整成功，JUnit、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传全部通过。Artifact ID `13606854310`，12,423,470 bytes，SHA-256 `47c53f359a01803891be43029b17db0489460b55d6561fcc092db2a79ac8d157`。未执行模拟器 / 真机仪器测试。
 
-**下一小步 C4.3.2：** 实现二次多项式实根。先确定判别式在极端系数下的可靠符号判定与缩放策略，再使用数值稳定的求根公式；分别覆盖两个不同实根、重根、无实根、根溢出 / 下溢与归一化残差。不要直接复用旧 JS 中固定 `1e-12` 判别式阈值和朴素求根公式。
+**C4.3.2 已完成 CI 验收，详见第 16 节。下一阶段进入 C5 方程求解，先定义方程结果模型并实现常数 / 一次方程最小切片；二次、三次与分式方程增根剔除仍按独立小步推进。
+
+## 16. C4.3.2：二次多项式实根（2026-11-09）
+
+在 C4.3.1 的零 / 常数 / 一次根基础上，扩展 `PolynomialArithmetic.solveRealRoots` 支持二次多项式，沿用 `PolynomialRootsResult`、`PolynomialRealRoot` 与 `PolynomialError`，不引入新 UI 或新依赖。
+
+- 判别式 `D=b²−4ac` 的符号使用 `ExactDyadic` / `BigInteger` 对 Double 的精确 IEEE-754 二进制值计算，不用固定 epsilon。
+- 数值求根使用二进制缩放中间表示；当 `D>0` 时采用 `q=-0.5*(b+copySign(sqrt(D),b))`，根为 `q/a` 与 `c/q`，避免朴素公式的小根灾难性消去；`D=0` 返回一个重根，`D<0` 返回 `NoRealRoots`。
+- 最终根使用精确二进制项计算归一化残差 `|a*r²+b*r+c|/(|a*r²|+|b*r|+|c|)`，阈值为 `1e-12`。根超出 Double 范围返回 `NON_FINITE_RESULT`；非零根下溢为零、不同根无法在 Double 中区分或残差超限返回 `NUMERIC_PRECISION_LOSS`。
+- JUnit 覆盖两个不同实根、稳定小根、重根、无实根、判别式近抵消的正负两侧、根溢出 / 下溢、归一化残差及三次输入继续标记 `UnsupportedDegree(3)`。
+
+提交与 CI：
+- 实现首版提交：`9a955bd2b3b61fb9fdc4980b14ebf9abd6ceb886`；Build #390（Run ID `42544038191`）因重复声明 `ROOT_RESIDUAL_TOLERANCE` / `rootsFailure` 编译失败。
+- 读取失败日志后，修复提交：`9db9d21c9506b401959654bc6ecefc3ec7c043ff`；没有删除或放宽测试断言。
+- Android Build #391（Run ID `42544184281`）完整成功：JUnit、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传均通过。Artifact ID `13642063693`，12,428,103 bytes，SHA-256 `e3708be725e4f8adced35b6c09801c4e150a3ce686dba559111242440510cc3f`。
+
+本步状态：**源码已提交，CI / JVM 单元测试 / androidTest 源码编译 / Debug APK 构建通过；未运行模拟器，也未进行真机验收。** 下一阶段为 C5 方程求解。
