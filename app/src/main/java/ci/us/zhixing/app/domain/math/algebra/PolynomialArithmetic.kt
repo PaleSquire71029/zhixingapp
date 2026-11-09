@@ -262,13 +262,6 @@ internal object PolynomialArithmetic {
         return if (scale.isZero) 0.0 else residual.ratioTo(scale)
     }
 
-    private const val ROOT_RESIDUAL_TOLERANCE = 1e-12
-
-    private fun rootsFailure(
-        code: PolynomialErrorCode,
-        message: String,
-    ) = PolynomialRootsResult.Failure(PolynomialError(code, message))
-
     /**
      * A binary-scaled finite value: mantissa * 2^exponent, with |mantissa|
      * normalized to [0.5, 1). Intermediate exponents may exceed Double's
