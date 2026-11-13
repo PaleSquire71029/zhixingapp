@@ -41,24 +41,36 @@ class UnitConverterTest {
     }
 
     @Test
-    fun identicalPhysicalDimensionStillRequiresTheSameCategory() {
-        val sameDimension = UnitCategoryCatalog.all.groupBy(UnitCategory::dimension)
-            .values.firstOrNull { it.size > 1 }
+    fun allCrossCategoryConversionsAreRejectedByDimensionValidation() {
+        val sampleUnits = mapOf(
+            UnitCategory.LENGTH to ("m" to "m"),
+            UnitCategory.AREA to ("m2" to "m2"),
+            UnitCategory.VOLUME to ("m3" to "m3"),
+            UnitCategory.MASS to ("kg" to "kg"),
+            UnitCategory.TEMPERATURE to ("c" to "c"),
+            UnitCategory.SPEED to ("ms" to "ms"),
+            UnitCategory.TIME to ("s" to "s"),
+            UnitCategory.DATA_STORAGE to ("b" to "b"),
+            UnitCategory.ANGLE to ("rad" to "rad"),
+        )
 
-        if (sameDimension != null) {
-            val source = sameDimension[0]
-            val target = sameDimension[1]
-            assertFailure(
-                convert(1.0, source.id, "unknown", target.id, "unknown"),
-                UnitConversionError.CategoryMismatch(source.id, target.id),
-            )
-        } else {
-            assertTrue(
-                UnitCategoryCatalog.all
-                    .groupBy(UnitCategory::dimension)
-                    .values
-                    .all { it.size == 1 },
-            )
+        UnitCategoryCatalog.all.forEach { source ->
+            UnitCategoryCatalog.all
+                .filter { target -> target != source }
+                .forEach { target ->
+                    val sourceUnits = sampleUnits.getValue(source)
+                    val targetUnits = sampleUnits.getValue(target)
+                    assertFailure(
+                        convert(
+                            1.0,
+                            source.id,
+                            sourceUnits.first,
+                            target.id,
+                            targetUnits.first,
+                        ),
+                        UnitConversionError.IncompatibleDimensions(source.id, target.id),
+                    )
+                }
         }
     }
 
