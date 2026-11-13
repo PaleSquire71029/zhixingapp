@@ -656,6 +656,6 @@ C8.5 新增 `AffineUnitDefinition`、`AffineUnitCategoryUnitSet`、`TemperatureU
 - 转换器返回 sealed typed result；错误区分非有限输入、低于绝对零度、结果溢出、未知源单位和未知目标单位。
 - 绝对零度采用严格 Kelvin 下界检查，不用宽松 epsilon 把低于绝对零度的值放行；支持绝对零度以上的负摄氏 / 华氏温度。
 - 新增 9 个 JUnit 测试方法，覆盖常用转换、负温度、三种绝对零度、紧邻下界的 `Math.nextDown` 输入、NaN / ±Infinity、转换结果溢出、未知单位、仿射目录不可变性及元数据约束。
-- 功能提交：`935d59982f5cce2992f2903d536459e6a22d5444`；测试整理提交：`a399d2d2c55dd330f35a3afdde0d7d1b5509a2fd`。Build #421 完整 CI 尚待验收；未预先标记测试通过。
+- 功能提交：`935d59982f5cce2992f2903d536459e6a22d5444`；测试整理提交：`a399d2d2c55dd330f35a3afdde0d7d1b5509a2fd`。Android Build #421（Run ID `43429397488`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 48s`。Artifact `zhixingapp-debug`，ID `14038965866`，12,546,736 bytes；Artifact ZIP SHA-256：`9104003229349ce033b11224b55a08637935b07836b60f46f4ce6be1ef9116c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.6 实现统一线性 / 仿射换算入口，验证类别量纲、单位归属和数值安全；再补齐不同类别的跨类别拒绝测试及完整转换矩阵。

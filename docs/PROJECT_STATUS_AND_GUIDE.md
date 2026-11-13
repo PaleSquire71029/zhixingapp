@@ -916,6 +916,6 @@ C8.4 新增数据存储 10 项和角度 6 项，使单位目录达到八类、76
 
 转换结果采用类型化 Success / Failure，错误包括非有限输入、低于绝对零度、输出溢出、未知源单位和未知目标单位。负温度可正常换算；紧邻绝对零度以下的输入会被严格拒绝。
 
-新增 9 个 JUnit 测试方法覆盖往返换算、边界、溢出、未知单位、只读目录和非法仿射定义。功能提交：`935d59982f5cce2992f2903d536459e6a22d5444`；测试整理提交：`a399d2d2c55dd330f35a3afdde0d7d1b5509a2fd`。Build #421 尚待 CI 验收；本步没有执行真机测试。
+新增 9 个 JUnit 测试方法覆盖往返换算、边界、溢出、未知单位、只读目录和非法仿射定义。功能提交：`935d59982f5cce2992f2903d536459e6a22d5444`；测试整理提交：`a399d2d2c55dd330f35a3afdde0d7d1b5509a2fd`。Android Build #421（Run ID `43429397488`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 48s`。Artifact `zhixingapp-debug`，ID `14038965866`，12,546,736 bytes；Artifact ZIP SHA-256：`9104003229349ce033b11224b55a08637935b07836b60f46f4ce6be1ef9116c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.6 统一单位转换服务，连接八类线性目录和温度仿射路径，加入类别与量纲校验。
