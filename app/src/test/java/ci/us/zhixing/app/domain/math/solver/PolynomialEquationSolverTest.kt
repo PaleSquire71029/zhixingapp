@@ -86,13 +86,7 @@ class PolynomialEquationSolverTest {
     }
 
     @Test
-    fun higherDegreeEquationsAreExplicitlyDeferredToLaterSlices() {
-        val quadratic = PolynomialEquationSolver.solve(
-            PolynomialEquation(
-                left = Polynomial.of(-1.0, 0.0, 1.0),
-                right = Polynomial.constant(0.0),
-            ),
-        )
+    fun cubicEquationRemainsUnsupportedUntilItsOwnSolverSlice() {
         val cubic = PolynomialEquationSolver.solve(
             PolynomialEquation(
                 left = Polynomial.of(0.0, -1.0, 0.0, 1.0),
@@ -100,7 +94,6 @@ class PolynomialEquationSolverTest {
             ),
         )
 
-        assertEquals(EquationSolutionResult.UnsupportedDegree(2), quadratic)
         assertEquals(EquationSolutionResult.UnsupportedDegree(3), cubic)
     }
 
