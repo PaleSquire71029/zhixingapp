@@ -1616,7 +1616,7 @@ GitHub Actions 至少执行：
 接续执行：
 1. C2 及后续内核步骤的 CI 通过不代表设备端仪器测试已运行；模拟器 / 真机验收仍需单独执行。
 2. C3、C4.1、C4.2、C4.3 当前已完成对应 CI 验收；C5.3 已把三次方程纳入根引擎，四次及以上仍明确不支持。
-3. C5.1–C5.7 与 C6.1 已通过完整 CI；Build #404（Run ID `43401527163`）完整成功。当前支持多项式至三次方程和不等式、分式方程、受限绝对值 / 平方根及四种受限指数 / 对数方程。下一阶段为 C6.2 分式不等式。
+3. C5.1–C5.7 与 C6.1–C6.2 已通过完整 CI；Build #405（Run ID `43403410088`）完整成功。当前支持多项式至三次方程 / 不等式、分式方程 / 不等式、受限绝对值 / 平方根及四种受限指数 / 对数方程。下一阶段为 C7 函数工具内核。
 4. C5 仍不接 Compose 方程 UI、专用输入键盘或函数图像；每个小步骤做针对性检查即可，不要求每个小步骤都构建 APK。PR #88 的材质滑块 / 开关手势与 120Hz 窗口偏好继续独立收尾。
 
 架构约束仍然有效：单一 `:app` 模块，纯 Kotlin 数学域，不使用 WebView / JavaScript Runtime；普通本地计算不强制登录。
@@ -1751,3 +1751,14 @@ C6.1 新增 `PolynomialInequality` / `PolynomialInequalitySolver`，支持 `P(x)
 新增 14 个 JUnit 测试。实现提交 `f23400eea148776895f7fccfac0c5c262e46ab29`；Build #404（Run ID `43401527163`）完整 success，全部 JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过，Artifact ID `14025750621`，12,472,155 bytes。没有执行模拟器 / 真机测试。
 
 下一步 C6.2 分式不等式，继承 `RationalFunction.domainRestrictions`，确保原始分母零点、除法限制和可去间断点都不能被化简过程移除。
+
+
+## 42. C6.2 分式不等式（2026-11-13）
+
+C6.2 新增 `RationalFunctionInequality` / `RationalFunctionInequalitySolver`，使用已有 `RationalFunction` 的分子、分母与完整 `domainRestrictions`。当前支持四种严格 / 非严格比较，分子、分母和每条历史定义域限制最多三次；高于三次返回明确的 `UnsupportedDegree`。
+
+求解器分别收集分子零点和所有必须排除的定义域边界，区间内用 `sign(N) * sign(D)` 精确判断有理式符号；无界区间依据首项系数和次数奇偶。分子零点按比较关系决定是否包含；分母零点、历史子表达式分母零点、除法操作新引入的分子零点始终排除。共同因子可去除但原式限制不会丢失，输出用开区间保留孔洞。零分子非严格比较返回原式定义域，而不是无条件全体实数。
+
+JUnit 新增 18 个场景，覆盖倒数符号、可去间断点、分子 / 分母重根、原式历史定义域、除法限制、公共无理零点和精度不足。实现提交 `fd9c6ef1bf9266dd5ac7be3e86a18a1825cde60e`；Android Build #405（Run ID `43403410088`）完整 success，全部 JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过，Artifact ID `14026112216`，12,478,669 bytes。未执行模拟器 / 真机测试。
+
+下一阶段 C7 函数工具内核：坐标点集模型、点集校验、一次 / 二次 / 三次 / 反比例拟合、函数定义域与图像采样。
