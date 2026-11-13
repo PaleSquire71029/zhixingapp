@@ -128,16 +128,18 @@
 
 重要文件：
 
-| 文件 | 作用 | 新 App 处理 |
+| 路径（按来源仓库） | 作用 | 新 App 处理 |
 |---|---|---|
 | chat.html | 知行AI聊天界面 | 重建为原生 Compose 对话体验 |
 | cloud-history.js | 云端历史与最近对话合并 | 将其接口流程迁移为 Kotlin Repository |
 | assets/account-auth.js | 统一账号入口和网页会话刷新 | 重写原生账号界面与会话持久化 |
 | ai-admin.html / assets/admin-console.js | 统一管理后台 | 保留网页管理方式；不在普通 App 中暴露管理员能力 |
-| docs/知行AI项目总览.md | 项目交接文档 | 迁移时持续对照 |
-| docs/知行AI遗漏需求补充.md | 遗漏功能与验收清单 | 迁移时持续对照 |
-| docs/account-agreement.md | 账号协议 | 未来原生登录页需有可读入口 |
-| docs/privacy-notice.md | 隐私声明 | 未来原生登录页需有可读入口 |
+| `zhixing_ai:docs/知行AI项目总览.md` | 项目交接文档 | 迁移时持续对照 |
+| `zhixing_ai:docs/知行AI遗漏需求补充.md` | 遗漏功能与验收清单 | 迁移时持续对照 |
+| `zhixing_ai:docs/account-agreement.md` | 账号协议 | 未来原生登录页需有可读入口 |
+| `zhixing_ai:docs/privacy-notice.md` | 隐私声明 | 未来原生登录页需有可读入口 |
+
+表中 `zhixing_ai:` 表示路径属于 `PaleSquire71029/zhixing_ai` 仓库，不是当前 `zhixingapp` 仓库的 `docs/` 子目录。所有本仓库相对链接只允许指向当前仓库内文件。
 
 交接文档：
 

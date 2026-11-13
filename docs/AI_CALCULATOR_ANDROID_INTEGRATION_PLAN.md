@@ -20,13 +20,17 @@
 
 ## 2. 检查过的旧版能力与协议
 
-参考代码：`PaleSquire71029/calculator` 的 `ai-calculator.html`、`ai-proxy/src/index.js`、`ai-proxy/README.md`。
+参考代码（均属于旧计算器仓库 `PaleSquire71029/calculator`，不属于当前 App 仓库）：
+
+- `calculator:ai-calculator.html`
+- `calculator:ai-proxy/src/index.js`
+- `calculator:ai-proxy/README.md`
 
 旧版已经有以下适合迁移的产品能力：
 
 - 基础计算、方程、不等式、函数 / 绘图、单位、化学等题型分别使用分析模式。
 - 分离「AI 分析」与「AI 扩展」：前者复核当前问题和本地结果，后者尝试本地工具暂未覆盖的相关推导。
-- 核心结论与详细分析分阶段生成：先请求 `analysisStage=core)，用户展开时再请求 `details`；后续追问使用 `followup`。
+- 核心结论与详细分析分阶段生成：先请求 `analysisStage=core`，用户展开时再请求 `details`；后续追问使用 `followup`。
 - 流式返回采用 SSE，前端逐段呈现；后端提示词定义了核心结论、推导依据、核验限制与扩展能力等输出职责。
 - 上下文不是任意 HTML，而是有限字段的结构化文本：`title`、`view`、`inputs`、`outputs`、`details`、`selection`。
 - Worker 对分析任务设置了题型模式、分析动作、上下文长度边界，并记录调用元数据；README 说明不会主动记录问题正文 / 回答正文，但内容仍会传给配置的模型服务商。
