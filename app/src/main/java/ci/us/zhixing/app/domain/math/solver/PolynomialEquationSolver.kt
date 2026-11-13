@@ -49,5 +49,5 @@ internal object PolynomialEquationSolver {
         }
     }
 
-    private const val MAX_SUPPORTED_DEGREE = 1
+    private const val MAX_SUPPORTED_DEGREE = 2
 }

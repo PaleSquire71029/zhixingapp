@@ -104,6 +104,87 @@ class PolynomialEquationSolverTest {
         assertEquals(EquationSolutionResult.UnsupportedDegree(3), cubic)
     }
 
+
+    @Test
+    fun solvesQuadraticEquationWithTwoDistinctRealSolutions() {
+        // x² - 3x + 2 = 0
+        val result = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(2.0, -3.0, 1.0),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertTrue(result is EquationSolutionResult.FiniteSolutions)
+        val solutions = (result as EquationSolutionResult.FiniteSolutions).solutions
+        assertEquals(listOf(1.0, 2.0), solutions.map { it.value })
+        assertTrue(solutions.all { it.normalizedResidual <= 1e-12 })
+    }
+
+    @Test
+    fun quadraticEquationWithRepeatedRootReturnsOneSolution() {
+        // (x - 1)² = 0
+        val result = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(1.0, -2.0, 1.0),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertTrue(result is EquationSolutionResult.FiniteSolutions)
+        val solutions = (result as EquationSolutionResult.FiniteSolutions).solutions
+        assertEquals(1, solutions.size)
+        assertEquals(1.0, solutions.single().value, 0.0)
+        assertTrue(solutions.single().normalizedResidual <= 1e-12)
+    }
+
+    @Test
+    fun quadraticEquationWithoutRealRootsHasNoSolutions() {
+        // x² + 1 = 0
+        val result = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(1.0, 0.0, 1.0),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertTrue(result === EquationSolutionResult.NoSolutions)
+    }
+
+    @Test
+    fun quadraticEquationPreservesStableSmallRootFromRootEngine() {
+        // x² - 1e16*x + 1 = 0
+        val result = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(1.0, -1e16, 1.0),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertTrue(result is EquationSolutionResult.FiniteSolutions)
+        val solutions = (result as EquationSolutionResult.FiniteSolutions).solutions
+        assertEquals(2, solutions.size)
+        assertTrue(kotlin.math.abs(solutions[0].value - 1e-16) <= 1e-28)
+        assertEquals(1e16, solutions[1].value, 2.0)
+        assertTrue(solutions.all { it.normalizedResidual <= 1e-12 })
+    }
+
+    @Test
+    fun quadraticEquationMapsRootEngineFailuresWithoutChangingErrorCodes() {
+        val result = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(1.0, Double.MAX_VALUE, Polynomial.ZERO_TOLERANCE),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertTrue(result is EquationSolutionResult.Failure)
+        assertEquals(
+            PolynomialErrorCode.NON_FINITE_RESULT,
+            (result as EquationSolutionResult.Failure).error.code,
+        )
+    }
+
     @Test
     fun nonFiniteReductionFailureIsPreservedAsATypedError() {
         val result = PolynomialEquationSolver.solve(
