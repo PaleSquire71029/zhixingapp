@@ -1,4 +1,4 @@
-# 知行 Android App 项目现状、操作指南与后续开发手册
+# 知行 Android App 项目操作指南与历史交接记录
 
 > **核对日期：2026-11-13（UTC）**  
 > **仓库：** PaleSquire71029/zhixingapp  
