@@ -113,6 +113,36 @@ internal object UnitDefinitionCatalog {
                     UnitDefinition("yr", "年（365 天）", 31536000.0),
                 ),
             ),
+            UnitCategoryUnitSet(
+                category = UnitCategory.DATA_STORAGE,
+                defaultFromUnitId = "mb",
+                defaultToUnitId = "gb",
+                units = listOf(
+                    UnitDefinition("bit", "比特 bit", 0.125),
+                    UnitDefinition("b", "字节 B", 1.0),
+                    UnitDefinition("kib", "KiB（1024 B）", 1024.0),
+                    UnitDefinition("mib", "MiB（1024² B）", 1048576.0),
+                    UnitDefinition("gib", "GiB（1024³ B）", 1073741824.0),
+                    UnitDefinition("tib", "TiB（1024⁴ B）", 1099511627776.0),
+                    UnitDefinition("kb", "kB（1000 B）", 1000.0),
+                    UnitDefinition("mb", "MB（10⁶ B）", 1e6),
+                    UnitDefinition("gb", "GB（10⁹ B）", 1e9),
+                    UnitDefinition("tb", "TB（10¹² B）", 1e12),
+                ),
+            ),
+            UnitCategoryUnitSet(
+                category = UnitCategory.ANGLE,
+                defaultFromUnitId = "deg",
+                defaultToUnitId = "rad",
+                units = listOf(
+                    UnitDefinition("deg", "度 °", Math.PI / 180.0),
+                    UnitDefinition("rad", "弧度 rad", 1.0),
+                    UnitDefinition("grad", "百分度 grad", Math.PI / 200.0),
+                    UnitDefinition("turn", "圈 turn", 2.0 * Math.PI),
+                    UnitDefinition("arcmin", "角分 ′", Math.PI / 10800.0),
+                    UnitDefinition("arcsec", "角秒 ″", Math.PI / 648000.0),
+                ),
+            ),
         ),
     )
 

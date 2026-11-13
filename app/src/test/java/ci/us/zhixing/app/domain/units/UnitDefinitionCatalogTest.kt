@@ -7,7 +7,7 @@ import org.junit.Test
 
 class UnitDefinitionCatalogTest {
     @Test
-    fun catalogContainsSixMigratedCategoriesInStableOrder() {
+    fun catalogContainsEightMigratedCategoriesInStableOrder() {
         assertEquals(
             listOf(
                 UnitCategory.LENGTH,
@@ -16,14 +16,16 @@ class UnitDefinitionCatalogTest {
                 UnitCategory.MASS,
                 UnitCategory.SPEED,
                 UnitCategory.TIME,
+                UnitCategory.DATA_STORAGE,
+                UnitCategory.ANGLE,
             ),
             UnitDefinitionCatalog.supportedCategories,
         )
-        assertEquals(6, UnitDefinitionCatalog.all.size)
+        assertEquals(8, UnitDefinitionCatalog.all.size)
     }
 
     @Test
-    fun legacyUnitIdsAndCountsArePreservedForAllSixCategories() {
+    fun legacyUnitIdsAndCountsArePreservedForAllEightCategories() {
         assertEquals(
             listOf(
                 "km", "m", "dm", "cm", "mm", "um", "nm", "nmi", "mi",
@@ -55,7 +57,15 @@ class UnitDefinitionCatalogTest {
             listOf("ns", "us", "ms", "s", "min", "h", "d", "wk", "yr"),
             UnitDefinitionCatalog.forCategory(UnitCategory.TIME)!!.units.map(UnitDefinition::id),
         )
-        assertEquals(60, UnitDefinitionCatalog.all.sumOf { it.units.size })
+        assertEquals(
+            listOf("bit", "b", "kib", "mib", "gib", "tib", "kb", "mb", "gb", "tb"),
+            UnitDefinitionCatalog.forCategory(UnitCategory.DATA_STORAGE)!!.units.map(UnitDefinition::id),
+        )
+        assertEquals(
+            listOf("deg", "rad", "grad", "turn", "arcmin", "arcsec"),
+            UnitDefinitionCatalog.forCategory(UnitCategory.ANGLE)!!.units.map(UnitDefinition::id),
+        )
+        assertEquals(76, UnitDefinitionCatalog.all.sumOf { it.units.size })
     }
 
     @Test
@@ -66,6 +76,8 @@ class UnitDefinitionCatalogTest {
         val mass = UnitDefinitionCatalog.forCategory(UnitCategory.MASS)!!
         val speed = UnitDefinitionCatalog.forCategory(UnitCategory.SPEED)!!
         val time = UnitDefinitionCatalog.forCategory(UnitCategory.TIME)!!
+        val data = UnitDefinitionCatalog.forCategory(UnitCategory.DATA_STORAGE)!!
+        val angle = UnitDefinitionCatalog.forCategory(UnitCategory.ANGLE)!!
 
         assertEquals("m", length.defaultFromUnitId)
         assertEquals("ft", length.defaultToUnitId)
@@ -97,6 +109,18 @@ class UnitDefinitionCatalogTest {
         assertEquals("min", time.defaultToUnitId)
         assertEquals("小时 h", time.findUnit("h")!!.label)
         assertEquals("年（365 天）", time.findUnit("yr")!!.label)
+
+        assertEquals("mb", data.defaultFromUnitId)
+        assertEquals("gb", data.defaultToUnitId)
+        assertEquals("字节 B", data.findUnit("b")!!.label)
+        assertEquals("KiB（1024 B）", data.findUnit("kib")!!.label)
+        assertEquals("MB（10⁶ B）", data.findUnit("mb")!!.label)
+
+        assertEquals("deg", angle.defaultFromUnitId)
+        assertEquals("rad", angle.defaultToUnitId)
+        assertEquals("度 °", angle.findUnit("deg")!!.label)
+        assertEquals("百分度 grad", angle.findUnit("grad")!!.label)
+        assertEquals("角秒 ″", angle.findUnit("arcsec")!!.label)
     }
 
     @Test
@@ -162,9 +186,25 @@ class UnitDefinitionCatalogTest {
             "time/d" to 86400.0,
             "time/wk" to 604800.0,
             "time/yr" to 31536000.0,
+            "data/bit" to 0.125,
+            "data/b" to 1.0,
+            "data/kib" to 1024.0,
+            "data/mib" to 1048576.0,
+            "data/gib" to 1073741824.0,
+            "data/tib" to 1099511627776.0,
+            "data/kb" to 1000.0,
+            "data/mb" to 1e6,
+            "data/gb" to 1e9,
+            "data/tb" to 1e12,
+            "angle/deg" to Math.PI / 180.0,
+            "angle/rad" to 1.0,
+            "angle/grad" to Math.PI / 200.0,
+            "angle/turn" to 2.0 * Math.PI,
+            "angle/arcmin" to Math.PI / 10800.0,
+            "angle/arcsec" to Math.PI / 648000.0,
         )
 
-        assertEquals(60, expected.size)
+        assertEquals(76, expected.size)
         UnitDefinitionCatalog.all.forEach { categorySet ->
             categorySet.units.forEach { unit ->
                 val key = "${categorySet.category.id}/${unit.id}"
@@ -191,6 +231,8 @@ class UnitDefinitionCatalogTest {
             UnitCategory.SPEED.dimension,
         )
         assertEquals(UnitDimension(timeExponent = 1), UnitCategory.TIME.dimension)
+        assertEquals(UnitDimension(dataExponent = 1), UnitCategory.DATA_STORAGE.dimension)
+        assertEquals(UnitDimension(angleExponent = 1), UnitCategory.ANGLE.dimension)
     }
 
     @Test
@@ -205,12 +247,27 @@ class UnitDefinitionCatalogTest {
             UnitDefinitionCatalog.find(UnitCategory.MASS, "lb")!!.scaleToBase,
             0.0,
         )
+        assertEquals(
+            1024.0,
+            UnitDefinitionCatalog.find(UnitCategory.DATA_STORAGE, "kib")!!.scaleToBase,
+            0.0,
+        )
+        assertEquals(
+            Math.PI / 180.0,
+            UnitDefinitionCatalog.find(UnitCategory.ANGLE, "deg")!!.scaleToBase,
+            0.0,
+        )
+        assertEquals(
+            1.0,
+            UnitDefinitionCatalog.find(UnitCategory.TIME, "ms")!!.scaleToBase,
+            0.0,
+        )
         assertNull(UnitDefinitionCatalog.find(UnitCategory.AREA, "ft"))
         assertNull(UnitDefinitionCatalog.find(UnitCategory.LENGTH, "unknown"))
         assertNull(UnitDefinitionCatalog.find(UnitCategory.MASS, "km"))
+        assertNull(UnitDefinitionCatalog.find(UnitCategory.DATA_STORAGE, "deg"))
+        assertNull(UnitDefinitionCatalog.find(UnitCategory.ANGLE, "kib"))
         assertNull(UnitDefinitionCatalog.forCategory(UnitCategory.TEMPERATURE))
-        assertNull(UnitDefinitionCatalog.forCategory(UnitCategory.DATA_STORAGE))
-        assertNull(UnitDefinitionCatalog.forCategory(UnitCategory.ANGLE))
     }
 
     @Test
@@ -231,9 +288,9 @@ class UnitDefinitionCatalogTest {
 
         assertMutationRejected { mutableCategories.add(UnitDefinitionCatalog.all.first()) }
         assertMutationRejected { mutableUnits.add(mutableUnits.first()) }
-        assertEquals(6, UnitDefinitionCatalog.all.size)
+        assertEquals(8, UnitDefinitionCatalog.all.size)
         assertEquals(15, UnitDefinitionCatalog.all.first().units.size)
-        assertEquals(9, UnitDefinitionCatalog.all.last().units.size)
+        assertEquals(6, UnitDefinitionCatalog.all.last().units.size)
     }
 
     @Test
