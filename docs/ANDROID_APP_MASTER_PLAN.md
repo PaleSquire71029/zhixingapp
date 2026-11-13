@@ -1761,7 +1761,7 @@ C6.2 新增 `RationalFunctionInequality` / `RationalFunctionInequalitySolver`，
 
 JUnit 新增 18 个场景，覆盖倒数符号、可去间断点、分子 / 分母重根、原式历史定义域、除法限制、公共无理零点和精度不足。实现提交 `fd9c6ef1bf9266dd5ac7be3e86a18a1825cde60e`；Android Build #405（Run ID `43403410088`）完整 success，全部 JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过，Artifact ID `14026112216`，12,478,669 bytes。未执行模拟器 / 真机测试。
 
-C7.1–C7.3 已完成坐标点校验、一次 / 二次函数拟合并通过 Build #406 / #409 / #412；二次拟合使用列主元 Householder QR、多点最小二乘和精度保护。当前下一步为 C7.4 三次函数拟合，然后扩展反比例拟合、函数定义域与图像采样。
+C7.1–C7.4 已完成坐标点校验、一次 / 二次 / 三次函数拟合并通过 Build #406 / #409 / #412 / #414；三次拟合采用四点插值、多点最小二乘、四列列主元 Householder QR 和极端尺度低次结构保护。当前下一步为 C7.5 反比例拟合，然后扩展函数定义域与图像采样。
 
 
 ## 43. C7.3 二次函数拟合（2026-11-13）
@@ -1775,3 +1775,16 @@ C7.1–C7.3 已完成坐标点校验、一次 / 二次函数拟合并通过 Buil
 新增 15 个 JUnit 测试。最终功能提交 `e073b6ef750df72b2831e0cdd24459c17476129f`，Android Build #412（Run ID `43411748705`）完整 success，资源检查、全部 JUnit、androidTest Kotlin 源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过。Artifact ID `14029827428`，12,503,320 bytes。没有启动模拟器或执行真机仪器测试。
 
 下一步：C7.4 三次函数拟合；随后处理反比例函数拟合、定义域与图像采样。仍需保持纯 Kotlin domain 与 UI 分离。
+
+
+## 44. C7.4 三次函数拟合（2026-11-13）
+
+C7.4 新增 `CubicFunction` / `CubicFunctionFitter`，目标模型为 `y=ax³+bx²+cx+d`。四个互异横坐标的点进行唯一插值；五个及以上点使用普通最小二乘。输入沿用 C7.1 坐标点校验，要求至少四个有限点，拒绝重复横坐标，并在接收 `CoordinatePointSet` 时重新验证其快照。
+
+拟合算法先对横坐标缩放、中心化，再构造归一化三次 Vandermonde 矩阵 `[t³,t²,t,1]`；使用四列列主元 Householder QR 直接求解，不构造正规方程。相对秩阈值用于拒绝数值秩不足的点集。恢复 a/b/c/d 时使用 BigDecimal 中间值，能区分系数超出 Double 范围和非零系数下溢造成的精度损失。
+
+极端 x 量级下额外检查精确二次或更低次结构：以输入 Double 的精确 BigDecimal 展开构造公共分母 Lagrange 系数，并通过交叉乘积验证其余数据点。该分支只在所有点严格满足时返回低次函数，不会把带噪数据错当精确低次曲线；否则回退到 QR 拟合。
+
+新增 17 个 JUnit 测试方法。功能代码提交 `c5167a45cdb76878e1faac5091e5a85f0a3f2f8b`；首次 Build #413 暴露一项测试坐标轴期望写错，输入是非有限 y 而断言误写 x。修正测试提交 `7059dae72c741158dc071c89d54100f75fc19537` 后，Build #414（Run ID `43413083875`）完整 success：资源检查、全部 JUnit、androidTest Kotlin 源码编译、Debug APK 组装、Artifact 上传与 Actions 清理全部通过。Artifact ID `14030506504`，12,510,326 bytes。未执行模拟器 / 真机仪器测试。
+
+下一步为 C7.5 反比例函数拟合，然后再处理统一函数定义域和图像采样。

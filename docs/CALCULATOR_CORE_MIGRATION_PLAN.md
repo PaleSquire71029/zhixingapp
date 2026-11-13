@@ -497,7 +497,7 @@ CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损�
 - 初始功能提交 `3a2e754769280037f3a7434924e1af0a74e65faf`；Build #407 暴露 1 项溢出结果类型断言失败。修正提交 `3b9f2a490a558a43e80b8bc9453d2efbd9d7b5f1` 后 Build #408 完整成功。随后在 `c167cb304f90e85c2caedfeaf271af48cf3146ef` 统一空 `CoordinatePointSet` 结果，Build #409（Run ID `43410045585`）完整成功：资源检查、全部 JUnit、androidTest Kotlin 源码编译、Debug APK 组装、Artifact 上传与 Actions 清理均通过；Artifact ID `14029077035`，12,491,526 bytes。
 - 未执行模拟器 / 真机仪器测试；不代表已在目标手机运行验收。
 
-**下一步：** C7.4 三次函数拟合。C7.1–C7.3 已完成；接下来处理三次多项式拟合的四点插值、多点最小二乘、矩阵秩与数值条件，再进入反比例函数拟合及定义域安全采样。
+**下一步：** C7.5 反比例函数拟合。C7.1–C7.4 的坐标点校验与一次 / 二次 / 三次拟合均已完成并通过 CI；接下来处理反比例函数的定义域排除点、参数拟合及多点误差，再进入统一函数定义域与安全图像采样。
 
 
 ## 27. C7.3：二次函数拟合（2026-11-13）
@@ -521,3 +521,27 @@ CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损�
 - 未执行模拟器 / 真机仪器测试；Instrumentation 测试仅完成 Kotlin 源码编译，不能作为设备端运行验收。
 
 **下一步：** C7.4 三次函数拟合。处理四点插值、多点最小二乘、秩退化和数值稳定性；不接 Compose 函数页面或图像绘制。
+
+
+## 28. C7.4：三次函数拟合（2026-11-13）
+
+新增纯 Kotlin `CubicFunction`、`CubicFunctionFitResult` 与 `CubicFunctionFitter`，拟合目标为 `y=ax³+bx²+cx+d`。拟合器复用 C7.1 `CoordinatePointSetValidator`，要求至少四个有限点、横坐标互异；`fit(List)` 与 `fit(CoordinatePointSet)` 使用同一校验语义，并在拟合入口重新检查点集快照。
+
+### 拟合语义与数值算法
+
+- 恰好四个不同横坐标的点确定唯一三次插值函数；五个及以上的点采用普通最小二乘，最小化纵向残差平方和，不做加权或稳健回归。
+- x 先按最大绝对值缩放，再中心化并映射到安全区间；y 同步归一化。构造三次 Vandermonde 设计矩阵 `[t³,t²,t,1]`。
+- 使用**列主元 Householder QR 分解**直接求解最小二乘系统，不构造 `XᵀX` 正规方程；列主元按剩余列范数选择，配合相对秩阈值和回代检查，数值秩不足 / 浮点坐标归一化碰撞时返回 `NUMERIC_PRECISION_LOSS`。
+- 将归一化的四个系数恢复为原始 x 坐标下的 a、b、c、d，乘法与抵消先保留在 BigDecimal 中，最后以 DECIMAL128 做除法转换；非零系数下溢返回 `NUMERIC_PRECISION_LOSS`，真正超出 Double 范围返回 `NON_FINITE_RESULT`。
+- 当 x 量级极大或极小时，额外尝试精确低次多项式分支：用输入 Double 的精确 BigDecimal 展开，通过公共分母的 Lagrange 系数与交叉乘积验证全部点是否严格位于同一二次或更低次曲线上。通过时将三次项设为零并输出精确恢复的二次 / 一次 / 常数函数，避免极端归一化把低次函数误判为虚假三次项；不满足精确关系的噪声数据会继续走 QR，不被错误归类。
+- 输入有限性、重复 x、点数不足沿用原 Validator 的类型化结果；拟合器不返回 NaN / Infinity 系数。
+
+### JUnit 与 CI
+
+- 新增 17 个 JUnit 测试方法，覆盖四点插值、五点精确三次数据、带噪数据最小二乘、线性 / 二次退化数据、零函数 / 常值函数、负坐标与乱序输入、空列表 / 空点集、点数不足、重复 x、非有限 y、横坐标归一化下溢、三次系数溢出 / 下溢及极端对称坐标下的精确线性结构。
+- 功能提交：`c5167a45cdb76878e1faac5091e5a85f0a3f2f8b`。
+- Build #413 暴露 1 项测试期望写错：输入在第 3 个点的 y 坐标上提供 Infinity，断言却预期 x 轴错误；Validator 正确返回 y 轴错误。修正断言为 `CoordinateAxis.Y` 后，最终测试修正提交 `7059dae72c741158dc071c89d54100f75fc19537`。
+- Android Build #414（Run ID `43413083875`）完整 success：资源完整性检查、全部 JUnit、`compileDebugAndroidTestKotlin`、`assembleDebug`、Artifact 上传及 Actions 清理均通过。Artifact `zhixingapp-debug`，ID `14030506504`，12,510,326 bytes。
+- 未执行模拟器 / 真机仪器测试；Instrumentation 测试仅完成 Kotlin 源码编译，不能作为设备端运行验收。
+
+**下一步：** C7.5 反比例函数拟合。重点明确 `y=k/x` 模型的 x=0 定义域排除、单点参数确定、多点拟合语义和数值精度；仍不接 Compose 函数页面或图像绘制。
