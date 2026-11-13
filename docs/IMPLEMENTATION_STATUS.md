@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。C0.1 至 C4.3.2 已完成对应 CI / JUnit 验收；C4.2.3 原式定义域与数值精度保护通过 Build #372 / #379 / #381 / #383，C4.3.1 一次实根通过 Build #388，C4.3.2 二次实根通过 Build #391（Run ID `42544184281`）。C5.1 新增 `PolynomialEquation`、`EquationSolutionResult` 和 `PolynomialEquationSolver`，实现左右多项式移项后求常数 / 一次方程；Android Build #393（Run ID `43394051873`）完整成功，Artifact ID `14022361217`，12,434,313 bytes，SHA-256 `322d8591154a23e71bbb9b62a7d8a6ffd71cd888a503224c81ff5805b6fe3d84`。当前下一步为 C5.2 二次方程接入。以上仅证明 CI、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传成功；未执行模拟器或真机仪器测试。
+**当前进度：** 原生主壳已进入 0.1.2 阶段。C0.1 至 C4.3.2 已完成对应 CI / JUnit 验收；C4.2.3 原式定义域与数值精度保护通过 Build #372 / #379 / #381 / #383，C4.3.1 一次实根通过 Build #388，C4.3.2 二次实根通过 Build #391（Run ID `42544184281`）。C5.1 新增 `PolynomialEquation`、`EquationSolutionResult` 和 `PolynomialEquationSolver`，常数 / 一次方程通过 Build #393。C5.2 将支持次数扩展至二次并复用 C4.3.2 根引擎，覆盖两根、重根、无实根、稳定小根和数值错误映射；Build #396（Run ID `43394734621`）完整成功，Artifact ID `14022780460`，12,434,313 bytes，SHA-256 `28bae4de45a8f27b4690c707bff19f054099113c959f7021b19bf540706aabeb`。当前下一步为 C5.3 三次方程。以上仅证明 CI、JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传成功；未执行模拟器或真机仪器测试。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C4.3.2 二次实根、C5.1 常数 / 一次方程均已通过 CI | 方程结果模型独立；左右项相减；恒等式、无解、有限解、数值溢出和高次暂缓有 JUnit；未做模拟器 / 真机验收 |
+| 计算迁移 | C4.3.2 二次实根、C5.1 常数 / 一次方程、C5.2 二次方程均已通过 CI | 方程结果层复用根引擎；覆盖两根、重根、无实根、稳定小根、溢出错误映射和三次暂缓；未做模拟器 / 真机验收 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1703,3 +1703,16 @@
 - [x] Android Build #393（Run ID `43394051873`）完整成功：资源校验、JUnit、androidTest Kotlin 源码编译、Debug APK 组装和 Artifact 上传均通过。Artifact `zhixingapp-debug` ID `14022361217`，12,434,313 bytes，SHA-256 `322d8591154a23e71bbb9b62a7d8a6ffd71cd888a503224c81ff5805b6fe3d84`。
 - [ ] 未运行模拟器 / 真机仪器测试。
 - [ ] 下一步 C5.2：在方程求解层开放二次方程，复用 C4.3.2 稳定求根结果，并验证方程结果映射、重根和无实根。
+
+
+### 27.36 C5.2 二次多项式方程（2026-11-13）
+
+- [x] 将 `PolynomialEquationSolver` 支持最高次数从 1 扩展到 2；仍以 `left(x)-right(x)=0` 规约，不复制或重写 C4.3.2 二次根算法。
+- [x] 方程层映射覆盖两个不同实根、一个重根和无实根；有限解继续携带底层根的归一化残差。
+- [x] 新增稳定小根回归：`x²-10¹⁶x+1=0`，验证方程层仍能保留约 `1e-16` 的小根及大根。
+- [x] 新增错误映射回归：底层二次根求解返回 `NON_FINITE_RESULT` 时，方程结果保留相同类型化错误码。
+- [x] 三次多项式仍返回 `UnsupportedDegree(3)`，没有提前启用 C5.3。
+- [x] Build #395（Run ID `43394483739`）发现旧测试仍断言二次次数暂不支持；该断言与 C5.2 已开放二次的范围冲突。修正提交 `3123bc6cf72c9a93f2933df894dd8dfe1ac7a29e` 将该旧用例收窄为只验证三次暂缓，没有删去三次边界测试。
+- [x] Android Build #396（Run ID `43394734621`）完整成功：JUnit、androidTest Kotlin 源码编译、Debug APK 组装与 Artifact 上传均通过。Artifact `zhixingapp-debug` ID `14022780460`，12,434,313 bytes；SHA-256 `28bae4de45a8f27b4690c707bff19f054099113c959f7021b19bf540706aabeb`。
+- [ ] 未执行模拟器 / 真机仪器测试。
+- [ ] 下一步 C5.3：新增三次方程求解与实根数量 / 重根分类，独立测试三次方程根与残差，不提前处理分式方程。

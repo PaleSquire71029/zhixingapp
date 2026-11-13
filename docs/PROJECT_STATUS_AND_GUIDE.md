@@ -705,3 +705,10 @@ JUnit 覆盖两个不同实根、`x²-1e16x+1` 稳定小根、重根、无实根
 已增加 `PolynomialEquation(left, right)` 与 `EquationSolutionResult`，并实现 `PolynomialEquationSolver.solve`。求解器内部先计算左侧减右侧，再把零多项式映射为恒等式、非零常数映射为无解、一次式复用已验证根引擎；有限解保留归一化残差。当前明确只支持到一次，二次及以上返回 `UnsupportedDegree`；分式方程的原始定义域限制与增根剔除留到 C5.4。
 
 提交 `9fe617a3ad1283341bde78b80d56fb775c2615bf` 的 Build #393（Run ID `43394051873`）完整成功：JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过。Artifact ID `14022361217`，12,434,313 bytes，SHA-256 `322d8591154a23e71bbb9b62a7d8a6ffd71cd888a503224c81ff5805b6fe3d84`。未执行模拟器 / 真机测试。下一步 C5.2 为二次方程层接入。
+
+
+### 11.8 C5.2 二次多项式方程（2026-11-13）
+
+已把 `PolynomialEquationSolver` 的支持次数扩展到二次，直接复用 C4.3.2 `PolynomialArithmetic.solveRealRoots`。方程层回归覆盖两个不同实根、重根、无实根、`x²-10¹⁶x+1=0` 的稳定小根、底层数值错误码透传，并确认三次仍返回 `UnsupportedDegree(3)`。
+
+Build #395（Run ID `43394483739`）暴露旧 C5.1 测试仍要求二次不支持；修正提交 `3123bc6cf72c9a93f2933df894dd8dfe1ac7a29e` 把旧断言收窄为三次暂缓。Build #396（Run ID `43394734621`）完整成功，JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过；Artifact ID `14022780460`，12,434,313 bytes。未执行模拟器 / 真机测试。下一步 C5.3 为三次方程。

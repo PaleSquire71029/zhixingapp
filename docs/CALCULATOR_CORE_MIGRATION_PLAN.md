@@ -306,4 +306,17 @@ CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损�
 - Artifact `zhixingapp-debug` ID `14022361217`，12,434,313 bytes；SHA-256 `322d8591154a23e71bbb9b62a7d8a6ffd71cd888a503224c81ff5805b6fe3d84`。
 - 未执行模拟器或真机仪器测试。
 
-**下一步 C5.2：** 将 `PolynomialEquationSolver` 的次数门槛扩展到二次，复用 C4.3.2 的稳定二次根结果，并增加二次方程层的重根、两不同实根、无实根、误差映射测试。
+**C5.2 已通过 Build #396。下一步 C5.3：** 在现有方程结果模型上增加三次方程求解，验证一个实根、三个不同实根和重根组合，保留归一化残差与类型化数值错误；分式方程定义域与增根剔除继续留在 C5.4。
+
+
+## 18. C5.2：二次多项式方程（2026-11-13）
+
+在 C5.1 方程模型上开放二次次数；继续复用 `PolynomialArithmetic.solveRealRoots` 的 C4.3.2 稳定二次求根算法，不在 equation solver 中复制判别式、q 公式或残差计算。
+
+- `PolynomialEquationSolver` 的最高支持次数提升至 2；左右两侧仍先相减，随后将 `PolynomialRootsResult` 映射为 `EquationSolutionResult`。
+- JUnit 覆盖两个不同实根（`x²-3x+2=0`）、重根（`(x-1)²=0`）、无实根（`x²+1=0`）、稳定小根（`x²-10¹⁶x+1=0`）、底层根错误码透传，以及三次继续 `UnsupportedDegree(3)`。
+- Build #395（Run ID `43394483739`）唯一失败用例为旧 C5.1 测试仍断言二次暂不支持；二次新用例与根引擎本身没有被报告为失败。修正提交 `3123bc6cf72c9a93f2933df894dd8dfe1ac7a29e` 只将旧测试收窄为验证三次暂缓。
+- Build #396（Run ID `43394734621`）完整成功：资源校验、JUnit、androidTest 源码编译、Debug APK 组装及 Artifact 上传均通过。Artifact ID `14022780460`，12,434,313 bytes，SHA-256 `28bae4de45a8f27b4690c707bff19f054099113c959f7021b19bf540706aabeb`。
+- 未执行模拟器 / 真机仪器测试。
+
+**下一步 C5.3：** 实现三次方程解集映射与实根求解，单独覆盖一个实根、三个不同实根、二重根 / 三重根、重根合并与归一化残差；分式方程及原式定义域剔除仍保留给 C5.4。
