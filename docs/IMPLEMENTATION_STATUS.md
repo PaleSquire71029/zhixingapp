@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。C0.1 至 C5.7 已完成对应源码与 JUnit 实现；C4.2.3 原式定义域与数值精度保护通过 Build #372 / #379 / #381 / #383，C4.3.1 / C4.3.2 一次与二次实根通过 Build #388 / #391。C5.1–C5.4 常数至三次方程与分式方程通过 Build #393 / #396 / #400；C5.5 线性内部绝对值方程通过 Build #401；C5.6 平方根方程通过 Build #402。C5.7 支持四种受限指数 / 对数方程形式，功能提交 `88a9d18f8603d0388223e2196d0b8189b53e9692`；Build #403（Run ID `43400220986`）完整 success，JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；Artifact ID `14023699329`，12,465,463 bytes。下一阶段进入 C6 不等式。所有上述状态仅证明 CI/JUnit、androidTest 源码编译与 APK 组装；未执行模拟器或真机仪器测试。后续小步无需逐一构建 APK，在阶段检查点统一回归即可。
+**当前进度：** 原生主壳已进入 0.1.2 阶段。C0.1 至 C5.7 已完成对应源码与 JUnit 实现；C4.2.3 原式定义域与数值精度保护通过 Build #372 / #379 / #381 / #383，C4.3.1 / C4.3.2 一次与二次实根通过 Build #388 / #391。C5.1–C5.4 常数至三次方程与分式方程通过 Build #393 / #396 / #400；C5.5 线性内部绝对值方程通过 Build #401；C5.6 平方根方程通过 Build #402。C5.7 支持四种受限指数 / 对数方程形式，功能提交 `88a9d18f8603d0388223e2196d0b8189b53e9692`；Build #403（Run ID `43400220986`）完整 success，JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；Artifact ID `14023699329`，12,465,463 bytes。C6.1 一至三次多项式不等式已实现并通过 Build #404（Run ID `43401527163`）完整 CI，Artifact ID `14025750621`，12,472,155 bytes。下一步 C6.2 分式不等式。所有上述状态仅证明 CI/JUnit、androidTest 源码编译与 APK 组装；未执行模拟器或真机仪器测试。后续小步无需逐一构建 APK，在阶段检查点统一回归即可。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C4.3.2、C5.1–C5.7 已实现并通过 Build #403 完整 CI | 支持多项式至三次、分式、受限绝对值 / 平方根、四种受限指数 / 对数形式；更复杂结构暂缓；未做模拟器 / 真机验收 |
+| 计算迁移 | C4.3.2、C5.1–C5.7 与 C6.1 已通过完整 CI | 支持多项式至三次方程与不等式、分式方程、受限绝对值 / 平方根、四种受限指数 / 对数形式；分式不等式仍待 C6.2；未做模拟器 / 真机验收 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1766,3 +1766,17 @@
 - [x] 功能实现提交 `88a9d18f8603d0388223e2196d0b8189b53e9692`；Build #403（Run ID `43400220986`）完整 success：全部 JUnit、androidTest Kotlin 源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过；Artifact ID `14023699329`，12,465,463 bytes。
 - [ ] 未执行模拟器 / 真机仪器测试。
 - [ ] 下一阶段 C6 不等式求解：区间端点、分母零点、奇偶重根与严格 / 非严格不等式。
+
+
+### 27.41 C6.1 一至三次多项式不等式（2026-11-13）
+
+- [x] 新增 `PolynomialInequality`、`PolynomialComparison`、`RealInterval`、`PolynomialInequalitySolutionResult` 和 `PolynomialInequalitySolver`。
+- [x] 支持多项式最高次数 3，覆盖 `<`、`≤`、`>`、`≥`；复用既有多项式实根引擎，不重复实现求根。
+- [x] 通过根分割实数轴；有限根之间用中点 + `PolynomialArithmetic.signAt` 精确判符号，无界区间按首项符号和次数奇偶计算。
+- [x] 正确处理偶数重根不变号、奇数重根变号；严格比较排除根点，非严格比较保留根点，并按闭端点条件合并区间。
+- [x] 解集统一使用 `RealInterval`；无穷端点开，单点集用相同的闭端点表示。常数式 / 零多项式分类正确，四次及更高次数明确暂缓。
+- [x] 对相邻根不可表示内部 Double 采样点或根列表与区间符号冲突的情形返回 `NUMERIC_PRECISION_LOSS`，不猜解集。
+- [x] 新增 14 个 JUnit 测试方法，覆盖一次 / 二次 / 三次、两根 / 三根、二重 / 三重根、严格 / 非严格、常数、零多项式和高次暂缓。
+- [x] 实现提交 `f23400eea148776895f7fccfac0c5c262e46ab29`；Android Build #404（Run ID `43401527163`）完整 success，JUnit、androidTest Kotlin 源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；Artifact ID `14025750621`，12,472,155 bytes。
+- [ ] 未执行模拟器 / 真机仪器测试；分式不等式、原式定义域与分母零点尚未接入。
+- [ ] 下一步 C6.2 分式不等式，重点保护分母零点和原式历史定义域限制。
