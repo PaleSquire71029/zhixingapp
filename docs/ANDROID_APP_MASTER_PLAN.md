@@ -1761,7 +1761,7 @@ C6.2 新增 `RationalFunctionInequality` / `RationalFunctionInequalitySolver`，
 
 JUnit 新增 18 个场景，覆盖倒数符号、可去间断点、分子 / 分母重根、原式历史定义域、除法限制、公共无理零点和精度不足。实现提交 `fd9c6ef1bf9266dd5ac7be3e86a18a1825cde60e`；Android Build #405（Run ID `43403410088`）完整 success，全部 JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过，Artifact ID `14026112216`，12,478,669 bytes。未执行模拟器 / 真机测试。
 
-C7.1–C7.6 已完成坐标点校验、一次 / 二次 / 三次 / 反比例函数拟合、统一定义域 / 求值和安全分段采样，并通过 Build #406 / #409 / #412 / #414 / #415 / #416。当前下一步为 C8 单位换算纯 Kotlin 内核；Compose 函数图表仍属于后续原生 UI 阶段。
+C7.1–C7.6 已完成坐标点校验、四类函数拟合、统一定义域 / 求值和安全分段采样，并通过 Build #406 / #409 / #412 / #414 / #415 / #416；C8.1 九类单位类别 / 量纲模型通过 Build #417。当前下一步为 C8.2 长度 / 面积 / 体积具体单位定义与线性基准；Compose 函数图表仍属于后续原生 UI 阶段。
 
 
 ## 43. C7.3 二次函数拟合（2026-11-13）
@@ -1827,3 +1827,20 @@ C7.6 新增 `FittedFunction` 统一封装一次、二次、三次与反比例函
 - 未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。函数图表 UI 与真机视觉 / 性能仍未验收。
 
 **下一步：** C8 单位换算纯 Kotlin 内核，按单位定义、维度校验、换算规则和温度偏移等小步推进。C7 的拟合、定义域和安全采样数据层已完成，但仍未接入 Compose 图表界面。
+
+
+## 47. C8.1 单位类别与物理量纲目录（2026-11-13）
+
+C8.1 新增纯 Kotlin `UnitDimension`、`UnitCategory`、`UnitConversionKind` 与 `UnitCategoryCatalog`，先建立旧版单位换算九类的稳定目录和量纲基础，尚未加入具体单位条目或数值换算。
+
+- 维度采用整数指数向量：长度 L、质量 M、时间 T、热力学温度 Θ、数据量 D、角度 A。面积为 L²、体积为 L³、速度为 L·T⁻¹；数据存储和角度各自有显式维度，避免误与普通数值 / 物理量混用。
+- 保留旧版类别 ID 和顺序：`length`、`area`、`volume`、`mass`、`temp`、`speed`、`time`、`data`、`angle`。目录通过不可修改列表暴露，按 ID 查找不做大小写模糊匹配。
+- 类别是否可换算由量纲向量相等判断，不以显示名称或类别相近作为依据。
+- 温度类别标记为 `AFFINE`，其他八类为 `LINEAR`。这一步只标明转换语义，不实现摄氏 / 华氏 / 开尔文的偏移公式；温度转换将在独立小步实现，不能套用普通比例系数。
+- 新增 7 个 JUnit 测试方法，覆盖九类目录顺序、唯一 ID / 名称、旧 ID 查找、基础 / 派生量纲、兼容性、温度仿射标记和目录不可变性。
+- 功能提交：`736f308436868e929625ba5428aa6a97abe36dd7`。
+- Android Build #417（Run ID `43416648667`）完整 success：资源完整性检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 6s`。
+- Artifact：`zhixingapp-debug`，ID `14031703877`，12,536,513 bytes；Artifact ZIP SHA-256：`d0d92b5af941ef73601fc1d9e98d5474ecf0c91af82e8e1a1e2c290c451c5c1c`。
+- 未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。本步没有实现实际单位条目、转换数值、输入解析或 Compose 界面。
+
+没有执行模拟器 / 真机仪器测试。下一步 C8.2 实现长度 / 面积 / 体积的线性单位定义；温度仍独立处理。
