@@ -13,6 +13,7 @@ internal sealed interface TemperatureConversionResult {
 internal sealed interface TemperatureConversionError {
     data object NonFiniteInput : TemperatureConversionError
     data object BelowAbsoluteZero : TemperatureConversionError
+    data object NonFiniteIntermediateValue : TemperatureConversionError
     data object NonFiniteResult : TemperatureConversionError
     data class UnknownSourceUnit(val unitId: String) : TemperatureConversionError
     data class UnknownTargetUnit(val unitId: String) : TemperatureConversionError
@@ -46,7 +47,7 @@ internal object TemperatureConverter {
         val kelvin = source.toBase(value)
         if (!kelvin.isFinite()) {
             return TemperatureConversionResult.Failure(
-                TemperatureConversionError.NonFiniteResult,
+                TemperatureConversionError.NonFiniteIntermediateValue,
             )
         }
         if (kelvin < 0.0) {
