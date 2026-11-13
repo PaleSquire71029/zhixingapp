@@ -5,9 +5,8 @@ import java.util.Collections
 /**
  * Legacy-compatible linear unit definitions migrated from calculator.html.
  *
- * This first slice intentionally contains only length, area, and volume.
- * Factors are relative to m, m², and m³ respectively; this catalog does not
- * perform conversion arithmetic or parse user input.
+ * Factors are relative to each category's base unit. This catalog stores
+ * metadata only; conversion arithmetic and input parsing are separate steps.
  */
 internal object UnitDefinitionCatalog {
     val all: List<UnitCategoryUnitSet> = Collections.unmodifiableList(
@@ -67,6 +66,51 @@ internal object UnitDefinitionCatalog {
                     UnitDefinition("galuk", "加仑（英）", 0.00454609),
                     UnitDefinition("ft3", "立方英尺 ft³", 0.028316846592),
                     UnitDefinition("in3", "立方英寸 in³", 0.000016387064),
+                ),
+            ),
+            UnitCategoryUnitSet(
+                category = UnitCategory.MASS,
+                defaultFromUnitId = "kg",
+                defaultToUnitId = "lb",
+                units = listOf(
+                    UnitDefinition("t", "吨 t", 1000.0),
+                    UnitDefinition("kg", "千克 kg", 1.0),
+                    UnitDefinition("g", "克 g", 0.001),
+                    UnitDefinition("mg", "毫克 mg", 1e-6),
+                    UnitDefinition("jin", "市斤", 0.5),
+                    UnitDefinition("liang", "市两", 0.05),
+                    UnitDefinition("lb", "磅 lb", 0.45359237),
+                    UnitDefinition("oz", "盎司 oz", 0.028349523125),
+                    UnitDefinition("st", "英石 st", 6.35029318),
+                ),
+            ),
+            UnitCategoryUnitSet(
+                category = UnitCategory.SPEED,
+                defaultFromUnitId = "kmh",
+                defaultToUnitId = "ms",
+                units = listOf(
+                    UnitDefinition("ms", "米每秒 m/s", 1.0),
+                    UnitDefinition("kmh", "千米每小时 km/h", 1.0 / 3.6),
+                    UnitDefinition("mph", "英里每小时 mph", 0.44704),
+                    UnitDefinition("knot", "节 kn", 0.5144444444444444),
+                    UnitDefinition("fts", "英尺每秒 ft/s", 0.3048),
+                    UnitDefinition("mach", "马赫 Ma", 340.29),
+                ),
+            ),
+            UnitCategoryUnitSet(
+                category = UnitCategory.TIME,
+                defaultFromUnitId = "h",
+                defaultToUnitId = "min",
+                units = listOf(
+                    UnitDefinition("ns", "纳秒 ns", 1e-9),
+                    UnitDefinition("us", "微秒 μs", 1e-6),
+                    UnitDefinition("ms", "毫秒 ms", 0.001),
+                    UnitDefinition("s", "秒 s", 1.0),
+                    UnitDefinition("min", "分 min", 60.0),
+                    UnitDefinition("h", "小时 h", 3600.0),
+                    UnitDefinition("d", "天 d", 86400.0),
+                    UnitDefinition("wk", "周 wk", 604800.0),
+                    UnitDefinition("yr", "年（365 天）", 31536000.0),
                 ),
             ),
         ),

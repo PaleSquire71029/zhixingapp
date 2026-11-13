@@ -7,16 +7,23 @@ import org.junit.Test
 
 class UnitDefinitionCatalogTest {
     @Test
-    fun catalogInitiallySupportsLengthAreaAndVolumeInStableOrder() {
+    fun catalogContainsSixMigratedCategoriesInStableOrder() {
         assertEquals(
-            listOf(UnitCategory.LENGTH, UnitCategory.AREA, UnitCategory.VOLUME),
+            listOf(
+                UnitCategory.LENGTH,
+                UnitCategory.AREA,
+                UnitCategory.VOLUME,
+                UnitCategory.MASS,
+                UnitCategory.SPEED,
+                UnitCategory.TIME,
+            ),
             UnitDefinitionCatalog.supportedCategories,
         )
-        assertEquals(3, UnitDefinitionCatalog.all.size)
+        assertEquals(6, UnitDefinitionCatalog.all.size)
     }
 
     @Test
-    fun legacyUnitIdsAndCountsArePreserved() {
+    fun legacyUnitIdsAndCountsArePreservedForAllSixCategories() {
         assertEquals(
             listOf(
                 "km", "m", "dm", "cm", "mm", "um", "nm", "nmi", "mi",
@@ -36,7 +43,19 @@ class UnitDefinitionCatalogTest {
             ),
             UnitDefinitionCatalog.forCategory(UnitCategory.VOLUME)!!.units.map(UnitDefinition::id),
         )
-        assertEquals(36, UnitDefinitionCatalog.all.sumOf { it.units.size })
+        assertEquals(
+            listOf("t", "kg", "g", "mg", "jin", "liang", "lb", "oz", "st"),
+            UnitDefinitionCatalog.forCategory(UnitCategory.MASS)!!.units.map(UnitDefinition::id),
+        )
+        assertEquals(
+            listOf("ms", "kmh", "mph", "knot", "fts", "mach"),
+            UnitDefinitionCatalog.forCategory(UnitCategory.SPEED)!!.units.map(UnitDefinition::id),
+        )
+        assertEquals(
+            listOf("ns", "us", "ms", "s", "min", "h", "d", "wk", "yr"),
+            UnitDefinitionCatalog.forCategory(UnitCategory.TIME)!!.units.map(UnitDefinition::id),
+        )
+        assertEquals(60, UnitDefinitionCatalog.all.sumOf { it.units.size })
     }
 
     @Test
@@ -44,6 +63,9 @@ class UnitDefinitionCatalogTest {
         val length = UnitDefinitionCatalog.forCategory(UnitCategory.LENGTH)!!
         val area = UnitDefinitionCatalog.forCategory(UnitCategory.AREA)!!
         val volume = UnitDefinitionCatalog.forCategory(UnitCategory.VOLUME)!!
+        val mass = UnitDefinitionCatalog.forCategory(UnitCategory.MASS)!!
+        val speed = UnitDefinitionCatalog.forCategory(UnitCategory.SPEED)!!
+        val time = UnitDefinitionCatalog.forCategory(UnitCategory.TIME)!!
 
         assertEquals("m", length.defaultFromUnitId)
         assertEquals("ft", length.defaultToUnitId)
@@ -60,6 +82,21 @@ class UnitDefinitionCatalogTest {
         assertEquals("ml", volume.defaultToUnitId)
         assertEquals("升 L", volume.findUnit("l")!!.label)
         assertEquals("加仑（美）", volume.findUnit("galus")!!.label)
+
+        assertEquals("kg", mass.defaultFromUnitId)
+        assertEquals("lb", mass.defaultToUnitId)
+        assertEquals("千克 kg", mass.findUnit("kg")!!.label)
+        assertEquals("市斤", mass.findUnit("jin")!!.label)
+
+        assertEquals("kmh", speed.defaultFromUnitId)
+        assertEquals("ms", speed.defaultToUnitId)
+        assertEquals("千米每小时 km/h", speed.findUnit("kmh")!!.label)
+        assertEquals("马赫 Ma", speed.findUnit("mach")!!.label)
+
+        assertEquals("h", time.defaultFromUnitId)
+        assertEquals("min", time.defaultToUnitId)
+        assertEquals("小时 h", time.findUnit("h")!!.label)
+        assertEquals("年（365 天）", time.findUnit("yr")!!.label)
     }
 
     @Test
@@ -101,9 +138,33 @@ class UnitDefinitionCatalogTest {
             "volume/galuk" to 0.00454609,
             "volume/ft3" to 0.028316846592,
             "volume/in3" to 0.000016387064,
+            "mass/t" to 1000.0,
+            "mass/kg" to 1.0,
+            "mass/g" to 0.001,
+            "mass/mg" to 1e-6,
+            "mass/jin" to 0.5,
+            "mass/liang" to 0.05,
+            "mass/lb" to 0.45359237,
+            "mass/oz" to 0.028349523125,
+            "mass/st" to 6.35029318,
+            "speed/ms" to 1.0,
+            "speed/kmh" to 1.0 / 3.6,
+            "speed/mph" to 0.44704,
+            "speed/knot" to 0.5144444444444444,
+            "speed/fts" to 0.3048,
+            "speed/mach" to 340.29,
+            "time/ns" to 1e-9,
+            "time/us" to 1e-6,
+            "time/ms" to 0.001,
+            "time/s" to 1.0,
+            "time/min" to 60.0,
+            "time/h" to 3600.0,
+            "time/d" to 86400.0,
+            "time/wk" to 604800.0,
+            "time/yr" to 31536000.0,
         )
 
-        assertEquals(36, expected.size)
+        assertEquals(60, expected.size)
         UnitDefinitionCatalog.all.forEach { categorySet ->
             categorySet.units.forEach { unit ->
                 val key = "${categorySet.category.id}/${unit.id}"
@@ -124,6 +185,12 @@ class UnitDefinitionCatalogTest {
         assertEquals(UnitDimension(lengthExponent = 1), UnitCategory.LENGTH.dimension)
         assertEquals(UnitDimension(lengthExponent = 2), UnitCategory.AREA.dimension)
         assertEquals(UnitDimension(lengthExponent = 3), UnitCategory.VOLUME.dimension)
+        assertEquals(UnitDimension(massExponent = 1), UnitCategory.MASS.dimension)
+        assertEquals(
+            UnitDimension(lengthExponent = 1, timeExponent = -1),
+            UnitCategory.SPEED.dimension,
+        )
+        assertEquals(UnitDimension(timeExponent = 1), UnitCategory.TIME.dimension)
     }
 
     @Test
@@ -133,10 +200,17 @@ class UnitDefinitionCatalogTest {
             UnitDefinitionCatalog.find(UnitCategory.LENGTH, "ft")!!.scaleToBase,
             0.0,
         )
+        assertEquals(
+            0.45359237,
+            UnitDefinitionCatalog.find(UnitCategory.MASS, "lb")!!.scaleToBase,
+            0.0,
+        )
         assertNull(UnitDefinitionCatalog.find(UnitCategory.AREA, "ft"))
         assertNull(UnitDefinitionCatalog.find(UnitCategory.LENGTH, "unknown"))
-        assertNull(UnitDefinitionCatalog.find(UnitCategory.MASS, "kg"))
+        assertNull(UnitDefinitionCatalog.find(UnitCategory.MASS, "km"))
         assertNull(UnitDefinitionCatalog.forCategory(UnitCategory.TEMPERATURE))
+        assertNull(UnitDefinitionCatalog.forCategory(UnitCategory.DATA_STORAGE))
+        assertNull(UnitDefinitionCatalog.forCategory(UnitCategory.ANGLE))
     }
 
     @Test
@@ -157,8 +231,9 @@ class UnitDefinitionCatalogTest {
 
         assertMutationRejected { mutableCategories.add(UnitDefinitionCatalog.all.first()) }
         assertMutationRejected { mutableUnits.add(mutableUnits.first()) }
-        assertEquals(3, UnitDefinitionCatalog.all.size)
+        assertEquals(6, UnitDefinitionCatalog.all.size)
         assertEquals(15, UnitDefinitionCatalog.all.first().units.size)
+        assertEquals(9, UnitDefinitionCatalog.all.last().units.size)
     }
 
     @Test
