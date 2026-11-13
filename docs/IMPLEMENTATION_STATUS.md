@@ -1970,3 +1970,16 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - 没有模拟器 / 真机仪器测试执行记录；androidTest 仅完成 Kotlin 源码编译。本步不涉及 Compose UI 或真机交互验收。
 
 **下一步：** C8.8 原生单位换算页面与输入层接入，统一使用已验收的 `UnitConverter`。
+
+
+### 27.56 C8.8.1 原生单位换算页面首版（2026-11-13）
+
+单位换算已从 domain 内核接入原生工具页面。工具 Tab 显示已实现的单位换算入口；二级页采用现有 Backdrop / Liquid Glass 表面和页面转场。
+
+- 页面支持九类类别切换、读取每类历史默认单位、空白输入、十进制输入、源 / 目标单位下拉选择、双向交换、即时结果和当前类别全部单位一览。
+- 新增 `UnitConversionPresenter` 与 `UnitValueFormatter`，输入文本解析、错误解释、数值格式化和 UI 行数据都留在表现层；主结果和列表结果统一通过 `UnitConverter` 获取。
+- 新增 6 个 presenter / formatting JUnit 测试方法，覆盖类别与默认值、空 / 非法输入、线性与温度一览、类型化错误和科学计数法。
+- 页面接入提交：`c9c0be200bddf9672798b93dac6a0becc328af55`。Android Build #424（Run ID `43436816915`）完整 success：资源检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Artifact `zhixingapp-debug`，ID `14043848306`，12,601,245 bytes。
+- 没有执行设备 instrumentation tests；页面还需要目标设备视觉 / 输入法 / 触控和窄屏验收。
+
+**下一步：** C8.8.2 增加复制等高频交互、完善输入与无障碍细节，并进行目标真机验收。

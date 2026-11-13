@@ -689,4 +689,21 @@ C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成�
 - Android Build #423（Run ID `43435614443`）完整 success：资源完整性检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Artifact `zhixingapp-debug`，ID `14042138313`，12,553,719 bytes。
 - 本步未改动 Compose UI；instrumentation 测试源码完成 Kotlin 编译，但未执行模拟器 / 真机仪器测试。
 
-**下一步：** C8.8 原生单位换算页面与输入层接入，直接调用本节验收通过的 `UnitConverter`，不重复实现换算公式。
+**下一步：** C8.8.1 已完成原生单位换算页面首版并通过 CI；继续完善复制、输入边界、窄屏 / 无障碍和目标真机验收，再进入其他计算器页面接入。
+
+
+## 38. C8.8.1：原生单位换算页面首版接入（2026-11-13）
+
+在 C8.7 稳定接口之上，完成第一个可操作的原生单位换算页面，并接入现有「工具」一级 Tab 与二级页面转场。
+
+- 新增 `ToolsDirectoryScreen`，工具目录只展示已经有实际功能的「单位换算」入口，不把尚未实现的方程、函数或化学入口做成空按钮。
+- 新增 `UnitConverterScreen`，包括九类单位横向类别选择、空白初始输入框、源 / 目标单位下拉选择、双向交换、即时换算主结果、同类全部单位一览和类型化错误提示。
+- 页面复用 `BackdropHost`、`ZhixingGlassSurface`、`ZhixingLiquidButton` 与现有二级页动画；适配 safe drawing / IME insets，输入框使用系统十进制键盘。没有引入 WebView 或网页资源。
+- 新增纯 Kotlin `UnitConversionPresenter`：将输入文本状态、默认单位、目录映射和展示行整理为 UI model；所有主结果及同类单位结果都调用 `UnitConverter`，不复制线性或温度公式。
+- 新增 `UnitValueFormatter`：有限值采用 10 位有效数字，极大 / 极小值使用科学计数法；空输入维持空状态，不自动转换为 0。
+- 新增 `UnitConversionPresenterTest`，覆盖九类顺序 / 默认单位、空 / 非法输入、线性单位一览、温度仿射一览、低于绝对零度 / 非有限输入错误，以及常规 / 科学计数格式。
+- 页面与导航接入提交：`c9c0be200bddf9672798b93dac6a0becc328af55`。
+- Android Build #424（Run ID `43436816915`）完整 success：资源完整性检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Artifact `zhixingapp-debug`，ID `14043848306`，12,601,245 bytes。
+- 本步没有执行模拟器 / 真机 instrumentation tests，也尚未完成 iQOO Neo5 活力版页面视觉、IME、触控和滚动验收。Build #424 的 androidTest 是源码编译，不是设备执行。
+
+**下一步：** C8.8.2 完善复制结果、输入交互、窄屏 / 无障碍与数值展示边界，并在目标真机完成页面验收。

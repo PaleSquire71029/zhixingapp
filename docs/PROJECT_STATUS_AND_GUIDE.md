@@ -941,3 +941,16 @@ C8.4 新增数据存储 10 项和角度 6 项，使单位目录达到八类、76
 测试与契约提交：`428425641266374898159cdf469e0b145c7e34bc`。Android Build #423（Run ID `43435614443`）完整 success：资源完整性检查、全部 JVM 单测、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Debug APK 组装、Artifact 上传与清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Artifact `zhixingapp-debug`，ID `14042138313`，12,553,719 bytes。没有执行模拟器 / 真机 instrumentation tests；仅编译了 androidTest 源码。
 
 **下一步：** C8.8 原生单位换算 Compose 页面和输入层接入；在界面中复用当前 Domain API，不把旧网页 / JavaScript 装入 WebView。
+
+
+### 11.28 C8.8.1 原生单位换算页面首版（2026-11-13）
+
+在「工具」Tab 增加真实的单位换算入口，并实现原生二级页面。用户可选择长度、面积、体积、质量、温度、速度、时间、数据存储和角度九类；每类默认源 / 目标单位来自目录。页面支持数值输入、源 / 目标单位下拉、交换、即时主结果及同类单位列表。
+
+新增纯 Kotlin `UnitConversionPresenter` 和 `UnitValueFormatter`，负责输入态、目录数据映射、类型化错误与数值格式化。所有换算值（包含同类单位列表）都经过已验收的 `UnitConverter`；页面不复制算法。空输入始终保持空白提示，不会被当作 0。页面通过现有 Backdrop、玻璃面板和二级页转场接入 Android 原生结构。
+
+新增 6 个 JUnit 测试方法。页面 / 导航提交：`c9c0be200bddf9672798b93dac6a0becc328af55`。Android Build #424（Run ID `43436816915`）完整 success：资源检查、全部 JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Artifact `zhixingapp-debug`，ID `14043848306`，12,601,245 bytes。
+
+当前只完成 CI 构建与单元测试；没有执行模拟器 / 真机仪器测试，iQOO Neo5 活力版上的视觉、输入法、滚动和触控仍待验收。
+
+**下一步：** C8.8.2 完善复制结果与输入 / 无障碍边界，并进行目标真机验收。
