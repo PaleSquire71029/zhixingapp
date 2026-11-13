@@ -6,7 +6,7 @@
 > **仓库：** [PaleSquire71029/zhixingapp](https://github.com/PaleSquire71029/zhixingapp)  
 > **分支：** `main`  
 > **当前工程版本：** 0.1.2 / versionCode 3  
-> **最近完整 CI：** [Android Build #424](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915)（C8.8.1 原生单位换算页面首版）  
+> **最近完整 CI：** [Android Build #426](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015)（包含 Markdown 本地链接自动校验的完整构建）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -165,9 +165,9 @@
 
 ## 构建与验收记录
 
-- 最新原生单位换算页面完整 CI：[Android Build #424](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915)。
-- Build #424 已通过资源检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。
-- 对应 Debug APK Artifact：[zhixingapp-debug / 14043848306（12,601,245 bytes）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915/artifacts/14043848306)。
+- 单位换算页面首次构建验收：[Android Build #424](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915)，主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。
+- 最新完整 CI：[Android Build #426](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015)，新增 Markdown 本地链接检查并完整通过；资源检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理均 success。
+- 最新 Debug APK Artifact：[zhixingapp-debug / 14046779922（12,601,245 bytes）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015/artifacts/14046779922)。
 - CI 的 Android 测试步骤完成的是 instrumentation test 源码编译；除 PR #88 相关的用户真机验收记录外，不把普通 CI 的源码编译描述成模拟器或真机已运行。
 - 主壳 / Liquid Glass / PR #88 的 iQOO Neo5 活力版真机验收已由用户确认通过。
 
@@ -189,7 +189,7 @@
 
 ## APK 获取
 
-- [最新完整 CI 的 Debug APK Artifact（Build #424 / Run 43436816915 / Artifact 14043848306）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915/artifacts/14043848306)
+- [最新完整 CI 的 Debug APK Artifact（Build #426 / Run 43445595015 / Artifact 14046779922）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015/artifacts/14046779922)
 - [GitHub Actions 构建记录](https://github.com/PaleSquire71029/zhixingapp/actions/workflows/android-build.yml)
 - [仓库归档 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)（归档包可能落后于最新源码；下载前先核对构建号和版本）
 

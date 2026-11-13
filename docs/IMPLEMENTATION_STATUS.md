@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-13）：** 数学与工具 Domain 已完成 C0.1–C8.7：包括表达式解析 / 求值、多项式、有理函数、实根、方程、不等式、四类函数拟合与安全采样，以及九类单位换算（76 个线性单位、3 个温度仿射单位）。C8.8.1 已将单位换算首版接入 Android 原生「工具」页，支持九类选择、输入、单位选择 / 交换、即时结果与同类单位一览。Android Build #424（Run ID `43436816915`，代码 SHA `c9c0be200bddf9672798b93dac6a0becc328af55`）完整 success：全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Debug Artifact `14043848306`，12,601,245 bytes。Build #424 的 androidTest 仅编译源码，没有模拟器 / 真机 instrumentation 执行；C8.8.1 页面在 iQOO Neo5 活力版上的视觉、输入法、触控和滚动验收仍待完成。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
+**当前进度（核对至 2026-11-13）：** 数学与工具 Domain 已完成 C0.1–C8.7：包括表达式解析 / 求值、多项式、有理函数、实根、方程、不等式、四类函数拟合与安全采样，以及九类单位换算（76 个线性单位、3 个温度仿射单位）。C8.8.1 已将单位换算首版接入 Android 原生「工具」页，支持九类选择、输入、单位选择 / 交换、即时结果与同类单位一览。Android Build #424（Run ID `43436816915`，代码 SHA `c9c0be200bddf9672798b93dac6a0becc328af55`）完整 success：全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Debug Artifact `14043848306`，12,601,245 bytes。Build #424 的 androidTest 仅编译源码，没有模拟器 / 真机 instrumentation 执行。随后 Build #426（Run ID `43445595015`，代码 SHA `f4ab20ee63ec787438762bf3ef4819f59b4f9029`）完整 success，新增 Markdown 链接校验步骤通过，Debug Artifact `14046779922`，12,601,245 bytes。C8.8.1 页面在 iQOO Neo5 活力版上的视觉、输入法、触控和滚动验收仍待完成。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -32,7 +32,7 @@
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #424 | [Artifact 14043848306](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915/artifacts/14043848306)，12,601,245 bytes |
+| 最新 Debug APK | Build #426 | [Artifact 14046779922](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015/artifacts/14046779922)，12,601,245 bytes；Build #426 同时通过 Markdown 本地链接校验 |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 | 项目 | 状态 | 说明 |
