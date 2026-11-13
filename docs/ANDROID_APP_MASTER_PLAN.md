@@ -1883,3 +1883,12 @@ C8.4 在现有目录增加数据存储 10 项、角度 6 项，线性单位总�
 转换器提供明确的类型化结果和错误：非有限输入、低于绝对零度、结果溢出、未知源单位及未知目标单位。采用严格绝对零度检查，同时支持绝对零度以上的负温度。新增 9 个 JUnit 测试方法覆盖常用值、负值、边界、溢出、未知单位和仿射模型不变量。功能提交：`935d59982f5cce2992f2903d536459e6a22d5444`；测试整理提交：`a399d2d2c55dd330f35a3afdde0d7d1b5509a2fd`；Android Build #421（Run ID `43429397488`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 48s`。Artifact `zhixingapp-debug`，ID `14038965866`，12,546,736 bytes；Artifact ZIP SHA-256：`9104003229349ce033b11224b55a08637935b07836b60f46f4ce6be1ef9116c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.6 统一线性 / 仿射换算入口，完成单位类别匹配、量纲校验和统一错误结果。
+
+
+## 52. C8.6：统一线性 / 仿射单位换算入口（2026-11-13）
+
+C8.6 新增统一纯 Kotlin `UnitConverter` API，将八类线性单位和温度仿射单位连入同一入口。API 显式传入源 / 目标类别与单位 ID，按类别查找、量纲兼容性和同类别约束校验后再执行换算。线性数据保持 `UnitDefinitionCatalog`，温度继续由 `TemperatureConverter` 负责，两个模型不会互相污染。
+
+统一的 Success / Failure 类型覆盖非有限输入、类别 / 量纲不兼容、未知类别 / 单位、绝对零度、非有限中间值 / 结果及精度下溢。线性路径采用 BigDecimal DECIMAL128，减少极端尺度计算的中间溢出误判。9 个 JUnit 测试方法覆盖九类换算、跨类别配对拒绝、重复单位 ID 隔离、未知数据和数值边界。功能提交：`8a04403c895cf88784d1803032e992c7cef32457`；测试调整提交：`21f91b43de60f93b83f5ad15c0c808672c214c5e`、`a580ebc688ec1249e38080b6ac42b07f557f8472`。Build #422 待验收。
+
+**下一步：** C8.7 完成旧版单位换算兼容回归与接口验收，再进入原生单位换算 UI / 输入接入规划。
