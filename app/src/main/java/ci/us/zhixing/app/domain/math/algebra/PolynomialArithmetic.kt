@@ -112,6 +112,7 @@ internal object PolynomialArithmetic {
         return when (polynomial.degree) {
             1 -> solveLinear(polynomial)
             2 -> solveQuadratic(polynomial)
+            3 -> solveCubic(polynomial)
             else -> PolynomialRootsResult.UnsupportedDegree(polynomial.degree)
         }
     }
@@ -205,6 +206,147 @@ internal object PolynomialArithmetic {
         }
     }
 
+    /**
+     * Solves a cubic using the exact discriminant to classify its real roots,
+     * then evaluates the appropriate Cardano / trigonometric branch with
+     * binary-scaled intermediates. Repeated roots are formed from exact
+     * coefficient identities instead of being guessed with an epsilon.
+     */
+    private fun solveCubic(polynomial: Polynomial): PolynomialRootsResult {
+        val d = ExactDyadic.fromDouble(polynomial.coefficients[0])
+        val c = ExactDyadic.fromDouble(polynomial.coefficients[1])
+        val b = ExactDyadic.fromDouble(polynomial.coefficients[2])
+        val a = ExactDyadic.fromDouble(polynomial.coefficients[3])
+
+        val two = ExactDyadic.fromDouble(2.0)
+        val three = ExactDyadic.fromDouble(3.0)
+        val four = ExactDyadic.fromDouble(4.0)
+        val nine = ExactDyadic.fromDouble(9.0)
+        val eighteen = ExactDyadic.fromDouble(18.0)
+        val twentySeven = ExactDyadic.fromDouble(27.0)
+
+        // Δ = b²c² - 4ac³ - 4b³d - 27a²d² + 18abcd.
+        // Every coefficient is an exact IEEE-754 binary rational here.
+        val discriminant = b * b * c * c -
+            four * a * c * c * c -
+            four * b * b * b * d -
+            twentySeven * a * a * d * d +
+            eighteen * a * b * c * d
+        val h = b * b - three * a * c
+
+        if (discriminant.isZero) {
+            if (h.isZero) {
+                // Triple root: x = -b / (3a).
+                val root = ScaledDouble.fromDyadic(-b) /
+                    (ScaledDouble.fromDyadic(a) * ScaledDouble.fromDouble(3.0))
+                return finiteRoots(polynomial, listOf(root))
+            }
+
+            // One double root r and one simple root s:
+            // r = (9ad - bc) / (2(b² - 3ac)), s = -b/a - 2r.
+            val doubleNumerator = nine * a * d - b * c
+            val doubleDenominator = two * h
+            val doubleRoot = ScaledDouble.fromDyadic(doubleNumerator) /
+                ScaledDouble.fromDyadic(doubleDenominator)
+            val coefficientRootSum = ScaledDouble.fromDyadic(-b) /
+                ScaledDouble.fromDyadic(a)
+            val simpleRoot = coefficientRootSum +
+                (doubleRoot * ScaledDouble.fromDouble(2.0)).negate()
+            return finiteRoots(
+                polynomial,
+                listOf(doubleRoot, simpleRoot),
+                requireDistinct = true,
+            )
+        }
+
+        // Depressed cubic t³ + p*t + q = 0, x = t - b/(3a).
+        // Scaled ratios retain values outside Double's exponent range.
+        val pNumerator = three * a * c - b * b
+        val pDenominator = three * a * a
+        val qNumerator = two * b * b * b -
+            nine * a * b * c +
+            twentySeven * a * a * d
+        val qDenominator = twentySeven * a * a * a
+        val p = ScaledDouble.fromDyadic(pNumerator) /
+            ScaledDouble.fromDyadic(pDenominator)
+        val q = ScaledDouble.fromDyadic(qNumerator) /
+            ScaledDouble.fromDyadic(qDenominator)
+        val shift = ScaledDouble.fromDyadic(-b) /
+            (ScaledDouble.fromDyadic(a) * ScaledDouble.fromDouble(3.0))
+
+        return if (discriminant.signum() < 0) {
+            // The depressed-cubic discriminant D = q²/4 + p³/27 is positive.
+            // D = -Δ/(108a⁴) avoids subtracting nearly equal floating values.
+            val scaledA = ScaledDouble.fromDyadic(a)
+            val aFourth = scaledA * scaledA * scaledA * scaledA
+            val depressedDiscriminant = ScaledDouble.fromDyadic(-discriminant) /
+                (aFourth * ScaledDouble.fromDouble(108.0))
+            val squareRoot = depressedDiscriminant.sqrt()
+            val negativeHalfQ = q * ScaledDouble.fromDouble(-0.5)
+            // Choose the larger Cardano radicand, avoiding cancellation.
+            val signedSquareRoot = if (negativeHalfQ.signum() < 0) {
+                squareRoot.negate()
+            } else {
+                squareRoot
+            }
+            val u = (negativeHalfQ + signedSquareRoot).cubeRoot()
+            if (u.isZero) {
+                return rootsFailure(
+                    PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                    "三次方程的 Cardano 中间值下溢为零",
+                )
+            }
+            val v = p.negate() /
+                (ScaledDouble.fromDouble(3.0) * u)
+            var depressedRoot = u + v
+
+            // A few scaled Newton corrections recover a small root when the
+            // two Cardano cube roots nearly cancel (for example x³+x+ε).
+            repeat(CUBIC_NEWTON_STEPS) {
+                val square = depressedRoot * depressedRoot
+                val derivative = ScaledDouble.fromDouble(3.0) * square + p
+                if (!derivative.isZero) {
+                    val residual = square * depressedRoot + p * depressedRoot + q
+                    depressedRoot += (residual / derivative).negate()
+                }
+            }
+            finiteRoots(polynomial, listOf(depressedRoot + shift))
+        } else {
+            // Δ > 0: exactly three distinct real roots and p < 0.
+            if (p.signum() >= 0) {
+                return rootsFailure(
+                    PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                    "三次方程的三实根分支未得到负的降次系数",
+                )
+            }
+            val squareRoot = (ScaledDouble.fromDouble(-3.0) / p).sqrt()
+            val argument = (
+                (q * ScaledDouble.fromDouble(3.0)) /
+                    (p * ScaledDouble.fromDouble(2.0))
+                ) * squareRoot
+            val argumentValue = argument.toDouble()
+            if (!argumentValue.isFinite() ||
+                argumentValue <= -1.0 ||
+                argumentValue >= 1.0
+            ) {
+                return rootsFailure(
+                    PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                    "三次方程三个不同实根过于接近，无法稳定计算反余弦参数",
+                )
+            }
+
+            val amplitude = ScaledDouble.fromDouble(2.0) *
+                (p * ScaledDouble.fromDouble(-1.0 / 3.0)).sqrt()
+            val angle = kotlin.math.acos(argumentValue) / 3.0
+            val roots = (0..2).map { index ->
+                val phase = angle - 2.0 * Math.PI * index / 3.0
+                val cosine = ScaledDouble.fromDouble(kotlin.math.cos(phase))
+                amplitude * cosine + shift
+            }
+            finiteRoots(polynomial, roots, requireDistinct = true)
+        }
+    }
+
     private fun finiteRoots(
         polynomial: Polynomial,
         scaledRoots: List<ScaledDouble>,
@@ -246,20 +388,25 @@ internal object PolynomialArithmetic {
     }
 
     /**
-     * Computes |p(x)| / (|a*x²| + |b*x| + |c|) using exact dyadic
-     * arithmetic for the already-rounded Double root. This keeps the
-     * backward-error check finite even when direct polynomial evaluation
-     * would overflow or underflow.
+     * Computes |p(x)| / sum(|c_i*x^i|) with exact dyadic arithmetic for the
+     * already-rounded Double root. Works for linear through cubic roots and
+     * remains finite when direct polynomial evaluation would overflow.
      */
     private fun normalizedResidualAt(polynomial: Polynomial, x: Double): Double {
-        val coefficients = polynomial.coefficients
         val exactX = ExactDyadic.fromDouble(x)
-        val quadraticTerm = ExactDyadic.fromDouble(coefficients[2]) * exactX * exactX
-        val linearTerm = ExactDyadic.fromDouble(coefficients[1]) * exactX
-        val constantTerm = ExactDyadic.fromDouble(coefficients[0])
-        val residual = (quadraticTerm + linearTerm + constantTerm).abs()
-        val scale = quadraticTerm.abs() + linearTerm.abs() + constantTerm.abs()
-        return if (scale.isZero) 0.0 else residual.ratioTo(scale)
+        var exactValue = ExactDyadic.ZERO
+        for (index in polynomial.coefficients.lastIndex downTo 0) {
+            exactValue = exactValue * exactX +
+                ExactDyadic.fromDouble(polynomial.coefficients[index])
+        }
+
+        var power = ExactDyadic.fromDouble(1.0)
+        var scale = ExactDyadic.ZERO
+        polynomial.coefficients.forEach { coefficient ->
+            scale += ExactDyadic.fromDouble(kotlin.math.abs(coefficient)) * power.abs()
+            power *= exactX
+        }
+        return if (scale.isZero) 0.0 else exactValue.abs().ratioTo(scale)
     }
 
     /**
@@ -274,7 +421,18 @@ internal object PolynomialArithmetic {
         val isZero: Boolean
             get() = mantissa == 0.0
 
+        fun signum(): Int = mantissa.compareTo(0.0)
+
         fun negate(): ScaledDouble = copy(mantissa = -mantissa)
+
+        /** Real cube root without converting an extended exponent to Double. */
+        fun cubeRoot(): ScaledDouble {
+            if (isZero) return ZERO
+            val exponentQuotient = Math.floorDiv(exponent, 3)
+            val exponentRemainder = exponent - exponentQuotient * 3
+            val adjustedMantissa = Math.scalb(mantissa, exponentRemainder)
+            return normalized(Math.cbrt(adjustedMantissa), exponentQuotient)
+        }
 
         operator fun plus(other: ScaledDouble): ScaledDouble {
             if (isZero) return other
@@ -380,6 +538,7 @@ internal object PolynomialArithmetic {
     }
 
     private const val ROOT_RESIDUAL_TOLERANCE = 1e-12
+    private const val CUBIC_NEWTON_STEPS = 3
 
     private fun rootsFailure(
         code: PolynomialErrorCode,

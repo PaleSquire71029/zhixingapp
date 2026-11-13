@@ -86,15 +86,117 @@ class PolynomialEquationSolverTest {
     }
 
     @Test
-    fun cubicEquationRemainsUnsupportedUntilItsOwnSolverSlice() {
-        val cubic = PolynomialEquationSolver.solve(
+    fun cubicEquationWithThreeDistinctRealRootsReturnsAllRootsInOrder() {
+        // x³ - 6x² + 11x - 6 = (x - 1)(x - 2)(x - 3)
+        val result = PolynomialEquationSolver.solve(
             PolynomialEquation(
-                left = Polynomial.of(0.0, -1.0, 0.0, 1.0),
+                left = Polynomial.of(-6.0, 11.0, -6.0, 1.0),
                 right = Polynomial.constant(0.0),
             ),
         )
 
-        assertEquals(EquationSolutionResult.UnsupportedDegree(3), cubic)
+        assertTrue(result is EquationSolutionResult.FiniteSolutions)
+        val solutions = (result as EquationSolutionResult.FiniteSolutions).solutions
+        assertEquals(3, solutions.size)
+        listOf(1.0, 2.0, 3.0).forEachIndexed { index, expected ->
+            assertEquals(expected, solutions[index].value, 1e-12)
+        }
+        assertTrue(solutions.all { it.normalizedResidual <= 1e-12 })
+    }
+
+    @Test
+    fun cubicEquationWithOneRealRootUsesStableCardanoBranch() {
+        // x³ + 1 = 0
+        val result = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(1.0, 0.0, 0.0, 1.0),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertTrue(result is EquationSolutionResult.FiniteSolutions)
+        val solution = (result as EquationSolutionResult.FiniteSolutions).solutions.single()
+        assertEquals(-1.0, solution.value, 1e-12)
+        assertTrue(solution.normalizedResidual <= 1e-12)
+    }
+
+    @Test
+    fun cubicEquationWithDoubleRootReturnsTwoDistinctSolutions() {
+        // x³ - 3x + 2 = (x - 1)²(x + 2)
+        val result = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(2.0, -3.0, 0.0, 1.0),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertTrue(result is EquationSolutionResult.FiniteSolutions)
+        val solutions = (result as EquationSolutionResult.FiniteSolutions).solutions
+        assertEquals(2, solutions.size)
+        assertEquals(-2.0, solutions[0].value, 1e-12)
+        assertEquals(1.0, solutions[1].value, 1e-12)
+        assertTrue(solutions.all { it.normalizedResidual <= 1e-12 })
+    }
+
+    @Test
+    fun cubicEquationWithTripleRootReturnsOneSolution() {
+        // (x - 1)³ = 0
+        val result = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(-1.0, 3.0, -3.0, 1.0),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertTrue(result is EquationSolutionResult.FiniteSolutions)
+        val solutions = (result as EquationSolutionResult.FiniteSolutions).solutions
+        assertEquals(1, solutions.size)
+        assertEquals(1.0, solutions.single().value, 1e-12)
+        assertTrue(solutions.single().normalizedResidual <= 1e-12)
+    }
+
+    @Test
+    fun cubicCardanoCancellationStillRecoversSmallRoot() {
+        // x³ + x + 1e-10 = 0 has a root close to -1e-10.
+        val result = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(1e-10, 1.0, 0.0, 1.0),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertTrue(result is EquationSolutionResult.FiniteSolutions)
+        val solution = (result as EquationSolutionResult.FiniteSolutions).solutions.single()
+        assertEquals(-1e-10, solution.value, 1e-22)
+        assertTrue(solution.normalizedResidual <= 1e-12)
+    }
+
+    @Test
+    fun cubicEquationCanHaveARepresentableLargeRoot() {
+        val result = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(-Double.MAX_VALUE, 0.0, 0.0, 1.0),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertTrue(result is EquationSolutionResult.FiniteSolutions)
+        val solution = (result as EquationSolutionResult.FiniteSolutions).solutions.single()
+        assertTrue(solution.value > 1e102)
+        assertTrue(solution.value.isFinite())
+        assertTrue(solution.normalizedResidual <= 1e-12)
+    }
+
+    @Test
+    fun quarticEquationRemainsExplicitlyUnsupported() {
+        val quartic = PolynomialEquationSolver.solve(
+            PolynomialEquation(
+                left = Polynomial.of(1.0, 0.0, 0.0, 0.0, 1.0),
+                right = Polynomial.constant(0.0),
+            ),
+        )
+
+        assertEquals(EquationSolutionResult.UnsupportedDegree(4), quartic)
     }
 
 

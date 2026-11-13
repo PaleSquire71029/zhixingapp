@@ -8,11 +8,11 @@ import ci.us.zhixing.app.domain.math.model.PolynomialOperationResult
 import ci.us.zhixing.app.domain.math.model.PolynomialRootsResult
 
 /**
- * First equation-solving slice: constant and linear polynomial equations.
+ * Solves polynomial equations through degree three.
  *
  * Both sides are represented independently. We reduce L(x) = R(x) to
- * L(x) - R(x) = 0, then reuse the already-tested polynomial root engine.
- * Quadratic/cubic and rational equations remain separate follow-up slices.
+ * L(x) - R(x) = 0, then reuse the polynomial root engine. Rational equations
+ * use a separate solver so original denominator restrictions remain explicit.
  */
 internal object PolynomialEquationSolver {
     fun solve(equation: PolynomialEquation): EquationSolutionResult {
@@ -25,8 +25,8 @@ internal object PolynomialEquationSolver {
             }
         }
 
-        // C5.1 deliberately limits the public equation solver to degree <= 1,
-        // even though the lower-level polynomial root engine now supports degree 2.
+        // Keep the equation layer aligned with the tested polynomial root
+        // engine; unsupported higher degrees remain explicit rather than guessed.
         if (reduced.degree > MAX_SUPPORTED_DEGREE) {
             return EquationSolutionResult.UnsupportedDegree(reduced.degree)
         }
@@ -49,5 +49,5 @@ internal object PolynomialEquationSolver {
         }
     }
 
-    private const val MAX_SUPPORTED_DEGREE = 2
+    private const val MAX_SUPPORTED_DEGREE = 3
 }
