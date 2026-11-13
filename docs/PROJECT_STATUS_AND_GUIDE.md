@@ -886,6 +886,16 @@ C8.2 已将旧计算器长度、面积、体积的具体单位定义迁入新 Ap
 
 目录校验比例因子必须有限且大于零，拒绝空标识、重复 ID、无效默认单位，并禁止把温度等 `AFFINE` 类别混入纯比例模型。类别及条目列表对外不可修改，查找受类别约束。
 
-新增 9 个 JUnit 测试方法逐项核对全部历史因子及目录不变量。功能提交：`2740027e666dc7725f1850d822d42c13a580adcf`。- Android Build #418（Run ID `43424886269`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 42s`。Artifact `zhixingapp-debug`，ID `14036736039`，12,540,001 bytes；Artifact ZIP SHA-256：`66f9803e6636dd1c88c2b5d18e4b32567522996f25969705270bffc70f5e08c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
+新增 9 个 JUnit 测试方法逐项核对全部历史因子及目录不变量。功能提交：`2740027e666dc7725f1850d822d42c13a580adcf`。
+- Android Build #418（Run ID `43424886269`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 42s`。Artifact `zhixingapp-debug`，ID `14036736039`，12,540,001 bytes；Artifact ZIP SHA-256：`66f9803e6636dd1c88c2b5d18e4b32567522996f25969705270bffc70f5e08c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.3 迁移质量、速度和时间单位定义。
+
+
+### 11.23 C8.3 质量、速度与时间单位定义（2026-11-13）
+
+在 C8.2 的长度、面积、体积单位表上，C8.3 追加质量 9 项、速度 6 项、时间 9 项，线性目录累计 60 项。基准分别为 kg、m/s、s；保留旧版单位 ID、标签、顺序、比例因子及默认选择（kg / lb、kmh / ms、h / min）。旧版速度因子 \`kmh = 1 / 3.6\` 和 365 天年 \`yr = 31,536,000 s\` 保持不变。
+
+回归测试逐项检查 60 个比例因子，并覆盖六类的类别顺序、默认单位、维度与查找隔离。功能提交：\`0d268424c554178ce60a5905d85ea7dca8dace95\`。Build #419 完整 CI 待验收；未执行真机测试。
+
+**下一步：** C8.4 数据存储和角度单位定义；温度转换继续独立处理仿射偏移。

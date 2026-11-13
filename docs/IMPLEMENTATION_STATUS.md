@@ -1913,6 +1913,16 @@ C8.1 新增纯 Kotlin `UnitDimension`、`UnitCategory`、`UnitConversionKind` �
 
 数据模型拒绝空 ID / 标签、非有限或非正比例因子、重复单位 ID、缺失默认单位，并限制比例模型只接受 `LINEAR` 类别，避免温度 `AFFINE` 误用。类别及单位清单均暴露不可修改快照，查找同时限定类别与单位 ID。
 
-新增 9 个 JUnit 测试方法，覆盖完整 36 项因子表、历史标识与默认值、量纲匹配、类别隔离、列表不可变性和非法定义拒绝。代码提交 `2740027e666dc7725f1850d822d42c13a580adcf`。- Android Build #418（Run ID `43424886269`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 42s`。Artifact `zhixingapp-debug`，ID `14036736039`，12,540,001 bytes；Artifact ZIP SHA-256：`66f9803e6636dd1c88c2b5d18e4b32567522996f25969705270bffc70f5e08c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
+新增 9 个 JUnit 测试方法，覆盖完整 36 项因子表、历史标识与默认值、量纲匹配、类别隔离、列表不可变性和非法定义拒绝。代码提交 `2740027e666dc7725f1850d822d42c13a580adcf`。
+- Android Build #418（Run ID `43424886269`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 42s`。Artifact `zhixingapp-debug`，ID `14036736039`，12,540,001 bytes；Artifact ZIP SHA-256：`66f9803e6636dd1c88c2b5d18e4b32567522996f25969705270bffc70f5e08c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.3 质量、速度、时间单位目录；本步尚未实现通用转换计算、输入解析或 Compose 页面。
+
+
+### 27.51 C8.3 质量、速度与时间单位定义（2026-11-13）
+
+C8.3 在现有 \`UnitDefinitionCatalog\` 中增加质量、速度、时间三类，共 24 个条目，和 C8.2 已完成的长度、面积、体积合计 60 个线性单位。基准单位分别为 kg、m/s、s。保留旧版单位 ID、显示标签、顺序、比例因子和默认单位对（kg / lb、kmh / ms、h / min）。
+
+速度 \`kmh\` 继续使用旧因子 \`1 / 3.6\`；时间 \`yr\` 按旧版 365 天定义为 31,536,000 秒。新增回归测试覆盖完整 60 项比例因子、六类目录顺序和默认单位、物理量纲、类别隔离及目录不变性。C8.2 既有 36 项没有更改。本步代码提交：\`0d268424c554178ce60a5905d85ea7dca8dace95\`。Build #419 待完整 CI 验收；尚未执行模拟器或真机测试。
+
+**下一步：** C8.4 数据存储与角度单位定义；温度仿射转换与通用换算入口另行实现。

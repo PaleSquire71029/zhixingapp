@@ -1856,3 +1856,12 @@ C8.1 新增纯 Kotlin `UnitDimension`、`UnitCategory`、`UnitConversionKind` �
 - Android Build #418（Run ID `43424886269`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 42s`。Artifact `zhixingapp-debug`，ID `14036736039`，12,540,001 bytes；Artifact ZIP SHA-256：`66f9803e6636dd1c88c2b5d18e4b32567522996f25969705270bffc70f5e08c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。本步不包含实际转换引擎、输入解析或计算器 UI。
 
 **下一步：** C8.3 质量、速度、时间单位定义；接着迁移数据存储与角度，再单独实现温度仿射规则。
+
+
+## 49. C8.3：质量、速度与时间具体单位目录（2026-11-13）
+
+C8.3 扩充 \`UnitDefinitionCatalog\`，在长度、面积、体积 36 项基础上新增质量 9 项、速度 6 项和时间 9 项，累计 60 个 LINEAR 单位。基准为 kg、m/s、s；默认单位保持 kg → lb、kmh → ms、h → min。旧版因子、显示标签、ID 和排序均保留；年固定按 365 天，即 31,536,000 秒。
+
+单位目录仍然只描述线性定义，不将温度 AFFINE 转换塞入比例因子。测试将全部 60 项历史因子逐一对照，并重新检查目录默认值、量纲和跨类别查找隔离。代码提交：\`0d268424c554178ce60a5905d85ea7dca8dace95\`。Build #419 尚待验收。
+
+**下一步：** C8.4 数据存储与角度单位条目；之后实现温度仿射公式、通用换算和输入校验。
