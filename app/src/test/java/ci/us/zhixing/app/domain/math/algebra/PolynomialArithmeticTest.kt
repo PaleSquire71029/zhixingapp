@@ -274,10 +274,12 @@ class PolynomialArithmeticTest {
     }
 
     @Test
-    fun reportsHigherDegreeAsUnsupportedUntilCubicSolverIsAdded() {
-        val result = PolynomialArithmetic.solveRealRoots(Polynomial.of(1.0, 2.0, 3.0, 4.0))
+    fun reportsQuarticAsUnsupportedAfterCubicSolverIsAdded() {
+        val result = PolynomialArithmetic.solveRealRoots(
+            Polynomial.of(1.0, 2.0, 3.0, 4.0, 5.0),
+        )
 
-        assertEquals(PolynomialRootsResult.UnsupportedDegree(3), result)
+        assertEquals(PolynomialRootsResult.UnsupportedDegree(4), result)
     }
 
     private fun assertPolynomial(
