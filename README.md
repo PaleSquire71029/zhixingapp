@@ -6,7 +6,8 @@
 > **仓库：** [PaleSquire71029/zhixingapp](https://github.com/PaleSquire71029/zhixingapp)  
 > **分支：** `main`  
 > **当前工程版本：** 0.1.2 / versionCode 3  
-> **最近完整 CI：** [Android Build #424](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915)（C8.8.1 原生单位换算页面首版）
+> **最近完整 CI：** [Android Build #424](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915)（C8.8.1 原生单位换算页面首版）  
+> **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
 
@@ -182,12 +183,13 @@
 8. [单位换算 Domain API 契约](docs/UNIT_CONVERSION_API.md)
 9. [计算器 AI 原生接入方案](docs/AI_CALCULATOR_ANDROID_INTEGRATION_PLAN.md)
 10. [APK 首次真机验收清单](docs/APK_TEST_CHECKLIST.md)
+11. [文档体系修复计划与权威规则](docs/DOCUMENTATION_REPAIR_PLAN.md)
 
 开始下一步前，先检查 `main` 最新提交和上述文档；计算功能仍按小步实施，先保证正确性和测试，再接入 UI。
 
 ## APK 获取
 
-- [最新完整 CI 的 Debug APK Artifact（Build #424）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43431479631/artifacts/14039917793)
+- [最新完整 CI 的 Debug APK Artifact（Build #424 / Run 43436816915 / Artifact 14043848306）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915/artifacts/14043848306)
 - [GitHub Actions 构建记录](https://github.com/PaleSquire71029/zhixingapp/actions/workflows/android-build.yml)
 - [仓库归档 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)（归档包可能落后于最新源码；下载前先核对构建号和版本）
 
