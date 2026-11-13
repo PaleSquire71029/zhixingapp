@@ -537,6 +537,22 @@ internal object PolynomialArithmetic {
         return exactValue.isZero
     }
 
+    /**
+     * Returns the exact sign of p(x), treating finite Double coefficients and
+     * x as exact IEEE-754 binary rationals. Unlike Horner Double evaluation,
+     * this cannot misclassify a tiny positive / negative value after rounding.
+     */
+    fun signAt(polynomial: Polynomial, x: Double): Int {
+        require(x.isFinite()) { "x must be finite before exact polynomial evaluation" }
+        val exactX = ExactDyadic.fromDouble(x)
+        var exactValue = ExactDyadic.ZERO
+        for (index in polynomial.coefficients.lastIndex downTo 0) {
+            exactValue = exactValue * exactX +
+                ExactDyadic.fromDouble(polynomial.coefficients[index])
+        }
+        return exactValue.signum()
+    }
+
     private const val ROOT_RESIDUAL_TOLERANCE = 1e-12
     private const val CUBIC_NEWTON_STEPS = 3
 
