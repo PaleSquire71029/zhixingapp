@@ -631,3 +631,17 @@ C8.3 在 C8.2 的只读单位目录上追加质量、速度、时间三类，共
 代码提交：`0d268424c554178ce60a5905d85ea7dca8dace95`。Android Build #419（Run ID `43426203477`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 7s`。Artifact `zhixingapp-debug`，ID `14036937441`，12,540,674 bytes；Artifact ZIP SHA-256：`df7ed7b6c3e427e3a16c7ce182c545f594c03800d4011ac692874e5f48837140`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.4 迁移数据存储与角度单位；之后再独立实现温度仿射换算和通用线性换算入口。
+
+
+## 34. C8.4：数据存储与角度单位定义（2026-11-13）
+
+C8.4 在现有线性单位目录中追加数据存储和角度两个类别，共 16 项；目录现已包含八类、76 个 LINEAR 单位。本步继续只登记类别内单位和相对基准因子，不实现数值换算。
+
+- 数据存储 10 项，以字节 B 为基准：bit、B、KiB、MiB、GiB、TiB、kB、MB、GB、TB。保留旧版 ID 和标签；二进制前缀按 1024 进位，十进制前缀按 1000 进位，1 bit = 0.125 B。
+- 角度 6 项，以弧度 rad 为基准：度、弧度、百分度、圈、角分、角秒。比例因子使用旧版 `Math.PI` 公式，不把角度当作普通无量纲数。
+- 保留默认单位对：数据存储 MB → GB（`mb` → `gb`），角度 degree → radian（`deg` → `rad`）。
+- 旧 C8.2 / C8.3 的 60 项单位不变；现有测试扩展为全部 76 项因子精确核对，并覆盖数据 / 角度显式量纲、默认值、标签、类别隔离、同名 ID（速度与时间均有 `ms`）和不可变性。
+
+代码提交：`32a288cccfc76211b0ef25a4ee803e98c87cbff6`；测试修正提交：`d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`。Build #420 完整 CI 待验收。
+
+**下一步：** C8.5 独立实现摄氏度、华氏度、开尔文之间的仿射转换；随后建立带类型化结果的通用线性 / 仿射转换入口，并覆盖非法输入、溢出与精度边界。

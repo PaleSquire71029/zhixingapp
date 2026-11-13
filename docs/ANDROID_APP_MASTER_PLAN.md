@@ -1843,7 +1843,7 @@ C8.1 新增纯 Kotlin `UnitDimension`、`UnitCategory`、`UnitConversionKind` �
 - Artifact：`zhixingapp-debug`，ID `14031703877`，12,536,513 bytes；Artifact ZIP SHA-256：`d0d92b5af941ef73601fc1d9e98d5474ecf0c91af82e8e1a1e2c290c451c5c1c`。
 - 未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。本步没有实现实际单位条目、转换数值、输入解析或 Compose 界面。
 
-没有执行模拟器 / 真机仪器测试。下一步 C8.2 实现长度 / 面积 / 体积的线性单位定义；温度仍独立处理。
+没有执行模拟器 / 真机仪器测试。下一步 C8.5 实现温度仿射转换和通用单位换算入口。
 
 
 ## 48. C8.2：长度、面积与体积具体单位目录（2026-11-13）
@@ -1865,3 +1865,12 @@ C8.3 扩充 `UnitDefinitionCatalog`，在长度、面积、体积 36 项基础�
 单位目录仍然只描述线性定义，不将温度 AFFINE 转换塞入比例因子。测试将全部 60 项历史因子逐一对照，并重新检查目录默认值、量纲和跨类别查找隔离。代码提交：`0d268424c554178ce60a5905d85ea7dca8dace95`。Android Build #419（Run ID `43426203477`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 7s`。Artifact `zhixingapp-debug`，ID `14036937441`，12,540,674 bytes；Artifact ZIP SHA-256：`df7ed7b6c3e427e3a16c7ce182c545f594c03800d4011ac692874e5f48837140`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.4 数据存储与角度单位条目；之后实现温度仿射公式、通用换算和输入校验。
+
+
+## 50. C8.4：数据存储与角度单位目录（2026-11-13）
+
+C8.4 在现有目录增加数据存储 10 项、角度 6 项，线性单位总量达到 76 项、覆盖八个类别。数据存储基准为字节 B，同时保留 1024 进位的 IEC 风格单位和 1000 进位的 SI 风格单位；角度基准为弧度 rad，比例使用旧版 `Math.PI` 公式。全部历史 ID、显示标签、顺序和默认选择保持兼容。
+
+数据 / 角度仍使用 C8.1 定义的专用维度向量，不与质量、长度或普通标量混用。逐项回归测试覆盖 76 个因子、默认单位、标签、类别查找隔离和重复 ID 在不同类别下的隔离。代码提交：`32a288cccfc76211b0ef25a4ee803e98c87cbff6`；测试修正提交：`d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`；Build #420 待验收。
+
+**下一步：** C8.5 温度仿射公式，再接通通用线性 / 仿射单位转换与输入校验。
