@@ -195,10 +195,11 @@ internal object QuadraticFunctionFitter {
         }
 
         val slope = deltaY.divide(deltaX, conversionContext)
-        val intercept = y0.subtract(
-            slope.multiply(x0, conversionContext),
-            conversionContext,
-        )
+        // Form the intercept numerator before division. Multiplying the
+        // rounded DECIMAL128 slope by a huge x0 and then subtracting y0 can
+        // destroy all low-order digits through catastrophic cancellation.
+        val interceptNumerator = y0.multiply(deltaX).subtract(deltaY.multiply(x0))
+        val intercept = interceptNumerator.divide(deltaX, conversionContext)
         val convertedSlope = convertCoefficient(slope)
         val convertedIntercept = convertCoefficient(intercept)
         val b = when (convertedSlope) {
