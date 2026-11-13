@@ -642,6 +642,6 @@ C8.4 在现有线性单位目录中追加数据存储和角度两个类别，共
 - 保留默认单位对：数据存储 MB → GB（`mb` → `gb`），角度 degree → radian（`deg` → `rad`）。
 - 旧 C8.2 / C8.3 的 60 项单位不变；现有测试扩展为全部 76 项因子精确核对，并覆盖数据 / 角度显式量纲、默认值、标签、类别隔离、同名 ID（速度与时间均有 `ms`）和不可变性。
 
-代码提交：`32a288cccfc76211b0ef25a4ee803e98c87cbff6`；测试修正提交：`d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`。Build #420 完整 CI 待验收。
+代码提交：`32a288cccfc76211b0ef25a4ee803e98c87cbff6`；测试修正提交：`d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`。Android Build #420（Run ID `43427982663`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 6s`。Artifact `zhixingapp-debug`，ID `14037119258`，12,541,011 bytes；Artifact ZIP SHA-256：`09e44420aef6fb08acfeed47b6a173f20da0c979c49f52147056157019cb71e5`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.5 独立实现摄氏度、华氏度、开尔文之间的仿射转换；随后建立带类型化结果的通用线性 / 仿射转换入口，并覆盖非法输入、溢出与精度边界。

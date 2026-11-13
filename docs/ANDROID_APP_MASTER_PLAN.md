@@ -1871,6 +1871,6 @@ C8.3 扩充 `UnitDefinitionCatalog`，在长度、面积、体积 36 项基础�
 
 C8.4 在现有目录增加数据存储 10 项、角度 6 项，线性单位总量达到 76 项、覆盖八个类别。数据存储基准为字节 B，同时保留 1024 进位的 IEC 风格单位和 1000 进位的 SI 风格单位；角度基准为弧度 rad，比例使用旧版 `Math.PI` 公式。全部历史 ID、显示标签、顺序和默认选择保持兼容。
 
-数据 / 角度仍使用 C8.1 定义的专用维度向量，不与质量、长度或普通标量混用。逐项回归测试覆盖 76 个因子、默认单位、标签、类别查找隔离和重复 ID 在不同类别下的隔离。代码提交：`32a288cccfc76211b0ef25a4ee803e98c87cbff6`；测试修正提交：`d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`；Build #420 待验收。
+数据 / 角度仍使用 C8.1 定义的专用维度向量，不与质量、长度或普通标量混用。逐项回归测试覆盖 76 个因子、默认单位、标签、类别查找隔离和重复 ID 在不同类别下的隔离。代码提交：`32a288cccfc76211b0ef25a4ee803e98c87cbff6`；测试修正提交：`d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`；Android Build #420（Run ID `43427982663`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 6s`。Artifact `zhixingapp-debug`，ID `14037119258`，12,541,011 bytes；Artifact ZIP SHA-256：`09e44420aef6fb08acfeed47b6a173f20da0c979c49f52147056157019cb71e5`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.5 温度仿射公式，再接通通用线性 / 仿射单位转换与输入校验。

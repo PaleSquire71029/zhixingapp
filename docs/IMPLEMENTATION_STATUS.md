@@ -1932,6 +1932,6 @@ C8.3 在现有 `UnitDefinitionCatalog` 中增加质量、速度、时间三类�
 
 C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当前包含八类、76 个线性单位。数据存储以字节 B 为基准，明确区分 KiB / MiB / GiB / TiB 的 1024 进位与 kB / MB / GB / TB 的 1000 进位，并保留 bit → 0.125 B。角度以弧度 rad 为基准，六项比例因子使用 `Math.PI` 公式。保留旧版 ID、显示标签、顺序及默认单位（mb / gb、deg / rad）；数据量 D 和角度 A 继续由显式伪量纲隔离。
 
-测试现已逐项精确核对 76 个单位因子，覆盖八类顺序、默认值、标签、显式量纲、分类查找、速度 / 时间共有 ID `ms` 的独立解析，以及目录不可变性。C8.2 / C8.3 的旧条目未改动。代码提交 `32a288cccfc76211b0ef25a4ee803e98c87cbff6`，测试修正提交 `d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`。Build #420 待完整 CI 验收；未执行模拟器或真机测试。
+测试现已逐项精确核对 76 个单位因子，覆盖八类顺序、默认值、标签、显式量纲、分类查找、速度 / 时间共有 ID `ms` 的独立解析，以及目录不可变性。C8.2 / C8.3 的旧条目未改动。代码提交 `32a288cccfc76211b0ef25a4ee803e98c87cbff6`，测试修正提交 `d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`。Android Build #420（Run ID `43427982663`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 6s`。Artifact `zhixingapp-debug`，ID `14037119258`，12,541,011 bytes；Artifact ZIP SHA-256：`09e44420aef6fb08acfeed47b6a173f20da0c979c49f52147056157019cb71e5`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.5 温度仿射转换，之后再实现通用线性 / 仿射转换器与类型化输入 / 数值错误。

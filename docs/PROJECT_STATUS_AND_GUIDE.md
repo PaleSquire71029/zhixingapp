@@ -905,6 +905,6 @@ C8.2 已将旧计算器长度、面积、体积的具体单位定义迁入新 Ap
 
 C8.4 新增数据存储 10 项和角度 6 项，使单位目录达到八类、76 个 LINEAR 单位。数据以字节 B 为基准；KiB / MiB / GiB / TiB 使用 1024 进位，kB / MB / GB / TB 使用 1000 进位，bit 因子为 0.125。角度以 rad 为基准，度、百分度、圈、角分、角秒使用旧版 PI 比例因子。
 
-保留旧版全部 ID、标签、顺序和默认单位（mb / gb、deg / rad）。测试逐项核对全部 76 个比例因子，并验证 DATA_STORAGE / ANGLE 量纲、跨类别隔离和同 ID 不同类别（speed / time 的 ms）不会相互覆盖。C8.2 / C8.3 既有条目未改动。代码提交：`32a288cccfc76211b0ef25a4ee803e98c87cbff6`；测试修正提交：`d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`。Build #420 待验收；没有执行真机验证。
+保留旧版全部 ID、标签、顺序和默认单位（mb / gb、deg / rad）。测试逐项核对全部 76 个比例因子，并验证 DATA_STORAGE / ANGLE 量纲、跨类别隔离和同 ID 不同类别（speed / time 的 ms）不会相互覆盖。C8.2 / C8.3 既有条目未改动。代码提交：`32a288cccfc76211b0ef25a4ee803e98c87cbff6`；测试修正提交：`d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`。Android Build #420（Run ID `43427982663`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 6s`。Artifact `zhixingapp-debug`，ID `14037119258`，12,541,011 bytes；Artifact ZIP SHA-256：`09e44420aef6fb08acfeed47b6a173f20da0c979c49f52147056157019cb71e5`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.5 独立实现温度仿射转换，随后设计统一单位换算入口。
