@@ -1935,3 +1935,14 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 测试现已逐项精确核对 76 个单位因子，覆盖八类顺序、默认值、标签、显式量纲、分类查找、速度 / 时间共有 ID `ms` 的独立解析，以及目录不可变性。C8.2 / C8.3 的旧条目未改动。代码提交 `32a288cccfc76211b0ef25a4ee803e98c87cbff6`，测试修正提交 `d93e9278fe5e99ae9a4619daf22bcfb20ef8feca`。Android Build #420（Run ID `43427982663`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 6s`。Artifact `zhixingapp-debug`，ID `14037119258`，12,541,011 bytes；Artifact ZIP SHA-256：`09e44420aef6fb08acfeed47b6a173f20da0c979c49f52147056157019cb71e5`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.5 温度仿射转换，之后再实现通用线性 / 仿射转换器与类型化输入 / 数值错误。
+
+
+### 27.53 C8.5 温度仿射定义与转换（2026-11-13）
+
+新增 `AffineUnitDefinition`、`AffineUnitCategoryUnitSet`、`TemperatureUnitCatalog` 和 `TemperatureConverter`，独立处理温度 AFFINE 语义，不修改 76 项 LINEAR 目录。统一以开尔文为基准：摄氏度 `C + 273.15`，华氏度 `(F + 459.67) × 5/9`，开尔文不变；偏移先于比例应用，使各输入单位的绝对零度都映射为精确 0 K。
+
+转换 API 返回类型化结果，分别报告非有限输入、低于绝对零度、结果非有限 / 溢出、未知源单位和未知目标单位。严格检查 Kelvin 下界，不以 epsilon 放行低于绝对零度的输入；允许绝对零度以上的负温度。
+
+新增 9 个 JUnit 测试方法覆盖正常互转、负温度、三种绝对零度、`Math.nextDown` 紧邻下界值、NaN / ±Infinity、输出溢出、未知单位和仿射目录元数据 / 不可变性。功能提交 `935d59982f5cce2992f2903d536459e6a22d5444`；测试整理提交 `a399d2d2c55dd330f35a3afdde0d7d1b5509a2fd`。Build #421 待完整 CI；没有执行模拟器或真机测试。
+
+**下一步：** C8.6 统一线性 / 仿射换算入口，并集中处理量纲、类别匹配、未知单位和数值精度边界。
