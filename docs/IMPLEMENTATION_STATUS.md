@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。C0.1 至 C5.7 已完成对应源码与 JUnit 实现；C4.2.3 原式定义域与数值精度保护通过 Build #372 / #379 / #381 / #383，C4.3.1 / C4.3.2 一次与二次实根通过 Build #388 / #391。C5.1–C5.4 常数至三次方程与分式方程通过 Build #393 / #396 / #400；C5.5 线性内部绝对值方程通过 Build #401；C5.6 平方根方程通过 Build #402。C5.7 支持四种受限指数 / 对数方程形式，功能提交 `88a9d18f8603d0388223e2196d0b8189b53e9692`；Build #403（Run ID `43400220986`）完整 success，JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；Artifact ID `14023699329`，12,465,463 bytes。C6.1 一至三次多项式不等式已实现并通过 Build #404（Run ID `43401527163`）完整 CI，Artifact ID `14025750621`，12,472,155 bytes。C6.2 分式不等式已实现并通过 Build #405（Run ID `43403410088`）完整 CI，Artifact ID `14026112216`，12,478,669 bytes。C7.1 坐标点模型与校验通过 Build #406；C7.2 一次函数拟合通过 Build #409（Run ID `43410045585`），Artifact ID `14029077035`；C7.3 二次函数拟合通过 Build #412（Run ID `43411748705`），Artifact ID `14029827428`；C7.4 三次函数拟合通过 Build #414（Run ID `43413083875`），Artifact ID `14030506504`，12,510,326 bytes；C7.5 反比例函数拟合通过 Build #415（Run ID `43414570879`），Artifact ID `14031401965`，12,517,040 bytes。当前已实现坐标点校验、一次 / 二次 / 三次 / 反比例拟合；下一步进入 C7.6 统一函数定义域与安全图像采样。所有上述状态仅证明 CI/JUnit、androidTest 源码编译与 APK 组装；未执行模拟器或真机仪器测试。后续小步无需逐一构建 APK，在阶段检查点统一回归即可。
+**当前进度：** 原生主壳已进入 0.1.2 阶段。C0.1 至 C5.7 已完成对应源码与 JUnit 实现；C4.2.3 原式定义域与数值精度保护通过 Build #372 / #379 / #381 / #383，C4.3.1 / C4.3.2 一次与二次实根通过 Build #388 / #391。C5.1–C5.4 常数至三次方程与分式方程通过 Build #393 / #396 / #400；C5.5 线性内部绝对值方程通过 Build #401；C5.6 平方根方程通过 Build #402。C5.7 支持四种受限指数 / 对数方程形式，功能提交 `88a9d18f8603d0388223e2196d0b8189b53e9692`；Build #403（Run ID `43400220986`）完整 success，JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；Artifact ID `14023699329`，12,465,463 bytes。C6.1 一至三次多项式不等式已实现并通过 Build #404（Run ID `43401527163`）完整 CI，Artifact ID `14025750621`，12,472,155 bytes。C6.2 分式不等式已实现并通过 Build #405（Run ID `43403410088`）完整 CI，Artifact ID `14026112216`，12,478,669 bytes。C7.1 坐标点模型与校验通过 Build #406；C7.2 一次函数拟合通过 Build #409（Run ID `43410045585`），Artifact ID `14029077035`；C7.3 二次函数拟合通过 Build #412（Run ID `43411748705`），Artifact ID `14029827428`；C7.4 三次函数拟合通过 Build #414（Run ID `43413083875`），Artifact ID `14030506504`，12,510,326 bytes；C7.5 反比例函数拟合通过 Build #415（Run ID `43414570879`），Artifact ID `14031401965`，12,517,040 bytes；C7.6 统一函数定义域与安全图像采样通过 Build #416（Run ID `43415412088`），Artifact ID `14031292575`，12,528,905 bytes。当前已实现坐标点校验、四类函数拟合、统一定义域 / 求值和分段采样；下一步进入 C8 单位换算纯 Kotlin 内核。所有上述状态仅证明 CI/JUnit、androidTest 源码编译与 APK 组装；未执行模拟器或真机仪器测试。后续小步无需逐一构建 APK，在阶段检查点统一回归即可。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C4.3.2、C5.1–C5.7、C6.1–C6.2 与 C7.1–C7.5 已通过对应完整 CI | 支持多项式方程 / 不等式、分式方程 / 不等式、受限绝对值 / 平方根、受限指数 / 对数、坐标点校验与一次 / 二次 / 三次 / 反比例拟合；统一函数定义域与图像采样待做；未做模拟器 / 真机验收 |
+| 计算迁移 | C4.3.2、C5.1–C5.7、C6.1–C6.2 与 C7.1–C7.6 已通过对应完整 CI | 支持多项式方程 / 不等式、分式方程 / 不等式、受限绝对值 / 平方根、受限指数 / 对数、坐标点校验、四类函数拟合、统一定义域 / 求值与安全分段采样；Compose 图表 UI 与真机验收待做 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1863,4 +1863,28 @@ C7.5 新增纯 Kotlin `InverseProportionFunction`、`InverseProportionFunctionFi
 - 功能提交：`361e7f3389931acddb775db830dc085b10a85000`。
 Android Build #415（Run ID `43414570879`）完整 success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理全部通过。Artifact `zhixingapp-debug`，ID `14031401965`，12,517,040 bytes；Artifact ZIP SHA-256：`81c1712ed567052f0e4fdcbd6145c6ce3a52af7e47e200554e10dbe479102055`。没有执行模拟器 / 真机仪器测试；Instrumentation 测试仅完成 Kotlin 源码编译，不能作为设备端运行验收。
 
-**下一步：** C7.6 统一函数定义域与安全图像采样。将一次、二次、三次及反比例模型的定义域边界统一建模；采样需识别 x=0 断点，分段生成点列，避免跨越渐近线直接连线，并对非有限样本、相邻不可分辨 x 与采样预算设置类型化保护。仍不接 Compose 图表 UI。
+**C7.6 已通过 Build #416。下一步：** C8 单位换算纯 Kotlin 内核。函数图表 UI 仍未开始。
+
+
+### 27.48 C7.6 统一函数定义域与安全图像采样（2026-11-13）
+
+C7.6 新增 `FittedFunction` 统一封装一次、二次、三次与反比例函数；`FunctionDomainResolver` 将多项式函数定义域统一为全体实数，将反比例函数定义域统一为 `R\\{0}`。`FunctionEvaluator` 先检查 x 是否有限、再检查定义域与系数有限性，使用 Horner 形式计算多项式，并对非有限结果返回类型化错误。
+
+### 安全采样规则
+
+- `FunctionGraphSampler` 接收有限且严格递增的 x 范围，以及每个连续定义域分段的采样数；每段至少 2 点、最多 512 点，最多 16 段、总样本数不超过 2,048。
+- 先用统一定义域中的排除点切分 x 范围。每个连续区间输出独立的 `FunctionGraphSegment` 折线点列；反比例函数跨过 x=0 时返回左右两段，绝不将两侧点列合并成一条折线。
+- 对开区间端点按该段采样间距留出安全内缩量，不在 x=0 或紧贴渐近线的位置求值；只在 x=0 为范围端点时生成对应的一侧分段。
+- x 范围插值采用加权插值 `start·(1-t)+end·t`，不直接计算可能溢出的 `end-start`，因此可安全处理 `[-Double.MAX_VALUE, Double.MAX_VALUE]` 一类有限端点。
+- 如果连续采样横坐标因 Double 精度而重复 / 倒退、开端点内缩后无可表示区间，或函数采样值溢出，则返回 `NUMERIC_PRECISION_LOSS` / `NON_FINITE_FUNCTION_VALUE` 等类型化结果；不输出部分错误曲线。
+- 本步只交付 domain 模型、求值与采样数据，不接函数表达式解析、Compose 图表、坐标轴绘制、自适应像素采样或交互缩放。
+
+### JUnit 与 CI
+
+- 新增 18 个 JUnit 测试方法：8 个求值测试覆盖四种函数类型、非有限 x、反比例零点、非有限系数与多项式溢出；10 个采样测试覆盖连续多项式分段、x=0 左右断开、范围端点位于零、远离零时不误分段、非法范围、采样数边界、相邻 Double 精度不足、极端异号边界与函数值溢出。
+- 功能提交：`668a7e55a2400e46f6bb217d1e389b239bdcec97`。
+- Android Build #416（Run ID `43415412088`）完整 success：资源完整性检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 52s`。
+- Artifact：`zhixingapp-debug`，ID `14031292575`，12,528,905 bytes；Artifact ZIP SHA-256：`7a73dcb404d7c9511c842c2b1c0159602432fb9698c354e48f0be06c0d9054f7`。
+- 未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。函数图表 UI 与真机视觉 / 性能仍未验收。
+
+**下一步：** C8 单位换算纯 Kotlin 内核，按单位定义、维度校验、换算规则和温度偏移等小步推进。C7 的拟合、定义域和安全采样数据层已完成，但仍未接入 Compose 图表界面。
