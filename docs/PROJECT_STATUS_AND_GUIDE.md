@@ -896,6 +896,6 @@ C8.2 已将旧计算器长度、面积、体积的具体单位定义迁入新 Ap
 
 在 C8.2 的长度、面积、体积单位表上，C8.3 追加质量 9 项、速度 6 项、时间 9 项，线性目录累计 60 项。基准分别为 kg、m/s、s；保留旧版单位 ID、标签、顺序、比例因子及默认选择（kg / lb、kmh / ms、h / min）。旧版速度因子 \`kmh = 1 / 3.6\` 和 365 天年 \`yr = 31,536,000 s\` 保持不变。
 
-回归测试逐项检查 60 个比例因子，并覆盖六类的类别顺序、默认单位、维度与查找隔离。功能提交：\`0d268424c554178ce60a5905d85ea7dca8dace95\`。Build #419 完整 CI 待验收；未执行真机测试。
+回归测试逐项检查 60 个比例因子，并覆盖六类的类别顺序、默认单位、维度与查找隔离。功能提交：\`0d268424c554178ce60a5905d85ea7dca8dace95\`。Android Build #419（Run ID `43426203477`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 7s`。Artifact `zhixingapp-debug`，ID `14036937441`，12,540,674 bytes；Artifact ZIP SHA-256：`df7ed7b6c3e427e3a16c7ce182c545f594c03800d4011ac692874e5f48837140`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.4 数据存储和角度单位定义；温度转换继续独立处理仿射偏移。
