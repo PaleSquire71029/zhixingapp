@@ -1954,6 +1954,19 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 
 线性分支使用 `BigDecimal` + `DECIMAL128`，不因中间 Double 基准值可能溢出而错误拒绝最终可表示的值；检测最终 Double 溢出及非零结果下溢为零。温度分支委托 C8.5 仿射转换器，并把绝对零度、非有限中间值、非有限结果和未知单位错误映射为统一错误类型。
 
-新增 9 个 JUnit 测试方法，覆盖九类换算、全部跨类别配对拒绝、量纲不兼容、同名单位 ID 隔离、未知类别 / 单位、非有限输入、溢出 / 下溢、中间值保护和温度错误映射。代码提交：`8a04403c895cf88784d1803032e992c7cef32457`；测试修正提交：`21f91b43de60f93b83f5ad15c0c808672c214c5e`、`a580ebc688ec1249e38080b6ac42b07f557f8472`。Build #422 待完整 CI 验收；未执行模拟器 / 真机测试。
+新增 9 个 JUnit 测试方法，覆盖九类换算、全部跨类别配对拒绝、量纲不兼容、同名单位 ID 隔离、未知类别 / 单位、非有限输入、溢出 / 下溢、中间值保护和温度错误映射。代码提交：`8a04403c895cf88784d1803032e992c7cef32457`；测试修正提交：`21f91b43de60f93b83f5ad15c0c808672c214c5e`、`a580ebc688ec1249e38080b6ac42b07f557f8472`。Android Build #422（Run ID `43431479631`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 52s`。Artifact `zhixingapp-debug`，ID `14039917793`，12,553,718 bytes。未执行模拟器 / 真机仪器测试。
 
-**下一步：** C8.7 进行旧版单位换算兼容回归和统一入口验收，再规划原生单位换算 UI / 输入接入。
+**下一步：** C8.7 旧版单位换算兼容回归与统一入口验收。
+
+
+### 27.55 C8.7 旧版单位换算兼容回归与迁移验收（2026-11-13）
+
+已完成旧版端到端转换行为回归，并新增 [UNIT_CONVERSION_API.md](UNIT_CONVERSION_API.md) 作为后续 Compose 页面和输入适配层的稳定契约。
+
+- `LegacyUnitConversionCompatibilityTest` 使用旧版 `calculator.html` 公式作对照，逐一遍历 76 个线性单位形成的 780 组同类别有序配对，每对 5 个输入，共 3,900 次转换比对；温度 3 × 3 × 5，共 45 次比对。
+- 核验九类目录顺序与所有默认源 / 目标单位选择；验证 `speed/ms` 与 `time/ms` 的类别隔离以及跨类别拒绝。
+- 原有的 NaN / Infinity、低于绝对零度、溢出和精度下溢保护保持为明确的类型化失败；这些是相较旧版更严格的安全行为。
+- 提交：`428425641266374898159cdf469e0b145c7e34bc`。Android Build #423（Run ID `43435614443`）完整 success：资源检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Artifact `zhixingapp-debug`，ID `14042138313`，12,553,719 bytes。
+- 没有模拟器 / 真机仪器测试执行记录；androidTest 仅完成 Kotlin 源码编译。本步不涉及 Compose UI 或真机交互验收。
+
+**下一步：** C8.8 原生单位换算页面与输入层接入，统一使用已验收的 `UnitConverter`。

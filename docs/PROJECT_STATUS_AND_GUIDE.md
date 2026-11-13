@@ -929,4 +929,15 @@ C8.4 新增数据存储 10 项和角度 6 项，使单位目录达到八类、76
 
 功能提交：`8a04403c895cf88784d1803032e992c7cef32457`；测试修正：`21f91b43de60f93b83f5ad15c0c808672c214c5e`、`a580ebc688ec1249e38080b6ac42b07f557f8472`。Android Build #422（Run ID `43431479631`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 52s`。Artifact `zhixingapp-debug`，ID `14039917793`，12,553,718 bytes；Artifact ZIP SHA-256：`b5ab3a891a097e621b42d6dfc079d9845f2c68c135b1402d2ea7d69484d4cd91`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
-**下一步：** C8.7 旧版单位换算兼容性回归与迁移验收，再进入原生页面 / 输入层接入。
+**下一步：** C8.7 已完成旧版兼容性回归；进入原生单位换算页面 / 输入层接入。
+
+
+### 11.27 C8.7 旧版单位换算兼容回归与迁移验收（2026-11-13）
+
+已完成 C8 单位换算内核的迁移验收。新增 `LegacyUnitConversionCompatibilityTest`，以旧版 `calculator.html` 的 `convertUnit` 行为作为参照：76 个线性单位的 780 组同类别有序配对，每组覆盖五个输入，共 3,900 次结果比对；温度九组源 / 目标单位配对各覆盖五个有效输入，共 45 次比对。九类历史顺序、默认单位，以及速度 / 时间两个 `ms` 的类别隔离均通过。
+
+新增 [单位换算 Domain API 契约](UNIT_CONVERSION_API.md)，为原生页面约定统一调用入口、单位 ID、成功 / 错误结果、格式化边界和同类单位列表接入方式。页面不得重新实现比例 / 仿射转换逻辑；只负责文本解析、状态、结果格式化与交互。
+
+测试与契约提交：`428425641266374898159cdf469e0b145c7e34bc`。Android Build #423（Run ID `43435614443`）完整 success：资源完整性检查、全部 JVM 单测、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Debug APK 组装、Artifact 上传与清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Artifact `zhixingapp-debug`，ID `14042138313`，12,553,719 bytes。没有执行模拟器 / 真机 instrumentation tests；仅编译了 androidTest 源码。
+
+**下一步：** C8.8 原生单位换算 Compose 页面和输入层接入；在界面中复用当前 Domain API，不把旧网页 / JavaScript 装入 WebView。

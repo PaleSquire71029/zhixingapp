@@ -672,4 +672,21 @@ C8.6 新增 `UnitConverter`、`UnitConversionResult` 和 `UnitConversionError`�
 - 新增 9 个 JUnit 测试方法，覆盖九类各自转换、全部跨类别配对拒绝、长度 / 质量和数据 / 角度维度不兼容、同 ID 的速度 / 时间隔离、未知类别 / 单位、非有限输入、线性溢出 / 下溢、BigDecimal 中间值保护和温度仿射错误映射。
 - 功能提交：`8a04403c895cf88784d1803032e992c7cef32457`；边界测试修正：`21f91b43de60f93b83f5ad15c0c808672c214c5e`；全量跨类别配对测试：`a580ebc688ec1249e38080b6ac42b07f557f8472`。Android Build #422（Run ID `43431479631`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 52s`。Artifact `zhixingapp-debug`，ID `14039917793`，12,553,718 bytes；Artifact ZIP SHA-256：`b5ab3a891a097e621b42d6dfc079d9845f2c68c135b1402d2ea7d69484d4cd91`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
-**下一步：** C8.7 做单位换算迁移验收与旧版兼容回归，明确 UI / 输入解析接入前的稳定接口；之后再进入原生单位换算页面。
+**下一步：** C8.7 已完成旧版单位换算兼容回归并明确稳定 Domain API；下一阶段进入原生单位换算页面 / 输入层接入。契约见 [UNIT_CONVERSION_API.md](UNIT_CONVERSION_API.md)。
+
+
+## 37. C8.7：旧版单位换算兼容回归与迁移验收（2026-11-13）
+
+C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成的九类统一入口与旧版 `calculator.html` 的真实算法做端到端回归，并明确原生页面可依赖的 Domain API 契约。
+
+- 新增 `LegacyUnitConversionCompatibilityTest`，把旧版线性算法 `b.fromBase(a.toBase(v))` 作为参照；76 个线性单位形成 780 组同类别有序源 / 目标配对，每组使用 -123.456、-1、0、1、123.456 五个样例，共 3,900 次转换结果比对。
+- 温度对照旧版摄氏度基准算法（C 原值、F → C 使用 `(F - 32) × 5/9`、K → C 使用 `K - 273.15`），覆盖 3 个源单位 × 3 个目标单位 × 5 个有效样例，共 45 次结果比对。
+- 核对九类历史顺序与所有默认单位对：`m → ft`、`m2 → ft2`、`l → ml`、`kg → lb`、`c → f`、`kmh → ms`、`h → min`、`mb → gb`、`deg → rad`。
+- 增加重复单位 ID `ms` 的端到端隔离回归：`speed/ms` 表示米每秒，`time/ms` 表示毫秒；混用类别必须失败。
+- 原有安全增强属于有意行为，不作为兼容性错误：拒绝 NaN / ±Infinity、低于绝对零度的温度、结果溢出和精度下溢；错误通过 `UnitConversionError` 明确表达，不返回旧版的 NaN 占位。
+- 新增 [UNIT_CONVERSION_API.md](UNIT_CONVERSION_API.md)，明确统一入口参数、返回类型、稳定类别 / 单位 ID、数值语义、错误类型与 UI 接入边界。格式化、文本解析和 Compose 页面仍归输入 / 表现层，不混入纯 Kotlin 换算内核。
+- 测试与 API 契约提交：`428425641266374898159cdf469e0b145c7e34bc`。
+- Android Build #423（Run ID `43435614443`）完整 success：资源完整性检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Artifact `zhixingapp-debug`，ID `14042138313`，12,553,719 bytes。
+- 本步未改动 Compose UI；instrumentation 测试源码完成 Kotlin 编译，但未执行模拟器 / 真机仪器测试。
+
+**下一步：** C8.8 原生单位换算页面与输入层接入，直接调用本节验收通过的 `UnitConverter`，不重复实现换算公式。
