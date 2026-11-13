@@ -12,7 +12,28 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。C0.1 至 C5.7 已完成对应源码与 JUnit 实现；C4.2.3 原式定义域与数值精度保护通过 Build #372 / #379 / #381 / #383，C4.3.1 / C4.3.2 一次与二次实根通过 Build #388 / #391。C5.1–C5.4 常数至三次方程与分式方程通过 Build #393 / #396 / #400；C5.5 线性内部绝对值方程通过 Build #401；C5.6 平方根方程通过 Build #402。C5.7 支持四种受限指数 / 对数方程形式，功能提交 `88a9d18f8603d0388223e2196d0b8189b53e9692`；Build #403（Run ID `43400220986`）完整 success，JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；Artifact ID `14023699329`，12,465,463 bytes。C6.1 一至三次多项式不等式已实现并通过 Build #404（Run ID `43401527163`）完整 CI，Artifact ID `14025750621`，12,472,155 bytes。C6.2 分式不等式已实现并通过 Build #405（Run ID `43403410088`）完整 CI，Artifact ID `14026112216`，12,478,669 bytes。C7.1 坐标点模型与校验通过 Build #406；C7.2 一次函数拟合通过 Build #409（Run ID `43410045585`），Artifact ID `14029077035`；C7.3 二次函数拟合通过 Build #412（Run ID `43411748705`），Artifact ID `14029827428`；C7.4 三次函数拟合通过 Build #414（Run ID `43413083875`），Artifact ID `14030506504`，12,510,326 bytes；C7.5 反比例函数拟合通过 Build #415（Run ID `43414570879`），Artifact ID `14031401965`，12,517,040 bytes；C7.6 统一函数定义域与安全图像采样通过 Build #416（Run ID `43415412088`），Artifact ID `14031292575`，12,528,905 bytes。当前已实现坐标点校验、四类函数拟合、统一定义域 / 求值和分段采样；C8.1 单位类别 / 物理量纲目录通过 Build #417（Run ID `43416648667`），Artifact ID `14031703877`，12,536,513 bytes；C8.2–C8.4 已建立 76 个线性单位条目，C8.5 温度仿射转换通过 Build #421；C8.6 统一转换入口已提交，Android Build #422（Run ID `43431479631`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 52s`。Artifact `zhixingapp-debug`，ID `14039917793`，12,553,718 bytes；Artifact ZIP SHA-256：`b5ab3a891a097e621b42d6dfc079d9845f2c68c135b1402d2ea7d69484d4cd91`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。所有上述状态仅证明 CI/JUnit、androidTest 源码编译与 APK 组装；未执行模拟器或真机仪器测试。后续小步无需逐一构建 APK，在阶段检查点统一回归即可。
+**当前进度（核对至 2026-11-13）：** 数学与工具 Domain 已完成 C0.1–C8.7：包括表达式解析 / 求值、多项式、有理函数、实根、方程、不等式、四类函数拟合与安全采样，以及九类单位换算（76 个线性单位、3 个温度仿射单位）。C8.8.1 已将单位换算首版接入 Android 原生「工具」页，支持九类选择、输入、单位选择 / 交换、即时结果与同类单位一览。Android Build #424（Run ID `43436816915`，代码 SHA `c9c0be200bddf9672798b93dac6a0becc328af55`）完整 success：全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Debug Artifact `14043848306`，12,601,245 bytes。Build #424 的 androidTest 仅编译源码，没有模拟器 / 真机 instrumentation 执行；C8.8.1 页面在 iQOO Neo5 活力版上的视觉、输入法、触控和滚动验收仍待完成。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
+
+| 项目 | 状态 | 说明 |
+|---|---|---|
+| Android 原生工程 | 已完成 | Kotlin + Jetpack Compose；单一 `:app` 模块；AGP 9.1.1 / Gradle 9.3.1 / JDK 17；compileSdk / targetSdk 36、minSdk 26 |
+| 主壳与导航 | 已接入 | 四个一级入口：计算 / 知行 AI / 工具 / 我的；浮动玻璃 Dock、二级页面动画与材质组件已在 main |
+| Liquid Glass 真机体验 | 部分真机验收 | 主壳与 PR #88 相关设备验收以用户确认和对应 PR 记录为准；Build / 源码编译本身不等同光学体验验收 |
+| 设计 Tokens | 已实现并通过 CI 编译 | 浅色颜色、形状、间距、文字 Tokens 与 ZhixingTheme 已接入；Build #424 编译通过 |
+| 表达式数学内核 | C0.1–C4.3 已完成 | Tokenizer、AST / Parser、常数求值、多项式、有理函数定义域 / 求值、一次 / 二次实根 |
+| 方程求解 | C5.1–C5.7 已完成 | 常数 / 一至三次、分式、绝对值、平方根、受限指数 / 对数方程 |
+| 不等式求解 | C6.1–C6.2 已完成 | 一至三次多项式不等式、分式不等式 |
+| 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
+| 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
+| 原生单位换算页面 | C8.8.1 首版已接入，待真机验收 | 工具入口、九类切换、输入、源 / 目标选择与交换、主结果、同类单位一览；Build #424 成功 |
+| 完整计算器主页面 | 未完成 | C12 尚未实施；不把独立单位换算工具页算作 C12 |
+| 专用数学输入 / QuestionDocument | 规划已恢复，未完成实现 | 题目文档模型、模板编辑、撤销 / 重做、专用键盘和符号搜索尚待实现 |
+| 函数图像 UI | 未完成 | Domain 求值 / 采样已完成；Compose 曲线、坐标轴、视口和交互未接入 |
+| 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
+| 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
+| 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
+| 最新 Debug APK | Build #424 | [Artifact 14043848306](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915/artifacts/14043848306)，12,601,245 bytes |
+| Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
