@@ -56,6 +56,14 @@ internal object QuadraticFunctionFitter {
             return precisionFailure("横坐标缩放后无法区分不同点")
         }
 
+        // Very large / tiny abscissas can make an otherwise exact straight
+        // line appear to have a tiny spurious quadratic term after QR. For
+        // these extreme scales, detect exact collinearity using the exact
+        // decimal expansions of the input Doubles before normalizing.
+        if (xScale > EXTREME_SCALE_THRESHOLD || xScale < 1.0 / EXTREME_SCALE_THRESHOLD) {
+            exactLinearFit(points)?.let { return it }
+        }
+
         val normalizedX = ArrayList<Double>(points.size)
         val normalizedY = ArrayList<Double>(points.size)
         val seenX = HashMap<Double, Double>(points.size)
@@ -156,6 +164,60 @@ internal object QuadraticFunctionFitter {
         return QuadraticFunctionFitResult.Success(
             function = QuadraticFunction(
                 quadraticCoefficient = a,
+                linearCoefficient = b,
+                intercept = c,
+            ),
+            pointCount = points.size,
+        )
+    }
+
+    /**
+     * Returns an exact linear fit only when every supplied Double point lies
+     * on the same mathematical line. BigDecimal(Double) preserves each input
+     * binary value exactly; cross multiplication avoids a rounded slope in
+     * the collinearity decision.
+     */
+    private fun exactLinearFit(
+        points: List<CoordinatePoint>,
+    ): QuadraticFunctionFitResult? {
+        val first = points[0]
+        val second = points[1]
+        val x0 = BigDecimal(first.x)
+        val y0 = BigDecimal(first.y)
+        val deltaX = BigDecimal(second.x).subtract(x0)
+        val deltaY = BigDecimal(second.y).subtract(y0)
+        if (deltaX.signum() == 0) return null
+
+        for (point in points.drop(2)) {
+            val left = BigDecimal(point.y).subtract(y0).multiply(deltaX)
+            val right = deltaY.multiply(BigDecimal(point.x).subtract(x0))
+            if (left.compareTo(right) != 0) return null
+        }
+
+        val slope = deltaY.divide(deltaX, conversionContext)
+        val intercept = y0.subtract(
+            slope.multiply(x0, conversionContext),
+            conversionContext,
+        )
+        val convertedSlope = convertCoefficient(slope)
+        val convertedIntercept = convertCoefficient(intercept)
+        val b = when (convertedSlope) {
+            is CoefficientConversion.Success -> convertedSlope.value
+            CoefficientConversion.Overflow ->
+                return nonFiniteFailure("拟合斜率超出 Double 可表示范围")
+            CoefficientConversion.Underflow ->
+                return precisionFailure("拟合斜率下溢，无法可靠表示")
+        }
+        val c = when (convertedIntercept) {
+            is CoefficientConversion.Success -> convertedIntercept.value
+            CoefficientConversion.Overflow ->
+                return nonFiniteFailure("拟合截距超出 Double 可表示范围")
+            CoefficientConversion.Underflow ->
+                return precisionFailure("拟合截距下溢，无法可靠表示")
+        }
+        return QuadraticFunctionFitResult.Success(
+            function = QuadraticFunction(
+                quadraticCoefficient = 0.0,
                 linearCoefficient = b,
                 intercept = c,
             ),
@@ -402,4 +464,5 @@ internal object QuadraticFunctionFitter {
     private const val MINIMUM_POINT_COUNT = 3
     private const val COLUMN_COUNT = 3
     private const val RANK_RELATIVE_TOLERANCE = 1e-13
+    private const val EXTREME_SCALE_THRESHOLD = 1e150
 }
