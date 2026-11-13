@@ -1,80 +1,195 @@
 # 知行 Android App
 
-知行计算器 + 知行AI 的全新 Android 原生应用工程。
+知行计算器 + 知行 AI 的全新 Android 原生应用。项目采用 Kotlin + Jetpack Compose，从原生工程和主壳开始重建，逐步迁移原计算器的数学、方程、函数、单位与化学能力；不将旧网页整体装入 WebView。
 
-## 项目方向
+> **进度核对日期：2026-11-13**  
+> **仓库：** [PaleSquire71029/zhixingapp](https://github.com/PaleSquire71029/zhixingapp)  
+> **分支：** `main`  
+> **当前工程版本：** 0.1.2 / versionCode 3  
+> **最近完整 CI：** [Android Build #422](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43431479631)（C8.6 统一单位转换内核）
 
-- 平台：仅 Android
-- 技术：Kotlin + Jetpack Compose
-- 视觉：知行 Light Liquid，全浅色设计，借鉴 iOS 26 Liquid Glass 的光学材质与交互特征
-- 玻璃：固定使用 Backdrop 1.0.6，直接移植官方 Catalog 组件；目标是让首页与后续主要页面的大部分容器、按钮、输入区、键帽和浮层具有液态玻璃 / 立体层次，并统一复刻触摸、拖动、切换和展开动画
-- 迁移：全新 App UI，原有功能逐步迁移，保留可验证的算法与后端能力
-- 本地计算：不强制登录
-- AI：通过受保护的知行 Worker 接入
-- 本地数据：Room；AI 云端历史：Worker + Supabase
+---
+
+## 项目目标与技术路线
+
+- **平台：** 仅 Android。
+- **技术：** Kotlin、Jetpack Compose、Material 3；当前保持一个 `:app` Gradle 模块，按 domain / ui 分层。
+- **设计：** 知行 Light Liquid，全浅色界面；借鉴 iOS 26 Liquid Glass 的材质、折射、空间层次与动画规律，同时保留知行自己的品牌和交互语言。
+- **玻璃实现：** 以官方 Backdrop Catalog 1.0.6 为移植基础，不以静态半透明背景冒充实时液态玻璃。
+- **计算：** 数学和数值算法优先放在无 Android / Compose 依赖的纯 Kotlin domain 层，先有边界测试，再接原生界面。
+- **普通计算：** 本地可用，不强制登录。
+- **AI、云历史和账号：** 属于后续产品能力；已存在接入规划，不代表 Android 客户端和云端功能已经完成。
+
+## 当前进度总览
+
+| 模块 | 当前状态 | 说明 |
+|---|---|---|
+| Android 原生工程 | <badge color="success">已完成</badge> | Kotlin + Compose、Gradle Wrapper、主题、基础导航和 CI |
+| 主壳与 Liquid Glass | <badge color="success">真机验收通过</badge> | 浮动玻璃 Dock、二级页面转场、材质控件和触摸反馈 |
+| PR #88 | <badge color="success">功能验收完成</badge> | 连续滑块、开关长按手势、120Hz 窗口刷新率偏好；iQOO Neo5 活力版真机验收已通过 |
+| 数学解析与代数内核 | <badge color="success">C0–C4 已完成</badge> | Tokenizer、Parser、常数求值、多项式、有理函数、实根 |
+| 方程求解 | <badge color="success">C5.1–C5.7 已完成</badge> | 常数 / 多项式、三次、分式、绝对值、平方根、受限指数 / 对数方程 |
+| 不等式求解 | <badge color="success">C6.1–C6.2 已完成</badge> | 一至三次多项式不等式、分式不等式 |
+| 函数工具内核 | <badge color="success">C7.1–C7.6 已完成</badge> | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
+| 单位换算内核 | <badge color="success">C8.1–C8.6 已完成</badge> | 九类目录、76 个线性单位、3 个温度仿射单位、统一转换入口 |
+| 计算器原生页面 / 专用输入 | <badge color="warning">待接入</badge> | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
+| 函数图像 UI | <badge color="warning">待接入</badge> | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
+| 化学配平与反应预测 | <badge color="warning">待迁移</badge> | 旧项目已有算法参考，Android 原生迁移尚未完成 |
+| 知行 AI Android 客户端 | <badge color="warning">待接入</badge> | 已有接入方案，Android 客户端尚未完成 |
+| 原生账号、云历史 | <badge color="warning">待接入</badge> | 尚未完成 Android 端认证、持久化与云端历史接入 |
+
+**当前工作重心：计算器功能。** C8.6 已经把单位转换统一入口做出来，但 C8.7 暂不作为当前任务；接下来优先完善计算器题型覆盖、原生输入链路、函数图像页面和已有数学内核的实际接入。
+
+---
+
+## 项目进展时间线
+
+### 1. 2026-10-31：项目启动与 Android 原生基础
+
+- 新建独立仓库 `PaleSquire71029/zhixingapp`，确定只做 Android，不在旧网页上继续堆叠移动端 UI。
+- 建立 Kotlin + Jetpack Compose 工程，采用单一 `:app` 模块；配置 AGP 9.1.1、Gradle 9.3.1、JDK 17、compileSdk / targetSdk 36、minSdk 26。
+- 建立浅色知行主题和四个一级入口；随后完善为「计算 / 知行 AI / 工具 / 我的」。
+- 加入用户提供的品牌图标和桌面启动图标；修复旧 WebP 资源损坏导致的启动闪退 / 图标缺失问题，并加入 Android 资源完整性检查。
+- 建立 Edge-to-edge、系统栏、安全区和键盘窗口基础配置；建立 GitHub Actions 单元测试与 Debug APK 构建链路。
+- 后续将颜色、间距、形状、文字等主题 Tokens 集中管理，保留浅色方案和既有字体策略。
+
+### 2. 2026-11-01 起：Liquid Glass 主壳与材质系统
+
+- 对比用户提供的参考 APK 后，确定直接移植官方 Backdrop Catalog 1.0.6 的路线，暂停此前零散自研玻璃方案。
+- 将玻璃渲染基础适配到知行浅色主题，逐步用于主界面浮动 Dock、材质实验室和可交互控件。
+- 底部导航改为浮动液态玻璃 Dock，使用圆润、填色的图标；二级页面加入淡入、轻微横移和缩放转场。
+- 材质设置包含透明度、模糊等参数，并持续完善滑块、开关、触摸形变、拖动和释放动画。
+- 将主壳真机验收与算法 CI 区分：液态玻璃效果必须在目标设备上检查，不能只凭 APK 编译成功判断。
+
+### 3. PR #88：连续滑块、开关手势与刷新率偏好
+
+关联记录：[PR #88 — Fix continuous glass slider drag and switch long-press scrolling](https://github.com/PaleSquire71029/zhixingapp/pull/88)
+
+**实现与验收内容：**
+
+- 材质滑块取消离散步进，支持连续拖动，不再出现固定百分比跳格。
+- 拖动期间直接跟随手指更新玻璃形变；松手时再同步速度与弹簧动画，避免每次指针更新都反复启动 / 取消动画。
+- 开关拇指使用可消费的水平拖动手势；长按后消费后续移动，避免父级纵向滚动抢走开关手势。
+- 保留正常滚动语义：长按识别前的纵向滑动仍可滚动设置页面。
+- 增加滑块连续值、开关长按滚动仲裁、正常纵向滚动和刷新率策略相关回归测试。
+- 增加 120Hz 窗口刷新率偏好策略：请求值受 Android 版本和设备实际支持的显示模式约束，不假设系统一定会授予 120Hz。
+
+<badge color="success">iQOO Neo5 活力版真机验收通过</badge>
+
+用户已确认相关滑块连续拖动、开关长按与页面滚动、刷新率偏好以及主壳相关交互的真机验收通过。该事项属于 **主壳 / Liquid Glass 阶段**，不属于计算器数学内核阶段；不再列为待真机验收事项。
+
+**GitHub 状态说明：** 截至本次核对，PR #88 在 GitHub 上仍显示为 open，因此这里记录的是功能开发和真机验收已完成，不将 PR 状态误写为已经合并到 `main`。
+
+### 4. 2026-10-31 至 2026-11-13：计算器纯 Kotlin 内核迁移
+
+计算器迁移遵循“先锁定旧逻辑语义和边界，再实现纯 Kotlin 算法，最后接入 Compose 页面”的顺序。以下 Build 均用于对应阶段的自动化验收；没有把 APK 编译等同于计算器 UI 已完成。
+
+#### C0–C3：样例、解析与基础求值
+
+- **C0.1：** 建立旧计算器语法和行为的黄金样例，为后续迁移提供可核对的输入与预期结果。
+- **C1：** Tokenizer，处理数字、运算符、括号、变量和符号归一化。
+- **C2：** AST 与递归下降 Parser，支持基础四则运算、隐式乘法、一元正负、幂、百分号和括号；通过 [Build #350](https://github.com/PaleSquire71029/zhixingapp/actions/runs/42443214070)。
+- **C3：** 常数表达式求值器，明确除零、非有限值和数值格式边界；通过 Build #363。
+
+#### C4：多项式、有理函数与实根
+
+- **C4.1：** 多项式系数模型、规范化、加减乘、缩放与 Horner 求值；通过 Build #365。
+- **C4.2.1：** 有理函数模型及原式定义域约束；通过 Build #366。
+- **C4.2.2：** 有理函数加减乘除、幂和定义域传播；通过 Build #370。
+- **C4.2.3：** 单点求值、原始分母零点约束、可去间断点保留、非有限中间值和精度损失保护；经 Build #372 / #379 / #381 / #383 验收。
+- **C4.3.1：** 零多项式、常数与一次多项式实根分类；通过 Build #388。
+- **C4.3.2：** 二次多项式实根，覆盖两个不同实根、重根、无实根、近消去小根和数值范围边界；通过 Build #391。四次及以上仍明确返回不支持，不伪造结果。
+
+#### C5：方程求解
+
+- **C5.1 / C5.2：** 常数、一次和二次多项式方程；通过 Build #393 / #396。
+- **C5.3：** 三次多项式方程；支持单实根、三个不同实根、二重根和三重根等分类。
+- **C5.4：** 分式方程，保留原式定义域并剔除增根；C5.3 / C5.4 通过 Build #400。
+- **C5.5：** 线性内部绝对值方程 `|ax+b|=c`；通过 Build #401。
+- **C5.6：** 受限平方根方程 `√P(x)=Q(x)`，支持平方后的增根剔除、定义域和回代检查；通过 Build #402。
+- **C5.7：** 四种受限指数 / 对数方程形式，覆盖底数、真数定义域、回代和数值精度；通过 [Build #403](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43400220986)。
+
+#### C6：不等式求解
+
+- **C6.1：** 一至三次多项式不等式，处理符号区间、严格 / 非严格端点及重根；通过 [Build #404](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43401527163)。
+- **C6.2：** 分式不等式，保留分母零点、原式定义域空洞和可去间断点；通过 [Build #405](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43403410088)。
+
+#### C7：函数工具内核
+
+- **C7.1：** 坐标点模型与输入校验，覆盖空输入、非有限坐标、重复横坐标和点数下限；通过 Build #406。
+- **C7.2：** 一次函数拟合；两点插值、多点普通最小二乘；通过 Build #409。
+- **C7.3：** 二次函数拟合；三点插值、多点最小二乘，使用列主元 Householder QR；通过 Build #412。
+- **C7.4：** 三次函数拟合；四点插值、多点最小二乘，使用列主元 Householder QR；通过 Build #414。
+- **C7.5：** 反比例函数拟合，支持单点定参与多点最小二乘，明确处理 x=0；通过 Build #415。
+- **C7.6：** 统一四类拟合函数的定义域、求值和安全图像采样；反比例函数在 x=0 两侧分段，避免错误连接；通过 [Build #416](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43415412088)。
+
+#### C8：单位换算内核
+
+- **C8.1：** 九类单位目录和物理量纲模型；温度明确标记为仿射转换；通过 Build #417。
+- **C8.2：** 长度、面积、体积 36 项具体单位定义，保留旧 ID、因子、标签和默认选择；通过 Build #418。
+- **C8.3：** 质量 9 项、速度 6 项、时间 9 项；线性单位累计 60 项；通过 Build #419。
+- **C8.4：** 数据存储 10 项、角度 6 项；线性单位累计 76 项，区分 1024 与 1000 进位；通过 Build #420。
+- **C8.5：** 摄氏度、华氏度、开尔文仿射转换；以开尔文为内部基准，覆盖绝对零度、负温度和非有限值；通过 Build #421。
+- **C8.6：** 统一线性 / 仿射 `UnitConverter`，检查类别、物理量纲、单位归属、溢出和精度下溢；九类转换入口及跨类别拒绝测试通过 [Build #422](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43431479631)。
+
+截至目前，单位内核包含 **76 个线性单位定义 + 3 个温度仿射单位定义**，并提供统一的九类转换入口。**C8.7 暂缓，不作为当前工作重点。**
+
+---
+
+## 当前计算器工作重点
+
+下一阶段以用户可直接使用的计算器功能为中心，不为推进阶段编号而先做 C8.7。
+
+1. **扩展方程题型：** 继续完善高中常见方程形式、组合形式、定义域约束和回代验证；每种新题型单独建模、单独测试。
+2. **原生输入链路：** 把已有 Tokenizer / Parser 与 Android 计算页接起来，设计适合手机操作的数学表达式输入方式和专用键盘，避免依赖系统键盘完成复杂数学输入。
+3. **函数页面：** 将 C7 的点集、拟合、定义域和采样能力接入原生函数页面，再实现坐标轴、曲线绘制、缩放和点位交互。
+4. **补齐计算器其他核心工具：** 继续迁移化学方程式解析 / 配平与反应预测，保持精确算法和可验证结果。
+5. **逐步形成完整计算体验：** 先让已经完成的 domain 内核进入真实页面，再扩展 AI 辅助解题等能力。
+
+当前仍需完成的重点不是重新开发已经通过测试的单位比例表，而是扩大数学能力、完善输入体验，并把已完成的计算内核接到原生界面。
+
+## 已知未完成事项
+
+- 计算 Tab 尚未完成完整原生计算器页面接入；C0–C8.6 的算法 / 数据层完成，不等于所有能力已经在 UI 中可见。
+- 自定义数学输入法、复杂题目结构化输入和完整结果过程展示仍需实现。
+- 函数图表 Compose UI 尚未完成；目前完成的是拟合、定义域、求值和安全采样 domain。
+- 化学配平、反应预测尚未完成 Android 原生迁移。
+- 知行 AI Android 客户端、原生账号与云端历史尚未完成。
+- 正式 Release 签名 / AAB 发布流程尚未完成。
+
+---
+
+## 构建与验收记录
+
+- 最新单位转换内核完整 CI：[Android Build #422](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43431479631)。
+- Build #422 已通过资源检查、JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理。
+- 对应 Debug APK Artifact：[zhixingapp-debug / 14039917793](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43431479631/artifacts/14039917793)。
+- CI 的 Android 测试步骤完成的是 instrumentation test 源码编译；除 PR #88 相关的用户真机验收记录外，不把普通 CI 的源码编译描述成模拟器或真机已运行。
+- 主壳 / Liquid Glass / PR #88 的 iQOO Neo5 活力版真机验收已由用户确认通过。
 
 ## 开发前必读
 
-1. [项目现状、操作指南与后续开发手册](docs/PROJECT_STATUS_AND_GUIDE.md)（新对话接续优先阅读）
+1. [项目现状、操作指南与后续开发手册](docs/PROJECT_STATUS_AND_GUIDE.md)
 2. [实施状态与下一步清单](docs/IMPLEMENTATION_STATUS.md)
-3. [APK 首次真机验收清单](docs/APK_TEST_CHECKLIST.md)
-4. [Android App 总体规划与迁移蓝图](docs/ANDROID_APP_MASTER_PLAN.md)
-5. [液态玻璃参考 APK 直接移植计划](docs/LIQUID_GLASS_REDESIGN_PLAN.md)
-6. [计算器核心迁移计划](docs/CALCULATOR_CORE_MIGRATION_PLAN.md)
-7. [计算器原生页面设计](docs/CALCULATOR_NATIVE_UI_DESIGN.md)
+3. [Android App 总体规划与迁移蓝图](docs/ANDROID_APP_MASTER_PLAN.md)
+4. [液态玻璃参考 APK 直接移植计划](docs/LIQUID_GLASS_REDESIGN_PLAN.md)
+5. [计算器核心迁移计划](docs/CALCULATOR_CORE_MIGRATION_PLAN.md)
+6. [计算器原生页面设计](docs/CALCULATOR_NATIVE_UI_DESIGN.md)
+7. [高中题型、专用输入法、函数图像与 AI 协同规划](docs/CALCULATOR_INPUT_SOLVER_GRAPH_PLAN.md)
 8. [计算器 AI 原生接入方案](docs/AI_CALCULATOR_ANDROID_INTEGRATION_PLAN.md)
-9. [高中题型、专用输入法、函数图像与 AI 协同规划](docs/CALCULATOR_INPUT_SOLVER_GRAPH_PLAN.md)
+9. [APK 首次真机验收清单](docs/APK_TEST_CHECKLIST.md)
 
-开始任何实现前，先检查以上文档和仓库当前 commit。计算迁移按 C0–C12 计划推进；C4.2.3 原式定义域与数值精度保护、C4.3.1 / C4.3.2 一次与二次实根已通过对应 CI。C5.1 / C5.2 常数至二次方程、C5.3 三次方程和 C5.4 分式方程均已接入纯 Kotlin 内核；三次方程覆盖单实根、三个不同实根、二重根、三重根和小根消去边界，分式方程保留原式定义域并剔除增根。C5.3 / C5.4 通过 Android Build #400（Run ID `43397103889`）；C5.5 线性内部绝对值方程通过 Build #401；C5.6 平方根方程 `√P(x)=Q(x)`（deg(P)≤2、deg(Q)≤1）通过 Build #402（Run ID `43398997674`）。已覆盖平方增根剔除、原式定义域、残差检查和恒等式受限解集。C5.7 指数 / 对数方程已实现四种受限形式，并通过 Build #403（Run ID `43400220986`）完整 CI。C6.1 一至三次多项式不等式已实现符号区间、严格 / 非严格端点和重根符号判断，并通过 Build #404（Run ID `43401527163`）完整 CI，Artifact ID `14025750621`。 C6.2 分式不等式已通过 Build #405（Run ID `43403410088`）完整 CI，保留原始定义域空洞、分母零点与除法限制，Artifact ID `14026112216`。C7.1 坐标点模型与输入校验已通过 Build #406（Run ID `43404794011`），Artifact ID `14027365163`。C7.2 一次函数拟合已通过 Build #409（Run ID `43410045585`），Artifact ID `14029077035`；两点确定插值直线，多点采用普通最小二乘。C7.3 二次函数拟合已通过 Build #412（Run ID `43411748705`），Artifact ID `14029827428`，大小 12,503,320 bytes；三点插值、多点最小二乘使用列主元 Householder QR。C7.4 三次函数拟合已通过 Build #414（Run ID `43413083875`），Artifact ID `14030506504`，大小 12,510,326 bytes；四点插值、多点最小二乘使用四列列主元 Householder QR，并覆盖低次退化数据和极端数值范围。C7.5 反比例函数拟合已通过 Build #415（Run ID `43414570879`），Artifact ID `14031401965`，大小 12,517,040 bytes；支持单点定参、多点纵向普通最小二乘，明确拒绝 x=0，并覆盖归一化与系数精度边界。C7.6 统一函数定义域与安全图像采样已通过 Build #416（Run ID `43415412088`），Artifact ID `14031292575`，大小 12,528,905 bytes；四类函数共用定义域 / 求值入口，反比例函数在 x=0 两侧分段采样，并覆盖采样预算与精度边界。C8.1 单位类别与物理量纲目录通过 Build #417（Run ID `43416648667`），Artifact ID `14031703877`，大小 12,536,513 bytes；已建立九类目录与量纲兼容性模型，温度独立标记为仿射转换。C8.2 已迁移长度 / 面积 / 体积 36 个单位定义、历史比例因子和默认单位，Android Build #418（Run ID `43424886269`）完整 CI 已通过，Artifact ID `14036736039`，12,540,001 bytes。每个小步骤只做代码检查和针对性测试，不要求每一步都构建 APK；在阶段检查点统一执行完整 CI。计算器 AI 的原生接入方案已单独规划。
+开始下一步前，先检查 `main` 最新提交和上述文档；计算功能仍按小步实施，先保证正确性和测试，再接入 UI。
 
-## 当前进度（核对至 2026-11-13）
+## APK 获取
 
-- [x] 原生 Android 工程、Kotlin + Jetpack Compose、浅色知行主题和 GitHub Actions Debug 构建链路。
-- [x] 一级导航调整为「计算 / 知行 AI / 工具 / 我的」；「我的」页已接入历史空状态、材质设置入口和应用版本信息。
-- [x] 底部导航采用圆润填色图标与浮动液态玻璃 Dock；二级页面已加入淡入、轻微横移和缩放转场。
-- [x] Glass Lab 与主要材质实验控件已完成一轮官方 Backdrop 1.0.6 适配；具体光学效果、滑块连续性和性能仍需目标真机验收。
-- [x] 计算核心 C0.1 黄金样例已建立，C1 Tokenizer 已通过 CI。
-- [x] C2 AST / 递归下降 Parser 已通过 Android Build #350（Run ID `42443214070`）。
-- [x] C3 常数表达式求值器已通过 Android Build #363（Run ID `42444326915`）。
-- [x] C4.1 多项式基础运算与零多项式规范化已通过 Android Build #365。
-- [x] C4.2.1 有理函数模型与定义域不变量已通过 Android Build #366。
-- [x] C4.2.3 单点求值、原式定义域、精确零点和分子 / 分母精度损失保护完成 CI 验收（Build #372 / #379 / #381 / #383）；未进行模拟器 / 真机仪器测试。
-- [x] C4.3.1 零 / 常数根集分类与一次实根通过 Build #388（Run ID `42456084109`）。
-- [x] C4.3.2 二次多项式实根通过 Build #391（Run ID `42544184281`）：覆盖两个不同实根、重根、无实根、判别式近消去、稳定小根、溢出 / 下溢和归一化残差；C5.3 后开放三次，四次及以上仍明确返回 `UnsupportedDegree`。
-- [x] C4.3.2 源码最终提交 `9db9d21c9506b401959654bc6ecefc3ec7c043ff`；首次 Build #390 因重复声明根错误辅助函数 / 残差阈值失败，读取日志后在该提交修复，Build #391 完整通过；未删除或放宽有效断言。
-- [ ] C4.3 目前只完成 CI / JVM 单元测试与 Debug APK 构建；未启动模拟器或执行真机仪器测试。
-- [x] C4.2.2 有理式加减乘除、幂与定义域传播已通过 Android Build #370。
-- [x] 已新增计算器 AI 原生接入方案；Worker 移动端安全认证与 Android 客户端尚未实施。
-- [x] C5.1 / C5.2 常数至二次方程通过 Build #393 / #396；C5.3 三次方程和 C5.4 分式方程通过 Build #400；C5.5 `|ax+b|=c` 通过 Build #401；C5.6 `√P(x)=Q(x)`（P≤二次、Q≤一次）通过 Build #402（Run ID `43398997674`）。
-- [x] C5.7 指数 / 对数方程：支持常底线性指数式等式、对数等于常数、同底线性真数对数等式；定义域、回代和数值精度边界已覆盖 Build #403。
-- [x] C6.1 一至三次多项式不等式通过 Build #404（Run ID `43401527163`）：覆盖严格 / 非严格端点、重根、三实根、无解 / 全体实数与高次暂缓。
-- [x] C6.2 分式不等式通过 Build #405（Run ID `43403410088`）：覆盖分子 / 分母零点、可去间断点、原式历史定义域、除法限制和精度边界。
-- [x] C7.1 坐标点模型与输入校验通过 Build #406（Run ID `43404794011`）：覆盖空输入、非有限坐标、重复 x（含正负零）、点数下限和输入快照。
-- [x] C7.2 一次函数拟合通过 Build #409（Run ID `43410045585`）：支持两点插值与多点普通最小二乘，覆盖噪声数据、极端数值缩放、退化精度及系数溢出。
-- [x] C7.3 二次函数拟合通过 Build #412（Run ID `43411748705`）：三点插值、多点普通最小二乘，使用列主元 Householder QR，覆盖退化点集、精度损失和系数溢出。
-- [x] C7.4 三次函数拟合通过 Build #414（Run ID `43413083875`）：四点插值、多点普通最小二乘，使用列主元 Householder QR，覆盖低次退化、无效输入及系数溢出 / 下溢。
-- [x] C7.5 反比例函数拟合通过 Build #415（Run ID `43414570879`）：单点确定参数，多点按纵向残差平方和做普通最小二乘；x=0 返回独立定义域错误，16 个新增 JUnit 方法通过。
-- [x] C7.6 统一函数定义域与安全图像采样通过 Build #416（Run ID `43415412088`）：支持四类已拟合函数的统一求值；反比例函数在 x=0 处分成独立 segment，18 个新增 JUnit 方法通过。
-- [x] C8.1 单位类别与物理量纲模型通过 Build #417（Run ID `43416648667`）：建立长度、面积、体积、质量、温度、速度、时间、数据存储、角度九类目录；温度标记为仿射转换，7 个新增 JUnit 方法通过。
-- [x] C8.2 已建立长度 / 面积 / 体积 36 个单位定义及线性基准比例因子，保留旧 ID、标签、顺序和默认单位；新增 9 个 JUnit 测试方法，Build #418（Run ID `43424886269`）完整 CI 通过，Artifact ID `14036736039`，SHA-256 `66f9803e6636dd1c88c2b5d18e4b32567522996f25969705270bffc70f5e08c3`。
-- [x] C8.3 已追加质量 9 项、速度 6 项、时间 9 项，线性单位累计 60 项；保留旧版比例因子、ID、标签和默认单位。新增回归测试覆盖全部 60 项因子，Build #419（Run ID `43426203477`）完整 CI 通过，Artifact ID `14036937441`，SHA-256 `df7ed7b6c3e427e3a16c7ce182c545f594c03800d4011ac692874e5f48837140`。
-- [x] C8.4 已新增数据存储 10 项和角度 6 项，线性单位目录累计 76 项；全部 76 项比例因子测试通过，Build #420（Run ID `43427982663`）完整 CI 通过，Artifact ID `14037119258`，SHA-256 `09e44420aef6fb08acfeed47b6a173f20da0c979c49f52147056157019cb71e5`。
-- [x] C8.5 已实现摄氏度 / 华氏度 / 开尔文仿射转换和类型化错误，新增 9 个 JUnit 测试方法；Build #421（Run ID `43429397488`）完整 CI 通过，Artifact ID `14038965866`，12,546,736 bytes。
-- [x] C8.6 已新增统一线性 / 仿射 `UnitConverter`，覆盖九类转换、全跨类别拒绝和数值边界；新增 9 个 JUnit 测试方法，Build #422（Run ID `43431479631`）完整 CI 通过，Artifact ID `14039917793`，12,553,718 bytes。
-- [ ] 下一步 C8.7 完成旧版单位换算兼容回归和入口验收，再规划原生单位页面 / 输入接入。
-- [ ] PR #88 的连续滑块 / 开关长按手势与 120Hz 窗口偏好仍按独立任务验收；不能与数学内核 C3 合并。
-- [ ] 真机仍需验收导航 Dock 的玻璃表现、二级页面转场、窄屏安全区与整体触控体验。
-
-> **版本说明：** 工程配置当前为 0.1.2 / versionCode 3。仓库中的 APK 归档可能落后于最新源代码；下载前应先核对最新成功的 Android Build 与 APK 版本，不把旧归档误认为最新产物。
-
-## APK 下载
-
-- [下载仓库归档的 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)（该归档可能落后于当前源码；安装前请核对 APK 版本与最新成功构建记录）
-- [GitHub Actions 构建记录与备用 Artifact](https://github.com/PaleSquire71029/zhixingapp/actions/workflows/android-build.yml)
+- [最新完整 CI 的 Debug APK Artifact（Build #422）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43431479631/artifacts/14039917793)
+- [GitHub Actions 构建记录](https://github.com/PaleSquire71029/zhixingapp/actions/workflows/android-build.yml)
+- [仓库归档 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)（归档包可能落后于最新源码；下载前先核对构建号和版本）
 
 ## 旧项目参考
 
 - [知行计算器及 AI 后端](https://github.com/PaleSquire71029/calculator)
-- [知行AI及项目交接文档](https://github.com/PaleSquire71029/zhixing_ai)
+- [知行 AI 及项目交接文档](https://github.com/PaleSquire71029/zhixing_ai)
 
-旧仓库只作为算法、接口、数据和功能验收参考。新 App 的界面和交互应使用原生 Android 实现，不得把旧网页整体装进 WebView。
+旧仓库只作为算法、接口、数据结构、字体和功能样例的参考。新 App 界面与交互使用 Android 原生实现，不把旧网页整体放进 WebView。
