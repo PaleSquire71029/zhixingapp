@@ -37,7 +37,7 @@
 | D6 | 修复 README 摘要、APK 链接和文档目录 | README | Build #424 链接真实指向 Run #43436816915 / Artifact #14043848306；本地链接完整；文档编号唯一 | 已完成（`9f38bd44cacd4a0e82df145ae9828505801e4cd2`） |
 | D7 | 扩充 APK 真机验收清单 | `APK_TEST_CHECKLIST.md` | 新增 C8.8.1 单位换算页面交互 / 键盘 / 窄屏验收，不把 CI 当成真机验收 | 已完成（`252a777cc6e78820c0d7b2bce1244015ead0080e`） |
 | D8 | 增加自动 Markdown 链接检查与文档删除约束 | 校验脚本、Android workflow、开发指南 | 所有本地 Markdown 链接通过；对不存在目标返回非零；CI 执行检查 | 已完成（Build #426，Run 43445595015） |
-| D9 | 全量复核与收尾 | 全部上述文档 | 15 份 Markdown 链接检查无断链；状态断言无冲突；逐阶段提交均可追溯 | 已完成（`8fa0f7a481e609d2e7cf3290f1ae1942c39ea19a`） |
+| D9 | 全量复核与收尾 | 全部上述文档 | 15 份 Markdown 链接检查无断链；状态断言无冲突；逐阶段提交均可追溯 | 已完成（`5fb5798263977cfefb0504caff3125bd29d5f5d0`） |
 
 ## 4. 阶段路线映射的设计原则
 
@@ -93,12 +93,12 @@
 | D6 | `9f38bd44cacd4a0e82df145ae9828505801e4cd2` | README #424 Artifact 链接 / 文档导航已核对修正 |
 | D7 | `252a777cc6e78820c0d7b2bce1244015ead0080e` | APK 首次真机清单已补充 C8.8.1 页面检查项 |
 | D8 | `f4ab20ee63ec787438762bf3ef4819f59b4f9029` | Build #426 全部 success；新检查步骤 success；15 份 Markdown 无本地断链 |
-| D9 | `8fa0f7a481e609d2e7cf3290f1ae1942c39ea19a` | 语义核对通过；README / 账本 / 交接手册 / 路线映射 / 跨仓库引用一致；最终本地链接检查无断链 |
+| D9 | `5fb5798263977cfefb0504caff3125bd29d5f5d0` | 语义核对通过；README / 账本 / 交接手册 / 路线映射 / 跨仓库引用一致；README 和账本最新 APK 指向 Build #426 Artifact 14046779922 |
 
 
 ## 8. D9 最终复核结果（2026-11-13）
 
 - 当前仓库共有 15 份 Markdown（README、THIRD_PARTY_NOTICES 与 docs 下 13 份文档）；GitHub Actions 的 `Check Markdown local links` 步骤输出：`Markdown link check passed: 15 Markdown file(s), no broken local links.`
 - Android Build #426（Run ID `43445595015`，代码 SHA `f4ab20ee63ec787438762bf3ef4819f59b4f9029`）最终完整 success。新链接检查、图片资源检查、全部 JVM 单元测试、Android instrumentation 测试源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过。Artifact `zhixingapp-debug`，ID `14046779922`，12,601,245 bytes。没有执行模拟器 / 真机 instrumentation tests。
-- 独立语义核对通过：规划文档已恢复；交接手册不再把 C8.2 或早期“先 UI，再算法”方案作为当前任务；实施账本摘要与 §27.56 / Build #424 一致；C / 产品路线依赖映射存在；跨仓库路径已标注来源；AI 行内代码格式正确；README #424 链接指向 Artifact `14043848306`；C8.8.1 真机验收清单已补齐。
+- 独立语义核对通过：规划文档已恢复；交接手册不再把 C8.2 或早期“先 UI，再算法”方案作为当前任务；实施账本摘要与 §27.56 / Build #424 一致；C / 产品路线依赖映射存在；跨仓库路径已标注来源；AI 行内代码格式正确；README 和实施账本最新 APK 均指向 Build #426 / Artifact `14046779922`；C8.8.1 真机验收清单已补齐。
 - 文档修复仅修改 Markdown、校验脚本和 CI workflow；未修改 Android 业务代码，也未改变 PR #88 的状态。
