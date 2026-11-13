@@ -132,9 +132,9 @@ class UnitConverterTest {
             delta = 0.0,
         )
         assertSuccess(
-            convert(1.0e300, "data", "tib", "data", "gib"),
-            1024.0 * 1.0e300,
-            delta = Double.POSITIVE_INFINITY,
+            convert(1.0e300, "data", "gb", "data", "tb"),
+            1.0e297,
+            delta = 1.0e283,
         )
     }
 
