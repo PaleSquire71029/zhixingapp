@@ -1,6 +1,7 @@
 package ci.us.zhixing.app.domain.math.functions
 
 import ci.us.zhixing.app.domain.math.model.CoordinatePoint
+import ci.us.zhixing.app.domain.math.model.CoordinatePointSet
 import ci.us.zhixing.app.domain.math.model.CoordinatePointSetValidationResult
 import ci.us.zhixing.app.domain.math.model.FunctionFitErrorCode
 import ci.us.zhixing.app.domain.math.model.LinearFunctionFitResult
@@ -67,6 +68,16 @@ class LinearFunctionFitterTest {
         )
 
         assertFit(result, slope = -2.0, intercept = 1.0)
+    }
+
+    @Test
+    fun emptyPointSetReturnsTheSameTypedErrorAsEmptyListInput() {
+        val result = LinearFunctionFitter.fit(CoordinatePointSet(emptyList()))
+
+        assertEquals(
+            CoordinatePointSetValidationResult.EmptyInput,
+            (result as LinearFunctionFitResult.InvalidInput).reason,
+        )
     }
 
     @Test

@@ -36,14 +36,6 @@ internal object LinearFunctionFitter {
     }
 
     fun fit(pointSet: CoordinatePointSet): LinearFunctionFitResult {
-        if (pointSet.size < MINIMUM_POINT_COUNT) {
-            return LinearFunctionFitResult.InvalidInput(
-                CoordinatePointSetValidationResult.InsufficientPointCount(
-                    actualPointCount = pointSet.size,
-                    requiredPointCount = MINIMUM_POINT_COUNT,
-                ),
-            )
-        }
         // Recheck invariants at this boundary because the model constructor is
         // internal and deliberately does not perform validation itself.
         val validation = CoordinatePointSetValidator.validate(
