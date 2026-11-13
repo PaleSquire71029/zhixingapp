@@ -1905,3 +1905,14 @@ C8.1 新增纯 Kotlin `UnitDimension`、`UnitCategory`、`UnitConversionKind` �
 - 未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。本步没有实现实际单位条目、转换数值、输入解析或 Compose 界面。
 
 **下一步：** C8.2 建立长度、面积、体积的具体单位定义与线性基准换算；本步不实现温度偏移或 Compose 单位页面。
+
+
+### 27.50 C8.2 长度、面积与体积单位定义（2026-11-13）
+
+新增纯 Kotlin `UnitDefinition`、`UnitCategoryUnitSet` 和 `UnitDefinitionCatalog`，从旧版 `calculator.html` 迁移长度、面积、体积三类共 36 个具体单位。换算基准分别为 m、m²、m³，精确保留旧版比例因子、单位 ID、标签、排列顺序和默认选中单位（m / ft、m2 / ft2、l / ml）。
+
+数据模型拒绝空 ID / 标签、非有限或非正比例因子、重复单位 ID、缺失默认单位，并限制比例模型只接受 `LINEAR` 类别，避免温度 `AFFINE` 误用。类别及单位清单均暴露不可修改快照，查找同时限定类别与单位 ID。
+
+新增 9 个 JUnit 测试方法，覆盖完整 36 项因子表、历史标识与默认值、量纲匹配、类别隔离、列表不可变性和非法定义拒绝。代码提交 `2740027e666dc7725f1850d822d42c13a580adcf`。完整 CI 尚待 Build #418 验收；当前不宣称 JUnit / APK 构建已通过，也未执行模拟器或真机测试。
+
+**下一步：** C8.3 质量、速度、时间单位目录；本步尚未实现通用转换计算、输入解析或 Compose 页面。
