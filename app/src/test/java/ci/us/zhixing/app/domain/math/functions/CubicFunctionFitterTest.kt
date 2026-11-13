@@ -174,7 +174,7 @@ class CubicFunctionFitterTest {
         )
 
         assertEquals(
-            CoordinatePointSetValidationResult.NonFiniteCoordinate(2, CoordinateAxis.X),
+            CoordinatePointSetValidationResult.NonFiniteCoordinate(2, CoordinateAxis.Y),
             (result as CubicFunctionFitResult.InvalidInput).reason,
         )
     }
