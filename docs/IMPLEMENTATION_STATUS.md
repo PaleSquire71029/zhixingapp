@@ -1820,4 +1820,18 @@
 - [x] 随后修正空 `CoordinatePointSet` 与空列表返回结果不一致的问题，最终功能提交 `c167cb304f90e85c2caedfeaf271af48cf3146ef`；Build #409（Run ID `43410045585`）完整 success，资源检查、全部 JUnit、androidTest Kotlin 源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过。Artifact ID `14029077035`，12,491,526 bytes。
 - [ ] 未执行模拟器 / 真机仪器测试；本步不包含二次 / 三次 / 反比例拟合、函数表达式解析、定义域断点或图像采样。
 
-**下一步：** C7.3 二次函数拟合。继续沿用已验证的坐标点校验，明确最少点数、三点插值与多点最小二乘语义，并覆盖退化点集和数值精度边界。
+**下一步：** C7.4 三次函数拟合。C7.1–C7.3 已完成，后续处理四点插值、多点最小二乘、矩阵秩与精度边界。
+
+
+### 27.45 C7.3 二次函数拟合（2026-11-13）
+
+- [x] 新增 `QuadraticFunction`、`QuadraticFunctionFitResult` 与 `QuadraticFunctionFitter`，输出 `y=ax²+bx+c` 三个有限系数；复用 C7.1 点集校验，要求至少三个有限点且 x 唯一。
+- [x] 三点使用唯一二次插值；四点及以上采用普通最小二乘，最小化纵向残差平方和；`List` 与 `CoordinatePointSet` 两种入口执行相同校验。
+- [x] 设计矩阵按归一化横坐标构造 `[t²,t,1]`，采用列主元 Householder QR 求解，不使用正规方程；通过相对秩阈值拒绝数值秩不足的点集。
+- [x] 坐标中心化 / 缩放并使用 `BigDecimal` DECIMAL128 恢复原始系数；对矩阵秩不足、归一化碰撞 / 下溢返回 `NUMERIC_PRECISION_LOSS`，系数真正超出 Double 范围返回 `NON_FINITE_RESULT`。
+- [x] 极端横坐标尺度下对精确共线数据使用 BigDecimal 交叉乘积确认，直线按二次项为零返回；截距通过先构造精确分子再除法，修复极大坐标下中间舍入引发的灾难性消去。
+- [x] 新增 15 个 JUnit 测试方法，覆盖三点插值、多点共线、精确二次数据、带噪最小二乘、负 / 乱序坐标、零函数 / 常值函数、输入边界、精度损失和系数溢出。
+- [x] 初始实现提交 `dde20ea19fc5beb3fba6ca44846d856584bf6032` 对应 Build #410 success；加入极端尺度共线性分支后的 Build #411 因极端对称点的截距恢复精度失败。读取日志后修正精确截距分子，最终提交 `e073b6ef750df72b2831e0cdd24459c17476129f`；Build #412（Run ID `43411748705`）完整 success，资源检查、全部 JUnit、androidTest Kotlin 源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过。Artifact ID `14029827428`，12,503,320 bytes。
+- [ ] 未执行模拟器 / 真机仪器测试；androidTest 仅源码编译。本步未接函数表达式解析、定义域断点、图像采样或 Compose 页面。
+
+**下一步：** C7.4 三次函数拟合，继续复用点集校验，明确四点插值与多点最小二乘、数值秩检测和拟合稳定性。
