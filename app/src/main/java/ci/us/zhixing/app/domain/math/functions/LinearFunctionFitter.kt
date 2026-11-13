@@ -130,23 +130,31 @@ internal object LinearFunctionFitter {
             return precisionFailure("归一化拟合系数超出可靠数值范围")
         }
 
-        val slope = scaledSlopeToDouble(
-            yScale = yScale,
-            normalizedSlope = normalizedSlope,
-            xScale = xScale,
-        ) ?: return when {
-            yScale == 0.0 || normalizedSlope == 0.0 ->
-                nonFiniteFailure("拟合斜率不是有限数")
-            else -> precisionFailure("拟合斜率超出 Double 可表示精度")
+        val slope = when (
+            val conversion = scaledSlopeToDouble(
+                yScale = yScale,
+                normalizedSlope = normalizedSlope,
+                xScale = xScale,
+            )
+        ) {
+            is CoefficientConversion.Success -> conversion.value
+            CoefficientConversion.Overflow ->
+                return nonFiniteFailure("拟合斜率超出 Double 可表示范围")
+            CoefficientConversion.Underflow ->
+                return precisionFailure("拟合斜率下溢，无法可靠表示")
         }
 
-        val intercept = scaledProductToDouble(
-            scale = yScale,
-            normalizedValue = normalizedIntercept,
-        ) ?: return when {
-            yScale == 0.0 || normalizedIntercept == 0.0 ->
-                nonFiniteFailure("拟合截距不是有限数")
-            else -> precisionFailure("拟合截距超出 Double 可表示精度")
+        val intercept = when (
+            val conversion = scaledProductToDouble(
+                scale = yScale,
+                normalizedValue = normalizedIntercept,
+            )
+        ) {
+            is CoefficientConversion.Success -> conversion.value
+            CoefficientConversion.Overflow ->
+                return nonFiniteFailure("拟合截距超出 Double 可表示范围")
+            CoefficientConversion.Underflow ->
+                return precisionFailure("拟合截距下溢，无法可靠表示")
         }
 
         if (!slope.isFinite() || !intercept.isFinite()) {
@@ -163,28 +171,41 @@ internal object LinearFunctionFitter {
         yScale: Double,
         normalizedSlope: Double,
         xScale: Double,
-    ): Double? {
-        if (normalizedSlope == 0.0 || yScale == 0.0) return 0.0
+    ): CoefficientConversion {
+        if (normalizedSlope == 0.0 || yScale == 0.0) {
+            return CoefficientConversion.Success(0.0)
+        }
         val exactScaled = BigDecimal.valueOf(yScale)
             .multiply(BigDecimal.valueOf(normalizedSlope))
             .divide(BigDecimal.valueOf(xScale), conversionContext)
-        val converted = exactScaled.toDouble()
-        if (!converted.isFinite()) return null
-        if (converted == 0.0 && exactScaled.signum() != 0) return null
-        return converted
+        return convertCoefficient(exactScaled)
     }
 
     private fun scaledProductToDouble(
         scale: Double,
         normalizedValue: Double,
-    ): Double? {
-        if (normalizedValue == 0.0 || scale == 0.0) return 0.0
+    ): CoefficientConversion {
+        if (normalizedValue == 0.0 || scale == 0.0) {
+            return CoefficientConversion.Success(0.0)
+        }
         val exactScaled = BigDecimal.valueOf(scale)
             .multiply(BigDecimal.valueOf(normalizedValue))
-        val converted = exactScaled.toDouble()
-        if (!converted.isFinite()) return null
-        if (converted == 0.0 && exactScaled.signum() != 0) return null
-        return converted
+        return convertCoefficient(exactScaled)
+    }
+
+    private fun convertCoefficient(value: BigDecimal): CoefficientConversion {
+        val converted = value.toDouble()
+        return when {
+            !converted.isFinite() -> CoefficientConversion.Overflow
+            converted == 0.0 && value.signum() != 0 -> CoefficientConversion.Underflow
+            else -> CoefficientConversion.Success(converted)
+        }
+    }
+
+    private sealed interface CoefficientConversion {
+        data class Success(val value: Double) : CoefficientConversion
+        object Overflow : CoefficientConversion
+        object Underflow : CoefficientConversion
     }
 
     private fun canonicalZero(value: Double): Double =
