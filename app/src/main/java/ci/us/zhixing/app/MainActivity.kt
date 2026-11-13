@@ -64,6 +64,8 @@ import ci.us.zhixing.app.ui.glass.ZhixingLiquidBottomBarPlacement
 import ci.us.zhixing.app.ui.lab.GlassLabScreen
 import ci.us.zhixing.app.ui.history.HistoryScreen
 import ci.us.zhixing.app.ui.my.MyScreen
+import ci.us.zhixing.app.ui.units.ToolsDirectoryScreen
+import ci.us.zhixing.app.ui.units.UnitConverterScreen
 import ci.us.zhixing.app.ui.theme.ZhixingGlassShapes
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 import ci.us.zhixing.app.R
@@ -185,6 +187,15 @@ private fun ZhixingApp(
             "history" -> saveableStateHolder.SaveableStateProvider("my-history") {
                 HistoryScreen(onBack = { mySubpage = null })
             }
+            "unit-converter" -> saveableStateHolder.SaveableStateProvider("unit-converter") {
+                BackdropHost(modifier = Modifier.fillMaxSize()) { backdrop ->
+                    UnitConverterScreen(
+                        backdrop = backdrop,
+                        material = glassMaterial,
+                        onBack = { mySubpage = null },
+                    )
+                }
+            }
             else -> {
                 BackdropHost(
                 modifier = Modifier.fillMaxSize(),
@@ -218,6 +229,17 @@ private fun ZhixingApp(
                                     .padding(innerPadding),
                                 onOpenHistory = { mySubpage = "history" },
                                 onOpenMaterial = { mySubpage = "material" },
+                            )
+                        }
+                    } else if (selectedDestination.route == "tools") {
+                        saveableStateHolder.SaveableStateProvider("root-tools") {
+                            ToolsDirectoryScreen(
+                                backdrop = backdrop,
+                                material = staticFeatureMaterial,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding),
+                                onOpenUnitConverter = { mySubpage = "unit-converter" },
                             )
                         }
                     } else {
