@@ -613,6 +613,7 @@ C8.2 新增纯 Kotlin `UnitDefinition`、`UnitCategoryUnitSet` 和 `UnitDefiniti
 - 类别单位集只允许 `LINEAR` 类别，温度 `AFFINE` 不得进入只含单一比例因子的模型。目录和单位列表均复制快照并以不可修改列表暴露；按类别及 ID 查找，禁止跨类别误命中。
 - 新增 9 个 JUnit 测试方法，逐项校验 36 个历史比例因子，并覆盖 ID / 标签 / 默认值兼容、类别量纲、类别隔离、不可变性和非法元数据拒绝。
 - 功能提交：`2740027e666dc7725f1850d822d42c13a580adcf`。
-- 当前代码已推送至 `main`；本次完整 CI 尚待 Build #418 验收，未将测试源码编译或执行结果预先标记为通过。
+- 功能提交：`2740027e666dc7725f1850d822d42c13a580adcf`。
+- Android Build #418（Run ID `43424886269`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 42s`。Artifact `zhixingapp-debug`，ID `14036736039`，12,540,001 bytes；Artifact ZIP SHA-256：`66f9803e6636dd1c88c2b5d18e4b32567522996f25969705270bffc70f5e08c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.3 迁移质量、速度和时间单位表；数据存储与角度随后单独处理，温度继续作为仿射转换独立实现。

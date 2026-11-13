@@ -1913,6 +1913,6 @@ C8.1 新增纯 Kotlin `UnitDimension`、`UnitCategory`、`UnitConversionKind` �
 
 数据模型拒绝空 ID / 标签、非有限或非正比例因子、重复单位 ID、缺失默认单位，并限制比例模型只接受 `LINEAR` 类别，避免温度 `AFFINE` 误用。类别及单位清单均暴露不可修改快照，查找同时限定类别与单位 ID。
 
-新增 9 个 JUnit 测试方法，覆盖完整 36 项因子表、历史标识与默认值、量纲匹配、类别隔离、列表不可变性和非法定义拒绝。代码提交 `2740027e666dc7725f1850d822d42c13a580adcf`。完整 CI 尚待 Build #418 验收；当前不宣称 JUnit / APK 构建已通过，也未执行模拟器或真机测试。
+新增 9 个 JUnit 测试方法，覆盖完整 36 项因子表、历史标识与默认值、量纲匹配、类别隔离、列表不可变性和非法定义拒绝。代码提交 `2740027e666dc7725f1850d822d42c13a580adcf`。- Android Build #418（Run ID `43424886269`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 42s`。Artifact `zhixingapp-debug`，ID `14036736039`，12,540,001 bytes；Artifact ZIP SHA-256：`66f9803e6636dd1c88c2b5d18e4b32567522996f25969705270bffc70f5e08c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.3 质量、速度、时间单位目录；本步尚未实现通用转换计算、输入解析或 Compose 页面。

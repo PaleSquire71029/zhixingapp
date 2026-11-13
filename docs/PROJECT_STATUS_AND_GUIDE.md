@@ -886,6 +886,6 @@ C8.2 已将旧计算器长度、面积、体积的具体单位定义迁入新 Ap
 
 目录校验比例因子必须有限且大于零，拒绝空标识、重复 ID、无效默认单位，并禁止把温度等 `AFFINE` 类别混入纯比例模型。类别及条目列表对外不可修改，查找受类别约束。
 
-新增 9 个 JUnit 测试方法逐项核对全部历史因子及目录不变量。功能提交：`2740027e666dc7725f1850d822d42c13a580adcf`。Build #418 完整 CI 验收待执行；目前没有声称测试 / APK 构建通过，也没有执行真机验证。
+新增 9 个 JUnit 测试方法逐项核对全部历史因子及目录不变量。功能提交：`2740027e666dc7725f1850d822d42c13a580adcf`。- Android Build #418（Run ID `43424886269`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 42s`。Artifact `zhixingapp-debug`，ID `14036736039`，12,540,001 bytes；Artifact ZIP SHA-256：`66f9803e6636dd1c88c2b5d18e4b32567522996f25969705270bffc70f5e08c3`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.3 迁移质量、速度和时间单位定义。
