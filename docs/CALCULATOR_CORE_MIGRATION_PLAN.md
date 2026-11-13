@@ -670,6 +670,6 @@ C8.6 新增 `UnitConverter`、`UnitConversionResult` 和 `UnitConversionError`�
 - 线性换算使用 `BigDecimal` + `DECIMAL128` 中间计算，避免仅因中间基准量超出 Double 范围就误拒绝最终仍可表示的换算结果；最终 Double 非有限返回溢出错误，非零十进制结果转换为 Double 后归零则返回精度下溢。
 - 温度 converter 将基准值非有限与目标结果非有限拆成不同错误，统一入口映射到同一错误模型。
 - 新增 9 个 JUnit 测试方法，覆盖九类各自转换、全部跨类别配对拒绝、长度 / 质量和数据 / 角度维度不兼容、同 ID 的速度 / 时间隔离、未知类别 / 单位、非有限输入、线性溢出 / 下溢、BigDecimal 中间值保护和温度仿射错误映射。
-- 功能提交：`8a04403c895cf88784d1803032e992c7cef32457`；边界测试修正：`21f91b43de60f93b83f5ad15c0c808672c214c5e`；全量跨类别配对测试：`a580ebc688ec1249e38080b6ac42b07f557f8472`。Build #422 待完整 CI 验收。
+- 功能提交：`8a04403c895cf88784d1803032e992c7cef32457`；边界测试修正：`21f91b43de60f93b83f5ad15c0c808672c214c5e`；全量跨类别配对测试：`a580ebc688ec1249e38080b6ac42b07f557f8472`。Android Build #422（Run ID `43431479631`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 52s`。Artifact `zhixingapp-debug`，ID `14039917793`，12,553,718 bytes；Artifact ZIP SHA-256：`b5ab3a891a097e621b42d6dfc079d9845f2c68c135b1402d2ea7d69484d4cd91`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.7 做单位换算迁移验收与旧版兼容回归，明确 UI / 输入解析接入前的稳定接口；之后再进入原生单位换算页面。

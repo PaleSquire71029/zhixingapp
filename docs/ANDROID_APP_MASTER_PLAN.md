@@ -1889,6 +1889,6 @@ C8.4 在现有目录增加数据存储 10 项、角度 6 项，线性单位总�
 
 C8.6 新增统一纯 Kotlin `UnitConverter` API，将八类线性单位和温度仿射单位连入同一入口。API 显式传入源 / 目标类别与单位 ID，按类别查找、量纲兼容性和同类别约束校验后再执行换算。线性数据保持 `UnitDefinitionCatalog`，温度继续由 `TemperatureConverter` 负责，两个模型不会互相污染。
 
-统一的 Success / Failure 类型覆盖非有限输入、类别 / 量纲不兼容、未知类别 / 单位、绝对零度、非有限中间值 / 结果及精度下溢。线性路径采用 BigDecimal DECIMAL128，减少极端尺度计算的中间溢出误判。9 个 JUnit 测试方法覆盖九类换算、跨类别配对拒绝、重复单位 ID 隔离、未知数据和数值边界。功能提交：`8a04403c895cf88784d1803032e992c7cef32457`；测试调整提交：`21f91b43de60f93b83f5ad15c0c808672c214c5e`、`a580ebc688ec1249e38080b6ac42b07f557f8472`。Build #422 待验收。
+统一的 Success / Failure 类型覆盖非有限输入、类别 / 量纲不兼容、未知类别 / 单位、绝对零度、非有限中间值 / 结果及精度下溢。线性路径采用 BigDecimal DECIMAL128，减少极端尺度计算的中间溢出误判。9 个 JUnit 测试方法覆盖九类换算、跨类别配对拒绝、重复单位 ID 隔离、未知数据和数值边界。功能提交：`8a04403c895cf88784d1803032e992c7cef32457`；测试调整提交：`21f91b43de60f93b83f5ad15c0c808672c214c5e`、`a580ebc688ec1249e38080b6ac42b07f557f8472`。Android Build #422（Run ID `43431479631`）完整 CI success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 52s`。Artifact `zhixingapp-debug`，ID `14039917793`，12,553,718 bytes；Artifact ZIP SHA-256：`b5ab3a891a097e621b42d6dfc079d9845f2c68c135b1402d2ea7d69484d4cd91`。未执行模拟器 / 真机仪器测试；androidTest 仅完成 Kotlin 源码编译。
 
 **下一步：** C8.7 完成旧版单位换算兼容回归与接口验收，再进入原生单位换算 UI / 输入接入规划。
