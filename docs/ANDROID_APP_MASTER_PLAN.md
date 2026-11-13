@@ -1761,7 +1761,7 @@ C6.2 新增 `RationalFunctionInequality` / `RationalFunctionInequalitySolver`，
 
 JUnit 新增 18 个场景，覆盖倒数符号、可去间断点、分子 / 分母重根、原式历史定义域、除法限制、公共无理零点和精度不足。实现提交 `fd9c6ef1bf9266dd5ac7be3e86a18a1825cde60e`；Android Build #405（Run ID `43403410088`）完整 success，全部 JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过，Artifact ID `14026112216`，12,478,669 bytes。未执行模拟器 / 真机测试。
 
-C7.1–C7.4 已完成坐标点校验、一次 / 二次 / 三次函数拟合并通过 Build #406 / #409 / #412 / #414；三次拟合采用四点插值、多点最小二乘、四列列主元 Householder QR 和极端尺度低次结构保护。当前下一步为 C7.5 反比例拟合，然后扩展函数定义域与图像采样。
+C7.1–C7.5 已完成坐标点校验、一次 / 二次 / 三次 / 反比例函数拟合并通过 Build #406 / #409 / #412 / #414 / #415；C7.5 单点确定参数、多点使用纵向普通最小二乘，并单独排除 x=0。当前下一步为 C7.6 统一函数定义域与安全图像采样。
 
 
 ## 43. C7.3 二次函数拟合（2026-11-13）
@@ -1788,3 +1788,20 @@ C7.4 新增 `CubicFunction` / `CubicFunctionFitter`，目标模型为 `y=ax³+bx
 新增 17 个 JUnit 测试方法。功能代码提交 `c5167a45cdb76878e1faac5091e5a85f0a3f2f8b`；首次 Build #413 暴露一项测试坐标轴期望写错，输入是非有限 y 而断言误写 x。修正测试提交 `7059dae72c741158dc071c89d54100f75fc19537` 后，Build #414（Run ID `43413083875`）完整 success：资源检查、全部 JUnit、androidTest Kotlin 源码编译、Debug APK 组装、Artifact 上传与 Actions 清理全部通过。Artifact ID `14030506504`，12,510,326 bytes。未执行模拟器 / 真机仪器测试。
 
 下一步为 C7.5 反比例函数拟合，然后再处理统一函数定义域和图像采样。
+
+
+## 45. C7.5 反比例函数拟合（2026-11-13）
+
+C7.5 新增纯 Kotlin `InverseProportionFunction`、`InverseProportionFunctionFitResult`、`InverseProportionFitInputError` 与 `InverseProportionFunctionFitter`，拟合目标为 `y=k/x`。至少一个有效点即可拟合；单点唯一确定 `k=x·y`，两点及以上按普通最小二乘最小化纵向残差平方和 `Σ(yi-k/xi)²`。
+
+- 点集输入继续复用 C7.1 `CoordinatePointSetValidator`，要求有限坐标与唯一 x；拟合器对 List 和 CoordinatePointSet 两种入口使用一致校验，并在点集入口再次检查快照。
+- x=0（含正负零）不属于反比例函数定义域。拟合器返回独立的 `InverseProportionFitInputError.ZeroXCoordinate`，携带点索引与原始 x；没有把这一规则塞进通用 Validator，避免误伤多项式函数拟合。
+- 数值算法取最小绝对横坐标作为 x 尺度，最大绝对纵坐标作为 y 尺度，构造有界归一化变量 `u=sX/x`、`v=y/sY`，求解 `q=Σ(uv)/Σ(u²)`，再用 `k=sX·sY·q` 恢复系数。分子与分母使用补偿求和，最终尺度恢复使用 BigDecimal DECIMAL128。
+- 若倒数横坐标或纵坐标归一化发生下溢 / 碰撞，返回 `NUMERIC_PRECISION_LOSS`；系数真实超出 Double 范围返回 `NON_FINITE_RESULT`，非零系数下溢则返回精度损失。所有 y 均为零时直接得到合法的零反比例函数，但 x=0 仍先被拒绝。
+- 新增 16 个 JUnit 测试方法，覆盖单点定参、负 x 符号、精确多点、带噪 OLS、乱序与正负坐标、零函数、x=0（List / PointSet）、空输入、重复 x、非有限坐标、倒数 / y 归一化下溢、系数溢出 / 下溢和极端但可表示的系数。
+- 功能提交：`361e7f3389931acddb775db830dc085b10a85000`。
+Android Build #415（Run ID `43414570879`）完整 success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理全部通过。Artifact `zhixingapp-debug`，ID `14031401965`，12,517,040 bytes；Artifact ZIP SHA-256：`81c1712ed567052f0e4fdcbd6145c6ce3a52af7e47e200554e10dbe479102055`。没有执行模拟器 / 真机仪器测试；Instrumentation 测试仅完成 Kotlin 源码编译，不能作为设备端运行验收。
+
+Android Build #415（Run ID `43414570879`）完整 success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理全部通过。Artifact `zhixingapp-debug`，ID `14031401965`，12,517,040 bytes；Artifact ZIP SHA-256：`81c1712ed567052f0e4fdcbd6145c6ce3a52af7e47e200554e10dbe479102055`。没有执行模拟器 / 真机仪器测试；Instrumentation 测试仅完成 Kotlin 源码编译，不能作为设备端运行验收。
+
+未执行模拟器 / 真机仪器测试。下一步 C7.6 统一函数定义域与安全图像采样；函数图表 UI 仍未开始。

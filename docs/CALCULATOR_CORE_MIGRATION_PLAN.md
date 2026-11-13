@@ -544,4 +544,19 @@ CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损�
 - Android Build #414（Run ID `43413083875`）完整 success：资源完整性检查、全部 JUnit、`compileDebugAndroidTestKotlin`、`assembleDebug`、Artifact 上传及 Actions 清理均通过。Artifact `zhixingapp-debug`，ID `14030506504`，12,510,326 bytes。
 - 未执行模拟器 / 真机仪器测试；Instrumentation 测试仅完成 Kotlin 源码编译，不能作为设备端运行验收。
 
-**下一步：** C7.5 反比例函数拟合。重点明确 `y=k/x` 模型的 x=0 定义域排除、单点参数确定、多点拟合语义和数值精度；仍不接 Compose 函数页面或图像绘制。
+**C7.5 已通过 Build #415。下一步：** C7.6 统一函数定义域与安全图像采样；仍不接 Compose 函数页面或图像绘制。
+
+
+## 29. C7.5：反比例函数拟合（2026-11-13）
+
+C7.5 新增纯 Kotlin `InverseProportionFunction`、`InverseProportionFunctionFitResult`、`InverseProportionFitInputError` 与 `InverseProportionFunctionFitter`，拟合目标为 `y=k/x`。至少一个有效点即可拟合；单点唯一确定 `k=x·y`，两点及以上按普通最小二乘最小化纵向残差平方和 `Σ(yi-k/xi)²`。
+
+- 点集输入继续复用 C7.1 `CoordinatePointSetValidator`，要求有限坐标与唯一 x；拟合器对 List 和 CoordinatePointSet 两种入口使用一致校验，并在点集入口再次检查快照。
+- x=0（含正负零）不属于反比例函数定义域。拟合器返回独立的 `InverseProportionFitInputError.ZeroXCoordinate`，携带点索引与原始 x；没有把这一规则塞进通用 Validator，避免误伤多项式函数拟合。
+- 数值算法取最小绝对横坐标作为 x 尺度，最大绝对纵坐标作为 y 尺度，构造有界归一化变量 `u=sX/x`、`v=y/sY`，求解 `q=Σ(uv)/Σ(u²)`，再用 `k=sX·sY·q` 恢复系数。分子与分母使用补偿求和，最终尺度恢复使用 BigDecimal DECIMAL128。
+- 若倒数横坐标或纵坐标归一化发生下溢 / 碰撞，返回 `NUMERIC_PRECISION_LOSS`；系数真实超出 Double 范围返回 `NON_FINITE_RESULT`，非零系数下溢则返回精度损失。所有 y 均为零时直接得到合法的零反比例函数，但 x=0 仍先被拒绝。
+- 新增 16 个 JUnit 测试方法，覆盖单点定参、负 x 符号、精确多点、带噪 OLS、乱序与正负坐标、零函数、x=0（List / PointSet）、空输入、重复 x、非有限坐标、倒数 / y 归一化下溢、系数溢出 / 下溢和极端但可表示的系数。
+- 功能提交：`361e7f3389931acddb775db830dc085b10a85000`。
+Android Build #415（Run ID `43414570879`）完整 success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理全部通过。Artifact `zhixingapp-debug`，ID `14031401965`，12,517,040 bytes；Artifact ZIP SHA-256：`81c1712ed567052f0e4fdcbd6145c6ce3a52af7e47e200554e10dbe479102055`。没有执行模拟器 / 真机仪器测试；Instrumentation 测试仅完成 Kotlin 源码编译，不能作为设备端运行验收。
+
+**下一步：** C7.6 统一函数定义域与安全图像采样。将一次、二次、三次及反比例模型的定义域边界统一建模；采样需识别 x=0 断点，分段生成点列，避免跨越渐近线直接连线，并对非有限样本、相邻不可分辨 x 与采样预算设置类型化保护。仍不接 Compose 图表 UI。

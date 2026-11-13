@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度：** 原生主壳已进入 0.1.2 阶段。C0.1 至 C5.7 已完成对应源码与 JUnit 实现；C4.2.3 原式定义域与数值精度保护通过 Build #372 / #379 / #381 / #383，C4.3.1 / C4.3.2 一次与二次实根通过 Build #388 / #391。C5.1–C5.4 常数至三次方程与分式方程通过 Build #393 / #396 / #400；C5.5 线性内部绝对值方程通过 Build #401；C5.6 平方根方程通过 Build #402。C5.7 支持四种受限指数 / 对数方程形式，功能提交 `88a9d18f8603d0388223e2196d0b8189b53e9692`；Build #403（Run ID `43400220986`）完整 success，JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；Artifact ID `14023699329`，12,465,463 bytes。C6.1 一至三次多项式不等式已实现并通过 Build #404（Run ID `43401527163`）完整 CI，Artifact ID `14025750621`，12,472,155 bytes。C6.2 分式不等式已实现并通过 Build #405（Run ID `43403410088`）完整 CI，Artifact ID `14026112216`，12,478,669 bytes。C7.1 坐标点模型与校验通过 Build #406；C7.2 一次函数拟合通过 Build #409（Run ID `43410045585`），Artifact ID `14029077035`；C7.3 二次函数拟合通过 Build #412（Run ID `43411748705`），Artifact ID `14029827428`；C7.4 三次函数拟合通过 Build #414（Run ID `43413083875`），Artifact ID `14030506504`，12,510,326 bytes。当前已实现四点插值和多点最小二乘；下一步进入 C7.5 反比例函数拟合。所有上述状态仅证明 CI/JUnit、androidTest 源码编译与 APK 组装；未执行模拟器或真机仪器测试。后续小步无需逐一构建 APK，在阶段检查点统一回归即可。
+**当前进度：** 原生主壳已进入 0.1.2 阶段。C0.1 至 C5.7 已完成对应源码与 JUnit 实现；C4.2.3 原式定义域与数值精度保护通过 Build #372 / #379 / #381 / #383，C4.3.1 / C4.3.2 一次与二次实根通过 Build #388 / #391。C5.1–C5.4 常数至三次方程与分式方程通过 Build #393 / #396 / #400；C5.5 线性内部绝对值方程通过 Build #401；C5.6 平方根方程通过 Build #402。C5.7 支持四种受限指数 / 对数方程形式，功能提交 `88a9d18f8603d0388223e2196d0b8189b53e9692`；Build #403（Run ID `43400220986`）完整 success，JUnit、androidTest 源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；Artifact ID `14023699329`，12,465,463 bytes。C6.1 一至三次多项式不等式已实现并通过 Build #404（Run ID `43401527163`）完整 CI，Artifact ID `14025750621`，12,472,155 bytes。C6.2 分式不等式已实现并通过 Build #405（Run ID `43403410088`）完整 CI，Artifact ID `14026112216`，12,478,669 bytes。C7.1 坐标点模型与校验通过 Build #406；C7.2 一次函数拟合通过 Build #409（Run ID `43410045585`），Artifact ID `14029077035`；C7.3 二次函数拟合通过 Build #412（Run ID `43411748705`），Artifact ID `14029827428`；C7.4 三次函数拟合通过 Build #414（Run ID `43413083875`），Artifact ID `14030506504`，12,510,326 bytes；C7.5 反比例函数拟合通过 Build #415（Run ID `43414570879`），Artifact ID `14031401965`，12,517,040 bytes。当前已实现坐标点校验、一次 / 二次 / 三次 / 反比例拟合；下一步进入 C7.6 统一函数定义域与安全图像采样。所有上述状态仅证明 CI/JUnit、androidTest 源码编译与 APK 组装；未执行模拟器或真机仪器测试。后续小步无需逐一构建 APK，在阶段检查点统一回归即可。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -34,7 +34,7 @@
 | Gradle Wrapper | 已完成 | 已添加 Gradle 9.3.1 wrapper JAR、properties、POSIX 与 Windows 启动脚本 |
 | Glass Lab 动态局部背景快照与 AGSL 折射 | 代码已提交，待构建与真机验收 | API 33+ 使用 RuntimeShader 对局部快照做单通道边缘位移；强度 0–8 px 可调；RGB 不分离；API 26–32 回退快照/模糊 |
 | 液态玻璃导航 | 主分支已接入，待真机验收 | 已采用浮动玻璃 Dock、Backdrop 背景采样 / 模糊 / 折射与圆润填色导航图标；二级页面使用 AnimatedContent 淡入、轻微横移和缩放。CI 只能证明编译与测试，不代替目标手机上的光学和交互验收 |
-| 计算迁移 | C4.3.2、C5.1–C5.7、C6.1–C6.2 与 C7.1–C7.2 已通过对应完整 CI | 支持多项式方程 / 不等式、分式方程 / 不等式、受限绝对值 / 平方根、受限指数 / 对数、坐标点校验与一次函数拟合；二次 / 三次 / 反比例拟合和图像采样待做；未做模拟器 / 真机验收 |
+| 计算迁移 | C4.3.2、C5.1–C5.7、C6.1–C6.2 与 C7.1–C7.5 已通过对应完整 CI | 支持多项式方程 / 不等式、分式方程 / 不等式、受限绝对值 / 平方根、受限指数 / 对数、坐标点校验与一次 / 二次 / 三次 / 反比例拟合；统一函数定义域与图像采样待做；未做模拟器 / 真机验收 |
 | AI 接入 | 未开始 | 尚无 Worker 客户端 |
 | 账号与云历史 | 未开始 | 尚无原生认证与历史层 |
 | Debug APK | 工程版本 0.1.2 / versionCode 3 | 版本配置已更新；Android Build #336 曾成功上传 `zhixingapp-debug` Artifact。仓库直链归档是否已更新须以归档提交核验，不把旧 APK 误标成 0.1.2 |
@@ -1849,3 +1849,18 @@
 - [ ] 未执行模拟器 / 真机仪器测试；androidTest 仅源码编译。本步未接表达式解析、函数定义域断点、图像采样或 Compose 页面。
 
 **下一步：** C7.5 反比例函数拟合，继续使用纯 Kotlin domain，不接函数图像 UI。
+
+
+### 27.47 C7.5 反比例函数拟合（2026-11-13）
+
+C7.5 新增纯 Kotlin `InverseProportionFunction`、`InverseProportionFunctionFitResult`、`InverseProportionFitInputError` 与 `InverseProportionFunctionFitter`，拟合目标为 `y=k/x`。至少一个有效点即可拟合；单点唯一确定 `k=x·y`，两点及以上按普通最小二乘最小化纵向残差平方和 `Σ(yi-k/xi)²`。
+
+- 点集输入继续复用 C7.1 `CoordinatePointSetValidator`，要求有限坐标与唯一 x；拟合器对 List 和 CoordinatePointSet 两种入口使用一致校验，并在点集入口再次检查快照。
+- x=0（含正负零）不属于反比例函数定义域。拟合器返回独立的 `InverseProportionFitInputError.ZeroXCoordinate`，携带点索引与原始 x；没有把这一规则塞进通用 Validator，避免误伤多项式函数拟合。
+- 数值算法取最小绝对横坐标作为 x 尺度，最大绝对纵坐标作为 y 尺度，构造有界归一化变量 `u=sX/x`、`v=y/sY`，求解 `q=Σ(uv)/Σ(u²)`，再用 `k=sX·sY·q` 恢复系数。分子与分母使用补偿求和，最终尺度恢复使用 BigDecimal DECIMAL128。
+- 若倒数横坐标或纵坐标归一化发生下溢 / 碰撞，返回 `NUMERIC_PRECISION_LOSS`；系数真实超出 Double 范围返回 `NON_FINITE_RESULT`，非零系数下溢则返回精度损失。所有 y 均为零时直接得到合法的零反比例函数，但 x=0 仍先被拒绝。
+- 新增 16 个 JUnit 测试方法，覆盖单点定参、负 x 符号、精确多点、带噪 OLS、乱序与正负坐标、零函数、x=0（List / PointSet）、空输入、重复 x、非有限坐标、倒数 / y 归一化下溢、系数溢出 / 下溢和极端但可表示的系数。
+- 功能提交：`361e7f3389931acddb775db830dc085b10a85000`。
+Android Build #415（Run ID `43414570879`）完整 success：资源检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理全部通过。Artifact `zhixingapp-debug`，ID `14031401965`，12,517,040 bytes；Artifact ZIP SHA-256：`81c1712ed567052f0e4fdcbd6145c6ce3a52af7e47e200554e10dbe479102055`。没有执行模拟器 / 真机仪器测试；Instrumentation 测试仅完成 Kotlin 源码编译，不能作为设备端运行验收。
+
+**下一步：** C7.6 统一函数定义域与安全图像采样。将一次、二次、三次及反比例模型的定义域边界统一建模；采样需识别 x=0 断点，分段生成点列，避免跨越渐近线直接连线，并对非有限样本、相邻不可分辨 x 与采样预算设置类型化保护。仍不接 Compose 图表 UI。
