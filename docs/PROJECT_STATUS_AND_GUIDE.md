@@ -699,3 +699,9 @@ Lint 当前不属于现有 CI 的既定验收步骤，运行结果需单独记�
 JUnit 覆盖两个不同实根、`x²-1e16x+1` 稳定小根、重根、无实根、判别式近抵消正负两侧、根溢出 / 下溢和三次输入仍不支持。首版提交 `9a955bd2b3b61fb9fdc4980b14ebf9abd6ceb886` 的 Build #390（Run ID `42544038191`）因重复声明 `ROOT_RESIDUAL_TOLERANCE` / `rootsFailure` 失败；读取日志后在 `9db9d21c9506b401959654bc6ecefc3ec7c043ff` 删除重复定义并复用原有辅助函数。没有删减有效断言。Build #391（Run ID `42544184281`）完整成功，Artifact ID `13642063693`，12,428,103 bytes，SHA-256 `e3708be725e4f8adced35b6c09801c4e150a3ce686dba559111242440510cc3f`。
 
 本步已通过源码提交、CI / JUnit、androidTest 源码编译、Debug APK 组装与 Artifact 上传；未启动模拟器，也未进行真机验收。下一阶段 C5 方程求解，先建立方程结果模型与常数 / 一次方程基础测试。
+
+### 11.7 C5.1 常数 / 一次多项式方程（2026-11-13）
+
+已增加 `PolynomialEquation(left, right)` 与 `EquationSolutionResult`，并实现 `PolynomialEquationSolver.solve`。求解器内部先计算左侧减右侧，再把零多项式映射为恒等式、非零常数映射为无解、一次式复用已验证根引擎；有限解保留归一化残差。当前明确只支持到一次，二次及以上返回 `UnsupportedDegree`；分式方程的原始定义域限制与增根剔除留到 C5.4。
+
+提交 `9fe617a3ad1283341bde78b80d56fb775c2615bf` 的 Build #393（Run ID `43394051873`）完整成功：JUnit、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过。Artifact ID `14022361217`，12,434,313 bytes，SHA-256 `322d8591154a23e71bbb9b62a7d8a6ffd71cd888a503224c81ff5805b6fe3d84`。未执行模拟器 / 真机测试。下一步 C5.2 为二次方程层接入。
