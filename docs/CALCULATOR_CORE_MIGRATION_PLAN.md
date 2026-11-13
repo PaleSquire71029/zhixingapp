@@ -1,7 +1,7 @@
 # 知行计算器原生核心迁移计划
 
 > 版本：1.0  
-> 更新日期：2026-11-09  
+> 更新日期：2026-11-13  
 > 目标仓库：`PaleSquire71029/zhixingapp`  
 > 旧逻辑基线：`PaleSquire71029/calculator` 的 `calculator.html`、`js/chemistry-balancer.js`、`js/chemistry-predictor.js`
 
@@ -453,3 +453,26 @@ CI：单点求值 Build #372、精确零点判定 Build #379、分母精度损�
 - 未执行模拟器 / 真机仪器测试。
 
 **下一阶段：** C7 函数工具内核，先实现坐标点输入校验与一次 / 二次函数拟合，再处理三次 / 反比例拟合和图像采样。
+
+
+## 25. C7.1：坐标点数据模型与输入校验（2026-11-13）
+
+新增纯 Kotlin `CoordinatePoint`、`CoordinatePointSet`、`CoordinatePointSetValidationResult` 和 `CoordinatePointSetValidator`，作为一次 / 二次 / 三次 / 反比例函数拟合前的统一输入层。本步只负责点集结构与校验，不提前实现任何拟合或绘图行为。
+
+### 模型与校验规则
+
+- `CoordinatePoint` 用 Double 保存 x、y。模型本身允许承载外部错误输入；有限性由 Validator 检查并转换为类型化结果，避免构造对象时直接抛异常。
+- `CoordinatePointSet` 复制输入列表，并以不可修改视图暴露；通过校验后，调用方不能从原列表或结果列表侧更改点集。
+- 最少点数由调用方传入，必须大于零；默认值为 1。空列表、非法点数参数分别返回独立结果。
+- x 与 y 都必须为有限数；错误包含点索引和坐标轴。
+- 对 `y=f(x)` 型拟合，x 必须唯一。重复 x 返回首个位置与重复位置；`-0.0` 与 `0.0` 按同一个横坐标处理。
+- 重复判断使用精确 Double 相等，不用任意 epsilon 合并近邻 x；数值条件数与近退化数据在拟合器中另行检测。
+
+### 测试与 CI
+
+- 新增 11 个 JUnit 测试方法，覆盖有效点集、输入快照、空输入、x/y 非有限、重复 x、正负零、相邻 Double、点数不足、无效点数要求和校验优先顺序。
+- 功能提交：`bb5fb6d822d18d0c19f51e4f67eb1254daea7761`。
+- Android Build #406（Run ID `43404794011`）完整成功：资源检查、JUnit、androidTest Kotlin 源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；Artifact ID `14027365163`，12,485,602 bytes。
+- 未执行模拟器 / 真机仪器测试；本步没有函数拟合、函数解析、定义域处理或图像采样。
+
+**下一步：** C7.2 一次函数拟合，确定两点精确插值与多点最小二乘的结果语义；随后实现二次拟合，再扩展三次 / 反比例拟合和图像采样。
