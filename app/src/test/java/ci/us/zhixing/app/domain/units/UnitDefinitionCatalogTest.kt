@@ -259,6 +259,11 @@ class UnitDefinitionCatalogTest {
         )
         assertEquals(
             1.0,
+            UnitDefinitionCatalog.find(UnitCategory.SPEED, "ms")!!.scaleToBase,
+            0.0,
+        )
+        assertEquals(
+            0.001,
             UnitDefinitionCatalog.find(UnitCategory.TIME, "ms")!!.scaleToBase,
             0.0,
         )
