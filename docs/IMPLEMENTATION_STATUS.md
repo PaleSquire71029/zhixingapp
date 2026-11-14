@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；方程能力已继续推进至 C5.10（实数立方根方程）；Build #431（Run ID 43551030029）完整 success，JVM 单测、Android 测试源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
+**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；方程能力已继续推进至 C5.11（变量右侧绝对值方程）；Build #437（Run ID 43551712552）完整 success，JVM 单测、Android 测试源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -21,7 +21,7 @@
 | Liquid Glass 真机体验 | 部分真机验收 | 主壳与 PR #88 相关设备验收以用户确认和对应 PR 记录为准；Build / 源码编译本身不等同光学体验验收 |
 | 设计 Tokens | 已实现并通过 CI 编译 | 浅色颜色、形状、间距、文字 Tokens 与 ZhixingTheme 已接入；Build #428 编译通过 |
 | 表达式数学内核 | C0.1–C4.3 已完成 | Tokenizer、AST / Parser、常数求值、多项式、有理函数定义域 / 求值、一次 / 二次实根 |
-| 方程求解 | C5.1–C5.10 已通过 CI | 常数 / 一至三次、分式、绝对值（内部式最高二次）、平方根与立方根（受限结构）、受限指数 / 对数、二元一次方程组 |
+| 方程求解 | C5.1–C5.11 已通过 CI | 常数 / 一至三次、分式、绝对值（常数右侧 / 线性右侧，内部式最高二次）、平方根与立方根（受限结构）、受限指数 / 对数、二元一次方程组 |
 | 不等式求解 | C6.1–C6.2 已完成 | 一至三次多项式不等式、分式不等式 |
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
@@ -32,7 +32,7 @@
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #431 | [Artifact 14095917816](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43551030029/artifacts/14095917816)，12,620,182 bytes；包含 C5.10 实数立方根方程，完整 Actions workflow success |
+| 最新 Debug APK | Build #437 | [Artifact 14095997284](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43551712552/artifacts/14095997284)，12,623,582 bytes；包含 C5.11 变量右侧绝对值方程，完整 Actions workflow success |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 | 项目 | 状态 | 说明 |
@@ -2059,7 +2059,7 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - [x] 唯一解转换回 Double 后检查非有限结果、非零解下溢，并对两条原方程计算最大归一化残差；超出范围或残差不合格时返回既有类型化数值错误。
 - [x] 新增 10 个 JUnit 测试方法，覆盖唯一解、负系数、比例方程无穷多解、比例左侧但常数矛盾、零系数行、全零行恒等 / 矛盾、近奇异独立方程、非有限输入、解溢出和非零解下溢。
 - [x] 代码提交：16b6840fc8d3ca561d04449c726f47248f2d00b5。
-- [x] Android Build #430（Run ID 43550576403，代码 SHA 16b6840fc8d3ca561d04449c726f47248f2d00b5）完整 success：Markdown 本地链接检查、资源检查、全部 JVM 单元测试、:app:compileDebugAndroidTestKotlin、:app:assembleDebug、Artifact 上传和 Actions 清理全部通过；主 Gradle 步骤 BUILD SUCCESSFUL in 1m 2s。Debug Artifact 14096161115，12,617,943 bytes。
+- [x] Android Build #431（Run ID 43550576403，代码 SHA 16b6840fc8d3ca561d04449c726f47248f2d00b5）完整 success：Markdown 本地链接检查、资源检查、全部 JVM 单元测试、:app:compileDebugAndroidTestKotlin、:app:assembleDebug、Artifact 上传和 Actions 清理全部通过；主 Gradle 步骤 BUILD SUCCESSFUL in 1m 2s。Debug Artifact 14096161115，12,617,943 bytes。
 - [ ] 未执行模拟器 / 真机 instrumentation tests；目标设备验收仍按用户要求暂缓。
 - [x] 保持纯 Kotlin domain，不接 Parser、Compose、专用键盘或方程组 UI。
 
@@ -2076,8 +2076,27 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - [x] 多项式乘法或求值产生非有限中间结果时保留既有类型化错误；原式回代残差不合格时返回 NUMERIC_PRECISION_LOSS。
 - [x] 新增 9 个 JUnit 测试方法，覆盖三次 radicand + 一次右侧双根、负解、三次恒等式、负常数恒等式、常数矛盾、无根、二次 radicand 双根、结构次数限制与立方溢出。
 - [x] 代码提交：61186992e4bee37cabad1016002d4ed38b06a587。
-- [x] Android Build #431（Run ID 43551030029，代码 SHA 61186992e4bee37cabad1016002d4ed38b06a587）完整 success：Markdown 本地链接检查、资源检查、全部 JVM 单元测试、:app:compileDebugAndroidTestKotlin、:app:assembleDebug、Artifact 上传和 Actions 清理全部通过；主 Gradle 步骤 BUILD SUCCESSFUL in 39s。Debug Artifact 14095917816，12,620,182 bytes。
+- [x] Android Build #433（Run ID 43551030029，代码 SHA 61186992e4bee37cabad1016002d4ed38b06a587）完整 success：Markdown 本地链接检查、资源检查、全部 JVM 单元测试、:app:compileDebugAndroidTestKotlin、:app:assembleDebug、Artifact 上传和 Actions 清理全部通过；主 Gradle 步骤 BUILD SUCCESSFUL in 39s。Debug Artifact 14095917816，12,620,182 bytes。
 - [ ] 未执行模拟器 / 真机 instrumentation tests；目标设备验收继续按用户要求暂缓。
 - [x] 保持纯 Kotlin domain；不改 Parser、Compose、专用键盘或页面输入。
 
-**边界与后续：** C5.10 仅支持实数立方根、三次以内 radicand 和一次以内右侧多项式；不表示支持任意 n 次根、嵌套根式或高次 / 非线性右侧。下一步进入 C5.11，继续从已规划的高中方程题型选择一个有明确解集分类和边界测试的独立切片。
+**边界与后续：** C5.10 仅支持实数立方根、三次以内 radicand 和一次以内右侧多项式；不表示支持任意 n 次根、嵌套根式或高次 / 非线性右侧。下一步进入 C5.12，继续从已规划的高中方程题型选择一个有明确解集分类和边界测试的独立切片。
+
+ 
+### 27.62 C5.11 变量右侧线性绝对值方程（2026-11-14）
+
+新增 `|P(x)|=Q(x)` 的独立 solver，限定 deg(P)≤2、deg(Q)≤1。和 C5.5 / C5.8 的常数右侧形式分开建模，不改变已有 `AbsoluteValueEquationSolver` 的原有契约。
+
+- [x] 新增 `AbsoluteValueEquationWithLinearRightSide`，明确表达绝对值内部多项式 P 与线性 / 常数右侧 Q。
+- [x] 新增 `AbsoluteValueLinearRightEquationResult`：有限解、无解、全体实数 / 带非负域条件、结构不支持和类型化失败分别表达。
+- [x] 新增 `AbsoluteValueLinearRightEquationSolver`：求解两个分支 P−Q=0、P+Q=0，并对有限候选根通过 `PolynomialArithmetic.signAt` 精确检查 Q(x)≥0；对原方程做归一化残差回代。
+- [x] 当任一分支为恒等式时，返回 Q(x)≥0 的解域条件；若 Q 是负常数则返回无解，若 Q 是非负常数或零多项式则返回全体实数。两个分支重合的根去重并排序。
+- [x] 明确拒绝 deg(P)>2 或 deg(Q)>1；多项式运算溢出、求值失败与符号 / 数值不一致均保留类型化错误。
+- [x] 新增 11 个 JUnit 测试方法，覆盖双分支双解、负右侧候选剔除、正 / 负恒等分支的非负域、零恒等、正常数右侧双解、零右侧根去重、负常数无解、结构限制、运算溢出及常数恒等分支右侧正负分类。
+- [x] 功能提交：`f0cc86f70a982d8a2d7fd17e0d3ca03b1939cbe1`；最终 solver 修正：`57413373e491ec115c5e0af3ec39f9d3ae5dfd30`；常数恒等边界测试：`133923abe41744b62bb71db56385d43c20966c72`。
+- [x] Build #434（Run ID `43551347228`）初始功能实现完整 success；Build #435（Run ID `43551389610`）的一次中间重构因正分支候选变量重复声明而编译失败，已在 `57413373e491ec115c5e0af3ec39f9d3ae5dfd30` 修正；Build #436（Run ID `43551441415`）修正后的 solver 完整 success。
+- [x] Build #437（Run ID `43551712552`，最终测试提交 SHA `133923abe41744b62bb71db56385d43c20966c72`）完整 success：Markdown 链接检查、资源检查、全部 JVM 单元测试、:app:compileDebugAndroidTestKotlin、:app:assembleDebug、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 BUILD SUCCESSFUL in 49s。Debug Artifact `14095997284`，12,623,582 bytes。
+- [ ] 未执行模拟器 / 真机 instrumentation tests；按用户要求，设备验收继续暂缓。
+- [x] 仅新增纯 Kotlin domain 模型 / solver / 单元测试；未改 Parser、Compose、专用键盘或界面。
+
+**边界与后续：** C5.11 仅支持 `|P(x)|=Q(x)` 且 deg(P)≤2、deg(Q)≤1；未支持二次及更高次数右侧、多重绝对值、嵌套绝对值或含参分类。下一步进入 C5.12，继续选择有独立解集语义的高中方程结构。
