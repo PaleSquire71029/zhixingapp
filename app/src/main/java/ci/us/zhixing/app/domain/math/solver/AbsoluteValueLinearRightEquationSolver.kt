@@ -39,16 +39,14 @@ internal object AbsoluteValueLinearRightEquationSolver {
             is PolynomialOperationResult.Failure ->
                 return AbsoluteValueLinearRightEquationResult.Failure(reduced.error)
         }
+
         val candidates = mutableListOf<EquationSolution>()
         when (val roots = PolynomialArithmetic.solveRealRoots(positiveBranch)) {
             PolynomialRootsResult.AllRealNumbers ->
                 return allSolutionsOnNonNegativeRight(equation.right)
             PolynomialRootsResult.NoRealRoots -> Unit
             is PolynomialRootsResult.UnsupportedDegree ->
-                return AbsoluteValueLinearRightEquationResult.UnsupportedStructure(
-                    expressionDegree = equation.expression.degree,
-                    rightDegree = equation.right.degree,
-                )
+                return unsupported(equation)
             is PolynomialRootsResult.Failure ->
                 return AbsoluteValueLinearRightEquationResult.Failure(roots.error)
             is PolynomialRootsResult.FiniteRoots -> when (
@@ -67,27 +65,12 @@ internal object AbsoluteValueLinearRightEquationSolver {
             is PolynomialOperationResult.Failure ->
                 return AbsoluteValueLinearRightEquationResult.Failure(reduced.error)
         }
-
-        val candidates = mutableListOf<EquationSolution>()
-        when (val roots = PolynomialArithmetic.solveRealRoots(positiveBranch)) {
-            is PolynomialRootsResult.FiniteRoots -> when (
-                val validation = collectValidSolutions(equation, roots)
-            ) {
-                is CandidateCollection.Success -> candidates += validation.solutions
-                is CandidateCollection.Failure ->
-                    return AbsoluteValueLinearRightEquationResult.Failure(validation.error)
-            }
-            else -> Unit
-        }
         when (val roots = PolynomialArithmetic.solveRealRoots(negativeBranch)) {
             PolynomialRootsResult.AllRealNumbers ->
                 return allSolutionsOnNonNegativeRight(equation.right)
             PolynomialRootsResult.NoRealRoots -> Unit
             is PolynomialRootsResult.UnsupportedDegree ->
-                return AbsoluteValueLinearRightEquationResult.UnsupportedStructure(
-                    expressionDegree = equation.expression.degree,
-                    rightDegree = equation.right.degree,
-                )
+                return unsupported(equation)
             is PolynomialRootsResult.Failure ->
                 return AbsoluteValueLinearRightEquationResult.Failure(roots.error)
             is PolynomialRootsResult.FiniteRoots -> when (
@@ -106,6 +89,13 @@ internal object AbsoluteValueLinearRightEquationSolver {
             AbsoluteValueLinearRightEquationResult.FiniteSolutions(unique)
         }
     }
+
+    private fun unsupported(
+        equation: AbsoluteValueEquationWithLinearRightSide,
+    ) = AbsoluteValueLinearRightEquationResult.UnsupportedStructure(
+        expressionDegree = equation.expression.degree,
+        rightDegree = equation.right.degree,
+    )
 
     private fun allSolutionsOnNonNegativeRight(
         right: Polynomial,
@@ -130,13 +120,6 @@ internal object AbsoluteValueLinearRightEquationSolver {
         val accepted = mutableListOf<EquationSolution>()
         for (root in roots.roots) {
             val rightSign = PolynomialArithmetic.signAt(equation.right, root.value)
-            val expressionValue = when (
-                val evaluated = PolynomialArithmetic.evaluate(equation.expression, root.value)
-            ) {
-                is PolynomialEvaluationResult.Success -> evaluated.value
-                is PolynomialEvaluationResult.Failure ->
-                    return CandidateCollection.Failure(evaluated.error)
-            }
             val rightValue = when (
                 val evaluated = PolynomialArithmetic.evaluate(equation.right, root.value)
             ) {
@@ -144,7 +127,6 @@ internal object AbsoluteValueLinearRightEquationSolver {
                 is PolynomialEvaluationResult.Failure ->
                     return CandidateCollection.Failure(evaluated.error)
             }
-
             if (!agreesWithExactSign(rightSign, rightValue)) {
                 return CandidateCollection.Failure(
                     PolynomialError(
@@ -155,6 +137,13 @@ internal object AbsoluteValueLinearRightEquationSolver {
             }
             if (rightSign < 0) continue
 
+            val expressionValue = when (
+                val evaluated = PolynomialArithmetic.evaluate(equation.expression, root.value)
+            ) {
+                is PolynomialEvaluationResult.Success -> evaluated.value
+                is PolynomialEvaluationResult.Failure ->
+                    return CandidateCollection.Failure(evaluated.error)
+            }
             val absoluteValue = abs(expressionValue)
             val scale = maxOf(absoluteValue, abs(rightValue))
             val residual = if (scale == 0.0) {
