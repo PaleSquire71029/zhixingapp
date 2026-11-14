@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；方程能力已继续推进至 C5.8（二次内部式绝对值方程）；Build #429（Run ID 43550028977）完整 success，JVM 单测、Android 测试源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
+**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；方程能力已继续推进至 C5.9（二元一次方程组）；Build #430（Run ID 43550576403）完整 success，JVM 单测、Android 测试源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -21,7 +21,7 @@
 | Liquid Glass 真机体验 | 部分真机验收 | 主壳与 PR #88 相关设备验收以用户确认和对应 PR 记录为准；Build / 源码编译本身不等同光学体验验收 |
 | 设计 Tokens | 已实现并通过 CI 编译 | 浅色颜色、形状、间距、文字 Tokens 与 ZhixingTheme 已接入；Build #428 编译通过 |
 | 表达式数学内核 | C0.1–C4.3 已完成 | Tokenizer、AST / Parser、常数求值、多项式、有理函数定义域 / 求值、一次 / 二次实根 |
-| 方程求解 | C5.1–C5.8 已通过 CI | 常数 / 一至三次、分式、绝对值（内部式最高二次）、平方根、受限指数 / 对数方程 |
+| 方程求解 | C5.1–C5.9 已通过 CI | 常数 / 一至三次、分式、绝对值（内部式最高二次）、平方根、受限指数 / 对数、二元一次方程组 |
 | 不等式求解 | C6.1–C6.2 已完成 | 一至三次多项式不等式、分式不等式 |
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
@@ -32,7 +32,7 @@
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #429 | [Artifact 14095509294](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43550028977/artifacts/14095509294)，12,612,599 bytes；包含 C5.8 二次内部式绝对值方程，完整 Actions workflow success |
+| 最新 Debug APK | Build #430 | [Artifact 14096161115](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43550576403/artifacts/14096161115)，12,617,943 bytes；包含 C5.9 二元一次方程组，完整 Actions workflow success |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 | 项目 | 状态 | 说明 |
@@ -2047,3 +2047,20 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - [x] 保持纯 Kotlin domain，不改 Parser、Compose、输入键盘或 UI；不进入 C8.7。
 
 **边界与后续：** C5.8 仍只支持一个绝对值表达式与有限常数目标；变量右侧、多重 / 嵌套绝对值、高于二次的内部式不在本步范围。下一步继续检查方程求解覆盖缺口，另选可独立验证的高中题型切片。
+
+
+### 27.60 C5.9 二元一次方程组（2026-11-14）
+
+新增纯 Kotlin 二元一次方程组模型与求解器，输入两条形如 ax + by = c 的线性方程。当前只覆盖 2 个未知数、2 条一次方程，不包含三元系统、参数系统或方程组 UI。
+
+- [x] 新增 LinearEquation2D 与 LinearEquationSystem 数据模型；系数和常数项统一按 Double 输入，由 solver 负责有限性校验。
+- [x] 新增 LinearSystemSolutionResult，明确区分 AllRealPairs（任意实数对均满足）、NoSolutions、UniqueSolution（x、y 与归一化残差）和 Failure。
+- [x] 新增 LinearEquationSystemSolver。使用 BigDecimal 计算行列式、克拉默法则分子和增广矩阵秩关系；不以固定 epsilon 判断行列式是否为零，避免把近奇异但仍线性独立的方程误判为比例方程。
+- [x] 唯一解转换回 Double 后检查非有限结果、非零解下溢，并对两条原方程计算最大归一化残差；超出范围或残差不合格时返回既有类型化数值错误。
+- [x] 新增 10 个 JUnit 测试方法，覆盖唯一解、负系数、比例方程无穷多解、比例左侧但常数矛盾、零系数行、全零行恒等 / 矛盾、近奇异独立方程、非有限输入、解溢出和非零解下溢。
+- [x] 代码提交：16b6840fc8d3ca561d04449c726f47248f2d00b5。
+- [x] Android Build #430（Run ID 43550576403，代码 SHA 16b6840fc8d3ca561d04449c726f47248f2d00b5）完整 success：Markdown 本地链接检查、资源检查、全部 JVM 单元测试、:app:compileDebugAndroidTestKotlin、:app:assembleDebug、Artifact 上传和 Actions 清理全部通过；主 Gradle 步骤 BUILD SUCCESSFUL in 1m 2s。Debug Artifact 14096161115，12,617,943 bytes。
+- [ ] 未执行模拟器 / 真机 instrumentation tests；目标设备验收仍按用户要求暂缓。
+- [x] 保持纯 Kotlin domain，不接 Parser、Compose、专用键盘或方程组 UI。
+
+**边界与后续：** C5.9 仅对两条二元一次方程分类和求解；不代表已支持三元方程组、含参数方程组、非线性系统或通用矩阵求解。下一步继续从高中方程题型目录中选择独立切片，先完善真实题型与解集边界，再接输入 / UI。
