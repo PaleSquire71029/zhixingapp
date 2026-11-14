@@ -39,6 +39,7 @@ internal object AbsoluteValueLinearRightEquationSolver {
             is PolynomialOperationResult.Failure ->
                 return AbsoluteValueLinearRightEquationResult.Failure(reduced.error)
         }
+        val candidates = mutableListOf<EquationSolution>()
         when (val roots = PolynomialArithmetic.solveRealRoots(positiveBranch)) {
             PolynomialRootsResult.AllRealNumbers ->
                 return allSolutionsOnNonNegativeRight(equation.right)
@@ -50,14 +51,12 @@ internal object AbsoluteValueLinearRightEquationSolver {
                 )
             is PolynomialRootsResult.Failure ->
                 return AbsoluteValueLinearRightEquationResult.Failure(roots.error)
-            is PolynomialRootsResult.FiniteRoots -> {
+            is PolynomialRootsResult.FiniteRoots -> when (
                 val validation = collectValidSolutions(equation, roots)
-                if (validation is CandidateCollection.Failure) {
+            ) {
+                is CandidateCollection.Success -> candidates += validation.solutions
+                is CandidateCollection.Failure ->
                     return AbsoluteValueLinearRightEquationResult.Failure(validation.error)
-                }
-                if (validation is CandidateCollection.Success) {
-                    // Keep the candidates until the second branch has been checked.
-                }
             }
         }
 
