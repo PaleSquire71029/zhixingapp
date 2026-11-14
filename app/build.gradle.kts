@@ -22,10 +22,10 @@ android {
 
     packaging {
         resources {
-            // Symja bundles the GraphML schema already present in JGraphT.
-            pickFirsts += "**/graphml.xsd"
-            pickFirsts += "**/xlink.xsd"
-            pickFirsts += "**/viz.xsd"
+            // Symja and JGraphT bundle overlapping XML schema files.
+            // Pick one copy only for duplicate XSD paths; all other resources
+            // retain the default duplicate detection behavior.
+            pickFirsts += "**/*.xsd"
         }
     }
 
