@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；方程能力已继续推进至 C5.9（二元一次方程组）；Build #430（Run ID 43550576403）完整 success，JVM 单测、Android 测试源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
+**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；方程能力已继续推进至 C5.10（实数立方根方程）；Build #431（Run ID 43551030029）完整 success，JVM 单测、Android 测试源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -21,7 +21,7 @@
 | Liquid Glass 真机体验 | 部分真机验收 | 主壳与 PR #88 相关设备验收以用户确认和对应 PR 记录为准；Build / 源码编译本身不等同光学体验验收 |
 | 设计 Tokens | 已实现并通过 CI 编译 | 浅色颜色、形状、间距、文字 Tokens 与 ZhixingTheme 已接入；Build #428 编译通过 |
 | 表达式数学内核 | C0.1–C4.3 已完成 | Tokenizer、AST / Parser、常数求值、多项式、有理函数定义域 / 求值、一次 / 二次实根 |
-| 方程求解 | C5.1–C5.9 已通过 CI | 常数 / 一至三次、分式、绝对值（内部式最高二次）、平方根、受限指数 / 对数、二元一次方程组 |
+| 方程求解 | C5.1–C5.10 已通过 CI | 常数 / 一至三次、分式、绝对值（内部式最高二次）、平方根与立方根（受限结构）、受限指数 / 对数、二元一次方程组 |
 | 不等式求解 | C6.1–C6.2 已完成 | 一至三次多项式不等式、分式不等式 |
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
@@ -32,7 +32,7 @@
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #430 | [Artifact 14096161115](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43550576403/artifacts/14096161115)，12,617,943 bytes；包含 C5.9 二元一次方程组，完整 Actions workflow success |
+| 最新 Debug APK | Build #431 | [Artifact 14095917816](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43551030029/artifacts/14095917816)，12,620,182 bytes；包含 C5.10 实数立方根方程，完整 Actions workflow success |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 | 项目 | 状态 | 说明 |
@@ -2064,3 +2064,20 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - [x] 保持纯 Kotlin domain，不接 Parser、Compose、专用键盘或方程组 UI。
 
 **边界与后续：** C5.9 仅对两条二元一次方程分类和求解；不代表已支持三元方程组、含参数方程组、非线性系统或通用矩阵求解。下一步继续从高中方程题型目录中选择独立切片，先完善真实题型与解集边界，再接输入 / UI。
+
+
+### 27.61 C5.10 实数立方根方程（2026-11-14）
+
+新增独立实数立方根方程模型、解集结果与纯 Kotlin solver。当前形式限制为 ∛P(x)=Q(x)，其中 deg(P)≤3、deg(Q)≤1；不把它扩展成多个 / 嵌套根式或其他指数根式系统。
+
+- [x] 新增 CubeRootEquation 与 CubeRootEquationSolutionResult，区分 AllRealNumbers、NoSolutions、FiniteSolutions、UnsupportedStructure 和 Failure。
+- [x] 利用实数立方函数在全体实数上的一一对应，将 ∛P(x)=Q(x) 等价为 P(x)=Q(x)³；对 Q 复用 PolynomialArithmetic.multiply 两次，对候选多项式复用现有 1–3 次实根引擎，不复制根算法。
+- [x] 有限候选根逐个代回原式：用 Math.cbrt(P(x)) 与 Q(x) 比较归一化残差；负数 radicand / 负数解合法，不引入平方根方程的非负定义域筛选。
+- [x] 多项式乘法或求值产生非有限中间结果时保留既有类型化错误；原式回代残差不合格时返回 NUMERIC_PRECISION_LOSS。
+- [x] 新增 9 个 JUnit 测试方法，覆盖三次 radicand + 一次右侧双根、负解、三次恒等式、负常数恒等式、常数矛盾、无根、二次 radicand 双根、结构次数限制与立方溢出。
+- [x] 代码提交：61186992e4bee37cabad1016002d4ed38b06a587。
+- [x] Android Build #431（Run ID 43551030029，代码 SHA 61186992e4bee37cabad1016002d4ed38b06a587）完整 success：Markdown 本地链接检查、资源检查、全部 JVM 单元测试、:app:compileDebugAndroidTestKotlin、:app:assembleDebug、Artifact 上传和 Actions 清理全部通过；主 Gradle 步骤 BUILD SUCCESSFUL in 39s。Debug Artifact 14095917816，12,620,182 bytes。
+- [ ] 未执行模拟器 / 真机 instrumentation tests；目标设备验收继续按用户要求暂缓。
+- [x] 保持纯 Kotlin domain；不改 Parser、Compose、专用键盘或页面输入。
+
+**边界与后续：** C5.10 仅支持实数立方根、三次以内 radicand 和一次以内右侧多项式；不表示支持任意 n 次根、嵌套根式或高次 / 非线性右侧。下一步进入 C5.11，继续从已规划的高中方程题型选择一个有明确解集分类和边界测试的独立切片。
