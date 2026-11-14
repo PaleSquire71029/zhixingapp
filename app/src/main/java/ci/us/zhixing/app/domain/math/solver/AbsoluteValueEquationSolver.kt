@@ -10,11 +10,12 @@ import ci.us.zhixing.app.domain.math.model.PolynomialOperationResult
 import ci.us.zhixing.app.domain.math.model.PolynomialRootsResult
 
 /**
- * Solves |a*x + b| = c by solving a*x+b-c=0 and a*x+b+c=0.
+ * Solves |P(x)| = c by solving P(x)-c=0 and P(x)+c=0.
  *
- * Constant inner expressions are classified directly. Negative targets have
- * no solutions. This slice does not claim to solve variable right-hand sides
- * or nested / multiple absolute values.
+ * Constant, linear, and quadratic inner polynomials are supported. Negative
+ * targets have no solutions; a zero target is solved only once to avoid
+ * duplicate branch roots. Variable right-hand sides and nested / multiple
+ * absolute values remain outside this solver's contract.
  */
 internal object AbsoluteValueEquationSolver {
     fun solve(equation: AbsoluteValueEquation): EquationSolutionResult {
@@ -95,5 +96,5 @@ internal object AbsoluteValueEquationSolver {
         }
     }
 
-    private const val MAX_INNER_DEGREE = 1
+    private const val MAX_INNER_DEGREE = 2
 }
