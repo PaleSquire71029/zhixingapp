@@ -22,3 +22,14 @@
 - License: Apache License 2.0.
 - Used assets: `calculate`, `smart_toy`, `handyman`, `person`, `history`, and `tune` from the Material Symbols Rounded family, converted to Android VectorDrawable resources under `app/src/main/res/drawable/`.
 - The six glyphs are used for calculator, 知行 AI, tools, My, history, and material settings navigation respectively.
+
+## Symja symbolic mathematics core 3.2.0
+
+- Upstream: https://github.com/axkr/symja_android_library
+- Maven module: `org.matheclipse:matheclipse-core:3.2.0`.
+- Pinned source tag: `v3.2.0`.
+- License: LGPL-3.0 for `matheclipse-core`, `matheclipse-parser`, and `matheclipse-external`; the full license text is in [THIRD_PARTY_LICENSES/Symja-LGPL-3.0.txt](./THIRD_PARTY_LICENSES/Symja-LGPL-3.0.txt).
+- Only the LGPL core module is used. GPL-licensed modules such as `matheclipse-api`, `matheclipse-gpl`, and `matheclipse-io` are not dependencies.
+- Zhixing integration: a small Kotlin adapter validates the parsed expression tree against a mathematical allow-list, bounds input size, AST depth, exponent/factorial sizes, matrix dimensions and output size, and applies an evaluation timeout. It does not expose Symja's full scripting language or copy the GPL-licensed Android sample wrapper.
+- Android dependency adjustments: core-library desugaring enabled; Guava is pinned to the Android flavor `33.8.0-android`; Jackson Databind is pinned to patched `2.21.7`; Log4j API is pinned to patched `2.25.5`. Review the resolved dependency graph and licenses again before public release.
+- The Symja engine is an optional domain backend; existing tokenizer, parser, polynomial, rational-function and typed solver code remains intact and is not replaced by this dependency.

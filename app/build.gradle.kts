@@ -21,12 +21,26 @@ android {
     }
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+
+    // Symja's LGPL-only symbolic math core. Do not add matheclipse-api / -gpl / -io.
+    implementation("org.matheclipse:matheclipse-core:3.2.0") {
+        exclude(group = "com.google.guava", module = "guava")
+        exclude(group = "com.fasterxml.jackson.core", module = "jackson-databind")
+        exclude(group = "org.apache.logging.log4j", module = "log4j-api")
+    }
+    // Android-specific Guava flavor and security-patched dependency versions.
+    implementation("com.google.guava:guava:33.8.0-android")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.7")
+    implementation("org.apache.logging.log4j:log4j-api:2.25.5")
+
     implementation(platform("androidx.compose:compose-bom:2026.06.00"))
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.compose.ui:ui")
