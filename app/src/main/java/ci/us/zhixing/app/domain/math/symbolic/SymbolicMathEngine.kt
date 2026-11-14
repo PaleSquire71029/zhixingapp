@@ -115,13 +115,18 @@ internal object SymbolicMathEngine {
 
         Config.JAVA_AWT_DESKTOP_AVAILABLE = false
         Config.DISABLE_JMX = true
-        Config.MAX_INPUT_LEAVES = MAX_AST_NODES.toLong()
-        Config.MAX_AST_SIZE = MAX_AST_NODES
+
+        // Initialize Symja's own built-in symbol/AST registry before applying
+        // per-session limits; a tiny user-expression limit here breaks startup.
+        F.initSymbols()
+
+        // The adapter separately enforces the small user-input AST budget in
+        // validate(). These global limits must still leave room for CAS internals.
+        Config.MAX_INPUT_LEAVES = MAX_INTERNAL_AST_SIZE.toLong()
+        Config.MAX_AST_SIZE = MAX_INTERNAL_AST_SIZE
         Config.MAX_OUTPUT_SIZE = MAX_OUTPUT_CHARS
         Config.MAX_MATRIX_DIMENSION_SIZE = MAX_MATRIX_DIMENSION
         Config.MAX_BIT_LENGTH = MAX_INTEGER_BIT_LENGTH
-
-        F.initSymbols()
         initialized = true
     }
 
@@ -252,6 +257,7 @@ internal object SymbolicMathEngine {
     private const val MAX_TIMEOUT_MILLIS = 5_000L
     private const val MAX_INPUT_CHARS = 512
     private const val MAX_AST_NODES = 128
+    private const val MAX_INTERNAL_AST_SIZE = 100_000
     private const val MAX_AST_DEPTH = 24
     private const val MAX_ARGUMENTS = 16
     private const val MAX_OUTPUT_CHARS = 4_096
