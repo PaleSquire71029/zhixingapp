@@ -23,8 +23,39 @@ internal data class SymbolicMathError(
 )
 
 internal sealed interface SymbolicMathResult {
-    data class Success(val expression: String) : SymbolicMathResult
+    data class Success(
+        val expression: String,
+        val domainRestrictions: List<SymbolicDomainRestriction> = emptyList(),
+    ) : SymbolicMathResult
+
     data class Failure(val error: SymbolicMathError) : SymbolicMathResult
+}
+
+/**
+ * Restrictions are extracted from the user's original AST before CAS
+ * simplification, so operations such as Simplify(x/x) do not erase the
+ * original denominator hole from the result contract.
+ */
+internal sealed interface SymbolicDomainRestriction {
+    val expression: String
+
+    data class NonZero(override val expression: String) : SymbolicDomainRestriction
+    data class Positive(override val expression: String) : SymbolicDomainRestriction
+    data class NonNegative(override val expression: String) : SymbolicDomainRestriction
+    data class NotEqual(
+        override val expression: String,
+        val value: String,
+    ) : SymbolicDomainRestriction
+    data class ClosedInterval(
+        override val expression: String,
+        val lowerBound: String,
+        val upperBound: String,
+    ) : SymbolicDomainRestriction
+    data class OpenInterval(
+        override val expression: String,
+        val lowerBound: String,
+        val upperBound: String,
+    ) : SymbolicDomainRestriction
 }
 
 /**
@@ -79,6 +110,10 @@ internal object SymbolicMathEngine {
                 return@synchronized validation
             }
 
+            // Collect restrictions from the original input before symbolic
+            // rewriting, cancellation or simplification can remove them.
+            val originalDomainRestrictions = collectDomainRestrictions(parsed)
+
             val result = evaluator.evaluateWithTimeout(
                 source,
                 timeoutMillis,
@@ -99,7 +134,10 @@ internal object SymbolicMathEngine {
                     SymbolicMathErrorCode.ENGINE_FAILURE,
                     "数学引擎无法完成该计算",
                 )
-                else -> SymbolicMathResult.Success(result.toString())
+                else -> SymbolicMathResult.Success(
+                    expression = result.toString(),
+                    domainRestrictions = originalDomainRestrictions,
+                )
             }
         } catch (exception: Exception) {
             failure(
@@ -214,6 +252,59 @@ internal object SymbolicMathEngine {
         return visit(root, 0)
     }
 
+    /**
+     * Captures common real-domain constraints from the unmodified source AST.
+     * This list travels with simplified/solved output so a removable
+     * discontinuity is not silently turned into an admissible point.
+     */
+    private fun collectDomainRestrictions(root: IExpr): List<SymbolicDomainRestriction> {
+        val restrictions = linkedSetOf<SymbolicDomainRestriction>()
+
+        fun visit(expression: IExpr) {
+            if (!expression.isAST()) return
+
+            val head = expression.head().toString()
+            val argumentCount = expression.argSize()
+            if (argumentCount >= 1) {
+                val first = expression.get(1).toString()
+                when (head) {
+                    "Power" -> {
+                        if (argumentCount == 2 &&
+                            expression.get(2).toString().trim().startsWith("-")
+                        ) {
+                            restrictions += SymbolicDomainRestriction.NonZero(first)
+                        }
+                    }
+                    "Sqrt" -> restrictions += SymbolicDomainRestriction.NonNegative(first)
+                    "Log" -> {
+                        if (argumentCount == 1) {
+                            restrictions += SymbolicDomainRestriction.Positive(first)
+                        } else if (argumentCount == 2) {
+                            restrictions += SymbolicDomainRestriction.Positive(first)
+                            restrictions += SymbolicDomainRestriction.NotEqual(first, "1")
+                            restrictions += SymbolicDomainRestriction.Positive(
+                                expression.get(2).toString(),
+                            )
+                        }
+                    }
+                    "Tan", "Sec" ->
+                        restrictions += SymbolicDomainRestriction.NonZero("Cos($first)")
+                    "Cot", "Csc" ->
+                        restrictions += SymbolicDomainRestriction.NonZero("Sin($first)")
+                    "ArcSin", "ArcCos" ->
+                        restrictions += SymbolicDomainRestriction.ClosedInterval(first, "-1", "1")
+                    "ArcTanh" ->
+                        restrictions += SymbolicDomainRestriction.OpenInterval(first, "-1", "1")
+                }
+            }
+
+            for (index in 1..argumentCount) visit(expression.get(index))
+        }
+
+        visit(root)
+        return restrictions.toList()
+    }
+
     private fun failure(
         code: SymbolicMathErrorCode,
         message: String,
@@ -221,15 +312,18 @@ internal object SymbolicMathEngine {
         SymbolicMathError(code = code, message = message),
     )
 
-    private val ALLOWED_SYMBOLS = setOf(
-        "x",
-        "y",
-        "z",
+    private val ALLOWED_SYMBOLS = ('a'..'z').map { it.toString() }.toSet() + setOf(
         "Pi",
         "E",
         "I",
         "True",
         "False",
+        "Infinity",
+        "ComplexInfinity",
+        "Reals",
+        "Integers",
+        "Rationals",
+        "Complexes",
     )
 
     private val ALLOWED_HEADS = setOf(
@@ -243,13 +337,37 @@ internal object SymbolicMathEngine {
         "Min", "Max", "Factorial", "Factorial2",
         "Re", "Im", "Conjugate", "ComplexExpand",
 
-        // Algebra, equations and calculus.
+        // Algebra, equations, inequalities and polynomial analysis.
         "Equal", "Unequal", "Less", "Greater", "LessEqual", "GreaterEqual",
-        "And", "Or", "Not", "List",
-        "Simplify", "FullSimplify", "Expand", "ExpandAll", "Factor",
+        "And", "Or", "Not", "List", "Rule", "Element",
+        "Simplify", "FullSimplify", "Expand", "ExpandAll", "Factor", "FactorTerms",
         "Together", "Apart", "Cancel", "Collect", "TrigExpand", "TrigReduce",
-        "Solve", "NSolve", "Reduce", "FindRoot",
-        "D", "Integrate", "Limit", "Series", "N",
+        "TrigToExp", "ExpToTrig", "PolynomialGCD", "PolynomialQuotient",
+        "PolynomialRemainder", "Coefficient", "CoefficientList", "Exponent", "Variables",
+        "Solve", "SolveValues", "NSolve", "Reduce", "FindRoot", "Roots",
+        "FunctionDomain", "FunctionRange", "Minimize", "Maximize", "ArgMin", "ArgMax",
+
+        // Sequences, summation, products and combinatorics.
+        "Sum", "Product", "RSolve", "RecurrenceTable",
+        "Binomial", "Multinomial", "Pochhammer",
+
+        // Coordinate geometry, vectors and linear algebra.
+        "Dot", "Cross", "Norm", "Det", "Inverse", "Transpose", "MatrixRank",
+        "LinearSolve", "RowReduce", "NullSpace", "IdentityMatrix", "DiagonalMatrix",
+        "Eigenvalues", "Eigenvectors", "CharacteristicPolynomial", "Tr",
+        "Distance", "EuclideanDistance",
+
+        // Probability and descriptive statistics.
+        "Mean", "Median", "Variance", "StandardDeviation", "Covariance",
+        "Correlation", "Quantile", "Quartiles", "Total", "Count", "Counts", "Tally",
+
+        // Piecewise and conditional function definitions.
+        "Piecewise", "ConditionalExpression", "UnitStep", "HeavisideTheta", "Boole",
+        "Interval", "IntervalUnion", "IntervalIntersection", "Union", "Intersection",
+        "Complement",
+
+        // Calculus and numerical evaluation.
+        "D", "Integrate", "Limit", "Series", "SeriesCoefficient", "Sum", "N",
     )
 
     private const val DEFAULT_TIMEOUT_MILLIS = 1_500L
