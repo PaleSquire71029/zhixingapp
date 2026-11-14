@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；方程能力已继续推进至 C5.11（变量右侧绝对值方程）；Build #437（Run ID 43551712552）完整 success，JVM 单测、Android 测试源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
+**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；方程能力已继续推进至 C5.12（弧度制正弦周期方程）；Build #439（Run ID 43552472439）完整 success，JVM 单测、Android 测试源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -21,7 +21,7 @@
 | Liquid Glass 真机体验 | 部分真机验收 | 主壳与 PR #88 相关设备验收以用户确认和对应 PR 记录为准；Build / 源码编译本身不等同光学体验验收 |
 | 设计 Tokens | 已实现并通过 CI 编译 | 浅色颜色、形状、间距、文字 Tokens 与 ZhixingTheme 已接入；Build #428 编译通过 |
 | 表达式数学内核 | C0.1–C4.3 已完成 | Tokenizer、AST / Parser、常数求值、多项式、有理函数定义域 / 求值、一次 / 二次实根 |
-| 方程求解 | C5.1–C5.11 已通过 CI | 常数 / 一至三次、分式、绝对值（常数右侧 / 线性右侧，内部式最高二次）、平方根与立方根（受限结构）、受限指数 / 对数、二元一次方程组 |
+| 方程求解 | C5.1–C5.12 已通过 CI | 常数 / 一至三次、分式、绝对值（常数右侧 / 线性右侧，内部式最高二次）、平方根与立方根（受限结构）、受限指数 / 对数、二元一次方程组、基础正弦周期方程 |
 | 不等式求解 | C6.1–C6.2 已完成 | 一至三次多项式不等式、分式不等式 |
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
@@ -32,7 +32,7 @@
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #437 | [Artifact 14095997284](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43551712552/artifacts/14095997284)，12,623,582 bytes；包含 C5.11 变量右侧绝对值方程，完整 Actions workflow success |
+| 最新 Debug APK | Build #439 | [Artifact 14096494162](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43552472439/artifacts/14096494162)，12,629,769 bytes；包含 C5.12 正弦周期方程，完整 Actions workflow success |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 | 项目 | 状态 | 说明 |
@@ -2080,7 +2080,7 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - [ ] 未执行模拟器 / 真机 instrumentation tests；目标设备验收继续按用户要求暂缓。
 - [x] 保持纯 Kotlin domain；不改 Parser、Compose、专用键盘或页面输入。
 
-**边界与后续：** C5.10 仅支持实数立方根、三次以内 radicand 和一次以内右侧多项式；不表示支持任意 n 次根、嵌套根式或高次 / 非线性右侧。下一步进入 C5.12，继续从已规划的高中方程题型选择一个有明确解集分类和边界测试的独立切片。
+**边界与后续：** C5.10 仅支持实数立方根、三次以内 radicand 和一次以内右侧多项式；不表示支持任意 n 次根、嵌套根式或高次 / 非线性右侧。下一步进入 C5.11 变量右侧绝对值方程，继续从高中题型规划选择一个独立切片。
 
  
 ### 27.62 C5.11 变量右侧线性绝对值方程（2026-11-14）
@@ -2099,4 +2099,24 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - [ ] 未执行模拟器 / 真机 instrumentation tests；按用户要求，设备验收继续暂缓。
 - [x] 仅新增纯 Kotlin domain 模型 / solver / 单元测试；未改 Parser、Compose、专用键盘或界面。
 
-**边界与后续：** C5.11 仅支持 `|P(x)|=Q(x)` 且 deg(P)≤2、deg(Q)≤1；未支持二次及更高次数右侧、多重绝对值、嵌套绝对值或含参分类。下一步进入 C5.12，继续选择有独立解集语义的高中方程结构。
+**边界与后续：** C5.11 仅支持 `|P(x)|=Q(x)` 且 deg(P)≤2、deg(Q)≤1；未支持二次及更高次数右侧、多重绝对值、嵌套绝对值或含参分类。下一步进入 C5.13，继续选择有独立解集语义的高中方程结构。
+
+
+### 27.63 C5.12 弧度制正弦周期方程（2026-11-14）
+
+新增纯 Kotlin 正弦方程内核，支持 `sin(a*x+b)=c`，所有角度均采用弧度制。当前只处理线性角表达式和常数目标，不包含复合三角函数、多角组合、含参区间综合或反三角函数方程。
+
+- [x] 新增 `SineEquation` 输入模型，明确系数 a、相位 b、目标 c 均为 Double 且角度单位为弧度。
+- [x] 新增 `PeriodicSolutionFamily`，用 `x = firstSolution + k * period`（k 为任意整数）表达一个无限周期解族；基准值归一化至 `[0, period)`，周期固定为正数。
+- [x] 新增 `SineEquationSolutionResult`，将全体实数、无解、一个或两个周期解族、类型化数值错误分开表示；不把无限解截断成有限根列表。
+- [x] 对 a≠0 使用 `α=asin(c)`，分别生成 `a*x+b=α+2kπ` 和 `a*x+b=π−α+2kπ` 两支；当 c=±1 时两支重合，只返回一个解族；周期为 `2π/|a|`，负系数仍得到正周期。
+- [x] 对 a=0 直接判断常数等式 `sin(b)=c`，分类为 AllRealNumbers 或 NoSolutions；c 超出 [-1,1] 时直接无解。
+- [x] 对非有限输入返回 NON_FINITE_INPUT；周期溢出返回 NON_FINITE_RESULT；非零基准解下溢、相位周期数超出可靠归一化范围或原式回代残差不合格时返回 NUMERIC_PRECISION_LOSS。
+- [x] 新增 11 个 JUnit 测试方法，覆盖 `sin(x)=0` 两解族、c=±1 边界合并、`sin(2x+π/6)=1/2`、负系数、目标越界、a=0 恒等 / 矛盾、非有限输入、周期溢出和超大相位精度边界。
+- [x] 代码提交：初版 `1d2924b5d28f3013c8dfdc29b3b640c526c11635`；解族归一化结果改为调用内局部类型、移除共享可变错误状态的修正提交 `b049e2ee6880524d5698c1d19df3966925821a0a`。
+- [x] Build #438（Run ID `43552419920`，初版 SHA `1d2924b5d28f3013c8dfdc29b3b640c526c11635`）完整 success；Build #439（Run ID `43552472439`，最终 SHA `b049e2ee6880524d5698c1d19df3966925821a0a`）完整 success。最终主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`，另有清理构建成功；Markdown 链接检查、资源检查、全部 JVM 测试、Android 测试源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过。
+- [x] 最新 Debug Artifact：`14096494162`，12,629,769 bytes。
+- [ ] 未执行模拟器 / 真机 instrumentation tests；按用户要求，真机验收继续暂缓。
+- [x] 保持纯 Kotlin domain；未改 Parser、Compose、专用键盘或计算器 UI。
+
+**边界与后续：** C5.12 仅支持 `sin(ax+b)=c`，以弧度为单位，周期解族适用于全体实数 x；不代表已经支持 cos / tan 方程、复合三角式、多个三角函数混合方程或区间内解筛选。下一步进入 C5.13，继续选择边界明确的高中方程独立切片。
