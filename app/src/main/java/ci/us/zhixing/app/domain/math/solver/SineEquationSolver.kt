@@ -57,16 +57,26 @@ internal object SineEquationSolver {
         val principalAngle = asin(equation.target)
         val firstNumerator = principalAngle - equation.phase
         val firstRaw = firstNumerator / equation.coefficient
-        val first = normalizeFamily(firstRaw, firstNumerator, equation, period)
-            ?: return lastFailure!!
+        val first = when (
+            val normalized = normalizeFamily(firstRaw, firstNumerator, equation, period)
+        ) {
+            is FamilyNormalization.Success -> normalized.family
+            is FamilyNormalization.Failure -> return normalized.failure
+        }
 
         val families = mutableListOf(first)
         if (abs(equation.target) != 1.0) {
             val secondNumerator = PI - principalAngle - equation.phase
             val secondRaw = secondNumerator / equation.coefficient
-            val second = normalizeFamily(secondRaw, secondNumerator, equation, period)
-                ?: return lastFailure!!
-            if (abs(second.firstSolution - first.firstSolution) > FAMILY_MERGE_TOLERANCE * period) {
+            val second = when (
+                val normalized = normalizeFamily(secondRaw, secondNumerator, equation, period)
+            ) {
+                is FamilyNormalization.Success -> normalized.family
+                is FamilyNormalization.Failure -> return normalized.failure
+            }
+            if (abs(second.firstSolution - first.firstSolution) >
+                FAMILY_MERGE_TOLERANCE * period
+            ) {
                 families += second
             }
         }
@@ -76,36 +86,31 @@ internal object SineEquationSolver {
         )
     }
 
-    private var lastFailure: SineEquationSolutionResult.Failure? = null
-
     private fun normalizeFamily(
         rawBase: Double,
         numerator: Double,
         equation: SineEquation,
         period: Double,
-    ): PeriodicSolutionFamily? {
+    ): FamilyNormalization {
         if (!rawBase.isFinite()) {
-            lastFailure = failure(
+            return normalizationFailure(
                 PolynomialErrorCode.NON_FINITE_RESULT,
                 "正弦方程的周期解基准值不是有限数",
             )
-            return null
         }
         if (rawBase == 0.0 && numerator != 0.0) {
-            lastFailure = failure(
+            return normalizationFailure(
                 PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
                 "正弦方程的非零解基准值下溢为零",
             )
-            return null
         }
 
         val periodCount = rawBase / period
         if (!periodCount.isFinite() || abs(periodCount) > MAX_RELIABLE_PERIOD_COUNT) {
-            lastFailure = failure(
+            return normalizationFailure(
                 PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
                 "相位过大，无法可靠地归一化正弦方程的周期解",
             )
-            return null
         }
 
         var normalized = rawBase % period
@@ -115,32 +120,37 @@ internal object SineEquationSolver {
 
         val evaluatedAngle = equation.coefficient * normalized + equation.phase
         if (!evaluatedAngle.isFinite()) {
-            lastFailure = failure(
+            return normalizationFailure(
                 PolynomialErrorCode.NON_FINITE_RESULT,
                 "正弦方程回代时角度超出 Double 范围",
             )
-            return null
         }
         val residual = normalizedDifference(
             kotlin.math.sin(evaluatedAngle),
             equation.target,
         )
         if (!residual.isFinite() || residual > ROOT_RESIDUAL_TOLERANCE) {
-            lastFailure = failure(
+            return normalizationFailure(
                 PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
                 "正弦方程周期解未通过原式回代检查",
             )
-            return null
         }
 
-        return PeriodicSolutionFamily(
-            firstSolution = normalized,
-            period = period,
+        return FamilyNormalization.Success(
+            PeriodicSolutionFamily(
+                firstSolution = normalized,
+                period = period,
+            ),
         )
     }
 
     private fun normalizedDifference(actual: Double, expected: Double): Double =
         abs(actual - expected) / max(1.0, max(abs(actual), abs(expected)))
+
+    private fun normalizationFailure(
+        code: PolynomialErrorCode,
+        message: String,
+    ) = FamilyNormalization.Failure(failure(code, message))
 
     private fun failure(
         code: PolynomialErrorCode,
@@ -148,6 +158,11 @@ internal object SineEquationSolver {
     ) = SineEquationSolutionResult.Failure(
         PolynomialError(code = code, message = message),
     )
+
+    private sealed interface FamilyNormalization {
+        data class Success(val family: PeriodicSolutionFamily) : FamilyNormalization
+        data class Failure(val failure: SineEquationSolutionResult.Failure) : FamilyNormalization
+    }
 
     private const val PI = Math.PI
     private const val TWO_PI = 2.0 * Math.PI
