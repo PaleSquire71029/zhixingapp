@@ -25,6 +25,7 @@ android {
             // Symja bundles the GraphML schema already present in JGraphT.
             pickFirsts += "**/graphml.xsd"
             pickFirsts += "**/xlink.xsd"
+            pickFirsts += "**/viz.xsd"
         }
     }
 
