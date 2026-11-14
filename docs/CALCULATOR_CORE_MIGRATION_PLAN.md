@@ -724,7 +724,7 @@ C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成�
 - Android Build #423（Run ID `43435614443`）完整 success：资源完整性检查、全部 JUnit、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Artifact `zhixingapp-debug`，ID `14042138313`，12,553,719 bytes。
 - 本步未改动 Compose UI；instrumentation 测试源码完成 Kotlin 编译，但未执行模拟器 / 真机仪器测试。
 
-**下一步：** C8.8.1 已完成原生单位换算页面首版并通过 CI；继续完善复制、输入边界、窄屏 / 无障碍和目标真机验收，再进入其他计算器页面接入。
+**下一步：** C8.8.2 已完成代码与 CI 验收；目标真机验收按用户要求暂缓，不阻塞后续计算器功能开发。接下来回到高中方程题型扩展，选择 C5.8 的最小独立测试切片。
 
 
 ## 38. C8.8.1：原生单位换算页面首版接入（2026-11-13）
@@ -741,4 +741,20 @@ C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成�
 - Android Build #424（Run ID `43436816915`）完整 success：资源完整性检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Artifact `zhixingapp-debug`，ID `14043848306`，12,601,245 bytes。
 - 本步没有执行模拟器 / 真机 instrumentation tests，也尚未完成 iQOO Neo5 活力版页面视觉、IME、触控和滚动验收。Build #424 的 androidTest 是源码编译，不是设备执行。
 
-**下一步：** C8.8.2 完善复制结果、输入交互、窄屏 / 无障碍与数值展示边界，并在目标真机完成页面验收。
+**下一步：** C8.8.2 已完成代码与 CI；真机验收按用户要求暂缓，后续不作为其他计算器功能的前置条件。
+
+
+## 39. C8.8.2：单位换算交互、输入边界与无障碍完善（2026-11-14）
+
+在 C8.8.1 原生页面首版上补齐高频交互和表现层输入边界；不修改 C8.1–C8.7 的转换算法，也不增加新的转换因子。
+
+- **复制结果：** 增加复制完整等式操作，剪贴板内容包含原始输入、源单位、格式化后的目标值与目标单位；复制状态只对当前输入 / 类别 / 单位组合有效。
+- **输入体验：** 支持清除输入；IME Done 收起系统键盘。输入解析区分 Empty、Incomplete、Invalid、InputTooLong 与 Converted，允许用户自然输入 `-`、`.`、`1e-` 等中间状态；数字最多 64 字符。
+- **数值安全：** 继续由 `UnitConverter` 处理非有限输入、溢出、绝对零度和精度下溢；Presenter 不把失败转换为 0，也不自行复制公式。
+- **窄屏布局：** 可用宽度小于 340dp 时，源 / 目标单位控件纵向排列并显示“交换单位”；宽屏保持横排。类别区保留横向滚动。
+- **无障碍：** 源 / 目标选择具备当前单位描述；交换和复制按钮有清晰动作名称；复制成功与当前目标单位提供状态描述；同类单位行合并朗读。
+- **测试：** `UnitConversionPresenterTest` 共 10 个测试方法，覆盖九类默认值、空 / 非法 / 中间 / 超长输入、正负数 / 小数 / 科学计数法、线性 / 温度结果、类型化错误、复制文本与格式化边界。
+- **提交：** 页面 / Presenter / 测试提交 `64f2ce0dd7f09f985e98d8af8e5d4b8075072d40`；Compose semantics 修正提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`。Build #427 的首次编译失败已如实保留为历史；Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success，主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`，Artifact ID `14093618375`，12,612,565 bytes。
+- **设备状态：** 没有模拟器 / 真机仪器测试记录；按用户要求，本步不执行 iQOO 真机验收。待执行清单继续保留未勾选状态。
+
+**下一步：** 回到 C5 高中方程求解扩展，先定义 C5.8 的最小题型范围和黄金样例，再独立实现。
