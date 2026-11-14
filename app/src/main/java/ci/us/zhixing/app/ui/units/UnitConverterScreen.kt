@@ -1,10 +1,14 @@
 package ci.us.zhixing.app.ui.units
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -15,9 +19,11 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenu
@@ -39,8 +45,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.mergeDescendants
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.domain.units.UnitConversionError
 import ci.us.zhixing.app.domain.units.UnitConversionResult
@@ -155,7 +168,10 @@ internal fun UnitConverterScreen(
     var sourceUnitId by rememberSaveable { mutableStateOf("m") }
     var targetUnitId by rememberSaveable { mutableStateOf("ft") }
     var inputText by rememberSaveable { mutableStateOf("") }
+    var copiedResultKey by rememberSaveable { mutableStateOf("") }
 
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val categories = UnitConversionPresenter.categories()
     val units = remember(selectedCategoryId) {
         UnitConversionPresenter.units(selectedCategoryId)
@@ -164,6 +180,13 @@ internal fun UnitConverterScreen(
     val targetUnit = units.firstOrNull { it.id == targetUnitId }
         ?: units.getOrNull(1)
         ?: units.firstOrNull()
+    val copyStateKey = listOf(
+        selectedCategoryId,
+        sourceUnit?.id.orEmpty(),
+        targetUnit?.id.orEmpty(),
+        inputText,
+    ).joinToString(separator = "\u0000")
+    val copied = copiedResultKey == copyStateKey
     val presentation = remember(inputText, selectedCategoryId, sourceUnit?.id, targetUnit?.id) {
         if (sourceUnit == null || targetUnit == null) {
             UnitConversionPresentation.InvalidInput
@@ -221,24 +244,31 @@ internal fun UnitConverterScreen(
             }
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(7.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            categories.forEach { item ->
-                FilterChip(
-                    selected = item.id == selectedCategoryId,
-                    onClick = {
-                        selectedCategoryId = item.id
-                        val defaults = UnitConversionPresenter.defaults(item.id)
-                        sourceUnitId = defaults?.first.orEmpty()
-                        targetUnitId = defaults?.second.orEmpty()
-                    },
-                    label = { Text(item.displayName) },
-                )
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "换算类别",
+                style = ZhixingTheme.type.sectionTitle,
+                color = ZhixingTheme.colors.onBackground,
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(7.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                categories.forEach { item ->
+                    FilterChip(
+                        selected = item.id == selectedCategoryId,
+                        onClick = {
+                            selectedCategoryId = item.id
+                            val defaults = UnitConversionPresenter.defaults(item.id)
+                            sourceUnitId = defaults?.first.orEmpty()
+                            targetUnitId = defaults?.second.orEmpty()
+                        },
+                        label = { Text(item.displayName) },
+                    )
+                }
             }
         }
 
@@ -250,41 +280,94 @@ internal fun UnitConverterScreen(
             )
             OutlinedTextField(
                 value = inputText,
-                onValueChange = { inputText = it },
+                onValueChange = { next ->
+                    // Retain one extra character so the presenter can show a clear limit error.
+                    inputText = next.take(UnitConversionPresenter.MAX_INPUT_LENGTH + 1)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                placeholder = { Text("输入要换算的数值") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                label = { Text("数值") },
+                placeholder = { Text("例如 12.5 或 1e-3") },
+                supportingText = {
+                    Text("支持正负数、小数和科学计数法，最多 64 个字符")
+                },
+                trailingIcon = {
+                    if (inputText.isNotEmpty()) {
+                        TextButton(onClick = { inputText = "" }) {
+                            Text("清除")
+                        }
+                    }
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Done,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { keyboardController?.hide() },
+                ),
                 textStyle = ZhixingTheme.type.body,
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                UnitSelector(
-                    label = "原单位",
-                    options = units,
-                    selected = sourceUnit,
-                    modifier = Modifier.weight(1f),
-                    onSelect = { sourceUnitId = it.id },
-                )
-                TextButton(
-                    onClick = {
-                        val oldSource = sourceUnitId
-                        sourceUnitId = targetUnit?.id.orEmpty()
-                        targetUnitId = oldSource
-                    },
-                ) {
-                    Text("⇄")
+
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                if (maxWidth < 340.dp) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(9.dp),
+                    ) {
+                        UnitSelector(
+                            label = "原单位",
+                            options = units,
+                            selected = sourceUnit,
+                            modifier = Modifier.fillMaxWidth(),
+                            onSelect = { sourceUnitId = it.id },
+                        )
+                        UnitSwapButton(
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            compactLabel = true,
+                            onClick = {
+                                val oldSource = sourceUnitId
+                                sourceUnitId = targetUnit?.id.orEmpty()
+                                targetUnitId = oldSource
+                            },
+                        )
+                        UnitSelector(
+                            label = "目标单位",
+                            options = units,
+                            selected = targetUnit,
+                            modifier = Modifier.fillMaxWidth(),
+                            onSelect = { targetUnitId = it.id },
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        UnitSelector(
+                            label = "原单位",
+                            options = units,
+                            selected = sourceUnit,
+                            modifier = Modifier.weight(1f),
+                            onSelect = { sourceUnitId = it.id },
+                        )
+                        UnitSwapButton(
+                            modifier = Modifier.padding(bottom = 2.dp),
+                            onClick = {
+                                val oldSource = sourceUnitId
+                                sourceUnitId = targetUnit?.id.orEmpty()
+                                targetUnitId = oldSource
+                            },
+                        )
+                        UnitSelector(
+                            label = "目标单位",
+                            options = units,
+                            selected = targetUnit,
+                            modifier = Modifier.weight(1f),
+                            onSelect = { targetUnitId = it.id },
+                        )
+                    }
                 }
-                UnitSelector(
-                    label = "目标单位",
-                    options = units,
-                    selected = targetUnit,
-                    modifier = Modifier.weight(1f),
-                    onSelect = { targetUnitId = it.id },
-                )
             }
         }
 
@@ -302,9 +385,23 @@ internal fun UnitConverterScreen(
                         color = ZhixingTheme.colors.onSurfaceVariant,
                     )
                 }
+                UnitConversionPresentation.IncompleteInput -> {
+                    Text(
+                        text = "数字尚未输入完整",
+                        style = ZhixingTheme.type.body,
+                        color = ZhixingTheme.colors.onSurfaceVariant,
+                    )
+                }
                 UnitConversionPresentation.InvalidInput -> {
                     Text(
-                        text = "请输入有效数字",
+                        text = "请输入有效数字，支持正负数、小数和科学计数法",
+                        style = ZhixingTheme.type.body,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                UnitConversionPresentation.InputTooLong -> {
+                    Text(
+                        text = "输入过长，请控制在 64 个字符以内",
                         style = ZhixingTheme.type.body,
                         color = MaterialTheme.colorScheme.error,
                     )
@@ -318,12 +415,15 @@ internal fun UnitConverterScreen(
                 }
                 is UnitConversionPresentation.Converted -> {
                     Text(
-                        text = "${UnitValueFormatter.format(inputText.trim().toDouble())} ${sourceUnit?.label.orEmpty()}",
+                        text = "${inputText.trim()} ${sourceUnit?.label.orEmpty()}",
                         style = ZhixingTheme.type.body,
                         color = ZhixingTheme.colors.onSurface,
                     )
                     Text(
                         text = UnitValueFormatter.format(state.value),
+                        modifier = Modifier.semantics {
+                            contentDescription = "换算结果：${UnitValueFormatter.format(state.value)} ${targetUnit?.label.orEmpty()}"
+                        },
                         style = ZhixingTheme.type.screenTitle,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -332,6 +432,30 @@ internal fun UnitConverterScreen(
                         style = ZhixingTheme.type.supporting,
                         color = ZhixingTheme.colors.onSurfaceVariant,
                     )
+                    TextButton(
+                        onClick = {
+                            val text = UnitConversionPresenter.copyText(
+                                inputText = inputText,
+                                sourceUnitLabel = sourceUnit?.label.orEmpty(),
+                                resultValue = state.value,
+                                targetUnitLabel = targetUnit?.label.orEmpty(),
+                            )
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE)
+                                as? ClipboardManager
+                            if (clipboard != null) {
+                                clipboard.setPrimaryClip(
+                                    ClipData.newPlainText("单位换算结果", text),
+                                )
+                                copiedResultKey = copyStateKey
+                            }
+                        },
+                        modifier = Modifier.semantics {
+                            contentDescription = "复制完整换算结果"
+                            stateDescription = if (copied) "已复制" else "尚未复制"
+                        },
+                    ) {
+                        Text(if (copied) "已复制" else "复制结果")
+                    }
                 }
             }
         }
@@ -354,8 +478,13 @@ internal fun UnitConverterScreen(
                     Column(modifier = Modifier.padding(vertical = 5.dp)) {
                         presentation.rows.forEach { row ->
                             val selected = row.unit.id == targetUnit?.id
+                            val valueDescription = when (val result = row.result) {
+                                is UnitConversionResult.Success -> UnitValueFormatter.format(result.value)
+                                is UnitConversionResult.Failure -> unitConversionErrorMessage(result.error)
+                            }
                             Row(
                                 modifier = Modifier
+                                    .fillMaxWidth()
                                     .background(
                                         if (selected) {
                                             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.56f)
@@ -363,7 +492,10 @@ internal fun UnitConverterScreen(
                                             androidx.compose.ui.graphics.Color.Transparent
                                         },
                                     )
-                                    .fillMaxWidth()
+                                    .semantics(mergeDescendants = true) {
+                                        contentDescription = "${row.unit.label}：$valueDescription"
+                                        if (selected) stateDescription = "当前目标单位"
+                                    }
                                     .padding(horizontal = 16.dp, vertical = 11.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
@@ -450,7 +582,11 @@ private fun UnitSelector(
         Box {
             OutlinedButton(
                 onClick = { expanded = true },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentDescription = "$label，当前${selected?.label ?: "未选择"}"
+                    },
                 shape = RoundedCornerShape(14.dp),
             ) {
                 Text(
@@ -463,14 +599,16 @@ private fun UnitSelector(
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.heightIn(max = 360.dp),
+                modifier = Modifier
+                    .heightIn(max = 360.dp)
+                    .widthIn(max = 320.dp),
             ) {
                 options.forEach { option ->
                     DropdownMenuItem(
                         text = {
                             Text(
                                 text = option.label,
-                                maxLines = 1,
+                                maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                             )
                         },
@@ -482,6 +620,23 @@ private fun UnitSelector(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun UnitSwapButton(
+    modifier: Modifier = Modifier,
+    compactLabel: Boolean = false,
+    onClick: () -> Unit,
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier.semantics {
+            contentDescription = "交换原单位和目标单位"
+            role = Role.Button
+        },
+    ) {
+        Text(if (compactLabel) "交换单位" else "⇄")
     }
 }
 

@@ -33,6 +33,45 @@ class UnitConversionPresenterTest {
             UnitConversionPresenter.present("not-a-number", "length", "m", "ft") is
                 UnitConversionPresentation.InvalidInput,
         )
+        assertTrue(
+            UnitConversionPresenter.present("NaN", "length", "m", "ft") is
+                UnitConversionPresentation.InvalidInput,
+        )
+        assertTrue(
+            UnitConversionPresenter.present("1,5", "length", "m", "ft") is
+                UnitConversionPresentation.InvalidInput,
+        )
+    }
+
+    @Test
+    fun unfinishedTypingStatesAreNotReportedAsInvalidInput() {
+        listOf("-", "+", ".", "-.", "1e", "1e-", "2.5E+").forEach { partial ->
+            assertTrue(
+                "$partial should be treated as an unfinished value",
+                UnitConversionPresenter.present(partial, "length", "m", "ft") is
+                    UnitConversionPresentation.IncompleteInput,
+            )
+        }
+    }
+
+    @Test
+    fun decimalSignedAndScientificValuesAreAccepted() {
+        listOf("-0.5", ".25", "1.", "1e-3", "+2.5E+2").forEach { value ->
+            assertTrue(
+                "$value should be parsed",
+                UnitConversionPresenter.present(value, "length", "m", "ft") is
+                    UnitConversionPresentation.Converted,
+            )
+        }
+    }
+
+    @Test
+    fun excessivelyLongInputGetsASeparateState() {
+        val tooLong = "1".repeat(UnitConversionPresenter.MAX_INPUT_LENGTH + 1)
+        assertTrue(
+            UnitConversionPresenter.present(tooLong, "length", "m", "ft") is
+                UnitConversionPresentation.InputTooLong,
+        )
     }
 
     @Test
@@ -82,11 +121,24 @@ class UnitConversionPresenterTest {
             (belowAbsoluteZero as UnitConversionPresentation.Failure).error,
         )
 
-        val nonFinite = UnitConversionPresenter.present("NaN", "length", "m", "ft")
-        assertTrue(nonFinite is UnitConversionPresentation.Failure)
+        val overflowInput = UnitConversionPresenter.present("1e999", "length", "m", "ft")
+        assertTrue(overflowInput is UnitConversionPresentation.Failure)
         assertEquals(
             UnitConversionError.NonFiniteInput,
-            (nonFinite as UnitConversionPresentation.Failure).error,
+            (overflowInput as UnitConversionPresentation.Failure).error,
+        )
+    }
+
+    @Test
+    fun copyTextIncludesOriginalInputAndFormattedTarget() {
+        assertEquals(
+            "1.250 m = 4.101049869 ft",
+            UnitConversionPresenter.copyText(
+                inputText = " 1.250 ",
+                sourceUnitLabel = "m",
+                resultValue = 4.101049868959722,
+                targetUnitLabel = "ft",
+            ),
         )
     }
 
@@ -94,7 +146,9 @@ class UnitConversionPresenterTest {
     fun formatterHandlesZeroPrecisionAndScientificRanges() {
         assertEquals("0", UnitValueFormatter.format(-0.0))
         assertEquals("3.280839895", UnitValueFormatter.format(3.280839895013123))
+        assertEquals("-1e-9", UnitValueFormatter.format(-1e-9))
         assertEquals("1e+15", UnitValueFormatter.format(1e15))
         assertTrue(UnitValueFormatter.format(1e-9).startsWith("1e-"))
+        assertEquals("未定义", UnitValueFormatter.format(Double.NaN))
     }
 }

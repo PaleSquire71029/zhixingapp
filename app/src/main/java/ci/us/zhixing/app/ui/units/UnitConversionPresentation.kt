@@ -24,7 +24,9 @@ internal data class UnitConversionRow(
 
 internal sealed interface UnitConversionPresentation {
     data object EmptyInput : UnitConversionPresentation
+    data object IncompleteInput : UnitConversionPresentation
     data object InvalidInput : UnitConversionPresentation
+    data object InputTooLong : UnitConversionPresentation
     data class Failure(val error: UnitConversionError) : UnitConversionPresentation
     data class Converted(
         val value: Double,
@@ -39,6 +41,15 @@ internal sealed interface UnitConversionPresentation {
  * same-category overview, is produced by the single UnitConverter domain API.
  */
 internal object UnitConversionPresenter {
+    const val MAX_INPUT_LENGTH = 64
+
+    private val completeNumber = Regex(
+        "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$",
+    )
+    private val incompleteExponent = Regex(
+        "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)[eE][+-]?$",
+    )
+
     fun categories(): List<UnitCategory> = UnitCategoryCatalog.all
 
     fun units(categoryId: String): List<UnitOption> {
@@ -71,8 +82,18 @@ internal object UnitConversionPresenter {
         sourceUnitId: String,
         targetUnitId: String,
     ): UnitConversionPresentation {
-        if (inputText.isBlank()) return UnitConversionPresentation.EmptyInput
-        val value = inputText.trim().toDoubleOrNull()
+        val text = inputText.trim()
+        if (text.isEmpty()) return UnitConversionPresentation.EmptyInput
+        if (text.length > MAX_INPUT_LENGTH) return UnitConversionPresentation.InputTooLong
+
+        if (text in setOf("+", "-", ".", "+.", "-.") ||
+            incompleteExponent.matches(text)
+        ) {
+            return UnitConversionPresentation.IncompleteInput
+        }
+        if (!completeNumber.matches(text)) return UnitConversionPresentation.InvalidInput
+
+        val value = text.toDoubleOrNull()
             ?: return UnitConversionPresentation.InvalidInput
 
         val primary = UnitConverter.convert(
@@ -103,6 +124,14 @@ internal object UnitConversionPresenter {
             rows = rows,
         )
     }
+
+    fun copyText(
+        inputText: String,
+        sourceUnitLabel: String,
+        resultValue: Double,
+        targetUnitLabel: String,
+    ): String =
+        "${inputText.trim()} $sourceUnitLabel = ${UnitValueFormatter.format(resultValue)} $targetUnitLabel"
 }
 
 /** Stable, locale-independent number text for the conversion result area. */
