@@ -46,7 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.mergeDescendants
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.ImeAction
@@ -633,7 +632,6 @@ private fun UnitSwapButton(
         onClick = onClick,
         modifier = modifier.semantics {
             contentDescription = "交换原单位和目标单位"
-            role = Role.Button
         },
     ) {
         Text(if (compactLabel) "交换单位" else "⇄")
