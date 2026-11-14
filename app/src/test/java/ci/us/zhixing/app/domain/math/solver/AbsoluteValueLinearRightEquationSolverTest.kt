@@ -174,4 +174,26 @@ class AbsoluteValueLinearRightEquationSolverTest {
             (result as AbsoluteValueLinearRightEquationResult.Failure).error.code,
         )
     }
+    @Test
+    fun identityBranchesRespectConstantRightSideSign() {
+        val negativeConstantIdentity = AbsoluteValueLinearRightEquationSolver.solve(
+            AbsoluteValueEquationWithLinearRightSide(
+                expression = Polynomial.constant(-1.0),
+                right = Polynomial.constant(-1.0),
+            ),
+        )
+        val positiveConstantIdentity = AbsoluteValueLinearRightEquationSolver.solve(
+            AbsoluteValueEquationWithLinearRightSide(
+                expression = Polynomial.constant(2.0),
+                right = Polynomial.constant(2.0),
+            ),
+        )
+
+        assertTrue(negativeConstantIdentity === AbsoluteValueLinearRightEquationResult.NoSolutions)
+        assertEquals(
+            AbsoluteValueLinearRightEquationResult.AllRealNumbersOnDomain(emptyList()),
+            positiveConstantIdentity,
+        )
+    }
+
 }
