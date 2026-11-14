@@ -1,6 +1,6 @@
 # 知行 Android App 实施状态
 
-> 最后更新：2026-11-13  
+> 最后更新：2026-11-14  
 > 当前仓库：PaleSquire71029/zhixingapp  
 > 当前分支：main  
 > 项目接手指南：[docs/PROJECT_STATUS_AND_GUIDE.md](./PROJECT_STATUS_AND_GUIDE.md)  
@@ -12,27 +12,27 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-13）：** 数学与工具 Domain 已完成 C0.1–C8.7：包括表达式解析 / 求值、多项式、有理函数、实根、方程、不等式、四类函数拟合与安全采样，以及九类单位换算（76 个线性单位、3 个温度仿射单位）。C8.8.1 已将单位换算首版接入 Android 原生「工具」页，支持九类选择、输入、单位选择 / 交换、即时结果与同类单位一览。Android Build #424（Run ID `43436816915`，代码 SHA `c9c0be200bddf9672798b93dac6a0becc328af55`）完整 success：全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。Debug Artifact `14043848306`，12,601,245 bytes。Build #424 的 androidTest 仅编译源码，没有模拟器 / 真机 instrumentation 执行。随后 Build #426（Run ID `43445595015`，代码 SHA `f4ab20ee63ec787438762bf3ef4819f59b4f9029`）完整 success，新增 Markdown 链接校验步骤通过，Debug Artifact `14046779922`，12,601,245 bytes。C8.8.1 页面在 iQOO Neo5 活力版上的视觉、输入法、触控和滚动验收仍待完成。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
+**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
 | Android 原生工程 | 已完成 | Kotlin + Jetpack Compose；单一 `:app` 模块；AGP 9.1.1 / Gradle 9.3.1 / JDK 17；compileSdk / targetSdk 36、minSdk 26 |
 | 主壳与导航 | 已接入 | 四个一级入口：计算 / 知行 AI / 工具 / 我的；浮动玻璃 Dock、二级页面动画与材质组件已在 main |
 | Liquid Glass 真机体验 | 部分真机验收 | 主壳与 PR #88 相关设备验收以用户确认和对应 PR 记录为准；Build / 源码编译本身不等同光学体验验收 |
-| 设计 Tokens | 已实现并通过 CI 编译 | 浅色颜色、形状、间距、文字 Tokens 与 ZhixingTheme 已接入；Build #424 编译通过 |
+| 设计 Tokens | 已实现并通过 CI 编译 | 浅色颜色、形状、间距、文字 Tokens 与 ZhixingTheme 已接入；Build #428 编译通过 |
 | 表达式数学内核 | C0.1–C4.3 已完成 | Tokenizer、AST / Parser、常数求值、多项式、有理函数定义域 / 求值、一次 / 二次实根 |
 | 方程求解 | C5.1–C5.7 已完成 | 常数 / 一至三次、分式、绝对值、平方根、受限指数 / 对数方程 |
 | 不等式求解 | C6.1–C6.2 已完成 | 一至三次多项式不等式、分式不等式 |
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
-| 原生单位换算页面 | C8.8.1 首版已接入，待真机验收 | 工具入口、九类切换、输入、源 / 目标选择与交换、主结果、同类单位一览；Build #424 成功 |
+| 原生单位换算页面 | C8.8.2 交互完善已通过 CI；真机验收暂缓 | 完整等式复制、清除、输入中间态 / 长度边界、窄屏纵向选择、TalkBack 语义；Build #428 成功；未执行设备验收 |
 | 完整计算器主页面 | 未完成 | C12 尚未实施；不把独立单位换算工具页算作 C12 |
 | 专用数学输入 / QuestionDocument | 规划已恢复，未完成实现 | 题目文档模型、模板编辑、撤销 / 重做、专用键盘和符号搜索尚待实现 |
 | 函数图像 UI | 未完成 | Domain 求值 / 采样已完成；Compose 曲线、坐标轴、视口和交互未接入 |
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #426 | [Artifact 14046779922](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015/artifacts/14046779922)，12,601,245 bytes；Build #426 同时通过 Markdown 本地链接校验 |
+| 最新 Debug APK | Build #428 | [Artifact 14093618375](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43545850658/artifacts/14093618375)，12,612,565 bytes；包含 C8.8.2 交互改进 |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 | 项目 | 状态 | 说明 |
@@ -2013,3 +2013,20 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 为避免旧规划误导当前开发，在文档顶部明确标注创建日期和状态权威来源；§7 的 C4.2.2 当前进度句改为引用最新核心迁移计划；§7.1 不再指定过期的 C4.2.2 / C4.2.3 为当前优先级；§10 改为 2026-11-08 创建时历史快照。README 的本地链接因此恢复有效。
 
 本步仅恢复和标注规划文件，不改变任何功能代码或阶段完成结论。
+
+
+### 27.58 C8.8.2 单位换算交互、输入边界与无障碍完善（2026-11-14）
+
+本步按用户要求跳过 iQOO Neo5 活力版真机验收，只完成代码、JVM 测试、Android 编译与 APK 构建。真机检查清单保留未勾选，不作为本步 CI 的替代结论。
+
+- 新增完整等式复制：复制文本形如 `1.250 m = 4.101049869 ft`，通过 Android ClipboardManager 写入系统剪贴板；复制按钮使用“已复制”状态反馈，输入 / 类别 / 单位变化后状态自动失效。
+- 输入交互：增加“清除”操作、IME Done 收起键盘；输入长度限制为 64 字符，粘贴超长内容时进入专门错误状态。
+- 输入解析区分空白、未完成、非法、超长和有效数字；`-`、`.`、`1e-` 等输入中间态不显示错误，支持正负数、小数和科学计数法；非有限转换仍由 `UnitConverter` 类型化拒绝。
+- 窄屏适配：可用宽度小于 340dp 时，源 / 目标单位选择由横排改为纵排，并显示“交换单位”文字按钮；较宽布局保留横向排列。
+- 无障碍：单位选择按钮提供当前单位描述，交换与复制提供明确动作名称和复制状态；同类单位列表行合并朗读，并标记当前目标单位。
+- `UnitConversionPresenterTest` 共 10 个测试方法，覆盖类别 / 默认值、空 / 非法 / 中间 / 超长输入、正负数 / 小数 / 科学计数法、线性 / 温度结果、类型化错误、复制文本和格式化边界。
+- 功能提交：`64f2ce0dd7f09f985e98d8af8e5d4b8075072d40`。Build #427 首次编译曾因 Compose semantics 的两个错误引用而失败；修复提交：`2b62e75f6f20224b50550d0f655d3d511ccc2cd3`。
+- Android Build #428（Run ID `43545850658`）完整 success：Markdown 链接检查、资源检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Artifact `zhixingapp-debug`，ID `14093618375`，12,612,565 bytes。
+- 未执行模拟器 / 真机 instrumentation tests；用户明确暂缓真机验收。本步不得标记为设备交互验收通过。
+
+**下一步：** 回到高中方程题型扩展，先为 C5.8 选择一个边界明确、可单独验证的新增题型切片；继续保持 domain 纯 Kotlin、先测试后接 UI。

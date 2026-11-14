@@ -2,11 +2,11 @@
 
 知行计算器 + 知行 AI 的全新 Android 原生应用。项目采用 Kotlin + Jetpack Compose，从原生工程和主壳开始重建，逐步迁移原计算器的数学、方程、函数、单位与化学能力；不将旧网页整体装入 WebView。
 
-> **进度核对日期：2026-11-13**  
+> **进度核对日期：2026-11-14**  
 > **仓库：** [PaleSquire71029/zhixingapp](https://github.com/PaleSquire71029/zhixingapp)  
 > **分支：** `main`  
 > **当前工程版本：** 0.1.2 / versionCode 3  
-> **最近完整 CI：** [Android Build #426](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015)（包含 Markdown 本地链接自动校验的完整构建）  
+> **最近完整 CI：** [Android Build #428](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43545850658)（C8.8.2 单位换算页面交互完善与完整构建）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -33,14 +33,14 @@
 | 不等式求解 | **C6.1–C6.2 已完成** | 一至三次多项式不等式、分式不等式 |
 | 函数工具内核 | **C7.1–C7.6 已完成** | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
-| 原生单位换算页面 | **C8.8.1 首版已接入** | 工具入口、九类选择、输入、源 / 目标单位切换、即时结果及同类单位列表；待真机 UI 验收 |
+| 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
 | 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：计算器功能。** C8.7 已通过兼容性回归；C8.8.1 已将单位换算首版接入原生「工具」页。接下来完善输入 / 复制等交互、窄屏细节并进行目标真机验收，再继续扩展方程题型、专用数学输入和函数图像能力。
+**当前工作重心：计算器功能。** C8.8.2 已完成单位换算页面的复制、输入边界、窄屏和无障碍交互，并通过 Build #428。按用户要求，单位换算真机验收暂缓，不阻塞后续开发；下一步回到高中方程题型扩展，再推进专用数学输入和函数图像能力。
 
 ---
 
@@ -143,8 +143,8 @@
 
 下一阶段以用户可直接使用的计算器功能为中心，优先把已验收的数学内核接入 Android 原生页面。
 
-1. **单位换算页面收尾：** 完善复制结果、输入边界和窄屏 / 无障碍细节，完成 iQOO Neo5 活力版真机验收；页面继续只消费 `UnitConverter`，不复制算法。
-2. **扩展方程题型：** 继续完善高中常见方程形式、组合形式、定义域约束和回代验证；每种新题型单独建模、单独测试。
+1. **扩展方程题型：** 回到高中常见方程形式，优先设计 C5.8 最小可测题型切片；继续加强定义域约束、解集表达与原式回代验证。
+2. **单位换算页面设备验收：** 按用户要求暂缓，不作为当前代码推进的前置条件；页面继续只消费 `UnitConverter`，不复制算法。
 3. **原生输入链路：** 把已有 Tokenizer / Parser 与 Android 计算页接起来，设计适合手机操作的数学表达式输入方式和专用键盘，避免依赖系统键盘完成复杂数学输入。
 4. **函数页面：** 将 C7 的点集、拟合、定义域和采样能力接入原生函数页面，再实现坐标轴、曲线绘制、缩放和点位交互。
 5. **补齐计算器其他核心工具：** 继续迁移化学方程式解析 / 配平与反应预测，保持精确算法和可验证结果。
@@ -154,7 +154,7 @@
 
 ## 已知未完成事项
 
-- 计算 Tab 尚未完成完整原生计算器页面接入；C0–C8.7 的算法 / 数据层完成，C8.8.1 仅接入了独立单位换算工具，不等于完整计算器 UI 已完成。
+- 计算 Tab 尚未完成完整原生计算器页面接入；C0–C8.7 的算法 / 数据层完成，C8.8.1–C8.8.2 完成独立单位换算工具，不等于完整计算器 UI 已完成。
 - 自定义数学输入法、复杂题目结构化输入和完整结果过程展示仍需实现。
 - 函数图表 Compose UI 尚未完成；目前完成的是拟合、定义域、求值和安全采样 domain。
 - 化学配平、反应预测尚未完成 Android 原生迁移。
@@ -166,8 +166,9 @@
 ## 构建与验收记录
 
 - 单位换算页面首次构建验收：[Android Build #424](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915)，主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。
-- 最新完整 CI：[Android Build #426](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015)，新增 Markdown 本地链接检查并完整通过；资源检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理均 success。
-- 最新 Debug APK Artifact：[zhixingapp-debug / 14046779922（12,601,245 bytes）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015/artifacts/14046779922)。
+- 文档链接校验基线：[Android Build #426](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015)，15 份 Markdown 无本地断链。
+- 最新完整 CI：[Android Build #428](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43545850658)，C8.8.2 的 JVM 单测、Android 测试源码编译、Debug APK 组装、Artifact 上传和 Actions 清理全部 success；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。
+- 最新 Debug APK Artifact：[zhixingapp-debug / 14093618375（12,612,565 bytes）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43545850658/artifacts/14093618375)。
 - CI 的 Android 测试步骤完成的是 instrumentation test 源码编译；除 PR #88 相关的用户真机验收记录外，不把普通 CI 的源码编译描述成模拟器或真机已运行。
 - 主壳 / Liquid Glass / PR #88 的 iQOO Neo5 活力版真机验收已由用户确认通过。
 
