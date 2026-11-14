@@ -20,6 +20,13 @@ android {
         compose = true
     }
 
+    packaging {
+        resources {
+            // Symja bundles the GraphML schema already present in JGraphT.
+            pickFirsts += "**/graphml.xsd"
+        }
+    }
+
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
