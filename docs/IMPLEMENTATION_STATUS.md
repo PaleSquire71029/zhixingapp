@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
+**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；方程能力已继续推进至 C5.8（二次内部式绝对值方程）；Build #429 的 Gradle 主步骤测试 / 编译 / APK 组装通过，Actions 收尾状态仍在核对；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -21,7 +21,7 @@
 | Liquid Glass 真机体验 | 部分真机验收 | 主壳与 PR #88 相关设备验收以用户确认和对应 PR 记录为准；Build / 源码编译本身不等同光学体验验收 |
 | 设计 Tokens | 已实现并通过 CI 编译 | 浅色颜色、形状、间距、文字 Tokens 与 ZhixingTheme 已接入；Build #428 编译通过 |
 | 表达式数学内核 | C0.1–C4.3 已完成 | Tokenizer、AST / Parser、常数求值、多项式、有理函数定义域 / 求值、一次 / 二次实根 |
-| 方程求解 | C5.1–C5.7 已完成 | 常数 / 一至三次、分式、绝对值、平方根、受限指数 / 对数方程 |
+| 方程求解 | C5.1–C5.7 完整 CI 已完成；C5.8 Gradle 主步骤通过 | 新增二次内部式绝对值方程；本轮 JVM 测试、Android 测试源码编译和 Debug APK 组装通过；Actions 收尾仍在执行 |
 | 不等式求解 | C6.1–C6.2 已完成 | 一至三次多项式不等式、分式不等式 |
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
@@ -32,7 +32,7 @@
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #428 | [Artifact 14093618375](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43545850658/artifacts/14093618375)，12,612,565 bytes；包含 C8.8.2 交互改进 |
+| 最新 Debug APK | Build #429（Gradle 组装成功） | [Artifact 14095509294](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43550028977/artifacts/14095509294)，12,612,599 bytes；包含 C5.8 二次内部式绝对值方程；工作流收尾状态仍在核对 |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 | 项目 | 状态 | 说明 |
@@ -2030,3 +2030,20 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - 未执行模拟器 / 真机 instrumentation tests；用户明确暂缓真机验收。本步不得标记为设备交互验收通过。
 
 **下一步：** 回到高中方程题型扩展，先为 C5.8 选择一个边界明确、可单独验证的新增题型切片；继续保持 domain 纯 Kotlin、先测试后接 UI。
+
+
+### 27.59 C5.8 二次内部式绝对值方程（2026-11-14）
+
+在 C5.5 的线性内部式绝对值方程基础上，扩展到常数、一次或二次内部多项式；本步仍限定右侧为有限常数，不增加变量右侧、多重绝对值或嵌套绝对值。
+
+- [x] 将 AbsoluteValueEquationSolver 的内部式最高支持次数从 1 提高到 2；复用现有 PolynomialArithmetic.solveRealRoots，不在绝对值 solver 中复制二次求根算法。
+- [x] 对 |P(x)|=d（d>0）求解 P(x)−d=0 与 P(x)+d=0，合并并排序两支实根；d=0 时只求一次，避免重复分支结果；负目标仍直接无解。
+- [x] 保留常数 / 一次内部式行为、类型化非有限输入错误，以及三次及以上内部式的 UnsupportedDegree 边界。
+- [x] 新增二次内部式测试：|x²−1|=3 的双根、|x²−1|=1 的三解分支合并、|x²−1|=0 的零目标去重；三次内部式仍明确暂缓。AbsoluteValueEquationSolverTest 当前共 9 个测试方法。
+- [x] 代码提交：f6c08f91d946c09bae4662dd714b1a810e51c457。
+- [x] Android Build #429（Run ID 43550028977，代码 SHA f6c08f91d946c09bae4662dd714b1a810e51c457）的核心 Gradle 步骤已 success：全部 JVM 单元测试、:app:compileDebugAndroidTestKotlin、:app:assembleDebug 与 Artifact 上传均通过。Debug Artifact 14095509294，12,612,599 bytes。
+- [ ] 截至本次文档提交，GitHub Actions 正在执行 Post Set up Gradle / JDK / Checkout 收尾，整个 workflow 尚未返回 completed；因此暂不把 Build #429 标记为整体 success。
+- [ ] 未执行模拟器 / 真机 instrumentation tests；目标设备验收继续按用户要求暂缓。
+- [x] 保持纯 Kotlin domain，不改 Parser、Compose、输入键盘或 UI；不进入 C8.7。
+
+**边界与后续：** C5.8 仍只支持一个绝对值表达式与有限常数目标；变量右侧、多重 / 嵌套绝对值、高于二次的内部式不在本步范围。下一步继续检查方程求解覆盖缺口，另选可独立验证的高中题型切片。
