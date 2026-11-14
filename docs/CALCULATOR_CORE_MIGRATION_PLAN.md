@@ -846,7 +846,7 @@ C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成�
 - 代码提交：初版 `1d2924b5d28f3013c8dfdc29b3b640c526c11635`；将解族归一化改为调用内局部结果类型、移除共享可变错误状态的修正提交 `b049e2ee6880524d5698c1d19df3966925821a0a`。
 - Build #438（Run ID `43552419920`，初版 SHA `1d2924b5d28f3013c8dfdc29b3b640c526c11635`）完整 success；Build #439（Run ID `43552472439`，最终 SHA `b049e2ee6880524d5698c1d19df3966925821a0a`）完整 success。最终主 Gradle 步骤 BUILD SUCCESSFUL in 46s；Markdown 链接检查、资源检查、全部 JVM 测试、Android 测试源码编译、Debug APK 组装、Artifact 上传和 Actions 清理均通过。
 - 最新 Debug Artifact：`14096494162`，12,629,769 bytes。
-- 未执行模拟器 / 真机 instrumentation tests；按用户要求，真机验收继续暂缓。
+- CI 仅编译 Android instrumentation 测试源码，没有执行模拟器 / 真机 instrumentation tests；本步只做纯 Kotlin domain，未进行设备端验收。
 - 保持纯 Kotlin domain；未改 Parser、Compose、专用键盘或计算器 UI。
 
 **下一步：** 进入 C5.13，继续选择一个高中常见方程形式，优先关注方程区间条件、解集表达与可验证的原式残差；其它三角函数仍未实现。
@@ -866,7 +866,7 @@ C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成�
 - 未执行模拟器 / 真机 instrumentation tests；按用户要求，真机验收继续暂缓。
 - 保持纯 Kotlin domain；未改 Parser、Compose、专用键盘或计算器 UI。
 
-**下一步：** C5.14 正切周期方程已实现。进入 C5.15 时优先补充周期解族在给定区间内的有限解筛选；其它复合三角式、混合三角方程和参数分类仍未实现。
+**下一步：** C5.14 正切周期方程已通过完整 CI。进入 C5.15 时优先补充周期解族在给定区间内的有限解筛选；其它复合三角式、混合三角方程和参数分类仍未实现。
 
 ## 46. C5.14：弧度制正切周期方程（2026-11-14）
 
@@ -879,8 +879,8 @@ C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成�
 - 检查非有限输入、周期溢出、周期数超出 Double 可靠整数范围、基准值下溢、回代角度 / 正切值非有限，以及原式归一化残差；复用既有 `PolynomialErrorCode`。
 - 新增 13 个 JUnit 测试方法，覆盖 `tan(x)=0`、正负目标、线性角与相位、负系数、a=0 恒等 / 矛盾 / 极点、紧邻极点的有限角度、非有限输入、周期溢出、超大相位精度和超大目标回代精度。
 - 代码提交：`a027ee7d6b0de507277630cb6c98cc543db097cd`。
-- Android Build #441（Run ID `43578324526`）已触发，当前状态为 in progress；CI 完成前不标记为通过。
-- 未执行模拟器 / 真机 instrumentation tests；按用户要求，真机验收继续暂缓。
+- Android Build #441（Run ID `43578324526`，代码 SHA `a027ee7d6b0de507277630cb6c98cc543db097cd`）完整 success：Markdown 链接检查、资源完整性检查、全部 JVM 单元测试、Android instrumentation 测试源码编译、Debug APK 组装和 Artifact 上传均通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 10s`（48 个 actionable tasks）。Debug Artifact `14106553355`，12,636,493 bytes，SHA-256 `66e350fcfb6876aace043f1a4f51bd3f18d705802cdcfd159938ac1e5578a6a7`。
+- 未执行模拟器 / 真机 instrumentation tests；本步仅为 pure Kotlin domain，不做设备端验收。
 - 保持纯 Kotlin domain；未改 Parser、Compose、专用键盘或计算器 UI。
 
 **边界与后续：** C5.14 只支持 `tan(ax+b)=c` 的全体实数周期解族；不代表支持正切函数复合式、混合三角方程或区间内筛选。下一步 C5.15 优先对现有正弦 / 余弦 / 正切周期解族实施给定区间内的有限解筛选。

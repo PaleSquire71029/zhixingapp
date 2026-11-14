@@ -2152,8 +2152,9 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - [x] 复用 `PolynomialErrorCode`，保护非有限输入、周期溢出、周期数精度、候选解下溢、回代角非有限和残差不合格。
 - [x] 新增 13 个 JUnit 测试方法，覆盖标准周期解、正负目标、线性角偏移、负系数、常数恒等 / 矛盾 / 极点、近极点有效角、非有限输入、周期溢出、超大相位及超大目标回代精度。
 - [x] 代码提交：`a027ee7d6b0de507277630cb6c98cc543db097cd`。
-- [ ] Android Build #441（Run ID `43578324526`）已触发，当前 in progress；待完成后补记结论与 Artifact。
-- [ ] 未执行模拟器 / 真机 instrumentation tests；按用户要求，设备端验收继续暂缓。
+- [x] Android Build #441（Run ID `43578324526`，代码 SHA `a027ee7d6b0de507277630cb6c98cc543db097cd`）完整 success：Markdown 链接检查、资源完整性检查、全部 JVM 单元测试、Android instrumentation 测试源码编译、Debug APK 组装和 Artifact 上传均通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 10s`（48 个 actionable tasks）。
+- [ ] 未执行模拟器 / 真机 instrumentation tests；本步仅为纯 Kotlin domain，不做设备端验收。
+- [x] Debug Artifact：`14106553355`，12,636,493 bytes；SHA-256：`66e350fcfb6876aace043f1a4f51bd3f18d705802cdcfd159938ac1e5578a6a7`。
 - [x] 保持纯 Kotlin domain；没有改 Parser、Compose、专用键盘或 UI。
 
 **边界与后续：** C5.14 只支持全实数范围的 `tan(ax+b)=c` 周期解族；不支持混合或复合三角方程、参数分类与区间筛选。下一项 C5.15 优先实现周期解族在指定区间内的有限解筛选，并统一检查开闭端点、解数量边界和数值精度。
