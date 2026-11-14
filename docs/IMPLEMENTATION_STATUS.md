@@ -2139,3 +2139,21 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - [x] 保持纯 Kotlin domain；未改 Parser、Compose、专用键盘或计算器 UI。
 
 **边界与后续：** C5.13 仅支持 `cos(ax+b)=c`，全体实数 x 上的周期解族；不代表已经支持正切方程、复合三角式、混合三角方程、区间筛选或参数分类。下一步进入 C5.14，继续选择边界明确的高中方程独立切片。
+
+
+### 27.65 C5.14 弧度制正切周期方程（2026-11-14）
+
+新增纯 Kotlin 正切方程模型、结果类型与 solver，支持 `tan(a*x+b)=c`，全部角度使用弧度制。
+
+- [x] 新增 `TangentEquation`、`TangentEquationSolutionResult` 与 `TangentEquationSolver`；有限输入下结果区分 AllRealNumbers、NoSolutions、PeriodicSolutions 和 Failure。
+- [x] 对 a≠0，使用 `α=atan(c)` 求得单个周期解族，周期 `π/|a|`；基准解归一化到 `[0, period)`，复用 `PeriodicSolutionFamily`。
+- [x] 对 a=0，单独处理常数角；规范表示的 `π/2+kπ` 极点判无解，其它角通过 `tan(b)=c` 区分恒等 / 矛盾。
+- [x] 极点检测不采用宽松的 cosine 阈值，额外测试紧邻极点但仍有限的角度，避免错误排除有效输入。
+- [x] 复用 `PolynomialErrorCode`，保护非有限输入、周期溢出、周期数精度、候选解下溢、回代角非有限和残差不合格。
+- [x] 新增 13 个 JUnit 测试方法，覆盖标准周期解、正负目标、线性角偏移、负系数、常数恒等 / 矛盾 / 极点、近极点有效角、非有限输入、周期溢出、超大相位及超大目标回代精度。
+- [x] 代码提交：`a027ee7d6b0de507277630cb6c98cc543db097cd`。
+- [ ] Android Build #441（Run ID `43578324526`）已触发，当前 in progress；待完成后补记结论与 Artifact。
+- [ ] 未执行模拟器 / 真机 instrumentation tests；按用户要求，设备端验收继续暂缓。
+- [x] 保持纯 Kotlin domain；没有改 Parser、Compose、专用键盘或 UI。
+
+**边界与后续：** C5.14 只支持全实数范围的 `tan(ax+b)=c` 周期解族；不支持混合或复合三角方程、参数分类与区间筛选。下一项 C5.15 优先实现周期解族在指定区间内的有限解筛选，并统一检查开闭端点、解数量边界和数值精度。
