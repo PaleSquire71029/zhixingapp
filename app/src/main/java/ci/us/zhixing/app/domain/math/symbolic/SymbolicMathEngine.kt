@@ -111,6 +111,18 @@ internal object SymbolicMathEngine {
                 return@synchronized validation
             }
 
+            if (
+                parsed.isAST() &&
+                parsed.head().toString() == "Reduce" &&
+                parsed.argSize() >= 1 &&
+                containsNonlinearPolynomialInequality(parsed.get(1))
+            ) {
+                return@synchronized failure(
+                    SymbolicMathErrorCode.UNSUPPORTED_OPERATION,
+                    "当前 Symja 适配层不支持直接约化非线性多项式不等式，请使用专用不等式求解器",
+                )
+            }
+
             // Collect restrictions from the original input before symbolic
             // rewriting, cancellation or simplification can remove them.
             val originalDomainRestrictions = collectDomainRestrictions(parsed)
@@ -258,6 +270,61 @@ internal object SymbolicMathEngine {
     }
 
     /**
+     * Symja 3.2.0's Reduce adapter can merge variable interval conditions but
+     * does not solve general nonlinear polynomial inequalities. Reject those
+     * inputs explicitly rather than returning the untouched inequality as a
+     * successful result.
+     */
+    private fun containsNonlinearPolynomialInequality(root: IExpr): Boolean {
+        fun exponentValue(expression: IExpr): Double? {
+            val source = expression.toString().replace(" ", "")
+            val fraction = source.split('/')
+            return when (fraction.size) {
+                1 -> fraction[0].toDoubleOrNull()
+                2 -> {
+                    val numerator = fraction[0].toDoubleOrNull()
+                    val denominator = fraction[1].toDoubleOrNull()
+                    if (numerator == null || denominator == null || denominator == 0.0) {
+                        null
+                    } else {
+                        numerator / denominator
+                    }
+                }
+                else -> null
+            }
+        }
+
+        fun hasNonlinearPower(expression: IExpr): Boolean {
+            if (!expression.isAST()) return false
+            if (expression.head().toString() == "Power" && expression.argSize() == 2) {
+                val exponent = exponentValue(expression.get(2))
+                if (exponent != null && exponent.isFinite() && exponent != 0.0 && exponent != 1.0) {
+                    return true
+                }
+            }
+            for (index in 1..expression.argSize()) {
+                if (hasNonlinearPower(expression.get(index))) return true
+            }
+            return false
+        }
+
+        fun visit(expression: IExpr): Boolean {
+            if (!expression.isAST()) return false
+            if (expression.head().toString() in REAL_RELATION_HEADS &&
+                hasNonlinearPower(expression)
+            ) {
+                return true
+            }
+            for (index in 1..expression.argSize()) {
+                if (visit(expression.get(index))) return true
+            }
+            return false
+        }
+
+        return visit(root)
+    }
+
+    /**
      * A supported CAS head that survives evaluation is an unevaluated request,
      * not a successful symbolic result. Do not surface it as if it had been solved.
      */
@@ -364,6 +431,13 @@ internal object SymbolicMathEngine {
         message: String,
     ) = SymbolicMathResult.Failure(
         SymbolicMathError(code = code, message = message),
+    )
+
+    private val REAL_RELATION_HEADS = setOf(
+        "Less",
+        "LessEqual",
+        "Greater",
+        "GreaterEqual",
     )
 
     private val UNRESOLVED_OPERATION_HEADS = setOf(
