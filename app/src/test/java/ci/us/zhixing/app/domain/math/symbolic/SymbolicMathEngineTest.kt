@@ -53,12 +53,12 @@ class SymbolicMathEngineTest {
         assertTrue(systemSuccess.expression.contains("x"))
         assertTrue(systemSuccess.expression.contains("y"))
 
-        // The bundled Symja implementation accepts Reduce(condition, variable);
-        // unlike Wolfram Language, this version does not take a third domain argument.
-        val inequality = SymbolicMathEngine.evaluate("Reduce(x^2<4,x)")
-        val inequalitySuccess = requireSuccess(inequality, "Reduce(x^2<4,x)")
-        assertTrue(inequalitySuccess.expression, inequalitySuccess.expression.contains("-2"))
-        assertTrue(inequalitySuccess.expression, inequalitySuccess.expression.contains("2"))
+        // Match the bundled Symja version's own real-interval regression case.
+        val inequality = SymbolicMathEngine.evaluate("Reduce(y^2 < 9, y, Reals)")
+        val inequalitySuccess = requireSuccess(inequality, "Reduce(y^2 < 9, y, Reals)")
+        val reducedCondition = inequalitySuccess.expression.replace(" ", "")
+        assertTrue(reducedCondition, reducedCondition.contains("y>-3"))
+        assertTrue(reducedCondition, reducedCondition.contains("y<3"))
     }
 
     @Test
