@@ -12,6 +12,7 @@ internal enum class SymbolicMathErrorCode {
     INVALID_TIMEOUT,
     INVALID_EXPRESSION,
     UNSUPPORTED_CONSTRUCT,
+    UNSUPPORTED_OPERATION,
     EXPRESSION_TOO_COMPLEX,
     TIMEOUT,
     ENGINE_FAILURE,
@@ -125,14 +126,18 @@ internal object SymbolicMathEngine {
                 "数学引擎没有返回结果",
             )
 
-            when (result.toString()) {
-                ABORTED_MARKER -> failure(
+            when {
+                result.toString() == ABORTED_MARKER -> failure(
                     SymbolicMathErrorCode.TIMEOUT,
                     "计算超时，请简化表达式后重试",
                 )
-                NULL_MARKER, FAILED_MARKER -> failure(
+                result.toString() == NULL_MARKER || result.toString() == FAILED_MARKER -> failure(
                     SymbolicMathErrorCode.ENGINE_FAILURE,
                     "数学引擎无法完成该计算",
+                )
+                findUnresolvedOperation(result) != null -> failure(
+                    SymbolicMathErrorCode.UNSUPPORTED_OPERATION,
+                    "当前数学引擎暂不支持该形式的 ${findUnresolvedOperation(result)} 运算",
                 )
                 else -> SymbolicMathResult.Success(
                     expression = result.toString(),
@@ -253,6 +258,27 @@ internal object SymbolicMathEngine {
     }
 
     /**
+     * A supported CAS head that survives evaluation is an unevaluated request,
+     * not a successful symbolic result. Do not surface it as if it had been solved.
+     */
+    private fun findUnresolvedOperation(root: IExpr): String? {
+        fun visit(expression: IExpr): String? {
+            if (!expression.isAST()) return null
+
+            val head = expression.head().toString()
+            if (head in UNRESOLVED_OPERATION_HEADS) return head
+
+            for (index in 1..expression.argSize()) {
+                val nested = visit(expression.get(index))
+                if (nested != null) return nested
+            }
+            return null
+        }
+
+        return visit(root)
+    }
+
+    /**
      * Captures common real-domain constraints from the unmodified source AST.
      * This list travels with simplified/solved output so a removable
      * discontinuity is not silently turned into an admissible point.
@@ -289,7 +315,8 @@ internal object SymbolicMathEngine {
                                 }
                                 val normalizedDenominator = denominator.abs()
                                 val hasEvenDenominator =
-                                    normalizedDenominator.mod(java.math.BigInteger.TWO) == java.math.BigInteger.ZERO
+                                    normalizedDenominator.mod(java.math.BigInteger.valueOf(2L)) ==
+                                        java.math.BigInteger.ZERO
 
                                 when {
                                     normalizedNumerator.signum() < 0 && hasEvenDenominator ->
@@ -337,6 +364,17 @@ internal object SymbolicMathEngine {
         message: String,
     ) = SymbolicMathResult.Failure(
         SymbolicMathError(code = code, message = message),
+    )
+
+    private val UNRESOLVED_OPERATION_HEADS = setOf(
+        "Solve",
+        "SolveValues",
+        "NSolve",
+        "Reduce",
+        "FindRoot",
+        "D",
+        "Integrate",
+        "Limit",
     )
 
     private val ALLOWED_SYMBOLS = ('a'..'z').map { it.toString() }.toSet() + setOf(

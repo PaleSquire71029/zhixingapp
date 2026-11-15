@@ -46,19 +46,22 @@ class SymbolicMathEngineTest {
     }
 
     @Test
-    fun solvesLinearSystemsAndReducesPolynomialInequalities() {
+    fun solvesLinearSystemsAndReducesSupportedIntervalConditions() {
         val system = SymbolicMathEngine.evaluate("Solve({x+y==3,x-y==1},{x,y})")
         assertTrue(system.toString(), system is SymbolicMathResult.Success)
         val systemSuccess = requireSuccess(system, "Solve({x+y==3,x-y==1},{x,y})")
         assertTrue(systemSuccess.expression.contains("x"))
         assertTrue(systemSuccess.expression.contains("y"))
 
-        // Match the bundled Symja version's own real-interval regression case.
-        val inequality = SymbolicMathEngine.evaluate("Reduce(y^2 < 9, y, Reals)")
-        val inequalitySuccess = requireSuccess(inequality, "Reduce(y^2 < 9, y, Reals)")
-        val reducedCondition = inequalitySuccess.expression.replace(" ", "")
-        assertTrue(reducedCondition, reducedCondition.contains("y>-3"))
-        assertTrue(reducedCondition, reducedCondition.contains("y<3"))
+        // Match Symja 3.2.0's supported interval-merging regression case.
+        assertSuccess(
+            "Reduce(x > 1 && x < 5 || x >= 5 && x < 8, x, Reals)",
+            "x>1&&x<8",
+        )
+        assertFailure(
+            "Reduce(x^2 < 4, x)",
+            SymbolicMathErrorCode.UNSUPPORTED_OPERATION,
+        )
     }
 
     @Test
