@@ -49,13 +49,14 @@ class SymbolicMathEngineTest {
     fun solvesLinearSystemsAndReducesPolynomialInequalities() {
         val system = SymbolicMathEngine.evaluate("Solve({x+y==3,x-y==1},{x,y})")
         assertTrue(system.toString(), system is SymbolicMathResult.Success)
-        assertTrue((system as SymbolicMathResult.Success).expression.contains("x"))
-        assertTrue(system.expression.contains("y"))
+        val systemSuccess = requireSuccess(system, "Solve({x+y==3,x-y==1},{x,y})")
+        assertTrue(systemSuccess.expression.contains("x"))
+        assertTrue(systemSuccess.expression.contains("y"))
 
         val inequality = SymbolicMathEngine.evaluate("Reduce(x^2<4,x,Reals)")
-        assertTrue(inequality.toString(), inequality is SymbolicMathResult.Success)
-        assertTrue(inequality.expression, inequality.expression.contains("-2"))
-        assertTrue(inequality.expression, inequality.expression.contains("2"))
+        val inequalitySuccess = requireSuccess(inequality, "Reduce(x^2<4,x,Reals)")
+        assertTrue(inequalitySuccess.expression, inequalitySuccess.expression.contains("-2"))
+        assertTrue(inequalitySuccess.expression, inequalitySuccess.expression.contains("2"))
     }
 
     @Test
@@ -74,16 +75,16 @@ class SymbolicMathEngineTest {
     @Test
     fun supportsFactorizationIntegrationAndLimits() {
         val factor = SymbolicMathEngine.evaluate("Factor(x^2-1)")
-        assertTrue(factor.toString(), factor is SymbolicMathResult.Success)
-        assertTrue(factor.expression, factor.expression.contains("x"))
+        val factorSuccess = requireSuccess(factor, "Factor(x^2-1)")
+        assertTrue(factorSuccess.expression, factorSuccess.expression.contains("x"))
 
         val integral = SymbolicMathEngine.evaluate("Integrate(x^2,x)")
-        assertTrue(integral.toString(), integral is SymbolicMathResult.Success)
-        assertTrue(integral.expression, integral.expression.contains("x^3"))
+        val integralSuccess = requireSuccess(integral, "Integrate(x^2,x)")
+        assertTrue(integralSuccess.expression, integralSuccess.expression.contains("x^3"))
 
         val limit = SymbolicMathEngine.evaluate("Limit(Sin(x)/x,x->0)")
-        assertTrue(limit.toString(), limit is SymbolicMathResult.Success)
-        assertEquals("1", limit.expression)
+        val limitSuccess = requireSuccess(limit, "Limit(Sin(x)/x,x->0)")
+        assertEquals("1", limitSuccess.expression)
     }
 
     @Test
@@ -126,6 +127,14 @@ class SymbolicMathEngineTest {
         val result = SymbolicMathEngine.evaluate(input)
         assertTrue("Expected success for $input, got $result", result is SymbolicMathResult.Success)
         assertEquals(expected, (result as SymbolicMathResult.Success).expression)
+    }
+
+    private fun requireSuccess(
+        result: SymbolicMathResult,
+        input: String,
+    ): SymbolicMathResult.Success {
+        assertTrue("Expected success for $input, got $result", result is SymbolicMathResult.Success)
+        return result as SymbolicMathResult.Success
     }
 
     private fun assertFailure(
