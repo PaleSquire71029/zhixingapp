@@ -53,8 +53,10 @@ class SymbolicMathEngineTest {
         assertTrue(systemSuccess.expression.contains("x"))
         assertTrue(systemSuccess.expression.contains("y"))
 
-        val inequality = SymbolicMathEngine.evaluate("Reduce(x^2<4,x,Reals)")
-        val inequalitySuccess = requireSuccess(inequality, "Reduce(x^2<4,x,Reals)")
+        // The bundled Symja implementation accepts Reduce(condition, variable);
+        // unlike Wolfram Language, this version does not take a third domain argument.
+        val inequality = SymbolicMathEngine.evaluate("Reduce(x^2<4,x)")
+        val inequalitySuccess = requireSuccess(inequality, "Reduce(x^2<4,x)")
         assertTrue(inequalitySuccess.expression, inequalitySuccess.expression.contains("-2"))
         assertTrue(inequalitySuccess.expression, inequalitySuccess.expression.contains("2"))
     }
@@ -103,7 +105,9 @@ class SymbolicMathEngineTest {
 
     @Test
     fun recordsCommonRootLogAndTrigonometricDomainRestrictions() {
-        val result = SymbolicMathEngine.evaluate("Sqrt(x)+Log(x)+Tan(x)")
+        val result = SymbolicMathEngine.evaluate(
+            "Sqrt(x)+x^(1/2)+x^(-1/2)+Log(x)+Tan(x)",
+        )
         assertTrue(result.toString(), result is SymbolicMathResult.Success)
         val restrictions = (result as SymbolicMathResult.Success).domainRestrictions
         assertTrue(restrictions.any { it == SymbolicDomainRestriction.NonNegative("x") })
