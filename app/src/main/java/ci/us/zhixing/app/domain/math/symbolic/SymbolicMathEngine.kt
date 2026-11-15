@@ -269,10 +269,37 @@ internal object SymbolicMathEngine {
                 val first = expression.get(1).toString()
                 when (head) {
                     "Power" -> {
-                        if (argumentCount == 2 &&
-                            expression.get(2).toString().trim().startsWith("-")
-                        ) {
-                            restrictions += SymbolicDomainRestriction.NonZero(first)
+                        if (argumentCount == 2) {
+                            val exponent = expression.get(2).toString().replace(" ", "")
+                            val rationalParts = exponent.split('/')
+                            val numerator = rationalParts.firstOrNull()?.toBigIntegerOrNull()
+                            val denominator = if (rationalParts.size == 2) {
+                                rationalParts[1].toBigIntegerOrNull()
+                            } else if (rationalParts.size == 1) {
+                                java.math.BigInteger.ONE
+                            } else {
+                                null
+                            }
+
+                            if (numerator != null && denominator != null && denominator != java.math.BigInteger.ZERO) {
+                                val normalizedNumerator = if (denominator.signum() < 0) {
+                                    numerator.negate()
+                                } else {
+                                    numerator
+                                }
+                                val normalizedDenominator = denominator.abs()
+                                val hasEvenDenominator =
+                                    normalizedDenominator.mod(java.math.BigInteger.TWO) == java.math.BigInteger.ZERO
+
+                                when {
+                                    normalizedNumerator.signum() < 0 && hasEvenDenominator ->
+                                        restrictions += SymbolicDomainRestriction.Positive(first)
+                                    normalizedNumerator.signum() < 0 ->
+                                        restrictions += SymbolicDomainRestriction.NonZero(first)
+                                    normalizedNumerator.signum() > 0 && hasEvenDenominator ->
+                                        restrictions += SymbolicDomainRestriction.NonNegative(first)
+                                }
+                            }
                         }
                     }
                     "Sqrt" -> restrictions += SymbolicDomainRestriction.NonNegative(first)
