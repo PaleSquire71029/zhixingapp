@@ -5,6 +5,8 @@ import ci.us.zhixing.app.domain.math.model.LinearCombinationTrigonometricEquatio
 import ci.us.zhixing.app.domain.math.model.PeriodicSolutionInterval
 import ci.us.zhixing.app.domain.math.model.PeriodicSolutionIntervalResult
 import ci.us.zhixing.app.domain.math.model.PolynomialErrorCode
+import ci.us.zhixing.app.domain.math.model.SineEquation
+import ci.us.zhixing.app.domain.math.model.SineEquationSolutionResult
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -39,10 +41,21 @@ class LinearCombinationTrigonometricEquationSolverTest {
     @Test
     fun zeroCosineCoefficientMatchesExistingSineEquation() {
         val result = solve(a = 2.0, b = 0.0, w = -1.0, phase = PI / 4.0, target = 1.0)
-        val family = singleFamily(result)
+        val actualFamilies = periodicFamilies(result)
+        val expected = SineEquationSolver.solve(
+            SineEquation(
+                coefficient = -1.0,
+                phase = PI / 4.0,
+                target = 0.5,
+            ),
+        )
 
-        assertEquals(2.0 * PI, family.period, 1e-12)
-        assertTrue(family.firstSolution >= 0.0 && family.firstSolution < family.period)
+        assertTrue(expected is SineEquationSolutionResult.PeriodicSolutions)
+        assertEquals(
+            (expected as SineEquationSolutionResult.PeriodicSolutions).families,
+            actualFamilies,
+        )
+        assertEquals(2, actualFamilies.size)
     }
 
     @Test
