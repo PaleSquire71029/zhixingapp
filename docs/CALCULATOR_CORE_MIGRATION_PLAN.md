@@ -884,3 +884,32 @@ C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成�
 - 保持纯 Kotlin domain；未改 Parser、Compose、专用键盘或计算器 UI。
 
 **边界与后续：** C5.14 只支持 `tan(ax+b)=c` 的全体实数周期解族；不代表支持正切函数复合式、混合三角方程或区间内筛选。下一步 C5.15 优先对现有正弦 / 余弦 / 正切周期解族实施给定区间内的有限解筛选。
+
+## 47. C5.15：周期解族的指定区间有限解筛选（2026-11-17）
+
+### 目标与范围
+
+在 C5.12 正弦、C5.13 余弦和 C5.14 正切周期方程的既有全实数解族之上，建立一个纯 Kotlin 公共筛选层。输入是一组 `PeriodicSolutionFamily(firstSolution, period)` 和有限区间；输出是该区间中的有序、去重有限解集。该步骤不改变三种方程各自的反三角函数求解、相位归一化或回代算法。
+
+### 实现契约
+
+- 区间模型：`PeriodicSolutionInterval(lowerBound, upperBound, includeLowerBound, includeUpperBound)`。上下界必须有限且下界不大于上界。等端点只有在两端均闭合时才可能包含单个值；其它等端点区间为空。
+- 筛选入口：`PeriodicSolutionIntervalFilter.filter(families, interval, maxSolutions = 1000)`。周期族基准值必须满足既有模型不变量 `0 ≤ firstSolution < period`，且周期为有限正数。
+- 对每个周期族 `x = base + k·period`，以 BigDecimal / BigInteger 计算周期索引。闭下界取 `ceil((L-base)/period)`，开下界取 `floor((L-base)/period)+1`；闭上界取 `floor((U-base)/period)`，开上界取 `ceil((U-base)/period)-1`。不将大索引先转换成 Double。
+- 先计算 BigInteger 解数量，再决定是否物化结果。数量超过 maxSolutions 时返回 typed `TOO_MANY_SOLUTIONS`；不会为无限或过大的结果创建列表。
+- 各周期族结果合并、按数值升序排列；同一精确根去重。如果不同的精确根在转换成 Double 后无法区分，或转换后跨过区间开闭边界，返回 typed `NUMERIC_PRECISION_LOSS`。
+- 失败结果与边界明确区分：NON_FINITE_INPUT、INVALID_INTERVAL、INVALID_FAMILY、INVALID_MAX_SOLUTIONS、TOO_MANY_SOLUTIONS、NON_FINITE_RESULT、NUMERIC_PRECISION_LOSS。全体实数和无解仍由上游三角方程结果类型表达，不属于周期族有限筛选器的输入。
+
+### 验收标准
+
+- 必须覆盖闭 / 开 / 半开端点、负区间、负周期索引、单点区间、空解区间、多解族排序和重复族去重。
+- 必须覆盖非有限区间、上下界倒置、非法周期族、非法数量上限、超数量保护、极小周期和大偏移周期索引。
+- 必须验证不同精确根不能因 Double 舍入碰撞而伪装成同一个根。
+- 必须分别将真实 SineEquationSolver、CosineEquationSolver 和 TangentEquationSolver 输出接入筛选器，证明同一个筛选器可复用。
+- 保持 domain-only：不改 Parser、Compose、输入键盘、AI 或页面导航；CI 只编译 instrumentation 测试源码，不将此视为真机验收。
+
+### 实施与验收结果
+
+模型和筛选器提交 `62c86a283536c886bd2af65d1e40c9cbe5923d30`；测试夹具修正 `b3aa7ea0b01b5d112d4245ee015ad60a6c4fb0fe`；三类真实 solver 联动测试 `876429fc90febcf0252814154d86047709a5f296`。Build #454 曾因一个单点区间测试夹具的预期不正确而失败，夹具已修正；Build #455 完整 success；最终 Build #456（Run ID `43910484276`，SHA `876429fc90febcf0252814154d86047709a5f296`）完整 success，包含 JVM 单元测试、Android 测试源码编译、Debug APK 组装、Artifact 上传和 Actions 清理。Artifact ID `14248190828`，31,204,194 bytes。未运行模拟器 / 真机 instrumentation tests。
+
+**下一步建议：** C5.16 辅助角公式型组合方程 `A·sin(ωx+φ)+B·cos(ωx+φ)=C`，转换为单个正弦方程后复用现有 solver；需独立覆盖振幅为零、幅值越界、非有限输入和回代精度边界。

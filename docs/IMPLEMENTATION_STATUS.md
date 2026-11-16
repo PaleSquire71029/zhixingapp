@@ -2158,3 +2158,20 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - [x] 保持纯 Kotlin domain；没有改 Parser、Compose、专用键盘或 UI。
 
 **边界与后续：** C5.14 只支持全实数范围的 `tan(ax+b)=c` 周期解族；不支持混合或复合三角方程、参数分类与区间筛选。下一项 C5.15 优先实现周期解族在指定区间内的有限解筛选，并统一检查开闭端点、解数量边界和数值精度。
+
+### 27.66 C5.15：正弦 / 余弦 / 正切周期解族的指定区间筛选（2026-11-17）
+
+在 C5.12–C5.14 的无限周期解族之上新增通用有限区间筛选器。此步不修改三种三角方程 solver 的求根公式，而是将其 `PeriodicSolutionFamily` 统一物化为指定区间内的有限解集。
+
+- 新增 `PeriodicSolutionInterval`，显式保存有限下界、上界及两个端点各自的开闭状态；新增 `PeriodicSolutionIntervalResult`，区分有序有限解、无解和类型化失败。
+- 新增 `PeriodicSolutionIntervalFilter.filter(families, interval, maxSolutions)`，默认最多返回 1,000 个解；支持一个或多个周期解族，结果按 x 升序排列，并合并重复解。
+- 周期序号不使用 Double 的 `ceil/floor` 直接计算：先将有限 Double 值转成 BigDecimal，再用 BigInteger 求精确整数周期索引。下界闭区间使用 `ceil((L-base)/period)`，下界开区间使用 `floor((L-base)/period)+1`；上界按对应的 floor / ceil 对称处理。负周期序号和大偏移整数索引均有覆盖。
+- 在生成候选解前先计算数量；超过调用者设定的最大解数时返回 `TOO_MANY_SOLUTIONS`，不会先分配巨大列表。重复的同一精确根只保留一次；两个不同精确根若舍入到同一 Double，或舍入后跨过开闭端点，则返回 `NUMERIC_PRECISION_LOSS`，不静默制造错误解集。
+- 错误类型覆盖非有限端点、区间上下界颠倒、非法周期解族、非法解数上限、解数超限、结果非有限和数值精度丢失。等长开 / 半开区间按空集处理；AllRealNumbers / NoSolutions 仍由原方程结果类型表达，不强行转换为周期解列表。
+- 新增 15 个筛选器单元测试，覆盖双端闭区间、开 / 半开区间、负区间和负周期索引、多解族排序去重、单点区间、无解区间、非法输入、结果数量上限、大偏移 BigInteger 索引、次正规周期和 Double 精度碰撞；另新增 3 个联动测试，分别使用真实 SineEquationSolver、CosineEquationSolver、TangentEquationSolver 输出验证区间筛选。
+- 代码提交：筛选器及模型 `62c86a283536c886bd2af65d1e40c9cbe5923d30`；次正规周期测试夹具修正 `b3aa7ea0b01b5d112d4245ee015ad60a6c4fb0fe`；三种三角 solver 联动测试 `876429fc90febcf0252814154d86047709a5f296`。
+- Build #454（Run ID `43909924425`，初始测试夹具）因单点区间与“解数超限”预期不匹配而失败；已将夹具改成确实包含大量周期根的窄区间。Build #455（Run ID `43909960007`，修正夹具后的 SHA `b3aa7ea0b01b5d112d4245ee015ad60a6c4fb0fe`）完整 success。加入三种真实 solver 联动测试后的 Build #456（Run ID `43910484276`，最终 SHA `876429fc90febcf0252814154d86047709a5f296`）也完整 success：Markdown 链接检查、资源检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Gradle / JDK / Checkout 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`，清理构建 `BUILD SUCCESSFUL in 10s`。
+- 最终 Debug Artifact：`zhixingapp-debug`，ID `14248190828`，31,204,194 bytes。
+- 未执行模拟器 / 真机 instrumentation tests；按用户要求，目标真机验收继续暂缓。未接入 Parser、Compose、专用键盘、AI 或计算器 UI。
+
+**边界与后续：** C5.15 只负责将已经求出的周期解族筛选到有限区间；它不增加新的三角方程求根形式。下一步建议 C5.16 实现高中常见的辅助角公式型组合方程 `A·sin(ωx+φ)+B·cos(ωx+φ)=C`，通过振幅 / 相位变换复用现有正弦 solver，并对零振幅、非有限系数及回代精度单独处理。
