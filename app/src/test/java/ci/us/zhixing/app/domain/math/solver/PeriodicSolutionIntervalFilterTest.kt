@@ -172,10 +172,11 @@ class PeriodicSolutionIntervalFilterTest {
     }
 
     @Test
-    fun handlesSubnormalPositivePeriodWhenTheRequestedIntervalIsEmptyOfRoots() {
-        val result = filter(
+    fun rejectsSubnormalPeriodWhenTheIntervalContainsTooManyRoots() {
+        val result = PeriodicSolutionIntervalFilter.filter(
             listOf(PeriodicSolutionFamily(0.0, Double.MIN_VALUE)),
-            PeriodicSolutionInterval(1.0, 1.0),
+            PeriodicSolutionInterval(1.0, 1.0 + 1.0e-15),
+            maxSolutions = 100,
         )
 
         assertFailure(result, PeriodicSolutionIntervalErrorCode.TOO_MANY_SOLUTIONS)
