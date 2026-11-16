@@ -912,4 +912,44 @@ C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成�
 
 模型和筛选器提交 `62c86a283536c886bd2af65d1e40c9cbe5923d30`；测试夹具修正 `b3aa7ea0b01b5d112d4245ee015ad60a6c4fb0fe`；三类真实 solver 联动测试 `876429fc90febcf0252814154d86047709a5f296`。Build #454 曾因一个单点区间测试夹具的预期不正确而失败，夹具已修正；Build #455 完整 success；最终 Build #456（Run ID `43910484276`，SHA `876429fc90febcf0252814154d86047709a5f296`）完整 success，包含 JVM 单元测试、Android 测试源码编译、Debug APK 组装、Artifact 上传和 Actions 清理。Artifact ID `14248190828`，31,204,194 bytes。未运行模拟器 / 真机 instrumentation tests。
 
-**下一步建议：** C5.16 辅助角公式型组合方程 `A·sin(ωx+φ)+B·cos(ωx+φ)=C`，转换为单个正弦方程后复用现有 solver；需独立覆盖振幅为零、幅值越界、非有限输入和回代精度边界。
+**下一步建议：** C5.16 已完成。后续重新核对高中常见三角方程样例，再为 C5.17 选择边界明确、能够复用现有周期解族与区间筛选层的独立题型；不要提前将不同角频率、不同相位或乘积型方程标记为已支持。
+
+## 48. C5.16：辅助角公式型组合三角方程（2026-11-17）
+
+### 题型与等价变换
+
+支持：
+
+`A·sin(ωx+φ)+B·cos(ωx+φ)=C`
+
+其中 A、B、ω、φ、C 均为有限 Double，角度按弧度制。利用辅助角恒等式：
+
+`A sin θ+B cos θ=R sin(θ+δ)`
+
+`R=hypot(A,B) ≥ 0`，`δ=atan2(B,A)`。
+
+当 R>0 时，化为 `sin(ωx+φ+δ)=C/R)，交由 C5.12 的 `SineEquationSolver` 求解；解族周期、基准值归一化和既有相位精度保护均复用，不复制实现。当 R=0 时，原式恒为 0，按 C 是否为 0 分类。
+
+### 实现契约
+
+- 新增 `LinearCombinationTrigonometricEquation`，以五个显式字段保存正弦系数 A、余弦系数 B、角系数 ω、相位 φ 与目标 C。
+- 新增 `LinearCombinationTrigonometricEquationSolutionResult`，分为 AllRealNumbers、NoSolutions、PeriodicSolutions（一个或两个 `PeriodicSolutionFamily`）和 Failure。
+- 振幅用 `hypot(A,B)` 计算，避免直接计算 `sqrt(A*A+B*B)` 引入可避免的平方溢出；如果实际振幅本身超出 Double 范围，返回 NON_FINITE_RESULT。
+- 若 `|C|>R`，返回 NoSolutions；当 C 非零但 C/R 下溢为零，或严格位于振幅内部却因舍入变为 ±1，返回 NUMERIC_PRECISION_LOSS，不能把双分支误缩为单分支。
+- 辅助角平移 `φ+δ` 若在 Double 中丢失非零 δ，返回 NUMERIC_PRECISION_LOSS；如果产生非有限值，返回 NON_FINITE_RESULT。
+- 对正弦 solver 返回的所有周期族，逐一用原始组合表达式回代基准值并计算归一化残差；原式不通过检查时返回 NUMERIC_PRECISION_LOSS。
+- 零振幅和零目标返回 AllRealNumbers；零振幅和非零目标返回 NoSolutions。非零振幅但 `ω=0` 时，交由既有正弦 solver 分类常数函数恒等 / 矛盾。
+- 输出的周期解族可直接交给 C5.15 `PeriodicSolutionIntervalFilter` 物化指定区间内有限解。当前不支持不同角频率、不同相位、乘积型三角方程或任意复合三角表达式。
+
+### 验收标准
+
+- 验证一般 A/B 组合的双解族与振幅边界的单解族；正、负 C 均需覆盖。
+- 对 A=0 或 B=0 的退化形式，与现有纯余弦 / 纯正弦求解结果保持一致。
+- 覆盖负 A / B / ω、目标超出振幅、零振幅恒等 / 矛盾、ω=0 常数分类。
+- 覆盖五个参数任一非有限、振幅溢出、目标归一化下溢、辅助相位丢失和原式回代残差。
+- 至少一个组合方程输出必须经 C5.15 区间筛选器转成有限解列表。
+- 保持纯 Kotlin domain，不接 Parser、Compose、专用键盘、AI 或 UI。
+
+### 实施与验收结果
+
+模型、结果类型、solver 和首轮测试提交 `2ae538ec15e12b18b9eec447e1887b4349abc62d`；测试修正提交 `9b5c70f6a21ab51f8a0cb52e978f3f8bba8eadc6`。Build #458 因纯正弦退化测试错误地要求单个解族而失败；测试已修正为与 `SineEquationSolver` 的实际两个周期解族逐项比较。Build #459（Run ID `43912093268`，最终 SHA `9b5c70f6a21ab51f8a0cb52e978f3f8bba8eadc6`）完整 success，包含全部 JVM 单元测试、Android 测试源码编译、Debug APK 组装、Artifact 上传和 Actions 清理。主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 21s`，清理构建 `BUILD SUCCESSFUL in 11s`。Artifact ID `14249000537`，31,208,045 bytes。未执行模拟器 / 真机仪器测试。

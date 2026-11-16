@@ -1,6 +1,6 @@
 # 知行 Android App 实施状态
 
-> 最后更新：2026-11-14  
+> 最后更新：2026-11-17  
 > 当前仓库：PaleSquire71029/zhixingapp  
 > 当前分支：main  
 > 项目接手指南：[docs/PROJECT_STATUS_AND_GUIDE.md](./PROJECT_STATUS_AND_GUIDE.md)  
@@ -12,16 +12,16 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-14）：** 数学与工具 Domain 已完成 C0.1–C8.7；方程能力已继续推进至 C5.13（弧度制余弦周期方程）；Build #440（Run ID 43552940320）完整 success，JVM 单测、Android 测试源码编译、Debug APK 组装、Artifact 上传及 Actions 清理均通过；C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善交互，支持九类切换、输入、源 / 目标选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向单位选择及 TalkBack 语义。所有换算仍统一调用 `UnitConverter`，未复制转换公式。Build #428（Run ID `43545850658`，代码 SHA `2b62e75f6f20224b50550d0f655d3d511ccc2cd3`）完整 success：JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 50s`。Debug Artifact `14093618375`，12,612,565 bytes。Build #428 没有执行模拟器 / 真机 instrumentation tests；按用户要求，单位换算页的 iQOO 真机视觉、输入法和触控验收暂缓。Build #427 曾因 Compose semantics 的两个错误导入 / 属性用法编译失败，已在提交 `2b62e75f6f20224b50550d0f655d3d511ccc2cd3` 修复并由 #428 验证。完整主计算器页面（C12）、专用数学输入、函数图像 UI、化学原生迁移、AI 客户端、账号与云历史仍未完成。
+**当前进度（核对至 2026-11-17）：** 数学内核 C0.1–C4.3、C5.1–C5.16、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录；C5.15 已完成三类周期解族区间筛选，C5.16 已完成辅助角公式型组合三角方程 `A·sin(ωx+φ)+B·cos(ωx+φ)=C`，复用既有正弦 solver。最新代码提交 `9b5c70f6a21ab51f8a0cb52e978f3f8bba8eadc6` 的 Build #459（Run ID `43912093268`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 21s`，清理构建 `BUILD SUCCESSFUL in 11s`。Debug Artifact `14249000537`，31,208,045 bytes。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
 | Android 原生工程 | 已完成 | Kotlin + Jetpack Compose；单一 `:app` 模块；AGP 9.1.1 / Gradle 9.3.1 / JDK 17；compileSdk / targetSdk 36、minSdk 26 |
 | 主壳与导航 | 已接入 | 四个一级入口：计算 / 知行 AI / 工具 / 我的；浮动玻璃 Dock、二级页面动画与材质组件已在 main |
-| Liquid Glass 真机体验 | 部分真机验收 | 主壳与 PR #88 相关设备验收以用户确认和对应 PR 记录为准；Build / 源码编译本身不等同光学体验验收 |
+| Liquid Glass 真机体验 | 主壳 / PR #88 相关验收已由用户确认通过 | PR #88 当前仍在 GitHub open；未合并状态与已完成的用户设备验收需分别记录 |
 | 设计 Tokens | 已实现并通过 CI 编译 | 浅色颜色、形状、间距、文字 Tokens 与 ZhixingTheme 已接入；Build #428 编译通过 |
 | 表达式数学内核 | C0.1–C4.3 已完成 | Tokenizer、AST / Parser、常数求值、多项式、有理函数定义域 / 求值、一次 / 二次实根 |
-| 方程求解 | C5.1–C5.13 已通过 CI | 常数 / 一至三次、分式、绝对值（常数右侧 / 线性右侧，内部式最高二次）、平方根与立方根（受限结构）、受限指数 / 对数、二元一次方程组、基础正弦 / 余弦周期方程 |
+| 方程求解 | C5.1–C5.16 已通过 CI | 已覆盖多项式、分式、绝对值、根式、指数 / 对数、二元一次方程组、正弦 / 余弦 / 正切周期方程、周期区间筛选及辅助角组合三角方程 |
 | 不等式求解 | C6.1–C6.2 已完成 | 一至三次多项式不等式、分式不等式 |
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
@@ -32,8 +32,12 @@
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #440 | [Artifact 14097190828](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43552940320/artifacts/14097190828)，12,633,478 bytes；包含 C5.13 余弦周期方程，完整 Actions workflow success |
+| 最新 Debug APK | Build #459 | [Artifact 14249000537](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43912093268/artifacts/14249000537)，31,208,045 bytes；包含 C5.16 组合三角方程，完整 Actions workflow success |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
+
+### 初始工程检查历史快照（非当前进度）
+
+以下旧表格保留建项时的操作记录；判断当前状态请只使用本节顶部的最新项目状态表。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -2175,3 +2179,22 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - 未执行模拟器 / 真机 instrumentation tests；按用户要求，目标真机验收继续暂缓。未接入 Parser、Compose、专用键盘、AI 或计算器 UI。
 
 **边界与后续：** C5.15 只负责将已经求出的周期解族筛选到有限区间；它不增加新的三角方程求根形式。下一步建议 C5.16 实现高中常见的辅助角公式型组合方程 `A·sin(ωx+φ)+B·cos(ωx+φ)=C`，通过振幅 / 相位变换复用现有正弦 solver，并对零振幅、非有限系数及回代精度单独处理。
+
+### 27.67 C5.16 辅助角公式型组合三角方程（2026-11-17）
+
+新增纯 Kotlin solver，支持弧度制方程：
+
+`A·sin(ωx+φ)+B·cos(ωx+φ)=C`
+
+- 新增 `LinearCombinationTrigonometricEquation` 与 `LinearCombinationTrigonometricEquationSolutionResult`，结果区分 AllRealNumbers、NoSolutions、PeriodicSolutions 和类型化 Failure。
+- 使用辅助角恒等式 `A sin θ+B cos θ=R sin(θ+δ)`，其中 `R=hypot(A,B)`、`δ=atan2(B,A)`，将原式转为 `sin(ωx+φ+δ)=C/R`，复用现有 `SineEquationSolver`，不重复实现反三角函数和周期解族算法。
+- 零振幅 `A=B=0` 时按 `C=0` / `C≠0` 分类恒等或矛盾；非零振幅且 `|C|>R` 直接返回无解；`ω=0` 复用正弦 solver 的常数分类。
+- 输入非有限值返回 `NON_FINITE_INPUT`；振幅不可表示返回 `NON_FINITE_RESULT`；归一化目标下溢、目标严格位于振幅内部却舍入到 ±1、辅助角平移被大相位吞掉，以及原组合式回代不合格，均返回 `NUMERIC_PRECISION_LOSS`，避免伪造单解 / 双解分支。
+- 对每个周期族基准根回代原始 `A sin(ωx+φ)+B cos(ωx+φ)`，而不是只验证变换后的正弦形式；输出周期解族可直接交给 C5.15 区间筛选器。
+- 新增 15 个 JUnit 测试方法，覆盖一般双分支、正 / 负振幅边界、纯正弦 / 纯余弦退化、正负系数、目标越界、零振幅恒等 / 矛盾、零角系数常数分类、非有限输入、振幅溢出、归一化下溢、相位精度损失、原式回代及 C5.15 区间筛选联动。
+- 代码提交：solver / model / result / 首轮测试 `2ae538ec15e12b18b9eec447e1887b4349abc62d`；纯正弦退化测试修正 `9b5c70f6a21ab51f8a0cb52e978f3f8bba8eadc6`。Build #458 发现测试将本应存在的两个周期解族误判为一个；已将测试改为直接与 `SineEquationSolver` 的两个输出族逐项比较，不删除断言、不修改既有 solver。
+- Build #459（Run ID `43912093268`，最终 SHA `9b5c70f6a21ab51f8a0cb52e978f3f8bba8eadc6`）完整 success：Markdown 链接检查、Android 资源检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传，以及 Gradle / JDK / Checkout 清理全部通过；主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 21s`，清理构建 `BUILD SUCCESSFUL in 11s`。
+- 最终 Debug Artifact：`zhixingapp-debug`，ID `14249000537`，31,208,045 bytes。
+- 未执行模拟器 / 真机 instrumentation tests；本步只完成 CI 自动化验证，不代表设备验收。未接入 Parser、Compose、专用键盘、AI 或计算器 UI。
+
+**边界与后续：** C5.16 只支持共享线性角 `ωx+φ`、常数系数 A / B / C 的正弦余弦线性组合；不代表支持不同角频率、不同相位、乘积型或任意复合三角方程。下一步先从高中三角方程的真实高频形式中选取一个结构边界明确的切片，再决定 C5.17 的模型与回归样例。
