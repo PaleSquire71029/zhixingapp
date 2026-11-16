@@ -4,6 +4,12 @@ import ci.us.zhixing.app.domain.math.model.PeriodicSolutionFamily
 import ci.us.zhixing.app.domain.math.model.PeriodicSolutionInterval
 import ci.us.zhixing.app.domain.math.model.PeriodicSolutionIntervalErrorCode
 import ci.us.zhixing.app.domain.math.model.PeriodicSolutionIntervalResult
+import ci.us.zhixing.app.domain.math.model.SineEquation
+import ci.us.zhixing.app.domain.math.model.SineEquationSolutionResult
+import ci.us.zhixing.app.domain.math.model.CosineEquation
+import ci.us.zhixing.app.domain.math.model.CosineEquationSolutionResult
+import ci.us.zhixing.app.domain.math.model.TangentEquation
+import ci.us.zhixing.app.domain.math.model.TangentEquationSolutionResult
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -180,6 +186,48 @@ class PeriodicSolutionIntervalFilterTest {
         )
 
         assertFailure(result, PeriodicSolutionIntervalErrorCode.TOO_MANY_SOLUTIONS)
+    }
+
+    @Test
+    fun integratesWithSineSolverFamilies() {
+        val solved = SineEquationSolver.solve(
+            SineEquation(coefficient = 1.0, phase = 0.0, target = 0.0),
+        )
+        assertTrue(solved.toString(), solved is SineEquationSolutionResult.PeriodicSolutions)
+        val families = (solved as SineEquationSolutionResult.PeriodicSolutions).families
+
+        assertValues(
+            filter(families, PeriodicSolutionInterval(0.0, 2.0 * PI)),
+            listOf(0.0, PI, 2.0 * PI),
+        )
+    }
+
+    @Test
+    fun integratesWithCosineSolverFamilies() {
+        val solved = CosineEquationSolver.solve(
+            CosineEquation(coefficient = 1.0, phase = 0.0, target = 0.0),
+        )
+        assertTrue(solved.toString(), solved is CosineEquationSolutionResult.PeriodicSolutions)
+        val families = (solved as CosineEquationSolutionResult.PeriodicSolutions).families
+
+        assertValues(
+            filter(families, PeriodicSolutionInterval(0.0, 2.0 * PI)),
+            listOf(PI / 2.0, 3.0 * PI / 2.0),
+        )
+    }
+
+    @Test
+    fun integratesWithTangentSolverFamily() {
+        val solved = TangentEquationSolver.solve(
+            TangentEquation(coefficient = 1.0, phase = 0.0, target = 0.0),
+        )
+        assertTrue(solved.toString(), solved is TangentEquationSolutionResult.PeriodicSolutions)
+        val family = (solved as TangentEquationSolutionResult.PeriodicSolutions).family
+
+        assertValues(
+            filter(listOf(family), PeriodicSolutionInterval(0.0, 2.0 * PI)),
+            listOf(0.0, PI, 2.0 * PI),
+        )
     }
 
     private fun filter(
