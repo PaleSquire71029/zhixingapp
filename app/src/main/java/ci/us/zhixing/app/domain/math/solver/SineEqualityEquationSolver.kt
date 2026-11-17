@@ -33,44 +33,10 @@ internal object SineEqualityEquationSolver {
             )
         }
 
-        // Divide the two identity branches by two without first overflowing
-        // a+c or a-c. A non-zero half-value that underflows to zero is unsafe.
-        val differenceCoefficient = halfDifference(
-            equation.leftCoefficient,
-            equation.rightCoefficient,
-        ) ?: return precisionFailure("角系数之差的一半无法在 Double 中可靠表示")
-        val differencePhase = halfDifference(
-            equation.leftPhase,
-            equation.rightPhase,
-        ) ?: return precisionFailure("相位之差的一半无法在 Double 中可靠表示")
-        val sumCoefficient = halfSum(
-            equation.leftCoefficient,
-            equation.rightCoefficient,
-        ) ?: return precisionFailure("角系数之和的一半无法在 Double 中可靠表示")
-        val halfPhaseSum = halfSum(
-            equation.leftPhase,
-            equation.rightPhase,
-        ) ?: return precisionFailure("相位之和的一半无法在 Double 中可靠表示")
-
-        val sumPhase = halfPhaseSum - HALF_PI
-        if (!sumPhase.isFinite()) {
-            return failure(
-                PolynomialErrorCode.NON_FINITE_RESULT,
-                "正弦等式第二分支的相位超出 Double 可表示范围",
-            )
-        }
-        if (halfPhaseSum != 0.0 && sumPhase == halfPhaseSum) {
-            return precisionFailure("第二分支减去 π/2 时相位精度丢失")
-        }
-
-        val differenceBranch = solveZeroSineBranch(
-            coefficient = differenceCoefficient,
-            phase = differencePhase,
-        )
-        val sumBranch = solveZeroSineBranch(
-            coefficient = sumCoefficient,
-            phase = sumPhase,
-        )
+        // A branch may be numerically ambiguous while the other branch proves
+        // an identity. Keep branch-local failures until both are classified.
+        val differenceBranch = solveDifferenceBranch(equation)
+        val sumBranch = solveSumBranch(equation)
 
         if (differenceBranch === BranchResult.AllRealNumbers ||
             sumBranch === BranchResult.AllRealNumbers
@@ -118,6 +84,68 @@ internal object SineEqualityEquationSolver {
         } else {
             SineEqualityEquationSolutionResult.PeriodicSolutions(families)
         }
+    }
+
+    private fun solveDifferenceBranch(equation: SineEqualityEquation): BranchResult {
+        val coefficient = halfDifference(
+            equation.leftCoefficient,
+            equation.rightCoefficient,
+        ) ?: return BranchResult.Failure(
+            PolynomialError(
+                PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                "角系数之差的一半无法在 Double 中可靠表示",
+            ),
+        )
+        val phase = halfDifference(
+            equation.leftPhase,
+            equation.rightPhase,
+        ) ?: return BranchResult.Failure(
+            PolynomialError(
+                PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                "相位之差的一半无法在 Double 中可靠表示",
+            ),
+        )
+        return solveZeroSineBranch(coefficient, phase)
+    }
+
+    private fun solveSumBranch(equation: SineEqualityEquation): BranchResult {
+        val coefficient = halfSum(
+            equation.leftCoefficient,
+            equation.rightCoefficient,
+        ) ?: return BranchResult.Failure(
+            PolynomialError(
+                PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                "角系数之和的一半无法在 Double 中可靠表示",
+            ),
+        )
+        val halfPhaseSum = halfSum(
+            equation.leftPhase,
+            equation.rightPhase,
+        ) ?: return BranchResult.Failure(
+            PolynomialError(
+                PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                "相位之和的一半无法在 Double 中可靠表示",
+            ),
+        )
+
+        val phase = halfPhaseSum - HALF_PI
+        if (!phase.isFinite()) {
+            return BranchResult.Failure(
+                PolynomialError(
+                    PolynomialErrorCode.NON_FINITE_RESULT,
+                    "正弦等式第二分支的相位超出 Double 可表示范围",
+                ),
+            )
+        }
+        if (halfPhaseSum != 0.0 && phase == halfPhaseSum) {
+            return BranchResult.Failure(
+                PolynomialError(
+                    PolynomialErrorCode.NUMERIC_PRECISION_LOSS,
+                    "第二分支减去 π/2 时相位精度丢失",
+                ),
+            )
+        }
+        return solveZeroSineBranch(coefficient, phase)
     }
 
     private fun solveZeroSineBranch(
