@@ -6,7 +6,7 @@
 > **仓库：** [PaleSquire71029/zhixingapp](https://github.com/PaleSquire71029/zhixingapp)  
 > **分支：** `main`  
 > **当前工程版本：** 0.1.2 / versionCode 3  
-> **最近完整 CI：** [Android Build #463](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44181614254)（C5.17 不同线性角正弦等式，完整测试与构建通过）  
+> **最近完整 CI：** [Android Build #466](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44182197389)（C5.17 最终 PR 文档快照，完整测试与构建通过）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -40,7 +40,7 @@
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：计算器功能。** C5.1–C5.17 已覆盖多项式 / 分式 / 根式 / 绝对值方程、受限指数 / 对数、二元一次方程组、正弦 / 余弦 / 正切周期方程、周期解区间筛选、辅助角组合三角方程和不同线性角正弦等式；C5.15 通过 BigDecimal / BigInteger 处理周期索引、开闭端点与解数上限，C5.16 通过 `hypot` / `atan2` 化为单个正弦方程并回代原组合式，C5.17 使用 `sin(U)=sin(V)` 的差角 / 和角两分支复用正弦 solver，并回代原式；Build #463 完整 success。C6.1–C6.2 的多项式 / 分式不等式、C7.1–C7.6 的四类函数拟合 / 定义域 / 求值 / 安全采样以及 C8.1–C8.7 的单位转换内核均已有 CI 通过记录。C8.8.1–C8.8.2 已接入独立单位换算工具页并完善输入 / 复制 / 无障碍交互，但按用户要求暂缓该页真机验收。主壳与 PR #88 相关交互的目标设备验收已由用户确认；PR #88 在 GitHub 仍为 open。完整计算器主页面、专用数学输入 / QuestionDocument、函数图像 Compose UI、化学配平 / 反应预测原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前工作重心：计算器功能。** C5.1–C5.17 已覆盖多项式 / 分式 / 根式 / 绝对值方程、受限指数 / 对数、二元一次方程组、正弦 / 余弦 / 正切周期方程、周期解区间筛选、辅助角组合三角方程和不同线性角正弦等式；C5.15 通过 BigDecimal / BigInteger 处理周期索引、开闭端点与解数上限，C5.16 通过 `hypot` / `atan2` 化为单个正弦方程并回代原组合式，C5.17 使用 `sin(U)=sin(V)` 的差角 / 和角两分支复用正弦 solver，并回代原式；代码验收 Build #463 与最终 PR 快照 Build #466 均完整 success，PR #89 已合并到 main（`03da7ae52239c609a3bd51f89c86c3cf97030e04`）。C6.1–C6.2 的多项式 / 分式不等式、C7.1–C7.6 的四类函数拟合 / 定义域 / 求值 / 安全采样以及 C8.1–C8.7 的单位转换内核均已有 CI 通过记录。C8.8.1–C8.8.2 已接入独立单位换算工具页并完善输入 / 复制 / 无障碍交互，但按用户要求暂缓该页真机验收。主壳与 PR #88 相关交互的目标设备验收已由用户确认；PR #88 在 GitHub 仍为 open。完整计算器主页面、专用数学输入 / QuestionDocument、函数图像 Compose UI、化学配平 / 反应预测原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
 
 ---
 
@@ -119,7 +119,7 @@
 - **C5.14：** 新增弧度制正切方程 `tan(ax+b)=c`；`a≠0` 时返回周期为 `π/|a|` 的单个周期解族，`a=0` 时检查常数角及 `π/2+kπ` 极点；保留类型化非有限 / 精度错误。13 个 JUnit 测试方法通过 Build #441（Run ID 43578324526）。
 - **C5.15：** 新增正弦 / 余弦 / 正切周期解族的指定区间筛选，支持开闭端点、负周期索引、多解族排序去重、解数上限和数值精度保护；15 个筛选器测试与 3 个真实 solver 联动测试通过 Build #456（Run ID 43910484276）。
 - **C5.16：** 新增辅助角公式型组合三角方程 `A·sin(ωx+φ)+B·cos(ωx+φ)=C)，使用 `hypot/atan2` 化为正弦方程并复用既有 solver；覆盖振幅边界、零振幅、非有限输入、溢出 / 下溢、相位精度和原式回代；15 个 JUnit 测试方法通过 Build #459（Run ID 43912093268）。
-- **C5.17：** 新增 `sin(ax+b)=sin(cx+d)`，左右角系数与相位独立；按 `U−V=2kπ` / `U+V=(2k+1)π` 分解，复用 `SineEquationSolver` 和 C5.15 区间筛选器；覆盖恒等 / 无解、不同频率、负系数、非有限输入、溢出 / 下溢、超大相位精度保护及原式回代；16 个 JUnit 测试方法通过 Build #463（Run ID 44181614254）。
+- **C5.17：** 新增 `sin(ax+b)=sin(cx+d)`，左右角系数与相位独立；按 `U−V=2kπ` / `U+V=(2k+1)π` 分解，复用 `SineEquationSolver` 和 C5.15 区间筛选器；覆盖恒等 / 无解、不同频率、负系数、非有限输入、溢出 / 下溢、超大相位精度保护及原式回代；16 个 JUnit 测试方法通过 Build #463（Run ID 44181614254）；PR #89 已 squash 合并到 main，合并提交 `03da7ae52239c609a3bd51f89c86c3cf97030e04`，最终 PR 头 Build #466（Run ID 44182197389）再次完整 success。
 
 #### C6：不等式求解
 
@@ -177,8 +177,8 @@
 
 - 单位换算页面首次构建验收：[Android Build #424](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43436816915)，主 Gradle 步骤 `BUILD SUCCESSFUL in 46s`。
 - 文档链接校验基线：[Android Build #426](https://github.com/PaleSquire71029/zhixingapp/actions/runs/43445595015)，15 份 Markdown 无本地断链。
-- C5.17 最终完整 CI：[Android Build #463](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44181614254)，对应代码提交 `9928f593a476296d2957c24e0e8c4f54f396376e`；Markdown 链接检查、Android 资源检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理均通过。
-- C5.17 Debug APK Artifact：[zhixingapp-debug / 14371229411（31,212,319 bytes）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44181614254/artifacts/14371229411)。CI 只编译 androidTest 源码，没有运行模拟器 / 真机 instrumentation tests。
+- C5.17 代码验收：[Android Build #463](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44181614254)，对应代码提交 `9928f593a476296d2957c24e0e8c4f54f396376e`；全部 JVM 单元测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传通过。PR #89 合并到 main 的提交为 `03da7ae52239c609a3bd51f89c86c3cf97030e04`；最终 PR 头 [Android Build #466](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44182197389) 也完整 success，Markdown 链接、资源、全部测试、APK 组装、Artifact 上传和清理均通过。
+- 最新 C5.17 Debug APK Artifact：[zhixingapp-debug / 14373092029（31,212,321 bytes）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44182197389/artifacts/14373092029)。CI 只编译 androidTest 源码，没有运行模拟器 / 真机 instrumentation tests。
 - CI 的 Android 测试步骤完成的是 instrumentation test 源码编译；除 PR #88 相关的用户真机验收记录外，不把普通 CI 的源码编译描述成模拟器或真机已运行。
 - 主壳 / Liquid Glass / PR #88 的 iQOO Neo5 活力版真机验收已由用户确认通过。
 
@@ -200,7 +200,7 @@
 
 ## APK 获取
 
-- [C5.17 完整 CI 的 Debug APK Artifact（Build #463 / Run 44181614254 / Artifact 14371229411）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44181614254/artifacts/14371229411)
+- [C5.17 最新完整 CI 的 Debug APK Artifact（Build #466 / Run 44182197389 / Artifact 14373092029）](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44182197389/artifacts/14373092029)
 - [GitHub Actions 构建记录](https://github.com/PaleSquire71029/zhixingapp/actions/workflows/android-build.yml)
 - [仓库归档 Debug APK](https://raw.githubusercontent.com/PaleSquire71029/zhixingapp/main/artifacts/zhixingapp-preview.apk)（归档包可能落后于最新源码；下载前先核对构建号和版本）
 
