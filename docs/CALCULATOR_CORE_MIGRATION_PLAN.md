@@ -953,3 +953,58 @@ C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成�
 ### 实施与验收结果
 
 模型、结果类型、solver 和首轮测试提交 `2ae538ec15e12b18b9eec447e1887b4349abc62d`；测试修正提交 `9b5c70f6a21ab51f8a0cb52e978f3f8bba8eadc6`。Build #458 因纯正弦退化测试错误地要求单个解族而失败；测试已修正为与 `SineEquationSolver` 的实际两个周期解族逐项比较。Build #459（Run ID `43912093268`，最终 SHA `9b5c70f6a21ab51f8a0cb52e978f3f8bba8eadc6`）完整 success，包含全部 JVM 单元测试、Android 测试源码编译、Debug APK 组装、Artifact 上传和 Actions 清理。主 Gradle 步骤 `BUILD SUCCESSFUL in 1m 21s`，清理构建 `BUILD SUCCESSFUL in 11s`。Artifact ID `14249000537`，31,208,045 bytes。未执行模拟器 / 真机仪器测试。
+
+## 49. C5.17：不同线性角的正弦等式（2026-11-18）
+
+### 题型与等价变换
+
+支持：
+
+`sin(a·x+b)=sin(c·x+d)`
+
+其中 a、b、c、d 均为有限 Double，角度按弧度制；左右两侧的角系数和相位可以不同。
+
+令 `U=a·x+b`、`V=c·x+d`。利用：
+
+`sin(U)=sin(V)`
+
+当且仅当：
+
+`U−V=2kπ` 或 `U+V=(2k+1)π`
+
+等价地，原方程解集是以下两个零点方程解集的并集：
+
+`sin(((a−c)/2)·x+(b−d)/2)=0`
+
+`sin(((a+c)/2)·x+(b+d)/2−π/2)=0`
+
+两个分支都交由既有 `SineEquationSolver` 求解，不另写周期索引或周期根归一化算法。
+
+### 实现契约
+
+- 新增 `SineEqualityEquation`，用四个显式 Double 字段表示左右角系数与相位；新增 `SineEqualityEquationSolutionResult`，区分 AllRealNumbers、NoSolutions、PeriodicSolutions（多个 `PeriodicSolutionFamily`）和 Failure。
+- 输入任一参数为 NaN / ±Infinity 时返回 `NON_FINITE_INPUT`。
+- 计算半差 / 半和时，优先使用有限的直接差 / 和；若直接运算溢出则先缩放两项再相加减，避免可避免的中间溢出。非零半差 / 半和下溢为零时返回 `NUMERIC_PRECISION_LOSS`。
+- 系数为零的分支单独判断常数相位是否为 π 的整数倍；整数索引超出可靠范围或距离整数过近、无法可靠分类时返回 `NUMERIC_PRECISION_LOSS`，不把近似恒等式误报为全体实数。
+- 对非零系数分支复用 `SineEquationSolver` 的 target=0 路径。若超大相位使相邻的 0 / π 零点分支在 Double 中合并，返回 `NUMERIC_PRECISION_LOSS`，避免遗漏一半周期解族。
+- 两条分支都要完成分类；如果任一分支证明原方程对所有实数恒等，先回代检查后返回 AllRealNumbers，不能让另一条无关分支的精度失败覆盖已经证明的恒等式。若没有恒等分支而任一分支失败，则整个结果失败，不能只返回不完整的解集。
+- 合并两条分支的周期族，按基准值 / 周期排序并去除完全相同的族；每个族的基准值都用 `Math.fma` 计算原始左右角，再回代原式。非有限中间角返回 `NON_FINITE_RESULT`，残差超过 `1e-12` 返回 `NUMERIC_PRECISION_LOSS`。
+- 结果可直接传入 C5.15 `PeriodicSolutionIntervalFilter`，在指定开闭区间中筛选有限解。
+- 保持纯 Kotlin domain，不接 Parser、Compose、专用键盘、函数绘图、AI 或 UI。
+
+### 验收标准
+
+- 覆盖不同角系数、同角系数不同相位、负角系数和负相位。
+- 覆盖两侧表达式完全相同、相反角系数且相位和为奇数倍 π、不同常数相位但正弦值相等、常数正弦值不等。
+- 覆盖任一参数非有限、极大同号 / 异号系数导致的直接和 / 差溢出、半差下溢、周期不可表示、超大相位吞掉 π / π/2，以及接近整数 π 的常数分类。
+- 对所有输出周期族回代原始等式；至少一个结果经 C5.15 区间筛选器得到有限解。
+- 不运行模拟器 / 真机验收；Android instrumentation 任务仅允许编译源码，不能把编译结果称为设备测试。
+
+### 实施与验收结果
+
+- 新增模型 `SineEqualityEquation`、结果类型 `SineEqualityEquationSolutionResult`、`SineEqualityEquationSolver` 和 `SineEqualityEquationSolverTest`。
+- 新增 **16 个 JUnit 测试方法**，覆盖一般 / 退化 / 恒等 / 无解、不同角频率、负系数、非有限输入、极值半和 / 半差、下溢、超大相位、近整数 π 分类、周期溢出、原式回代和 C5.15 区间筛选。
+- PR [#89](https://github.com/PaleSquire71029/zhixingapp/pull/89) 最终代码提交 `9928f593a476296d2957c24e0e8c4f54f396376e`。Build #463（Run ID `44181614254`）完整 success：Markdown 链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理全部通过。
+- Debug Artifact ID `14371229411`，31,212,319 bytes；SHA-256 `a771802486aab20a8b299ed156233d4ae37d5cdd9cc121d7b2e0cb1cc0340ab6`。
+- 未执行模拟器 / 真机 instrumentation tests；本步只完成 CI 自动化验证，不代表设备验收。
+
