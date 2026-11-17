@@ -59,6 +59,12 @@ class SineEqualityEquationSolverTest {
     }
 
     @Test
+    fun identicalLargePhaseStillReturnsIdentityWhenOtherBranchLosesPrecision() {
+        val result = solve(SineEqualityEquation(1.0, 1.0e18, 1.0, 1.0e18))
+        assertTrue(result === SineEqualityEquationSolutionResult.AllRealNumbers)
+    }
+
+    @Test
     fun negativeCoefficientsAndPhasesKeepValidPeriodicFamilies() {
         val equation = SineEqualityEquation(-2.0, PI / 3.0, 1.0, -PI / 5.0)
         val result = solve(equation)
