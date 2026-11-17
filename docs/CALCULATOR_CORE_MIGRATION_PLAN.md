@@ -1004,7 +1004,7 @@ C8.7 不增加新的单位类别或转换因子，而是将 C8.1–C8.6 形成�
 
 - 新增模型 `SineEqualityEquation`、结果类型 `SineEqualityEquationSolutionResult`、`SineEqualityEquationSolver` 和 `SineEqualityEquationSolverTest`。
 - 新增 **16 个 JUnit 测试方法**，覆盖一般 / 退化 / 恒等 / 无解、不同角频率、负系数、非有限输入、极值半和 / 半差、下溢、超大相位、近整数 π 分类、周期溢出、原式回代和 C5.15 区间筛选。
-- PR [#89](https://github.com/PaleSquire71029/zhixingapp/pull/89) 最终代码提交 `9928f593a476296d2957c24e0e8c4f54f396376e`。Build #463（Run ID `44181614254`）完整 success：Markdown 链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理全部通过。
-- Debug Artifact ID `14371229411`，31,212,319 bytes；SHA-256 `a771802486aab20a8b299ed156233d4ae37d5cdd9cc121d7b2e0cb1cc0340ab6`。
+- PR [#89](https://github.com/PaleSquire71029/zhixingapp/pull/89) 已 squash 合并到 main，合并提交 `03da7ae52239c609a3bd51f89c86c3cf97030e04`；最终代码提交 `9928f593a476296d2957c24e0e8c4f54f396376e`。代码验收 Build #463（Run ID `44181614254`）完整 success；最终 PR 头 Build #466（Run ID `44182197389`）再次完整 success：Markdown 链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和 Actions 清理全部通过。
+- 代码验收 Debug Artifact ID `14371229411`，31,212,319 bytes；最终 PR 头 Debug Artifact ID `14373092029`，31,212,321 bytes；SHA-256 `7c9961778164415379150457770a43437f121710e86ff4fe8c27478dfb6e1463`。
 - 未执行模拟器 / 真机 instrumentation tests；本步只完成 CI 自动化验证，不代表设备验收。
 
