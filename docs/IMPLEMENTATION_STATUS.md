@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-18）：** 数学内核 C0.1–C4.3、C5.1–C5.17、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录；C5.15 已完成三类周期解族区间筛选，C5.16 已完成辅助角公式型组合三角方程，C5.17 已完成不同线性角的正弦等式 `sin(ax+b)=sin(cx+d)`。C5.17 最终代码提交 `9928f593a476296d2957c24e0e8c4f54f396376e` 的 PR #89 Build #463（Run ID `44181614254`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；Debug Artifact `14371229411`，31,212,319 bytes。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前进度（核对至 2026-11-18）：** 数学内核 C0.1–C4.3、C5.1–C5.17、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录；C5.15 已完成三类周期解族区间筛选，C5.16 已完成辅助角公式型组合三角方程，C5.17 已完成不同线性角的正弦等式 `sin(ax+b)=sin(cx+d)`。C5.17 代码提交 `9928f593a476296d2957c24e0e8c4f54f396376e` 通过 Build #463（Run ID `44181614254`）的完整代码验收；PR #89 已 squash 合并到 main，合并提交 `03da7ae52239c609a3bd51f89c86c3cf97030e04`。最终 PR 头 Build #466（Run ID `44182197389`）再次完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14373092029`，31,212,321 bytes。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -32,7 +32,7 @@
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #463 | [Artifact 14371229411](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44181614254/artifacts/14371229411)，31,212,319 bytes；包含 C5.17 不同线性角正弦等式，PR #89 最终完整 Actions workflow success |
+| 最新 Debug APK | Build #466 | [Artifact 14373092029](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44182197389/artifacts/14373092029)，31,212,321 bytes；包含 C5.17 不同线性角正弦等式，PR #89 已合并 main，最终完整 Actions workflow success |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 ### 初始工程检查历史快照（非当前进度）
@@ -2214,8 +2214,8 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - 对所有周期族基准值使用 `Math.fma` 计算原始两侧角度，再回代 `sin(a·x+b)` 与 `sin(c·x+d)`；非有限中间角返回 `NON_FINITE_RESULT`，残差不合格返回 `NUMERIC_PRECISION_LOSS`。
 - 输出周期族可直接交给 C5.15 `PeriodicSolutionIntervalFilter`，筛选指定区间内的有限解。
 - 新增 **16 个 JUnit 测试方法**，覆盖不同频率、同频不同相位、恒等 / 无解、相反角系数、常数正弦相等、负系数、非有限输入、极大系数半差 / 半和溢出、半差下溢、超大相位精度、近整数 π 常数分类、周期溢出及 C5.15 区间筛选联动。
-- PR [#89](https://github.com/PaleSquire71029/zhixingapp/pull/89)；最终代码提交 `9928f593a476296d2957c24e0e8c4f54f396376e`。Build #463（Run ID `44181614254`）完整 success：Markdown 链接检查、Android 资源检查、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理均通过。
-- Debug Artifact `zhixingapp-debug`，ID `14371229411`，31,212,319 bytes；SHA-256 `a771802486aab20a8b299ed156233d4ae37d5cdd9cc121d7b2e0cb1cc0340ab6`。
+- PR [#89](https://github.com/PaleSquire71029/zhixingapp/pull/89) 已 squash 合并到 main，合并提交 `03da7ae52239c609a3bd51f89c86c3cf97030e04`；最终代码提交 `9928f593a476296d2957c24e0e8c4f54f396376e`。代码验收 Build #463（Run ID `44181614254`）完整 success；最终 PR 头 Build #466（Run ID `44182197389`）也完整 success，Markdown 链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及 Actions 清理均通过。
+- 代码验收 Artifact `14371229411`（31,212,319 bytes）；最终 PR 头 Debug Artifact `zhixingapp-debug`，ID `14373092029`，31,212,321 bytes；SHA-256 `7c9961778164415379150457770a43437f121710e86ff4fe8c27478dfb6e1463`。
 - 未执行模拟器 / 真机 instrumentation tests；本步没有接入 Parser、Compose、专用键盘、函数绘图、AI 或计算器 UI。
 
 **边界与后续：** C5.17 只支持两侧均为正弦函数、角度均为一次线性式的等式；不扩展为正弦与余弦混合、乘积、多个三角项或任意复合表达式。后续继续按独立题型切片选择 C5.18，不把本步的等价变换误当成通用三角方程系统。
