@@ -26,19 +26,19 @@
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
 | 原生单位换算页面 | C8.8.2 交互完善已通过 CI；真机验收暂缓 | 完整等式复制、清除、输入中间态 / 长度边界、窄屏纵向选择、TalkBack 语义；Build #428 成功；未执行设备验收 |
-| UI 框架重建 | **F0、F1 已完成；F2 待开始** | 九类 Tokens、ZhixingTheme 新旧兼容入口和 DesignTokenContractTest 已提交 PR #92 分支；Build #484 验证中；页面迁移与整页回弹仍分别在 F5 / F3 |
+| UI 框架重建 | **F0、F1 已完成；F2 待开始** | 九类 Tokens、ZhixingTheme 新旧兼容入口和 DesignTokenContractTest 已提交 PR #92 分支；Build #488（Run ID 44404842628）完整 success；页面迁移与整页回弹仍分别在 F5 / F3 |
 | 完整计算器主页面 | 未完成；等待新框架 | 框架迁移完成后实施 UI-1–UI-3；不把独立单位换算工具页算作完整计算主页 |
 | 专用数学输入 / QuestionDocument | 分阶段实施 | 先交付基础表达式编辑与应用内键盘；复杂题目文档、嵌套模板和符号搜索排在 UI-9 |
 | 函数图像 UI | 未完成；UI-7 规划中 | 首轮接入现有拟合 / 采样；Compose 曲线、坐标轴、视口和交互待实现 |
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #473 | [Artifact 14441438575](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622/artifacts/14441438575)，31,215,377 bytes；包含 C5.18 线性角正弦—余弦等式，PR #90 已合并 main，完整 Actions workflow success |
+| 最新 Debug APK | Build #488 | [Artifact 14472694324](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44404842628/artifacts/14472694324)，31,223,507 bytes；PR #92 F1 分支构建，JVM 单元测试、Android 测试源码编译、Debug APK 组装与上传均通过；PR 尚未合并 main |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 ### 当前执行阶段（2026-11-19）
 
-**当前入口为 UI 框架重建 F2。** F0 已完成静态审计，F1 已完成九类 Tokens 与 Theme 契约：现有浅色调色板、默认字体、字号 / 行高、间距、形状和玻璃动效数值均保持不变；旧 `ZhixingTheme.colors / type / spacing / shapes` 与 `ZhixingGlass*` 访问器继续兼容。新增 Elevation / Material / Motion / Interaction / Layout Tokens 和 `DesignTokenContractTest`。本轮只触及主题基础层，不迁移页面、不改 MainActivity / 导航 / 玻璃算法 / DataStore / 性能档位，也不增加依赖。F1 代码与状态记录位于 PR #92 的 `docs/ui-first-calculator-roadmap` 分支；PR 尚未合并，main 仍是 165a0ca2ff77aeae0868d8dbd2087c09cd9e6260。Build #484 正在验证。F2 下一步建立可预览、可测试的核心组件样板；F3 再单独实现整页式回弹原型，目标手机验收后才进入 F4 / F5 页面迁移。数学内核继续冻结为可复用基线，只修复回归、精度问题和 UI 接入必需缺口。
+**当前入口为 UI 框架重建 F2。** F0 已完成静态审计，F1 已完成九类 Tokens 与 Theme 契约：现有浅色调色板、默认字体、字号 / 行高、间距、形状和玻璃动效数值均保持不变；旧 `ZhixingTheme.colors / type / spacing / shapes` 与 `ZhixingGlass*` 访问器继续兼容。新增 Elevation / Material / Motion / Interaction / Layout Tokens 和 `DesignTokenContractTest`。本轮只触及主题基础层，不迁移页面、不改 MainActivity / 导航 / 玻璃算法 / DataStore / 性能档位，也不增加依赖。F1 代码与状态记录位于 PR #92 的 `docs/ui-first-calculator-roadmap` 分支；PR 尚未合并，main 仍是 165a0ca2ff77aeae0868d8dbd2087c09cd9e6260。Build #488（Run ID 44404842628）完整 success：Markdown 本地链接检查、Android 资源检查、`:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和清理步骤全部通过。Build #486 / #487 曾暴露选中色 alpha 的量化精度问题，随后将测试改为比较完整 Color 值；Build #488 首次尝试遇到 Maven SLF4J 元数据解析的瞬时网络错误，重跑失败 job 后成功。F2 下一步建立可预览、可测试的核心组件样板；F3 再单独实现整页式回弹原型，目标手机验收后才进入 F4 / F5 页面迁移。数学内核继续冻结为可复用基线，只修复回归、精度问题和 UI 接入必需缺口。
 
 ### 初始工程检查历史快照（非当前进度）
 
@@ -2271,7 +2271,7 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 
 ### 28.1 F1：Zhixing Flow Foundations（2026-11-19）
 
-F1 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；main 仍保持原基线，等待 PR 合并。
+F1 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；最终 head `74160abbeaa8002a96ded0d6eff7932e2f6400ff` 的 Build #488（Run ID `44404842628`）完整 success；main 仍保持原基线，等待 PR 合并。
 
 **本步实现：**
 
@@ -2279,10 +2279,11 @@ F1 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；main 仍�
 - `ZhixingTheme` 新增 palette、typography、spacingTokens、elevation、material、motion、interaction、layout；旧 colors / type / spacing / shapes 保持可用。
 - 保留原始浅色配色、系统默认字体回退、全部既有文字尺寸、13 项间距、首页 28dp / 18dp 形状、玻璃 12–32dp 半径与按压 / 转场 / 弹簧参数。
 - 将玻璃半径、形状和动效的旧访问器改为兼容 facade，统一委托到新的 Shape / Motion Token；未改 Backdrop 1.0.6、Shapes 1.2.0、GlassMaterialState、DataStore 或 PREMIUM / STANDARD / LITE / OFF / CUSTOM 性能档位。
-- Elevation 收集当前 4dp / 6dp / 10dp 阴影；Material 只定义 Canvas / Soft Surface / Flow Glass / Overlay 角色和阅读优先策略；Interaction 记录 48dp 最小触控目标与既有 0.12 选中底色透明度；Layout 记录现有 68dp Dock 和固定层边界。
+- Color 暴露现有品牌 / 表面 / 文字 / 描边值、选中容器色，以及 Material 3 当前默认的 error / tertiary 语义角色；没有凭空新增 success / warning 色值。
+- Elevation 收集当前 4dp / 6dp / 10dp 阴影；Material 定义 Canvas / Soft Surface / Flow Glass / Overlay 角色和阅读优先策略；Interaction 覆盖 IDLE / PRESSED / SELECTED / DISABLED / FOCUSED / LOADING / ERROR 七种状态、48dp 触控目标、2dp 焦点描边、0.12 pressed / selected alpha 和 0.38 disabled alpha；Motion 收录 120 / 180 / 220 / 280ms 时序及现有 spring；Layout 记录现有 68dp Dock 和固定层边界。
 - 新增 `DesignTokenContractTest`，覆盖颜色、Typography、Spacing、Shape、Elevation、Material、Motion、Interaction、Layout、Theme 入口及旧访问器兼容。
 - 未修改 MainActivity、页面、导航、Gradle 依赖、玻璃渲染器或业务代码；未执行真机视觉 / 性能验收。
 
-**CI：** Build #484（Run ID `44403428652`）正在运行。androidTest 由 CI 编译源码，不等于设备 instrumentation 或真机验收。
+**CI：** Build #488（Run ID `44404842628`）完整 success；`:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin` 和 `:app:assembleDebug` 均通过，Debug Artifact `14472694324`（31,223,507 bytes）。CI 编译了 androidTest 源码，但没有执行设备 instrumentation / 模拟器或真机验收。
 
 **下一步：** F2 核心组件库与 Design Gallery；组件样板完成后，再进入 F3 整页回弹独立原型。
