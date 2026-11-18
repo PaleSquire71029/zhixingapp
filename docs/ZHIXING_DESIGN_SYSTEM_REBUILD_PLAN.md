@@ -477,37 +477,43 @@ app/src/main/java/ci/us/zhixing/app/
 | F6 | 核心页面重建 | 计算主页、AI 入口、方程 / 不等式 / 函数页面逐个接入 | 计算器 UI 主流程与工具工作区 |
 | F7 | 统一验收与清理 | 性能、无障碍、窗口适配、回归、旧组件移除 | 新框架完成记录和迁移清单 |
 
-### 9.1 F0：现状审计与边界冻结（明天第一步）
+### 9.1 F0：现状审计与边界冻结（已完成静态代码审计）
 
-**计划日期：2026-11-20。**
+**完成日期：2026-11-19。** 本次审计以真实 main 源码为准，而非以本规划中的预期路径推断实现。
 
-本步只审计和形成可执行依据，不直接重写业务页面。
+**基线与验证：**
 
-1. 核对届时 main 最新提交、PR #92 状态和 Build 结果。
-2. 逐项列出一级 Tab、二级目的地、页面入口和返回路径。
-3. 搜索全部 ScrollState / LazyList / NestedScroll / Overscroll 使用位置，识别当前边缘效果和手势冲突。
-4. 盘点所有 Glass / Backdrop Host、玻璃 surface、材质设置参数和性能档位。
-5. 盘点颜色、形状、间距、文字 Tokens，以及散落在页面里的硬编码尺寸。
-6. 核对单位页面、历史、我的和工具目录的状态恢复、DataStore 使用及当前可用交互。
-7. 对比 Compose 现有导航和 Navigation 3 的 POC 价值；只做技术决策，不引入无关依赖。
-8. 建立目标代码结构图、迁移映射表和需要保留的行为清单。
-9. 给当前关键页面建立可对照的截图 / 行为基线；截图只用于比较，不替代自动化测试。
-10. 记录目标设备的滚动、Dock、键盘和页面切换基线。
+- 审计代码基线：main / 165a0ca2ff77aeae0868d8dbd2087c09cd9e6260。
+- 规划分支：docs/ui-first-calculator-roadmap；PR [#92](https://github.com/PaleSquire71029/zhixingapp/pull/92)，当前仍 open、未合并。
+- 审计前最近规划提交：bf203cba582bd217d7bdb266901c5f61d44549b6；Build #482 / Run ID 44346557259 已成功。该 Build 对应此前规划提交，不代表本次 F0 文档新提交的 CI。
+- F0 只新增 / 更新文档，不修改 Kotlin、Gradle、Manifest、资源或依赖。
 
-交付物：
+**本次已完成的静态审计：**
 
-- `docs/UI_FRAMEWORK_AUDIT.md`：真实页面、路由、滚动和材质盘点。
-- `docs/UI_FRAMEWORK_DECISIONS.md`：导航、开源依赖、滚动效果和迁移策略决策。
-- 一张旧框架到新框架的页面迁移表。
-- F1 的最小代码范围和验收标准。
+1. 列明四个一级 Tab 与三个真实二级目的地，确认计算、AI 仍为占位内容；单位换算、历史空状态和材质设置已有真实页面。
+2. 对 UI 源文件及 GitHub 代码搜索逐项核对滚动：6 处纵向 verticalScroll、1 处横向 horizontalScroll；未发现 LazyColumn / LazyRow、NestedScrollConnection、Modifier.nestedScroll、OverscrollEffect 或自定义 Modifier.overscroll。
+3. 盘点主壳中的 BackdropHost、共享玻璃 surface、玻璃按钮 / 滑块 / 开关、材质配置、Android API 降级和性能档位。
+4. 核对九项材质属性、Preferences DataStore 的键与读写时机；确认滑块拖动采用内存预览、松手提交，避免每帧写盘。
+5. 核对颜色 / 字体 / 间距 / 形状 / 玻璃动效 Tokens 与页面硬编码尺寸；确认仍缺 Elevation、Material、Layout、完整 Motion / Interaction Tokens。
+6. 核对 rememberSaveable、SaveableStateHolder、二级页 BackHandler、单位换算输入状态及 IME / Insets 的不同处理方式。
+7. 核对单模块 Compose 依赖、Backdrop / Shapes 版本、第三方许可证、JVM / androidTest 测试资产和 CI 实际执行范围。
+8. 明确用户已验收的 Dock / 材质控件行为是保留约束；新整页回弹尚不存在，不能将其描述为已实测。
 
-验收：
+**交付文档：**
 
-- 所有实际可见的页面和入口均被列出。
-- 不会遗漏已实现的单位换算和材质设置功能。
-- 不把计划文件中的路径误当成真实代码。
-- 不改动现有应用交互，不产生功能回归。
-- 审计结论能指导 F1 开始，不留下“还要再研究整体架构”的模糊事项。
+- [UI_FRAMEWORK_AUDIT.md](./UI_FRAMEWORK_AUDIT.md)：源码事实、页面 / 路由 / 滚动 / 玻璃 / 状态 / 依赖 / 测试清单。
+- [UI_FRAMEWORK_DECISIONS.md](./UI_FRAMEWORK_DECISIONS.md)：Navigation 3、Backdrop、整页回弹、状态边界和 F1 技术决策。
+- [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)：现有页面、目标页面和必须保留的行为映射。
+
+**静态审计边界：**
+
+GitHub 源码审计无法替代 iQOO Neo5 活力版真机观察。本次没有伪造当前滚动手感、掉帧数据或截图。已有 Dock / 材质滑块 / 开关真机验收作为回归保护；整页式回弹需到 F3 有原型和 APK 后，再测顶部 / 底部、fling、反向拖动、IME、嵌套控件以及 60Hz / 120Hz。
+
+**F0 结论：**
+
+- 可进入 F1，不需要继续做整体架构探索。
+- F1 只完善 Design Tokens 和主题契约；不改 MainActivity、不迁移页面、不加导航库、不引入新的玻璃渲染依赖。
+- F3 单独验证整页回弹物理；F4 再拆分 App Shell；F5 起逐页迁移。
 
 ### 9.2 F1–F2：Foundation 和组件样板
 
@@ -590,13 +596,14 @@ CI 通过不等于真机验收通过。玻璃光学效果、整页回弹手感�
 
 ---
 
-## 12. 当前执行边界与明天的开始方式
+## 12. 当前执行边界与下一步
 
 截至 2026-11-19：
 
-- 当前工作是规划调整和框架审计准备，不代表新框架已经写入应用代码。
-- 已移植的 Backdrop 玻璃底层、Material Settings DataStore、原有数学 domain 和单位换算业务逻辑优先保留。
-- 旧的计算器 UI 设计稿继续作为功能布局参考，但不再决定框架结构。
-- 数学题型扩展继续暂停；先有统一界面基础，再接入更多功能。
+- F0 的静态源码审计、路线决策和迁移映射已完成，记录分别见 UI_FRAMEWORK_AUDIT.md、UI_FRAMEWORK_DECISIONS.md 和 UI_FRAMEWORK_MIGRATION_MATRIX.md。
+- 本轮没有修改应用源码、Gradle 依赖、资源或现有交互；main 仍是应用代码基线。
+- 当前规划仍在 PR #92 的文档分支，PR 保持 open、未合并；PR #92 的上一个提交 Build #482 已通过。
+- Backdrop 1.0.6、玻璃控件与其 DataStore、单位换算逻辑、数学 domain 和已验收 Dock 必须保留。
+- 目标设备的滚动基线与全页回弹体验尚未测试；F3 独立原型完成后再进行真机验收。
 
-**明天（2026-11-20）从 F0 开始。** 第一步先审计届时仓库真实代码和交互，不直接改 MainActivity，不先写大批组件，也不同时启动整页回弹、导航和计算器页面三个工程。F0 完成后，才确定 F1 的具体代码文件和最小 PR 范围。
+**下一步进入 F1：** 建立完整的 Zhixing Flow Token 分类和主题契约。F1 不迁移页面、不重写 MainActivity、不改变现有视觉数值，也不升级 Backdrop；完成后通过 CI，再进入 F2。

@@ -1,6 +1,7 @@
 # 知行计算器原生页面设计构想
 
-> **定位：** 历史计算器页面构想 / 页面布局参考。当前视觉语言、基础组件、动效、导航和滚动规则以 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 为准。\n> 版本：0.3（填色图标与浮动玻璃导航修订稿）  
+> **定位：** 历史计算器页面构想 / 页面布局参考。当前视觉语言、基础组件、动效、导航和滚动规则以 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 为准。
+> 版本：0.3（填色图标与浮动玻璃导航修订稿）  
 > 日期：2026-11-08  
 > 目标设备基线：iQOO Neo5 活力版，竖屏优先  
 > 技术边界：Kotlin + Jetpack Compose；复用现有 Zhixing Theme、Backdrop 与液态玻璃组件
@@ -96,7 +97,9 @@
 6. 科学模式：辅助函数条展开，主数字键位置不变。
 7. 键盘连续输入：快速点击、长按退格和连续运算符均不丢输入。
 
-## 7. 建议实施顺序\n\n**前置要求：** 本文的页面结构只有在 Zhixing Flow 框架 F0–F7 完成后才进入迁移实施。不要按旧实现方式直接把页面叠加到 MainActivity。新框架规则见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+## 7. 建议实施顺序
+
+**前置要求：** 本文的页面结构只有在 Zhixing Flow 框架 F0–F7 完成后才进入迁移实施。不要按旧实现方式直接把页面叠加到 MainActivity。新框架规则见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 本设计稿现在进入实际实施主线，不再等待 C12 或全部数学题型完成。统一执行次序见 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。
 

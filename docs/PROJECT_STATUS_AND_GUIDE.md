@@ -1,6 +1,6 @@
 # 知行 Android App 项目操作指南与历史交接记录
 
-> **核对日期：2026-11-17（UTC）**  
+> **核对日期：2026-11-19（UTC）**  
 > **仓库：** PaleSquire71029/zhixingapp  
 > **分支：** main  
 > **文档目的：** 让新对话、开发者或未来的维护者不依赖聊天记录，也能准确知道项目做到哪里、哪些只是代码落地、如何构建 APK，以及下一步应该怎么做。
@@ -9,7 +9,7 @@
 
 ## 1. 先看结论
 
-本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；主壳、导航和材质已有实现基线。用户已决定先重建整个 UI 框架，建立知行自有设计语言、统一动效、组件与整页滚动回弹，再迁移计算器和其他页面。执行入口见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，其后才执行 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。
+本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；主壳、导航和材质已有实现基线。用户已决定先重建 UI 框架「知行·流序」，再迁移页面与数学功能。F0 静态代码审计已完成，结论与技术决策分别记录在 [UI_FRAMEWORK_AUDIT.md](./UI_FRAMEWORK_AUDIT.md) 和 [UI_FRAMEWORK_DECISIONS.md](./UI_FRAMEWORK_DECISIONS.md)，逐页保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。用户已决定先重建整个 UI 框架，建立知行自有设计语言、统一动效、组件与整页滚动回弹，再迁移计算器和其他页面。执行入口见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，其后才执行 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。
 
 **本文件是开发与交接方法手册，不是进度账本。** 当前代码实现、构建 / Artifact、真机验收和下一步只在 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 记录；当前计算器任务顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 为准；既有 C0–C8 数学内核的算法契约和历史验收见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)。长期产品范围见 [ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md) 与各专项规划。
 
