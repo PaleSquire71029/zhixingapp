@@ -9,9 +9,9 @@
 
 ## 1. 先看结论
 
-本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；主壳、导航、材质、数学内核和工具页面按独立阶段实施。
+本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；主壳、导航和材质已有实现基线。当前计算器执行顺序为**先开发原生界面并接入已有能力，再补齐数学题型**。详细任务见 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。
 
-**本文件是开发与交接方法手册，不是进度账本。** 当前代码实现、构建 / Artifact、真机验收和下一步只在 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 记录；C0–C12 数学阶段的范围、约束和依赖只在 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md) 维护。长期产品范围见 [ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md) 与各专项规划。
+**本文件是开发与交接方法手册，不是进度账本。** 当前代码实现、构建 / Artifact、真机验收和下一步只在 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 记录；当前计算器任务顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 为准；C0–C12 数学阶段范围、既有算法契约和历史验收见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md) 维护。长期产品范围见 [ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md) 与各专项规划。
 
 必须区分三种状态：
 
@@ -167,6 +167,8 @@
 下面这些能力目前**没有完成原生迁移**，不能在测试 APK 中期待它们已经能用。
 
 ### 4.1 计算器核心
+
+**当前开发顺序：** 先按 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 开发主计算页、应用内键盘、结果 / 错误展示、工具页面和现有内核接入；C5.19 等新数学题型暂缓。下方 C0–C8 内容用于说明已有 / 尚未迁移的算法边界，不应被理解成需要先完成全部算法才开始 UI。
 
 **历史阶段记录（2026-11-06）：** C0.1 黄金样例、C1 Tokenizer 已通过 CI；当时 C2 AST / Parser 的右结合幂链测试断言已于 `782dd334` 修正。该阶段后续已由 Build #350、#363 等记录更新，不应将这一旧段落视为当前接续状态。详见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)。
 
