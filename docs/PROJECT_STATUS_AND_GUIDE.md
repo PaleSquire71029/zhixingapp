@@ -9,7 +9,7 @@
 
 ## 1. 先看结论
 
-本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；主壳、导航和材质已有实现基线。用户已决定先重建 UI 框架「知行·流序」，再迁移页面与数学功能。F0 静态代码审计已完成，结论与技术决策分别记录在 [UI_FRAMEWORK_AUDIT.md](./UI_FRAMEWORK_AUDIT.md) 和 [UI_FRAMEWORK_DECISIONS.md](./UI_FRAMEWORK_DECISIONS.md)，逐页保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。用户已决定先重建整个 UI 框架，建立知行自有设计语言、统一动效、组件与整页滚动回弹，再迁移计算器和其他页面。执行入口见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，其后才执行 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。
+本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；主壳、导航和材质已有实现基线。用户已决定先重建 UI 框架「知行·流序」，再迁移页面与数学功能。F0 静态代码审计与 F1 九类 Design Tokens / Theme 契约均已完成，交付记录见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md)；F0 审计和决策分别记录在 [UI_FRAMEWORK_AUDIT.md](./UI_FRAMEWORK_AUDIT.md) 与 [UI_FRAMEWORK_DECISIONS.md](./UI_FRAMEWORK_DECISIONS.md)，逐页保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。用户已决定先重建整个 UI 框架，建立知行自有设计语言、统一动效、组件与整页滚动回弹，再迁移计算器和其他页面。执行入口见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，其后才执行 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。
 
 **本文件是开发与交接方法手册，不是进度账本。** 当前代码实现、构建 / Artifact、真机验收和下一步只在 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 记录；当前计算器任务顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 为准；既有 C0–C8 数学内核的算法契约和历史验收见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)。长期产品范围见 [ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md) 与各专项规划。
 
@@ -67,7 +67,12 @@
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/SpacingTokens.kt` | 首页常用间距 | 统一管理既有 dp 间距，不改数值 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/ShapeTokens.kt` | 首页圆角形状 | 统一管理 28.dp / 18.dp 两种圆角 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/TypeTokens.kt` | 首页文字样式角色 | 统一管理字号、行高、字重和字距；不绑定额外字体文件 |
-| `app/src/main/java/ci/us/zhixing/app/ui/theme/ZhixingTheme.kt` | 知行统一主题入口 | 暴露 colors / type / spacing / shapes，并应用浅色 Material 3 主题 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/ZhixingTheme.kt` | 知行统一主题入口 | 保留 colors / type / spacing / shapes，并新增九类 Tokens 的访问入口 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/ElevationTokens.kt` | 层级与阴影 Tokens | 集中当前 4dp / 6dp / 10dp 阴影规格 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/MaterialTokens.kt` | Canvas / Soft Surface / Flow Glass / Overlay 角色 | 只定义材质策略，不替代 Backdrop 渲染 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/MotionTokens.kt` | 共享动画时序 / 弹簧 / 位移 Tokens | 旧 ZhixingGlassMotion 继续兼容 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/InteractionTokens.kt` | 触控与选中状态 Tokens | 48dp 最小触控目标、选中底色透明度 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/LayoutTokens.kt` | 页面与固定层布局契约 | 记录页面间距、68dp Dock 与未来单一 viewport 边界 |
 | `app/src/main/java/ci/us/zhixing/app/ui/lab/GlassLabScreen.kt` | Glass Lab 局部背景快照实验 | GraphicsLayer 捕获受控背景 Composable；局部裁切、模糊与手动刷新，不采集窗口内容 |
 | `app/src/main/java/ci/us/zhixing/app/ui/lab/BackdropCrop.kt` | 背景快照源区域计算 | 纯函数计算居中面板裁切区域，非法尺寸返回 null |
 | `app/src/test/java/ci/us/zhixing/app/ui/lab/GlassBackdropCropTest.kt` | 背景快照裁切单元测试 | 正常、极小和无效输入覆盖；当前待执行 |
@@ -80,6 +85,8 @@
 品牌图标具体资源文件名以仓库实际文件为准；不要把旧网页的书本图标或其他项目图标替换进来。
 
 ## 3. 已经做了什么
+
+**Zhixing Flow F1 已在 PR #92 分支完成，CI 验证中：** 九类设计令牌与主题契约已建立，旧访问器、现有视觉值、默认字体、Backdrop / Shapes 版本和玻璃材质持久化均保持兼容。F1 不代表页面已迁移，也不代表整页回弹已实现；下一步为 F2 核心组件库。具体见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 **液态玻璃专项执行路线已于 2026-11-01 重置：** 以用户上传的 Backdrop Catalog APK 为视觉 / 交互基准，锁定上游 tag 1.0.6，直接移植官方 LiquidBottomTabs、DampedDragAnimation、InteractiveHighlight、LiquidButton、LiquidSlider、LiquidToggle 等源码；不升级 Backdrop 2.x，不复制整套 Demo App。详细步骤见 [LIQUID_GLASS_REDESIGN_PLAN.md 第 25 节](./LIQUID_GLASS_REDESIGN_PLAN.md)。
 
