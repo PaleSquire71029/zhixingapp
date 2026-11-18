@@ -37,7 +37,20 @@ class SineCosineEqualityEquationSolverTest {
     }
 
     @Test
-    fun equalConstantValuesReturnAllRealNumbers() {
+    fun exactlyRepresentableEqualConstantValuesReturnAllRealNumbers() {
+        val result = solve(
+            SineCosineEqualityEquation(
+                sineCoefficient = 0.0,
+                sinePhase = 0.0,
+                cosineCoefficient = 0.0,
+                cosinePhase = PI / 2.0,
+            ),
+        )
+        assertTrue(result === SineCosineEqualityEquationSolutionResult.AllRealNumbers)
+    }
+
+    @Test
+    fun roundedEquivalentConstantAnglesReturnPrecisionFailureInsteadOfFalseIdentity() {
         val result = solve(
             SineCosineEqualityEquation(
                 sineCoefficient = 0.0,
@@ -46,7 +59,7 @@ class SineCosineEqualityEquationSolverTest {
                 cosinePhase = PI / 3.0,
             ),
         )
-        assertTrue(result === SineCosineEqualityEquationSolutionResult.AllRealNumbers)
+        assertFailure(result, PolynomialErrorCode.NUMERIC_PRECISION_LOSS)
     }
 
     @Test
