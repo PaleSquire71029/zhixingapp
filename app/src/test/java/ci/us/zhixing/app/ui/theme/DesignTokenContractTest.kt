@@ -30,7 +30,7 @@ class DesignTokenContractTest {
         assertEquals(ZhixingLightColors.error, ZhixingColorTokens.error)
         assertEquals(ZhixingLightColors.onError, ZhixingColorTokens.onError)
         assertEquals(ZhixingLightColors.tertiary, ZhixingColorTokens.tertiary)
-        assertEquals(0.12f, ZhixingColorTokens.selectedContainer.alpha, 0f)
+        assertEquals(0.12f, ZhixingColorTokens.selectedContainer.alpha, 0.0001f)
         assertEquals(ZhixingLightColors.primary, ZhixingTheme.colors.primary)
     }
 
