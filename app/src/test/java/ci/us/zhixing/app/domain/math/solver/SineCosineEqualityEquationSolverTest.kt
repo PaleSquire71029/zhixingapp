@@ -72,7 +72,7 @@ class SineCosineEqualityEquationSolverTest {
         val equation = SineCosineEqualityEquation(0.0, PI / 6.0, 1.0, 0.0)
         val families = periodicFamilies(solve(equation))
 
-        assertEquals(2, families.size)
+        assertEquals(4, families.size)
         assertOriginalEquation(equation, SineCosineEqualityEquationSolutionResult.PeriodicSolutions(families))
     }
 
@@ -81,7 +81,7 @@ class SineCosineEqualityEquationSolverTest {
         val equation = SineCosineEqualityEquation(1.0, 0.0, 0.0, PI / 3.0)
         val families = periodicFamilies(solve(equation))
 
-        assertEquals(2, families.size)
+        assertEquals(4, families.size)
         assertOriginalEquation(equation, SineCosineEqualityEquationSolutionResult.PeriodicSolutions(families))
     }
 
