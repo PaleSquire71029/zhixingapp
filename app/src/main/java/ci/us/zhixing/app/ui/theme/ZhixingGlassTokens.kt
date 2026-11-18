@@ -1,54 +1,38 @@
 package ci.us.zhixing.app.ui.theme
 
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.dp
-
-/**
- * Shared geometry and motion values for Zhixing Light Liquid Glass.
- *
- * These are design-system starting points, not platform or Apple implementation constants.
- * Keep material shape, clipping and backdrop sampling on the same Shape instance.
- */
+/** Compatibility adapters for the existing Backdrop glass implementation. */
 internal object ZhixingGlassRadii {
-    val chip = 12.dp
-    val compactControl = 16.dp
-    val control = 20.dp
-    val card = 24.dp
-    val hero = 28.dp
-    val floatingPanel = 32.dp
+    val chip get() = ZhixingShapeTokens.chip
+    val compactControl get() = ZhixingShapeTokens.compactControl
+    val control get() = ZhixingShapeTokens.control
+    val card get() = ZhixingShapeTokens.card
+    val hero get() = ZhixingShapeTokens.hero
+    val floatingPanel get() = ZhixingShapeTokens.floatingPanel
 }
 
-/** Reusable shapes for the main glass component families. */
+/** Existing glass shape names now resolve to the shared shape instances. */
 internal object ZhixingGlassShapes {
-    val chip: Shape = RoundedCornerShape(ZhixingGlassRadii.chip)
-    val compactControl: Shape = RoundedCornerShape(ZhixingGlassRadii.compactControl)
-    val control: Shape = RoundedCornerShape(ZhixingGlassRadii.control)
-    val card: Shape = RoundedCornerShape(ZhixingGlassRadii.card)
-    val hero: Shape = RoundedCornerShape(ZhixingGlassRadii.hero)
-    val floatingPanel: Shape = RoundedCornerShape(ZhixingGlassRadii.floatingPanel)
-    val pill: Shape = CircleShape
+    val chip = ZhixingShapes.chip
+    val compactControl = ZhixingShapes.compactControl
+    val control = ZhixingShapes.control
+    val card = ZhixingShapes.card
+    val hero = ZhixingShapes.hero
+    val floatingPanel = ZhixingShapes.floatingPanel
+    val pill = ZhixingShapes.pill
 }
 
-/**
- * Motion tokens are expressed as stable values so controls can share one response.
- * Animations must alter drawing/layer properties, not layout size or hit targets.
- */
+/** Legacy motion accessors retained for existing glass callers and tests. */
 internal object ZhixingGlassMotion {
-    const val buttonPressScale = 0.965f
-    const val keypadPressScale = 0.95f
-    const val cardPressScale = 0.985f
-
-    const val pressSpringDampingRatio = 0.78f
-    const val pressSpringStiffness = 520f
-
-    const val controlStateTransitionMillis = 180
-    const val pageTransitionMillis = 220
-    const val sheetTransitionMillis = 280
-
-    const val sheetEnterOffsetDp = 12f
-    const val pageEnterOffsetDp = 8f
-    const val itemEnterOffsetDp = 8f
-    const val cardLiftDp = 2f
+    const val buttonPressScale = ZhixingMotionTokens.buttonPressScale
+    const val keypadPressScale = ZhixingMotionTokens.keypadPressScale
+    const val cardPressScale = ZhixingMotionTokens.cardPressScale
+    const val pressSpringDampingRatio = ZhixingMotionTokens.pressSpringDampingRatio
+    const val pressSpringStiffness = ZhixingMotionTokens.pressSpringStiffness
+    const val controlStateTransitionMillis = ZhixingMotionTokens.controlStateTransitionMillis
+    const val pageTransitionMillis = ZhixingMotionTokens.pageTransitionMillis
+    const val sheetTransitionMillis = ZhixingMotionTokens.sheetTransitionMillis
+    const val sheetEnterOffsetDp = ZhixingMotionTokens.sheetEnterOffsetDp
+    const val pageEnterOffsetDp = ZhixingMotionTokens.pageEnterOffsetDp
+    const val itemEnterOffsetDp = ZhixingMotionTokens.itemEnterOffsetDp
+    const val cardLiftDp = ZhixingMotionTokens.cardLiftDp
 }
