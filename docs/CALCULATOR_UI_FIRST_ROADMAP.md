@@ -3,20 +3,20 @@
 > 版本：1.0  
 > 制定日期：2026-11-18  
 > 当前基线：main `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`  
-> 当前策略：**先完成原生界面与现有能力接入，再系统补齐数学题型。**  
+> 当前策略：**先重建 Zhixing Flow UI 框架，再迁移原生界面与现有能力接入，最后系统补齐数学题型。**  
 > 平台：Android；技术：Kotlin + Jetpack Compose；视觉：知行 Light Liquid。
 
-本文是计算器后续开发顺序的执行规划。当前任务优先级、阶段边界和验收门槛以本文为准；实现状态以 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 为准；已有数学算法契约和历史实现细节仍由 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md) 维护；页面视觉细节见 [CALCULATOR_NATIVE_UI_DESIGN.md](./CALCULATOR_NATIVE_UI_DESIGN.md)。
+本文定义 UI 框架稳定后的计算器页面与功能迁移顺序。**前置条件是先完成 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 的 F0–F7。** 当前阶段任务优先级和真实完成状态以 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 为准；已有数学算法契约和历史实现细节仍由 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md) 维护。
 
 ---
 
-## 1. 本次路线调整的决定
+## 0. 前置阶段：先重建 UI 框架\n\n本路线的 UI-0–UI-10 不直接在现有页面结构上执行。必须先完成 UI 框架的 F0–F7：现状审计、Zhixing Flow Tokens、组件库、整页式边界回弹、App Shell / 导航重建、逐页迁移与整体性能验收。\n\n其中最重要的滚动交互规则是：禁止页面内容橡皮筋式拉伸；触及顶部 / 底部边界时，由整个内容视口作为刚性整体产生有限位移，松手后通过统一弹簧回到边界。浮动 Dock 与系统栏固定不动。实现细节见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) §5。\n\n## 1. 本次路线调整的决定
 
 ### 1.1 明确改变顺序
 
 此前采用了较长时间的“数学题型逐项扩展，最后集中接 UI”方式。它能让算法逐步积累，但当 C5 不断出现新的 C5.x 时，产品始终缺少一个可完整使用的计算器主页面，阶段边界也变得不清晰。
 
-从本规划开始，停止把新增求解器编号当作默认下一步。执行顺序改为：
+从本规划开始，停止把新增求解器编号当作默认下一步。执行顺序改为：\n\n0. 先完成 Zhixing Flow 框架 F0–F7；框架重建期间不扩展新的数学题型。
 
 1. 盘点并稳定现有 UI、domain、导航和工具页面接口。
 2. 优先开发计算器主页面、表达式编辑、应用内键盘、结果展示和工具页面。
