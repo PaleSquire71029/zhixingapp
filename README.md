@@ -6,7 +6,7 @@
 > **仓库：** [PaleSquire71029/zhixingapp](https://github.com/PaleSquire71029/zhixingapp)  
 > **分支：** `main`  
 > **当前工程版本：** 0.1.2 / versionCode 3  
-> **最近完整 CI：** [Android Build #466](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44182197389)（C5.17 最终 PR 文档快照，完整测试与构建通过）  
+> **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
