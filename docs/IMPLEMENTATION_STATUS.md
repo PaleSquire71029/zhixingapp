@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-18）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。当前执行路线已调整为 UI 优先：暂停 C5.19 等新题型扩展，先完成原生计算主页、输入 / 结果交互、方程 / 不等式 / 函数页面和已有内核接入。详细步骤见 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前进度（核对至 2026-11-19）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。用户已决定不在现有 UI 上继续堆功能，而是先重建一套知行自有的 UI 框架。当前路线为：F0–F7 框架审计、设计语言、组件库、整页式回弹、App Shell 和页面迁移；完成后再执行计算器 UI-1–UI-10，并在界面稳定后补齐数学能力。详细方案见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 与 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。本次仅更新规划，应用代码尚未改动。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -26,7 +26,7 @@
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
 | 原生单位换算页面 | C8.8.2 交互完善已通过 CI；真机验收暂缓 | 完整等式复制、清除、输入中间态 / 长度边界、窄屏纵向选择、TalkBack 语义；Build #428 成功；未执行设备验收 |
-| 完整计算器主页面 | 未完成；当前 UI 优先主线 | 先实施 UI-1–UI-3；不把独立单位换算工具页算作完整计算主页 |
+| UI 框架重建 | 规划完成；F0 待开始 | 设计语言、Tokens、组件 / 动效系统、整页式回弹、App Shell 重建尚未写入应用代码 |\n| 完整计算器主页面 | 未完成；等待新框架 | 框架迁移完成后实施 UI-1–UI-3；不把独立单位换算工具页算作完整计算主页 |
 | 专用数学输入 / QuestionDocument | 分阶段实施 | 先交付基础表达式编辑与应用内键盘；复杂题目文档、嵌套模板和符号搜索排在 UI-9 |
 | 函数图像 UI | 未完成；UI-7 规划中 | 首轮接入现有拟合 / 采样；Compose 曲线、坐标轴、视口和交互待实现 |
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
@@ -35,9 +35,9 @@
 | 最新 Debug APK | Build #473 | [Artifact 14441438575](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622/artifacts/14441438575)，31,215,377 bytes；包含 C5.18 线性角正弦—余弦等式，PR #90 已合并 main，完整 Actions workflow success |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
-### 当前执行阶段（2026-11-18）
+### 当前执行阶段（2026-11-19）
 
-**UI 优先路线已确定，尚未开始 UI-0 代码实施。** 当前最新任务入口为 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)：先做 UI-0 页面 / domain 盘点，再做 UI-1 计算主页标准模式。C5.19 和后续零散数学扩展暂缓；已有数学内核保持冻结基线，仅修复回归、精度或接入 UI 必须解决的问题。完成 UI 阶段后，按 M-0 至 M-6 数学能力矩阵补齐，不再以 C5.x 连续编号作为主路线。
+**当前入口已从直接开发页面调整为 UI 框架重建 F0。** 规划已写入 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，明天（2026-11-20）第一步只做真实代码审计、路由 / 滚动 / 玻璃盘点和开源技术决策，不直接改业务页面。F0 交付审计文档后进入 F1–F7，重建完成再执行 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 的页面迁移。C5.19 和其他零散数学扩展继续暂缓；既有数学内核冻结为可复用基线，只修复回归、精度问题和 UI 接入必需缺口。
 
 ### 初始工程检查历史快照（非当前进度）
 
