@@ -18,6 +18,19 @@ internal object ZhixingColorTokens {
     val surfaceVariant = Color(0xFFEDF2F6)
     val onSurfaceVariant = Color(0xFF687985)
     val outline = Color(0xFFD6E0E7)
+    val selectedContainer = primary.copy(alpha = 0.12f)
+
+    // Material 3 semantic roles retain their existing lightColorScheme defaults.
+    val error: Color get() = ZhixingLightColors.error
+    val onError: Color get() = ZhixingLightColors.onError
+    val errorContainer: Color get() = ZhixingLightColors.errorContainer
+    val onErrorContainer: Color get() = ZhixingLightColors.onErrorContainer
+    val tertiary: Color get() = ZhixingLightColors.tertiary
+    val onTertiary: Color get() = ZhixingLightColors.onTertiary
+    val tertiaryContainer: Color get() = ZhixingLightColors.tertiaryContainer
+    val onTertiaryContainer: Color get() = ZhixingLightColors.onTertiaryContainer
+    val outlineVariant: Color get() = ZhixingLightColors.outlineVariant
+    val scrim: Color get() = ZhixingLightColors.scrim
 }
 
 /** Existing Material 3 scheme, now sourced from the shared palette. */

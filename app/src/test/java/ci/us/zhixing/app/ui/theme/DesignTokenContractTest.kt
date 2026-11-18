@@ -27,6 +27,10 @@ class DesignTokenContractTest {
         assertEquals(Color(0xFFEDF2F6), ZhixingColorTokens.surfaceVariant)
         assertEquals(Color(0xFF687985), ZhixingColorTokens.onSurfaceVariant)
         assertEquals(Color(0xFFD6E0E7), ZhixingColorTokens.outline)
+        assertEquals(ZhixingLightColors.error, ZhixingColorTokens.error)
+        assertEquals(ZhixingLightColors.onError, ZhixingColorTokens.onError)
+        assertEquals(ZhixingLightColors.tertiary, ZhixingColorTokens.tertiary)
+        assertEquals(0.12f, ZhixingColorTokens.selectedContainer.alpha, 0f)
         assertEquals(ZhixingLightColors.primary, ZhixingTheme.colors.primary)
     }
 
@@ -109,7 +113,10 @@ class DesignTokenContractTest {
         assertEquals(0.985f, ZhixingMotionTokens.cardPressScale, 0f)
         assertEquals(0.78f, ZhixingMotionTokens.pressSpringDampingRatio, 0f)
         assertEquals(520f, ZhixingMotionTokens.pressSpringStiffness, 0f)
+        assertEquals(120, ZhixingMotionTokens.microTransitionMillis)
         assertEquals(180, ZhixingMotionTokens.controlStateTransitionMillis)
+        assertEquals(220, ZhixingMotionTokens.contentTransitionMillis)
+        assertEquals(220, ZhixingMotionTokens.navigationTransitionMillis)
         assertEquals(220, ZhixingMotionTokens.pageTransitionMillis)
         assertEquals(280, ZhixingMotionTokens.sheetTransitionMillis)
         assertEquals(8f, ZhixingMotionTokens.pageEnterOffsetDp, 0f)
@@ -119,7 +126,11 @@ class DesignTokenContractTest {
     @Test
     fun interactionTokensKeepTouchTargetsAndSelectedTintStable() {
         assertEquals(48f, ZhixingInteractionTokens.minimumTouchTarget.value, 0f)
+        assertEquals(2f, ZhixingInteractionTokens.focusOutlineWidth.value, 0f)
+        assertEquals(0.12f, ZhixingInteractionTokens.pressedStateLayerAlpha, 0f)
         assertEquals(0.12f, ZhixingInteractionTokens.selectedContainerAlpha, 0f)
+        assertEquals(0.38f, ZhixingInteractionTokens.disabledContentAlpha, 0f)
+        assertEquals(7, ZhixingInteractionState.entries.size)
         assertTrue(ZhixingInteractionTokens.touchFeedbackCanBeDisabled)
     }
 
