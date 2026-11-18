@@ -12,7 +12,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-18）：** 数学内核 C0.1–C4.3、C5.1–C5.17、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录；C5.15 已完成三类周期解族区间筛选，C5.16 已完成辅助角公式型组合三角方程，C5.17 已完成不同线性角的正弦等式 `sin(ax+b)=sin(cx+d)`。C5.17 代码提交 `9928f593a476296d2957c24e0e8c4f54f396376e` 通过 Build #463（Run ID `44181614254`）的完整代码验收；PR #89 已 squash 合并到 main，合并提交 `03da7ae52239c609a3bd51f89c86c3cf97030e04`。最终 PR 头 Build #466（Run ID `44182197389`）再次完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14373092029`，31,212,321 bytes。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前进度（核对至 2026-11-18）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -21,7 +21,7 @@
 | Liquid Glass 真机体验 | 主壳 / PR #88 相关验收已由用户确认通过 | PR #88 当前仍在 GitHub open；未合并状态与已完成的用户设备验收需分别记录 |
 | 设计 Tokens | 已实现并通过 CI 编译 | 浅色颜色、形状、间距、文字 Tokens 与 ZhixingTheme 已接入；Build #428 编译通过 |
 | 表达式数学内核 | C0.1–C4.3 已完成 | Tokenizer、AST / Parser、常数求值、多项式、有理函数定义域 / 求值、一次 / 二次实根 |
-| 方程求解 | C5.1–C5.17 已通过 CI | 已覆盖多项式、分式、绝对值、根式、指数 / 对数、二元一次方程组、正弦 / 余弦 / 正切周期方程、周期区间筛选、辅助角组合三角方程及不同线性角正弦等式 |
+| 方程求解 | C5.1–C5.18 已通过 CI | 已覆盖多项式、分式、绝对值、根式、指数 / 对数、二元一次方程组、正弦 / 余弦 / 正切周期方程、周期区间筛选、辅助角组合三角方程、正弦等式及正弦—余弦等式 |
 | 不等式求解 | C6.1–C6.2 已完成 | 一至三次多项式不等式、分式不等式 |
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
@@ -32,7 +32,7 @@
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #466 | [Artifact 14373092029](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44182197389/artifacts/14373092029)，31,212,321 bytes；包含 C5.17 不同线性角正弦等式，PR #89 已合并 main，最终完整 Actions workflow success |
+| 最新 Debug APK | Build #473 | [Artifact 14441438575](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622/artifacts/14441438575)，31,215,377 bytes；包含 C5.18 线性角正弦—余弦等式，PR #90 已合并 main，完整 Actions workflow success |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 ### 初始工程检查历史快照（非当前进度）
@@ -2220,3 +2220,45 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 
 **边界与后续：** C5.17 只支持两侧均为正弦函数、角度均为一次线性式的等式；不扩展为正弦与余弦混合、乘积、多个三角项或任意复合表达式。后续继续按独立题型切片选择 C5.18，不把本步的等价变换误当成通用三角方程系统。
 
+
+
+### 27.69 C5.18：线性角的正弦—余弦等式（2026-11-18）
+
+新增纯 Kotlin 模型、类型化结果和 solver，支持：
+
+`sin(a·x+b)=cos(c·x+d)`
+
+其中 a、b、c、d 均为有限 Double，角度采用弧度制。
+
+#### 等价变换与复用
+
+利用：
+
+`cos(V)=sin(π/2−V)`
+
+将原式变换为：
+
+`sin(a·x+b)=sin(−c·x+(π/2−d))`
+
+转交 C5.17 的 `SineEqualityEquationSolver` 求解；不重复实现三角函数反解、周期解族归一化或 C5.15 区间筛选。
+
+#### 实现与数值约束
+
+- 新增 `SineCosineEqualityEquation`，显式保存正弦 / 余弦两侧角系数与相位；新增 `SineCosineEqualityEquationSolutionResult`，区分全体实数、无解、周期解族和 typed Failure。
+- 任一参数为 NaN / ±Infinity 时返回 `NON_FINITE_INPUT`；相位转换或原式回代角度超出 Double 范围时返回 `NON_FINITE_RESULT`。
+- 计算 `π/2−d` 后反向恢复相位偏移，检查是否因大相位舍入而吞掉 `π/2`；偏移不能可靠保留时返回 `NUMERIC_PRECISION_LOSS`，不使用失真的转换结果继续求根。
+- 将余弦侧角系数取负、相位替换为转换后的相位，调用 C5.17 solver；原 solver 的 typed error 原样向上传递。
+- 对恒等结果在多个有限 x 点回代原始正弦—余弦等式；对每个周期解族基准值使用 `Math.fma` 计算原始两个线性角，再计算 `|sin(U)−cos(V)|`。回代角非有限返回 `NON_FINITE_RESULT`，残差超过 `1e−12` 返回 `NUMERIC_PRECISION_LOSS`。
+- 输出的 `PeriodicSolutionFamily` 可直接传入 C5.15 `PeriodicSolutionIntervalFilter`，筛选指定开闭区间内的有限解。
+
+#### 测试与验收
+
+- 新增 **15 个 JUnit 测试方法**，覆盖不同角系数、`sin(x)=cos(x)` 的两族周期解、恒等 / 无解、常数退化、单侧常数 / 单侧变量、负系数与相位、任一非有限输入、极大相位吞掉半 π 的精度失败、过长周期不可表示、极大有限系数、原式回代及 C5.15 区间筛选。
+- 额外覆盖 Double 表示层的常数相等边界：`sin(0)=cos(π/2)` 可精确识别为恒等；`π/6` 与 `π/2−π/3` 的 Double 值不能精确证明相等时，必须返回 `NUMERIC_PRECISION_LOSS`，不能误报全体实数。
+- 初始 Build #472（Run ID `44337385602`）中 545 个测试有 1 个失败，失败案例为使用 `π/6` 与 `π/3` 的常数角 fixture；修复为精确可表示恒等 fixture，并增加上述精度拒绝回归测试。
+- PR [#90](https://github.com/PaleSquire71029/zhixingapp/pull/90) squash 合并到 main；代码提交 / 合并提交：`62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`。PR 最终头 SHA：`e6ef6ecfd0b93daf2de1dad48092029a2254c232`。
+- Android Build #473（Run ID `44337799622`）完整 `success`：Markdown 本地链接、Android 图片资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和所有清理步骤均通过；Gradle 输出 `BUILD SUCCESSFUL in 1m 1s`。
+- Debug Artifact `zhixingapp-debug`：ID `14441438575`，31,215,377 bytes；SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。
+- 本步未运行模拟器 / 真机 instrumentation tests；只编译 Android 测试源码。不涉及 Parser、Compose、专用键盘、函数绘图、AI 或计算器 UI。
+
+**边界与后续：** C5.18 仅支持正弦与余弦两侧均为一次线性角的等式；不支持乘积型、多项三角项或任意复合三角表达式。下一候选 C5.19 为 `cos(ax+b)=cos(cx+d)`，仍需独立核对恒等分支、常数退化、周期族去重及大相位精度后再确定实施范围。
