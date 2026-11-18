@@ -517,16 +517,18 @@ GitHub 源码审计无法替代 iQOO Neo5 活力版真机观察。本次没有�
 
 ### 9.2 F1–F2：Foundation 和组件样板
 
-#### F1：Zhixing Flow Foundations（已实现，CI 验证中）
+#### F1：Zhixing Flow Foundations（已完成，Build #488 success）
 
-F1 已在 PR #92 的规划分支完成实现，当前代码提交为 `65c220f46f4b84d179cda58b26747d3da0141bdc`。新增 Elevation、Material、Motion、Interaction、Layout 五组 Token，并将现有 Color、Typography、Spacing、Shape 归并为九组统一入口。
+F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa8002a96ded0d6eff7932e2f6400ff` 的 Build #488（Run ID `44404842628`）完整 success。新增 Elevation、Material、Motion、Interaction、Layout 五组 Token，并将现有 Color、Typography、Spacing、Shape 归并为九组统一入口。
 
 - `ZhixingTheme` 保留原有 `colors / type / spacing / shapes` 访问方式，并新增 `palette / typography / spacingTokens / elevation / material / motion / interaction / layout`。
 - 现有颜色值、文字字号 / 行高 / 字重 / 字距、默认字体回退、间距、28dp / 18dp 首页形状和 12–32dp 玻璃半径均保持不变。
 - `ZhixingGlassRadii / ZhixingGlassShapes / ZhixingGlassMotion` 作为兼容 facade，底层值统一委托给 Shape / Motion Tokens；现有 Backdrop 组件无需迁移。
+- Color 保留现有品牌 / 表面 / 文字 / 描边值，补齐 Material 3 error / tertiary 默认语义角色和既有 0.12 选中容器色；未臆造 success / warning 色。
 - Elevation 只集中记录当前 4dp / 6dp / 10dp 阴影半径；Material 只定义 Canvas / Soft Surface / Flow Glass / Overlay 角色与阅读优先策略，不接管玻璃渲染。
-- Interaction 记录 48dp 触控热区、现有 0.12 选中底色透明度与触觉反馈开关能力；Layout 记录 68dp Dock 和固定层 / 未来单一 viewport 的边界约束。
-- 新增 `DesignTokenContractTest`，覆盖九类 Token、旧访问器兼容、关键值稳定性和主题入口；未增加 Gradle 依赖。
+- Interaction 覆盖 IDLE / PRESSED / SELECTED / DISABLED / FOCUSED / LOADING / ERROR 七态、48dp 触控热区、2dp 焦点描边、0.12 pressed / selected alpha、0.38 disabled alpha；Motion 收录 120 / 180 / 220 / 280ms 时序和既有 spring；Layout 记录 68dp Dock 与固定层 / 单一 viewport 的边界约束。
+- 新增 `DesignTokenContractTest`，包含 9 项 JUnit 测试，覆盖九类 Token、旧访问器兼容、关键值稳定性和主题入口；未增加 Gradle 依赖。
+- Build #488 完整 success：全部 JVM 单元测试、Android 测试源码编译、Debug APK 组装和 Artifact 上传通过；仅编译 androidTest 源码，不代表设备 / 真机执行。
 - F1 不修改 MainActivity、Screens、导航、GlassMaterialState / DataStore、玻璃渲染算法或性能档位；没有执行真机视觉验收。
 
 #### F2：核心组件库（待开始）
