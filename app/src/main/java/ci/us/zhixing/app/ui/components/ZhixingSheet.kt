@@ -31,8 +31,8 @@ internal fun ZhixingSheet(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(
-            topStart = ZhixingTheme.shapeTokens.floatingPanel,
-            topEnd = ZhixingTheme.shapeTokens.floatingPanel,
+            topStart = ZhixingTheme.shapes.floatingPanel,
+            topEnd = ZhixingTheme.shapes.floatingPanel,
         ),
         color = ZhixingTheme.colors.surface,
         contentColor = ZhixingTheme.colors.onSurface,
