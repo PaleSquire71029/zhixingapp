@@ -91,7 +91,7 @@
 
 ## 3. 已经做了什么
 
-**Zhixing Flow F0–F2 已在 PR #92 分支完成，Build #499（Run ID `44826734182`） 完整 success：** F1 建立九类设计令牌与主题契约；F2 新增 Surface / Button / Input / ListRow / SegmentedControl / Sheet / ResultPanel 七个基础组件、独立 Design Gallery、2 项 JVM 布局测试和 5 项 Compose UI 交互 / 语义测试。旧访问器、现有视觉值、默认字体、Backdrop / Shapes 版本和玻璃材质持久化均保持兼容。Gallery 未接入导航；F2 不代表页面已迁移，也不代表整页回弹已实现。下一步为 F3 整页回弹独立原型。具体见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+**Zhixing Flow F0–F2 已在 PR #92 分支完成，Build #499（Run ID `44826734182`）完整 success：** F1 建立九类设计令牌与主题契约；F2 新增 Surface / Button / Input / ListRow / SegmentedControl / Sheet / ResultPanel 七个基础组件、独立 Design Gallery、2 项 JVM 布局测试和 5 项 Compose UI 交互 / 语义测试。旧访问器、现有视觉值、默认字体、Backdrop / Shapes 版本和玻璃材质持久化均保持兼容。Gallery 未接入导航；F2 不代表页面已迁移，也不代表整页回弹已实现。下一步为 F3 整页回弹独立原型。具体见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 **液态玻璃专项执行路线已于 2026-11-01 重置：** 以用户上传的 Backdrop Catalog APK 为视觉 / 交互基准，锁定上游 tag 1.0.6，直接移植官方 LiquidBottomTabs、DampedDragAnimation、InteractiveHighlight、LiquidButton、LiquidSlider、LiquidToggle 等源码；不升级 Backdrop 2.x，不复制整套 Demo App。详细步骤见 [LIQUID_GLASS_REDESIGN_PLAN.md 第 25 节](./LIQUID_GLASS_REDESIGN_PLAN.md)。
 
