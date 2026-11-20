@@ -1,8 +1,8 @@
 # Zhixing Flow 页面迁移与行为保留矩阵
 
 > 基线：main 165a0ca2ff77aeae0868d8dbd2087c09cd9e6260  
-> 更新：2026-11-19  
-> 原则：先建立框架，再逐页迁移；只迁 UI，不重写 domain。旧页面只有在替代页通过回归后才清理。
+> 更新：2026-11-21  
+> 原则：先建立框架，再逐页迁移；只迁 UI，不重写 domain。F1 / F2 foundations 与组件已落地，但现有页面仍未迁移；旧页面只有在替代页通过回归后才清理。
 
 ## 1. 页面映射总表
 
@@ -70,7 +70,22 @@
 - rememberSaveable 保存 category / source unit / target unit / input / copied key；页面切回恢复状态。
 - 业务逻辑继续委托 UnitConversionPresenter 与 domain/units，不在 Composable 复制换算算法。
 
-## 3. App Shell 与系统行为保留
+## 3. F2 核心组件目录（已实现，尚未迁移现有页面）
+
+| 组件 | 职责 | 约束 / 状态 |
+|---|---|---|
+| `ZhixingSurface` | 普通浅色内容 Surface | 不创建 Backdrop，不做模糊 / 折射 |
+| `ZhixingButton` | 主要 / 次要 / 文字操作 | 按压、禁用、加载、选中、焦点描边与状态语义 |
+| `ZhixingInput` | 统一文本输入 | Label、Supporting、Error、Disabled、焦点交由 TextField 处理 |
+| `ZhixingListRow` | 列表 / 菜单行 | 标题、辅助信息、选中与禁用状态 |
+| `ZhixingSegmentedControl` | 同级单选切换 | selectableGroup / RadioButton 语义 |
+| `ZhixingSheet` | 内容面板容器 | 只负责 Surface / 标题；显隐与拖拽由上层负责 |
+| `ZhixingResultPanel` | 结果 / 错误输出 | 统一结果层级和状态描述 |
+| `DesignGalleryScreen` | 组件展示页 | 390dp / 720dp Preview，600dp 单列 / 双列断点；不注册导航 |
+
+新增测试：2 项 JVM 布局阈值测试、5 项 Compose UI 交互 / 语义测试。当前 CI 会执行 JVM 测试并编译 androidTest 源码，但不会启动模拟器执行 instrumentation tests。页面迁移必须等 F5，不得把 Gallery 当成现有业务页面入口。
+
+## 4. App Shell 与系统行为保留
 
 F4 对照当前实现逐项回归：
 
@@ -84,17 +99,17 @@ F4 对照当前实现逐项回归：
 - IME 出现时页面可用高度变化和底部操作区避让。
 - Backdrop 共享层的绘制顺序与前后景关系。
 
-## 4. 迁移依赖顺序
+## 5. 迁移依赖顺序
 
 1. F1 Foundations：所有后续页面可引用一致的 tokens；不动旧页。
-2. F2 Components：用真实页面需求抽取基础 primitives / patterns，建立 gallery。
+2. F2 Components（已完成）：七个基础 primitives / patterns 与独立 gallery 已建立；现有页面仍保持原样。
 3. F3 Overscroll：独立完成整页回弹原型和目标设备验收，再封装 ScrollContainer。
 4. F4 App Shell：拆分 MainActivity、typed routes、AppState、Dock overlay / page viewport。
 5. F5 Existing screens：工具目录 → 我的 / 历史 / 材质设置 → 单位换算。
 6. F6 Core experience：计算工作区 → AI 工作区 → 方程 / 不等式 / 函数等工具页。
 7. F7 Stabilization：无障碍、窄屏、IME、60Hz / 120Hz、滚动、性能、状态恢复与旧代码清理。
 
-## 5. 页面迁移完成定义
+## 6. 页面迁移完成定义
 
 页面不能仅以“看起来相似”判定完成，必须同时满足：
 

@@ -1,15 +1,16 @@
 # 知行 Android App 项目操作指南与历史交接记录
 
-> **核对日期：2026-11-19（UTC）**  
+> **核对日期：2026-11-21（UTC+8）**  
 > **仓库：** PaleSquire71029/zhixingapp  
-> **分支：** main  
+> **默认分支：** main  
+> **当前 UI 开发分支：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **文档目的：** 让新对话、开发者或未来的维护者不依赖聊天记录，也能准确知道项目做到哪里、哪些只是代码落地、如何构建 APK，以及下一步应该怎么做。
 
 ---
 
 ## 1. 先看结论
 
-本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；主壳、导航和材质已有实现基线。用户已决定先重建 UI 框架「知行·流序」，再迁移页面与数学功能。F0 静态代码审计与 F1 九类 Design Tokens / Theme 契约均已完成，交付记录见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md)；F0 审计和决策分别记录在 [UI_FRAMEWORK_AUDIT.md](./UI_FRAMEWORK_AUDIT.md) 与 [UI_FRAMEWORK_DECISIONS.md](./UI_FRAMEWORK_DECISIONS.md)，逐页保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。用户已决定先重建整个 UI 框架，建立知行自有设计语言、统一动效、组件与整页滚动回弹，再迁移计算器和其他页面。执行入口见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，其后才执行 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。
+本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；主壳、导航和材质已有实现基线。用户已决定先重建 UI 框架「知行·流序」，再迁移页面与数学功能。F0 静态代码审计、F1 九类 Design Tokens / Theme 契约、F2 核心组件库与独立 Design Gallery 均已完成，交付记录见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md)；F0 审计和决策分别记录在 [UI_FRAMEWORK_AUDIT.md](./UI_FRAMEWORK_AUDIT.md) 与 [UI_FRAMEWORK_DECISIONS.md](./UI_FRAMEWORK_DECISIONS.md)，逐页保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。用户已决定先重建整个 UI 框架，建立知行自有设计语言、统一动效、组件与整页滚动回弹，再迁移计算器和其他页面。执行入口见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，其后才执行 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。
 
 **本文件是开发与交接方法手册，不是进度账本。** 当前代码实现、构建 / Artifact、真机验收和下一步只在 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 记录；当前计算器任务顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 为准；既有 C0–C8 数学内核的算法契约和历史验收见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)。长期产品范围见 [ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md) 与各专项规划。
 
@@ -80,13 +81,17 @@
 | `app/src/test/java/ci/us/zhixing/app/navigation/AppDestinationTest.kt` | 导航数据契约的 JVM 单元测试 | 未来逐步增加状态和导航测试 |
 | `app/src/main/res/drawable-nodpi/zhixing_logo.webp` | 用户提供的蓝紫渐变图标 | 不随意裁切、重绘或改变比例 |
 | `app/src/main/res/drawable-nodpi/zhixing_logo.webp` 与 launcher mipmap XML | 品牌图片与自适应桌面图标资源 | 检查不同启动器遮罩效果 |
+| `app/src/main/java/ci/us/zhixing/app/ui/components/` | Zhixing Flow F2 基础组件库 | 只组合 F1 tokens；普通 Surface 不调用玻璃算法；页面迁移后再复用 |
+| `app/src/main/java/ci/us/zhixing/app/ui/components/DesignGalleryScreen.kt` | 独立组件展示页，390dp / 720dp Preview，600dp 断点 | 不接入 MainActivity / 导航；仅用于设计与状态验收 |
+| `app/src/test/java/ci/us/zhixing/app/ui/components/DesignGalleryLayoutTest.kt` | Gallery 单列 / 双列断点 JVM 测试 | 由 `:app:testDebugUnitTest` 执行 |
+| `app/src/androidTest/java/ci/us/zhixing/app/ui/components/ZhixingComponentsTest.kt` | Compose 组件点击、选中、禁用、加载、焦点和错误语义测试 | 当前 CI 只编译 androidTest 源码，不运行模拟器 |
 | `.github/workflows/android-build.yml` | 自动测试、打包和上传 Debug APK | 每次主分支 push 会触发 |
 
 品牌图标具体资源文件名以仓库实际文件为准；不要把旧网页的书本图标或其他项目图标替换进来。
 
 ## 3. 已经做了什么
 
-**Zhixing Flow F1 已在 PR #92 分支完成，Build #488 完整 success：** 九类设计令牌与主题契约已建立，旧访问器、现有视觉值、默认字体、Backdrop / Shapes 版本和玻璃材质持久化均保持兼容。F1 新增 9 项 Token 契约测试；F1 不代表页面已迁移，也不代表整页回弹已实现；下一步为 F2 核心组件库。具体见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+**Zhixing Flow F0–F2 已在 PR #92 分支完成，Build #499（Run ID `44826734182`） 完整 success：** F1 建立九类设计令牌与主题契约；F2 新增 Surface / Button / Input / ListRow / SegmentedControl / Sheet / ResultPanel 七个基础组件、独立 Design Gallery、2 项 JVM 布局测试和 5 项 Compose UI 交互 / 语义测试。旧访问器、现有视觉值、默认字体、Backdrop / Shapes 版本和玻璃材质持久化均保持兼容。Gallery 未接入导航；F2 不代表页面已迁移，也不代表整页回弹已实现。下一步为 F3 整页回弹独立原型。具体见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 **液态玻璃专项执行路线已于 2026-11-01 重置：** 以用户上传的 Backdrop Catalog APK 为视觉 / 交互基准，锁定上游 tag 1.0.6，直接移植官方 LiquidBottomTabs、DampedDragAnimation、InteractiveHighlight、LiquidButton、LiquidSlider、LiquidToggle 等源码；不升级 Backdrop 2.x，不复制整套 Demo App。详细步骤见 [LIQUID_GLASS_REDESIGN_PLAN.md 第 25 节](./LIQUID_GLASS_REDESIGN_PLAN.md)。
 

@@ -1,8 +1,8 @@
 # 知行原生界面框架重建与设计语言规划
 
 > 版本：1.0  
-> 制定日期：2026-11-19  
-> 当前基线：PR #92 文档规划分支，应用代码仍以 main 为准  
+> 制定日期：2026-11-21  
+> 当前基线：PR #92 的 docs/ui-first-calculator-roadmap 分支；main 仍保持 165a0ca2 基线，F0–F2 尚未合并  
 > 目标设备：iQOO Neo5 活力版（竖屏优先，兼顾 60Hz / 120Hz）  
 > 技术：Kotlin + Jetpack Compose + AndroidX  
 > 设计方向：**知行·流序（Zhixing Flow）**  
@@ -531,13 +531,14 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 - Build #488 完整 success：全部 JVM 单元测试、Android 测试源码编译、Debug APK 组装和 Artifact 上传通过；仅编译 androidTest 源码，不代表设备 / 真机执行。
 - F1 不修改 MainActivity、Screens、导航、GlassMaterialState / DataStore、玻璃渲染算法或性能档位；没有执行真机视觉验收。
 
-#### F2：核心组件库（待开始）
+#### F2：核心组件库与 Design Gallery（已完成，2026-11-21）
 
-- 先实现少量核心组件，不迁移所有页面。
-- 做一个独立 Design Gallery / Component Playground，集中展示不同状态。
-- 组件样板包含按压、禁用、选中、错误、加载、焦点和不同屏幕宽度。
-- 每个组件至少有语义 / 交互单测或 Compose UI 测试。
-- 旧页面在新旧组件并行期间继续可运行；不要先删旧代码。
+- 已新增 `ZhixingSurface`、`ZhixingButton`、`ZhixingInput`、`ZhixingListRow`、`ZhixingSegmentedControl`、`ZhixingSheet`、`ZhixingResultPanel` 七个基础组件。
+- 已新增独立 `DesignGalleryScreen`，390dp / 720dp Preview；600dp 作为单列 / 双列断点；不注册 MainActivity / 导航。
+- 组件状态覆盖按压、选中、禁用、错误、加载和焦点；提供 Button / RadioButton / Heading / TextField 错误语义。
+- 新增 2 项 JVM 布局阈值测试与 5 项 Compose UI 交互 / 语义测试。Build #499 完整 success；CI 执行 JVM 测试、编译 androidTest 源码并组装 Debug APK，但不启动模拟器运行 instrumentation tests。
+- 只消费 F1 Tokens；不改现有页面、MainActivity、导航、玻璃算法、材质设置、性能档位或 Gradle 依赖。旧页面继续运行，等待 F5 逐页迁移。
+
 
 ### 9.3 F3：整页回弹原型
 
@@ -614,12 +615,13 @@ CI 通过不等于真机验收通过。玻璃光学效果、整页回弹手感�
 
 ## 12. 当前执行边界与下一步
 
-截至 2026-11-19：
+截至 2026-11-21：
 
-- F0 的静态源码审计、路线决策和迁移映射已完成，记录分别见 UI_FRAMEWORK_AUDIT.md、UI_FRAMEWORK_DECISIONS.md 和 UI_FRAMEWORK_MIGRATION_MATRIX.md。
-- 本轮没有修改应用源码、Gradle 依赖、资源或现有交互；main 仍是应用代码基线。
-- 当前规划仍在 PR #92 的文档分支，PR 保持 open、未合并；PR #92 的上一个提交 Build #482 已通过。
-- Backdrop 1.0.6、玻璃控件与其 DataStore、单位换算逻辑、数学 domain 和已验收 Dock 必须保留。
-- 目标设备的滚动基线与全页回弹体验尚未测试；F3 独立原型完成后再进行真机验收。
+- F0 静态审计、F1 九类 Tokens / Theme 契约、F2 七个基础组件与独立 Design Gallery 均已完成。
+- F2 最终代码提交 `14a51148d1b407a17329b3500b536d3beeedb674`；Build #499（Run ID `44826734182`）完整 success。
+- PR #92 仍 open、未合并；main 仍为 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。
+- Backdrop 1.0.6、Shapes 1.2.0、玻璃控件与 DataStore、材质设置、性能分级、单位换算、数学 Domain 和已验收 Dock 必须保留。
+- F2 Gallery 不接入导航；不迁移现有业务页面、不改 MainActivity / 导航、不改玻璃算法、不增加依赖。
+- Compose UI 测试已添加并由 CI 编译，但当前 Android workflow 不运行模拟器 instrumentation tests；目标设备的滚动与全页回弹尚未测试。
 
-**下一步进入 F1：** 建立完整的 Zhixing Flow Token 分类和主题契约。F1 不迁移页面、不重写 MainActivity、不改变现有视觉数值，也不升级 Backdrop；完成后通过 CI，再进入 F2。
+**下一步进入 F3：** 独立实现整页回弹原型，验证 viewport 整体位移、顶底边界、反向接管和嵌套控件；禁止页面拉伸和卡片独立缩放。Dock / 系统栏 / IME 不跟随内容层变换。F3 原型完成并通过目标设备验收后，才进入 F4 / F5 页面迁移。
