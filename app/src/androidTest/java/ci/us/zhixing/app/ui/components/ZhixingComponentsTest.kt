@@ -5,11 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -127,6 +130,33 @@ class ZhixingComponentsTest {
         composeRule.onNodeWithTag("history-row").assertIsSelected().performClick()
         composeRule.onNodeWithTag("history-row").assertIsNotSelected()
         composeRule.onNodeWithTag("disabled-row").assertIsNotEnabled()
+    }
+
+
+    @Test
+    fun buttonAnnouncesKeyboardFocusState() {
+        composeRule.setContent {
+            val focusRequester = remember { FocusRequester() }
+            LaunchedEffect(focusRequester) {
+                focusRequester.requestFocus()
+            }
+            ZhixingTheme {
+                ZhixingButton(
+                    label = "键盘焦点",
+                    onClick = {},
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .testTag("focused-button"),
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("focused-button").assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.StateDescription,
+                "已聚焦",
+            ),
+        )
     }
 
     @Test
