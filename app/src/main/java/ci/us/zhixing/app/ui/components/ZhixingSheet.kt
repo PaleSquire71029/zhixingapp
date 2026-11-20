@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import ci.us.zhixing.app.ui.theme.ZhixingShapeTokens
 import ci.us.zhixing.app.ui.theme.ZhixingTheme
 
 /** Content-only sheet surface; presentation and visibility remain owned by the caller. */
@@ -31,8 +32,8 @@ internal fun ZhixingSheet(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(
-            topStart = ZhixingTheme.shapes.floatingPanel,
-            topEnd = ZhixingTheme.shapes.floatingPanel,
+            topStart = ZhixingShapeTokens.floatingPanel,
+            topEnd = ZhixingShapeTokens.floatingPanel,
         ),
         color = ZhixingTheme.colors.surface,
         contentColor = ZhixingTheme.colors.onSurface,
