@@ -80,7 +80,7 @@ class ZhixingComponentsTest {
                 SemanticsProperties.StateDescription,
                 "加载中",
             ),
-        ).assertExists()
+        ).assertIsDisplayed()
     }
 
     @Test
@@ -155,7 +155,7 @@ class ZhixingComponentsTest {
                 SemanticsProperties.StateDescription,
                 "已聚焦",
             ),
-        ).assertExists()
+        ).assertIsDisplayed()
     }
 
     @Test
@@ -187,7 +187,7 @@ class ZhixingComponentsTest {
                 SemanticsProperties.StateDescription,
                 "错误：格式不正确",
             ),
-        ).assertExists()
+        ).assertIsDisplayed()
         composeRule.onNodeWithText("无法计算").assertIsDisplayed()
         composeRule.onNodeWithTag("error-result").assertIsDisplayed()
     }
