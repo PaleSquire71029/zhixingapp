@@ -117,6 +117,8 @@ internal fun ZhixingButton(
                 this.selected = selected
                 if (loading) {
                     stateDescription = "加载中"
+                } else if (focused) {
+                    stateDescription = "已聚焦"
                 } else if (selected) {
                     stateDescription = "已选中"
                 }
