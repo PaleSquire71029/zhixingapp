@@ -2,11 +2,13 @@
 
 知行计算器 + 知行 AI 的全新 Android 原生应用。项目采用 Kotlin + Jetpack Compose，从原生工程和主壳开始重建，逐步迁移原计算器的数学、方程、函数、单位与化学能力；不将旧网页整体装入 WebView。
 
-> **进度核对日期：2026-11-18**  
+> **进度核对日期：2026-11-21**  
 > **仓库：** [PaleSquire71029/zhixingapp](https://github.com/PaleSquire71029/zhixingapp)  
-> **分支：** `main`  
+> **默认分支：** `main`  
+> **当前 UI 开发：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **当前工程版本：** 0.1.2 / versionCode 3  
-> **最近完整 CI：** [Android Build #466](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44182197389)（C5.17 最终 PR 文档快照，完整测试与构建通过）  
+> **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
+> **当前 UI 框架 CI：** [Build #499](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44826734182)（PR #92 F2；JVM 单元测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传通过）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -34,17 +36,26 @@
 | 函数工具内核 | **C7.1–C7.6 已完成** | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
 | 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
+| Zhixing Flow UI 框架 | **F0–F2 已完成，F3 待开始** | 九类 Tokens、主题兼容契约、7 个基础组件与独立 Design Gallery；Build #499 完整 success；PR #92 仍 open，尚未合并 |
 | 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：计算器功能。** C5.1–C5.18 已覆盖多项式 / 分式 / 根式 / 绝对值方程、受限指数 / 对数、二元一次方程组、正弦 / 余弦 / 正切周期方程、周期区间筛选、辅助角组合三角方程、不同线性角正弦等式，以及 `sin(ax+b)=cos(cx+d)`。C5.15 复用 BigDecimal / BigInteger 安全筛选周期解族；C5.16 使用 `hypot` / `atan2` 化为正弦方程；C5.17 将正弦等式分解为两个零点分支；C5.18 将正弦—余弦等式转为 C5.17 的正弦等式，检测 `π/2` 相位平移精度并回代原式。C5.18 的 15 个新增 JUnit 测试与完整 CI 通过 Build #473（Run ID `44337799622`），PR #90 已合并到 main（`62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`）。C6.1–C6.2 的多项式 / 分式不等式、C7.1–C7.6 的四类函数拟合 / 定义域 / 求值 / 安全采样以及 C8.1–C8.7 的单位转换内核均已有 CI 通过记录。C8.8.1–C8.8.2 已接入独立单位换算工具页并完善输入 / 复制 / 无障碍交互，但按用户要求暂缓该页真机验收。主壳与 PR #88 相关交互的目标设备验收已由用户确认；PR #88 在 GitHub 仍为 open。完整计算器主页面、专用数学输入 / QuestionDocument、函数图像 Compose UI、化学配平 / 反应预测原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前工作重心：Zhixing Flow F3 整页回弹独立原型。** F0 静态审计、F1 九类 Design Tokens / Theme 契约、F2 核心组件库与 Design Gallery 均已完成；最新 Build #499 完整 success。F2 只新增可复用组件与独立展示页，没有迁移现有业务页面、修改 MainActivity / 导航或触碰玻璃算法。代码位于 PR #92 的 `docs/ui-first-calculator-roadmap` 分支，尚未合并到 main。下一步只做 F3 独立回弹原型，验证整页内容整体位移 / 回弹，不缩放、不拉伸，Dock / 系统栏 / IME 不跟随内容层移动；完成原型与目标设备验收前不迁移业务页面。数学内核继续保持稳定基线。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。C5.15 复用 BigDecimal / BigInteger 安全筛选周期解族；C5.16 使用 `hypot` / `atan2` 化为正弦方程；C5.17 将正弦等式分解为两个零点分支；C5.18 将正弦—余弦等式转为 C5.17 的正弦等式，检测 `π/2` 相位平移精度并回代原式。C5.18 的 15 个新增 JUnit 测试与完整 CI 通过 Build #473（Run ID `44337799622`），PR #90 已合并到 main（`62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`）。C6.1–C6.2 的多项式 / 分式不等式、C7.1–C7.6 的四类函数拟合 / 定义域 / 求值 / 安全采样以及 C8.1–C8.7 的单位转换内核均已有 CI 通过记录。C8.8.1–C8.8.2 已接入独立单位换算工具页并完善输入 / 复制 / 无障碍交互，但按用户要求暂缓该页真机验收。主壳与 PR #88 相关交互的目标设备验收已由用户确认；PR #88 在 GitHub 仍为 open。完整计算器主页面、专用数学输入 / QuestionDocument、函数图像 Compose UI、化学配平 / 反应预测原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
 
 ---
 
 ## 项目进展时间线
+
+### 2026-11-21：Zhixing Flow F2 核心组件库与 Design Gallery
+
+- 新增 `ui/components` 基础组件：`ZhixingSurface`、`ZhixingButton`、`ZhixingInput`、`ZhixingListRow`、`ZhixingSegmentedControl`、`ZhixingSheet`、`ZhixingResultPanel`。
+- 新增独立 `DesignGalleryScreen`，提供 390dp 窄屏 / 720dp 宽屏预览；600dp 为单列 / 双列切换阈值。
+- 组件覆盖按压、选中、禁用、错误、加载、焦点状态，并提供 Button / RadioButton / Heading / TextField 错误等语义。
+- 新增 2 项 JVM 布局阈值测试与 5 项 Compose UI 交互 / 语义测试。Build #499（Run ID `44826734182`） 完整 success；Artifact 14673652163。
+- CI 只编译 androidTest 源码，没有运行模拟器 / 真机 instrumentation tests。Gallery 未接入导航，现有业务页面、MainActivity、玻璃算法和 Gradle 依赖均未修改。
 
 ### 1. 2026-10-31：项目启动与 Android 原生基础
 
@@ -152,21 +163,20 @@
 
 ## 当前计算器工作重点
 
-下一阶段以用户可直接使用的计算器功能为中心，优先把已验收的数学内核接入 Android 原生页面。
+当前执行顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](docs/CALCULATOR_UI_FIRST_ROADMAP.md) 为准：**先做界面和现有能力接入，后做数学扩展。**
 
-1. **继续扩展三角方程：** C5.1–C5.18 已完成并通过 CI；下一候选 C5.19 为 `cos(ax+b)=cos(cx+d)`，先核对恒等分支、退化常数、周期解族去重和大相位精度边界，再决定最小实现范围。
-2. **单位换算页面设备验收：** 按用户要求暂缓，不作为当前代码推进的前置条件；页面继续只消费 `UnitConverter`，不复制算法。
-3. **原生输入链路：** 把已有 Tokenizer / Parser 与 Android 计算页接起来，设计适合手机操作的数学表达式输入方式和专用键盘，避免依赖系统键盘完成复杂数学输入。
-4. **函数页面：** 将 C7 的点集、拟合、定义域和采样能力接入原生函数页面，再实现坐标轴、曲线绘制、缩放和点位交互。
-5. **补齐计算器其他核心工具：** 继续迁移化学方程式解析 / 配平与反应预测，保持精确算法和可验证结果。
-6. **逐步形成完整计算体验：** 先让已经完成的 domain 内核进入真实页面，再扩展 AI 辅助解题等能力。
+1. **UI-0：** 盘点真实页面路由、Compose 组件、domain 接口与测试入口。
+2. **UI-1–UI-3：** 完成计算主页、标准 / 科学输入、结果展示、错误分类和复制。
+3. **UI-4–UI-7：** 完成工具目录、方程 / 不等式 / 函数页面，并接入当前已有 solver、函数拟合和采样能力。
+4. **UI-8–UI-10：** 完成本地历史、增强题目编辑器、无障碍 / 性能和目标设备界面验收。
+5. **M-0 以后：** 界面阶段稳定后，再统一接入注册表并补齐通用函数、方程、不等式及高中其他题型。
 
-当前仍需完成的重点不是重新开发已经通过测试的单位比例表，而是扩大数学能力、完善输入体验，并把已完成的计算内核接到原生界面。
+**明确暂缓：** C5.19 及更多零散方程变体；不为维持 C5.x 编号连续而扩展题型。单位换算页面的设备验收继续按用户此前要求暂缓，不阻塞计算主页开发。
 
 ## 已知未完成事项
 
 - 计算 Tab 尚未完成完整原生计算器页面接入；C0–C8.7 的算法 / 数据层完成，C8.8.1–C8.8.2 完成独立单位换算工具，不等于完整计算器 UI 已完成。
-- 自定义数学输入法、复杂题目结构化输入和完整结果过程展示仍需实现。
+- 专用数学输入 / QuestionDocument、完整结果过程展示与函数图像 Compose UI 仍需按 UI 优先路线逐步接入。
 - 函数图表 Compose UI 尚未完成；目前完成的是拟合、定义域、求值和安全采样 domain。
 - 化学配平、反应预测尚未完成 Android 原生迁移。
 - 知行 AI Android 客户端、原生账号与云端历史尚未完成。

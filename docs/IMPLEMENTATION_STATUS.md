@@ -1,8 +1,9 @@
 # 知行 Android App 实施状态
 
-> 最后更新：2026-11-18  
+> 最后更新：2026-11-21  
 > 当前仓库：PaleSquire71029/zhixingapp  
-> 当前分支：main  
+> 默认分支：main  
+> 当前 UI 开发分支：docs/ui-first-calculator-roadmap（PR #92，尚未合并）  
 > 项目接手指南：[docs/PROJECT_STATUS_AND_GUIDE.md](./PROJECT_STATUS_AND_GUIDE.md)  
 > 总规划：[docs/ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md)
 
@@ -12,7 +13,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-18）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前进度（核对至 2026-11-21）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。用户已决定不在现有 UI 上继续堆功能，而是先重建一套知行自有的 UI 框架。当前路线为：F0–F7 框架审计、设计语言、组件库、整页式回弹、App Shell 和页面迁移；完成后再执行计算器 UI-1–UI-10，并在界面稳定后补齐数学能力。详细方案见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 与 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。F0 已完成 main 165a0ca 的静态代码审计与技术决策；F1 已在 PR #92 分支完成九类 Design Tokens、Theme 扩展和契约测试；F2 已新增七个基础组件、独立 Design Gallery 与交互 / 无障碍测试。F1 / F2 均保持旧主题访问器与现有视觉值，不迁移页面、不改变玻璃实现。当前 PR #92 仍 open，main 尚未包含本轮 UI 框架代码。目标设备截图与新整页回弹的实机行为尚未验证，必须在 F3 原型阶段验收。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -26,14 +27,19 @@
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
 | 原生单位换算页面 | C8.8.2 交互完善已通过 CI；真机验收暂缓 | 完整等式复制、清除、输入中间态 / 长度边界、窄屏纵向选择、TalkBack 语义；Build #428 成功；未执行设备验收 |
-| 完整计算器主页面 | 未完成 | C12 尚未实施；不把独立单位换算工具页算作 C12 |
-| 专用数学输入 / QuestionDocument | 规划已恢复，未完成实现 | 题目文档模型、模板编辑、撤销 / 重做、专用键盘和符号搜索尚待实现 |
-| 函数图像 UI | 未完成 | Domain 求值 / 采样已完成；Compose 曲线、坐标轴、视口和交互未接入 |
+| UI 框架重建 | **F0–F2 已完成；F3 待开始** | F1 九类 Tokens / Theme 契约；F2 七个基础组件、独立 Design Gallery、2 项 JVM 布局测试与 5 项 Compose UI 语义 / 交互测试；Build #499 完整 success。页面迁移仍在 F5 之后 |
+| 完整计算器主页面 | 未完成；等待新框架 | 框架迁移完成后实施 UI-1–UI-3；不把独立单位换算工具页算作完整计算主页 |
+| 专用数学输入 / QuestionDocument | 分阶段实施 | 先交付基础表达式编辑与应用内键盘；复杂题目文档、嵌套模板和符号搜索排在 UI-9 |
+| 函数图像 UI | 未完成；UI-7 规划中 | 首轮接入现有拟合 / 采样；Compose 曲线、坐标轴、视口和交互待实现 |
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #473 | [Artifact 14441438575](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622/artifacts/14441438575)，31,215,377 bytes；包含 C5.18 线性角正弦—余弦等式，PR #90 已合并 main，完整 Actions workflow success |
+| 最新 Debug APK | Build #499 | [Artifact 14673652163](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44826734182/artifacts/14673652163)，31,277,617 bytes；PR #92 F2 分支构建，JVM 单元测试、Android 测试源码编译、Debug APK 组装与上传均通过；PR 尚未合并 main |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
+
+### 当前执行阶段（2026-11-21）
+
+**当前入口为 Zhixing Flow F3：整页回弹独立原型。** F0 静态审计、F1 九类 Tokens / Theme 契约、F2 七个基础组件与独立 Design Gallery 均已完成。F2 新增 Surface / Button / Input / ListRow / SegmentedControl / Sheet / ResultPanel，统一按压、选中、禁用、错误、加载与焦点状态；Gallery 提供窄屏与宽屏布局预览。新增 2 项 JVM 布局阈值测试和 5 项 Compose UI 交互 / 语义测试。Build #499（Run ID `44826734182`）完整 success：Markdown 本地链接、Android 资源检查、`:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和清理全部通过。androidTest 仅完成源码编译，没有执行模拟器 / 真机 instrumentation tests。所有 F2 代码位于 PR #92 的 `docs/ui-first-calculator-roadmap` 分支，PR 保持 open，main 仍是 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。F2 未迁移现有页面、不改 MainActivity / 导航、不改 Backdrop 1.0.6 / Shapes 1.2.0、GlassMaterialState / DataStore / 性能档位，也没有增加 Gradle 依赖。下一步 F3 只做独立整页回弹原型，禁止页面拉伸和卡片独立缩放；目标设备验收后才封装统一 ScrollContainer。
 
 ### 初始工程检查历史快照（非当前进度）
 
@@ -2262,3 +2268,47 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - 本步未运行模拟器 / 真机 instrumentation tests；只编译 Android 测试源码。不涉及 Parser、Compose、专用键盘、函数绘图、AI 或计算器 UI。
 
 **边界与后续：** C5.18 仅支持正弦与余弦两侧均为一次线性角的等式；不支持乘积型、多项三角项或任意复合三角表达式。下一候选 C5.19 为 `cos(ax+b)=cos(cx+d)`，仍需独立核对恒等分支、常数退化、周期族去重及大相位精度后再确定实施范围。
+
+
+### 28.1 F1：Zhixing Flow Foundations（2026-11-19）
+
+F1 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；最终 head `74160abbeaa8002a96ded0d6eff7932e2f6400ff` 的 Build #488（Run ID `44404842628`）完整 success；main 仍保持原基线，等待 PR 合并。
+
+**本步实现：**
+
+- 将 Color / Typography / Spacing / Shape / Elevation / Material / Motion / Interaction / Layout 九类设计令牌集中到 `ui/theme`。
+- `ZhixingTheme` 新增 palette、typography、spacingTokens、elevation、material、motion、interaction、layout；旧 colors / type / spacing / shapes 保持可用。
+- 保留原始浅色配色、系统默认字体回退、全部既有文字尺寸、13 项间距、首页 28dp / 18dp 形状、玻璃 12–32dp 半径与按压 / 转场 / 弹簧参数。
+- 将玻璃半径、形状和动效的旧访问器改为兼容 facade，统一委托到新的 Shape / Motion Token；未改 Backdrop 1.0.6、Shapes 1.2.0、GlassMaterialState、DataStore 或 PREMIUM / STANDARD / LITE / OFF / CUSTOM 性能档位。
+- Color 暴露现有品牌 / 表面 / 文字 / 描边值、选中容器色，以及 Material 3 当前默认的 error / tertiary 语义角色；没有凭空新增 success / warning 色值。
+- Elevation 收集当前 4dp / 6dp / 10dp 阴影；Material 定义 Canvas / Soft Surface / Flow Glass / Overlay 角色和阅读优先策略；Interaction 覆盖 IDLE / PRESSED / SELECTED / DISABLED / FOCUSED / LOADING / ERROR 七种状态、48dp 触控目标、2dp 焦点描边、0.12 pressed / selected alpha 和 0.38 disabled alpha；Motion 收录 120 / 180 / 220 / 280ms 时序及现有 spring；Layout 记录现有 68dp Dock 和固定层边界。
+- 新增 `DesignTokenContractTest`，覆盖颜色、Typography、Spacing、Shape、Elevation、Material、Motion、Interaction、Layout、Theme 入口及旧访问器兼容。
+- 未修改 MainActivity、页面、导航、Gradle 依赖、玻璃渲染器或业务代码；未执行真机视觉 / 性能验收。
+
+**CI：** Build #488（Run ID `44404842628`）完整 success；`:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin` 和 `:app:assembleDebug` 均通过，Debug Artifact `14472694324`（31,223,507 bytes）。CI 编译了 androidTest 源码，但没有执行设备 instrumentation / 模拟器或真机验收。
+
+**下一步：** F3 整页回弹独立原型；先验证整体位移 / 回弹与手势协调，不迁移业务页面。
+
+### 28.2 F2：Zhixing Flow Components & Design Gallery（2026-11-21）
+
+F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最终提交 `14a51148d1b407a17329b3500b536d3beeedb674`，Build #499（Run ID `44826734182`）完整 success。
+
+**本步实现：**
+
+- 新增 `ui/components` 基础组件：`ZhixingSurface`（普通浅色 Surface，不创建 Backdrop）、`ZhixingButton`、`ZhixingInput`、`ZhixingListRow`、`ZhixingSegmentedControl`、`ZhixingSheet`（仅内容容器，显隐由上层负责）、`ZhixingResultPanel`。
+- Button / ListRow 使用既有 Motion Tokens 提供按压缩放与状态色过渡；Button 增加 2dp 焦点描边和“已聚焦 / 加载中 / 已选中”状态语义。
+- SegmentedControl 使用 selectableGroup / RadioButton 语义；ListRow 暴露选中态与按钮角色；Input 统一 label / supporting / error / disabled / focused 反馈；Sheet 标题提供 heading 语义；ResultPanel 提供结果 / 错误状态描述。
+- 新增独立 `DesignGalleryScreen`，提供 390dp 手机与 720dp 宽屏 Preview；宽度小于 600dp 单列，达到 600dp 切换双列。Gallery 未注册到 MainActivity 或导航。
+- 新增 `DesignGalleryLayoutTest` 2 项 JVM 测试，覆盖 599dp / 600dp 布局断点；新增 `ZhixingComponentsTest` 5 项 Compose UI 测试，覆盖点击 / 禁用 / 加载、选中状态、焦点语义、输入错误与结果错误。当前 CI 编译 androidTest 源码，但不启动模拟器执行这些仪器测试。
+
+**兼容与范围：**
+
+- 不修改现有业务页面、MainActivity、导航、App Shell、资源、Gradle 依赖或数学 Domain。
+- 不改 Backdrop 1.0.6、Shapes 1.2.0、GlassMaterialState、DataStore、玻璃算法与性能分级；新 `ZhixingSurface` 明确不执行玻璃采样 / 模糊 / 折射。
+- 不改变 F1 设计令牌、现有字体和既有视觉数值；组件直接消费已存在的 Token。
+- PR #92 保持 open，main 仍为 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`；未合并。
+
+**CI：** Build #499 完整 success；`:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传均通过。Debug Artifact `14673652163`，31,277,617 bytes。未执行模拟器 / 真机 instrumentation tests，也未做目标设备视觉 / 触控验收。
+
+**下一步：** F3 整页回弹独立原型；先验证内容 viewport 整体位移与回弹、反向接管和嵌套控件协调，Dock / 系统栏 / IME 固定在内容变换层之外。F3 不提前迁移页面。
+

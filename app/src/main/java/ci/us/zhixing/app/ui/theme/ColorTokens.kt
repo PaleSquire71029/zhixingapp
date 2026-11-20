@@ -3,24 +3,49 @@ package ci.us.zhixing.app.ui.theme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
-/**
- * 知行浅色配色基线。
- *
- * 本次只集中管理既有颜色，不调整任何颜色值或页面视觉效果。
- * 后续颜色变更应优先在这里进行，并保持浅色外观。
- */
+/** Zhixing Light palette. Values remain identical to the pre-F1 theme. */
+internal object ZhixingColorTokens {
+    val primary = Color(0xFF4D7187)
+    val onPrimary = Color.White
+    val primaryContainer = Color(0xFFDCEAF1)
+    val onPrimaryContainer = Color(0xFF1E3948)
+    val secondary = Color(0xFF92775B)
+    val onSecondary = Color.White
+    val background = Color(0xFFF5F8FB)
+    val onBackground = Color(0xFF202D37)
+    val surface = Color(0xFFFFFFFF)
+    val onSurface = Color(0xFF202D37)
+    val surfaceVariant = Color(0xFFEDF2F6)
+    val onSurfaceVariant = Color(0xFF687985)
+    val outline = Color(0xFFD6E0E7)
+    val selectedContainer = primary.copy(alpha = 0.12f)
+
+    // Material 3 semantic roles retain their existing lightColorScheme defaults.
+    val error: Color get() = ZhixingLightColors.error
+    val onError: Color get() = ZhixingLightColors.onError
+    val errorContainer: Color get() = ZhixingLightColors.errorContainer
+    val onErrorContainer: Color get() = ZhixingLightColors.onErrorContainer
+    val tertiary: Color get() = ZhixingLightColors.tertiary
+    val onTertiary: Color get() = ZhixingLightColors.onTertiary
+    val tertiaryContainer: Color get() = ZhixingLightColors.tertiaryContainer
+    val onTertiaryContainer: Color get() = ZhixingLightColors.onTertiaryContainer
+    val outlineVariant: Color get() = ZhixingLightColors.outlineVariant
+    val scrim: Color get() = ZhixingLightColors.scrim
+}
+
+/** Existing Material 3 scheme, now sourced from the shared palette. */
 internal val ZhixingLightColors = lightColorScheme(
-    primary = Color(0xFF4D7187),
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFDCEAF1),
-    onPrimaryContainer = Color(0xFF1E3948),
-    secondary = Color(0xFF92775B),
-    onSecondary = Color.White,
-    background = Color(0xFFF5F8FB),
-    onBackground = Color(0xFF202D37),
-    surface = Color(0xFFFFFFFF),
-    onSurface = Color(0xFF202D37),
-    surfaceVariant = Color(0xFFEDF2F6),
-    onSurfaceVariant = Color(0xFF687985),
-    outline = Color(0xFFD6E0E7),
+    primary = ZhixingColorTokens.primary,
+    onPrimary = ZhixingColorTokens.onPrimary,
+    primaryContainer = ZhixingColorTokens.primaryContainer,
+    onPrimaryContainer = ZhixingColorTokens.onPrimaryContainer,
+    secondary = ZhixingColorTokens.secondary,
+    onSecondary = ZhixingColorTokens.onSecondary,
+    background = ZhixingColorTokens.background,
+    onBackground = ZhixingColorTokens.onBackground,
+    surface = ZhixingColorTokens.surface,
+    onSurface = ZhixingColorTokens.onSurface,
+    surfaceVariant = ZhixingColorTokens.surfaceVariant,
+    onSurfaceVariant = ZhixingColorTokens.onSurfaceVariant,
+    outline = ZhixingColorTokens.outline,
 )
