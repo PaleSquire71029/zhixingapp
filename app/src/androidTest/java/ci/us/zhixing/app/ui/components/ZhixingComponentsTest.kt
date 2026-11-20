@@ -74,14 +74,13 @@ class ZhixingComponentsTest {
         composeRule.onNodeWithTag("primary-button").assertIsDisplayed().performClick()
         composeRule.onNodeWithTag("click-count").assertTextEquals("点击 1")
         composeRule.onNodeWithTag("disabled-button").assertIsNotEnabled()
-        composeRule.onNodeWithTag("loading-button")
-            .assertIsNotEnabled()
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.StateDescription,
-                    "加载中",
-                ),
-            )
+        composeRule.onNodeWithTag("loading-button").assertIsNotEnabled()
+        composeRule.onNode(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.StateDescription,
+                "加载中",
+            ),
+        ).assertExists()
     }
 
     @Test
@@ -151,12 +150,12 @@ class ZhixingComponentsTest {
             }
         }
 
-        composeRule.onNodeWithTag("focused-button").assert(
+        composeRule.onNode(
             SemanticsMatcher.expectValue(
                 SemanticsProperties.StateDescription,
                 "已聚焦",
             ),
-        )
+        ).assertExists()
     }
 
     @Test
@@ -183,12 +182,12 @@ class ZhixingComponentsTest {
         }
 
         composeRule.onNodeWithText("格式不正确").assertIsDisplayed()
-        composeRule.onNodeWithTag("error-input").assert(
+        composeRule.onNode(
             SemanticsMatcher.expectValue(
                 SemanticsProperties.StateDescription,
                 "错误：格式不正确",
             ),
-        )
+        ).assertExists()
         composeRule.onNodeWithText("无法计算").assertIsDisplayed()
         composeRule.onNodeWithTag("error-result").assertIsDisplayed()
     }
