@@ -1,6 +1,7 @@
 package ci.us.zhixing.app.navigation
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -42,4 +43,38 @@ class AppDestinationTest {
             assertTrue(destination.description.isNotBlank())
         }
     }
+    @Test
+    fun typedRootRoutesMatchLegacyTabOrderAndRouteNames() {
+        val routes = AppRootRoute.values().sortedBy { it.destinationIndex }
+
+        assertEquals(
+            listOf("calculator", "ai", "tools", "my"),
+            routes.map { it.route },
+        )
+        assertEquals(listOf(0, 1, 2, 3), routes.map { it.destinationIndex })
+        assertEquals(AppRootRoute.CALCULATOR, AppRootRoute.fromIndex(0))
+        assertEquals(AppRootRoute.MY, AppRootRoute.fromIndex(3))
+    }
+
+    @Test
+    fun typedSecondaryRoutesKeepLegacyRouteAndSaveableKeys() {
+        assertEquals("my-material", AppSecondaryRoute.MATERIAL.saveableStateKey)
+        assertEquals("my-history", AppSecondaryRoute.HISTORY.saveableStateKey)
+        assertEquals("unit-converter", AppSecondaryRoute.UNIT_CONVERTER.saveableStateKey)
+
+        assertEquals(AppSecondaryRoute.MATERIAL, AppSecondaryRoute.fromRoute("material"))
+        assertEquals(AppSecondaryRoute.HISTORY, AppSecondaryRoute.fromRoute("history"))
+        assertEquals(
+            AppSecondaryRoute.UNIT_CONVERTER,
+            AppSecondaryRoute.fromRoute("unit-converter"),
+        )
+        assertNull(AppSecondaryRoute.fromRoute("unknown"))
+    }
+
+    @Test
+    fun invalidLegacyTabIndexFallsBackToCalculator() {
+        assertEquals(AppRootRoute.CALCULATOR, AppRootRoute.fromIndex(-1))
+        assertEquals(AppRootRoute.CALCULATOR, AppRootRoute.fromIndex(99))
+    }
+
 }

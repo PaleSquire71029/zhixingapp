@@ -47,6 +47,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestinations
+import ci.us.zhixing.app.navigation.AppRootRoute
+import ci.us.zhixing.app.navigation.AppSecondaryRoute
 import ci.us.zhixing.app.ui.glass.BackdropHost
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialSettingsStore
@@ -69,8 +71,12 @@ import kotlinx.coroutines.launch
 internal fun ZhixingAppRoot(
     materialSettingsStore: GlassMaterialSettingsStore,
 ) {
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
-    var mySubpage by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedRootRoute by rememberSaveable(stateSaver = AppRootRoute.saver) {
+        mutableStateOf(AppRootRoute.CALCULATOR)
+    }
+    var activeSubpage by rememberSaveable(stateSaver = AppSecondaryRoute.saver) {
+        mutableStateOf<AppSecondaryRoute?>(null)
+    }
     val saveableStateHolder = rememberSaveableStateHolder()
     // Do not draw a default-material frame before DataStore has restored the
     // user's actual optical values. That first-frame swap used to make every
@@ -102,14 +108,15 @@ internal fun ZhixingAppRoot(
         }
     }
     val destinations = AppDestinations.all
+    val selectedIndex = selectedRootRoute.destinationIndex
     val selectedDestination = destinations[selectedIndex]
 
     ZhixingTheme {
-        BackHandler(enabled = mySubpage != null) {
-            mySubpage = null
+        BackHandler(enabled = activeSubpage != null) {
+            activeSubpage = null
         }
         AnimatedContent(
-            targetState = mySubpage,
+            targetState = activeSubpage,
             transitionSpec = {
                 (
                     fadeIn(tween(230)) +
@@ -124,9 +131,11 @@ internal fun ZhixingAppRoot(
             label = "zhixingSecondaryPageTransition",
         ) { activeSubpage ->
         when (activeSubpage) {
-            "material" -> saveableStateHolder.SaveableStateProvider("my-material") {
+            AppSecondaryRoute.MATERIAL -> saveableStateHolder.SaveableStateProvider(
+                AppSecondaryRoute.MATERIAL.saveableStateKey,
+            ) {
                 GlassLabScreen(
-                    onBack = { mySubpage = null },
+                    onBack = { activeSubpage = null },
                     initialMaterial = glassMaterial,
                     onMaterialChange = { material ->
                         previewMaterial = material
@@ -145,15 +154,19 @@ internal fun ZhixingAppRoot(
                     },
                 )
             }
-            "history" -> saveableStateHolder.SaveableStateProvider("my-history") {
-                HistoryScreen(onBack = { mySubpage = null })
+            AppSecondaryRoute.HISTORY -> saveableStateHolder.SaveableStateProvider(
+                AppSecondaryRoute.HISTORY.saveableStateKey,
+            ) {
+                HistoryScreen(onBack = { activeSubpage = null })
             }
-            "unit-converter" -> saveableStateHolder.SaveableStateProvider("unit-converter") {
+            AppSecondaryRoute.UNIT_CONVERTER -> saveableStateHolder.SaveableStateProvider(
+                AppSecondaryRoute.UNIT_CONVERTER.saveableStateKey,
+            ) {
                 BackdropHost(modifier = Modifier.fillMaxSize()) { backdrop ->
                     UnitConverterScreen(
                         backdrop = backdrop,
                         material = glassMaterial,
-                        onBack = { mySubpage = null },
+                        onBack = { activeSubpage = null },
                     )
                 }
             }
@@ -180,7 +193,7 @@ internal fun ZhixingAppRoot(
                     containerColor = Color.Transparent,
                 ) { innerPadding ->
                     Box(modifier = Modifier.fillMaxSize()) {
-                    if (selectedDestination.route == "my") {
+                    if (selectedRootRoute == AppRootRoute.MY) {
                         saveableStateHolder.SaveableStateProvider("root-my") {
                             MyScreen(
                                 backdrop = backdrop,
@@ -188,11 +201,11 @@ internal fun ZhixingAppRoot(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(innerPadding),
-                                onOpenHistory = { mySubpage = "history" },
-                                onOpenMaterial = { mySubpage = "material" },
+                                onOpenHistory = { activeSubpage = AppSecondaryRoute.HISTORY },
+                                onOpenMaterial = { activeSubpage = AppSecondaryRoute.MATERIAL },
                             )
                         }
-                    } else if (selectedDestination.route == "tools") {
+                    } else if (selectedRootRoute == AppRootRoute.TOOLS) {
                         saveableStateHolder.SaveableStateProvider("root-tools") {
                             ToolsDirectoryScreen(
                                 backdrop = backdrop,
@@ -200,11 +213,11 @@ internal fun ZhixingAppRoot(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(innerPadding),
-                                onOpenUnitConverter = { mySubpage = "unit-converter" },
+                                onOpenUnitConverter = { activeSubpage = AppSecondaryRoute.UNIT_CONVERTER },
                             )
                         }
                     } else {
-                        saveableStateHolder.SaveableStateProvider("root-${selectedDestination.route}") {
+                        saveableStateHolder.SaveableStateProvider(selectedRootRoute.saveableStateKey) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -328,7 +341,9 @@ internal fun ZhixingAppRoot(
                                 material = glassMaterial,
                                 destinations = destinations,
                                 selectedIndex = selectedIndex,
-                                onDestinationSelected = { selectedIndex = it },
+                                onDestinationSelected = {
+                                    selectedRootRoute = AppRootRoute.fromIndex(it)
+                                },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(68.dp),
