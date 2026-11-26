@@ -1,6 +1,8 @@
 package ci.us.zhixing.app.navigation
 
+import androidx.compose.runtime.mutableStateOf
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -75,6 +77,50 @@ class AppDestinationTest {
     fun invalidLegacyTabIndexFallsBackToCalculator() {
         assertEquals(AppRootRoute.CALCULATOR, AppRootRoute.fromIndex(-1))
         assertEquals(AppRootRoute.CALCULATOR, AppRootRoute.fromIndex(99))
+    }
+
+    @Test
+    fun appNavigationStateOpensSecondaryAndBackReturnsToCurrentRoot() {
+        val state = AppNavigationState(
+            rootRouteState = mutableStateOf(AppRootRoute.TOOLS),
+            secondaryRouteState = mutableStateOf(null),
+        )
+
+        state.openSecondary(AppSecondaryRoute.UNIT_CONVERTER)
+        assertTrue(state.canNavigateBack)
+        assertEquals(AppRootRoute.TOOLS, state.rootRoute)
+        assertEquals(AppSecondaryRoute.UNIT_CONVERTER, state.secondaryRoute)
+
+        assertTrue(state.navigateBack())
+        assertFalse(state.canNavigateBack)
+        assertEquals(AppRootRoute.TOOLS, state.rootRoute)
+        assertEquals(null, state.secondaryRoute)
+    }
+
+    @Test
+    fun selectingRootTabClosesSecondaryAndUpdatesDockIndex() {
+        val state = AppNavigationState(
+            rootRouteState = mutableStateOf(AppRootRoute.CALCULATOR),
+            secondaryRouteState = mutableStateOf(AppSecondaryRoute.MATERIAL),
+        )
+
+        state.selectRoot(AppRootRoute.AI.destinationIndex)
+
+        assertEquals(AppRootRoute.AI, state.rootRoute)
+        assertEquals(1, state.selectedRootIndex)
+        assertEquals(null, state.secondaryRoute)
+        assertFalse(state.canNavigateBack)
+    }
+
+    @Test
+    fun backWithoutSecondaryPageDoesNothing() {
+        val state = AppNavigationState(
+            rootRouteState = mutableStateOf(AppRootRoute.CALCULATOR),
+            secondaryRouteState = mutableStateOf(null),
+        )
+
+        assertFalse(state.navigateBack())
+        assertEquals(AppRootRoute.CALCULATOR, state.rootRoute)
     }
 
 }
