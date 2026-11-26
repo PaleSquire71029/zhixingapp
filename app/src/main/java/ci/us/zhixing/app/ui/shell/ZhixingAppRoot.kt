@@ -46,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestinations
 import ci.us.zhixing.app.navigation.AppNavigationState
+import ci.us.zhixing.app.navigation.AppRootRoute
 import ci.us.zhixing.app.navigation.AppSecondaryRoute
 import ci.us.zhixing.app.navigation.rememberAppNavigationState
 import ci.us.zhixing.app.navigation.AppSecondaryRoute
