@@ -1,8 +1,8 @@
 # 知行原生界面框架重建与设计语言规划
 
 > 版本：1.0  
-> 制定日期：2026-11-21  
-> 当前基线：PR #92 的 docs/ui-first-calculator-roadmap 分支；main 仍保持 165a0ca2 基线，F0–F2 尚未合并  
+> 制定日期：2026-11-27  
+> 当前基线：PR #92 的 docs/ui-first-calculator-roadmap 分支；main 仍保持 165a0ca2 基线，F0–F3 原型尚未合并  
 > 目标设备：iQOO Neo5 活力版（竖屏优先，兼顾 60Hz / 120Hz）  
 > 技术：Kotlin + Jetpack Compose + AndroidX  
 > 设计方向：**知行·流序（Zhixing Flow）**  
@@ -542,6 +542,13 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 
 ### 9.3 F3：整页回弹原型
 
+**实现状态（2026-11-27）：独立代码原型已提交并通过 Build #506；目标设备验收未完成。**
+
+- `ZhixingRigidOverscrollPhysics` 提供像素级阻尼、位移夹取、反向手势释放、fling 起始投影和无滚动范围判定。
+- `ZhixingRigidOverscrollEffect` 使用一个 Compose Foundation `OverscrollEffect` owner；`ZhixingPageScrollContainer` 保持真实 ScrollState 不越界，只在单个外层 graphicsLayer 设置 translationY，最大位移 48dp。
+- 松手 / fling 后使用现有 Motion Spring Token 回位；内容不够滚动时不制造回弹；横向 delta 不由页面效果吞掉。
+- `ZhixingScrollPrototypeScreen` 是独立长内容实验页；Debug-only `ZhixingScrollLabActivity` 通过 `zhixing://scroll-lab` 打开，不接入正式导航 / MainActivity，Release 不包含该入口。
+- 测试：8 项 JVM 物理 / 边界单测，3 项 Compose 手势 / viewport androidTest 源码。Build #506（Run ID `45859680761`）通过全部 JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传；CI 未启动模拟器执行 androidTest。
 - 使用独立演示页面，不在所有业务页面上直接实验。
 - 分别验证顶端、底端、短拖、长拖、高速 fling、反向拖动和嵌套控件。
 - 先确保内容整体位移与回弹正确，再调阻尼、最大位移和弹簧。
@@ -615,13 +622,15 @@ CI 通过不等于真机验收通过。玻璃光学效果、整页回弹手感�
 
 ## 12. 当前执行边界与下一步
 
-截至 2026-11-21：
+截至 2026-11-27：
 
-- F0 静态审计、F1 九类 Tokens / Theme 契约、F2 七个基础组件与独立 Design Gallery 均已完成。
-- F2 最终代码提交 `14a51148d1b407a17329b3500b536d3beeedb674`；Build #499（Run ID `44826734182`）完整 success。
+- F0 静态审计、F1 九类 Tokens / Theme 契约、F2 七个基础组件与 Design Gallery 已完成。
+- F3 独立代码原型已提交：`ZhixingRigidOverscrollPhysics`、`ZhixingRigidOverscrollEffect`、`ZhixingPageScrollContainer`、`ZhixingScrollPrototypeScreen`；Debug-only `ZhixingScrollLabActivity` 使用 `zhixing://scroll-lab` 深链打开。
+- F3 当前实现使用一个 Foundation OverscrollEffect 和一个外层 graphicsLayer；真实 ScrollState 不越界，页面只作最多 48dp 的 Y 轴刚性平移，不缩放 / 拉伸；反向手势先释放位移；无滚动范围时不产生回弹。
+- 新增 8 项 JVM 物理 / 边界测试和 3 项 Compose 手势 / viewport 测试。Build #506（Run ID `45859680761`）完整 success；Debug Artifact [15138440787](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45859680761/artifacts/15138440787)，31,319,661 bytes。
+- 当前 CI 只编译 androidTest 源码，不运行模拟器 instrumentation tests；iQOO Neo5 活力版的顶底边界、快速 fling、反向接管、IME、嵌套控件、60Hz / 120Hz 实测仍待完成。
 - PR #92 仍 open、未合并；main 仍为 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。
-- Backdrop 1.0.6、Shapes 1.2.0、玻璃控件与 DataStore、材质设置、性能分级、单位换算、数学 Domain 和已验收 Dock 必须保留。
-- F2 Gallery 不接入导航；不迁移现有业务页面、不改 MainActivity / 导航、不改玻璃算法、不增加依赖。
-- Compose UI 测试已添加并由 CI 编译，但当前 Android workflow 不运行模拟器 instrumentation tests；目标设备的滚动与全页回弹尚未测试。
+- Backdrop 1.0.6、Shapes 1.2.0、玻璃控件与 DataStore、材质设置、性能分级、单位换算、数学 Domain 和已验收 Dock 保持不变。
+- F3 不修改 MainActivity、正式导航、现有业务页面、玻璃算法或 Gradle 依赖；F3 完成设备验收后再进入 F4 / F5。
 
-**下一步进入 F3：** 独立实现整页回弹原型，验证 viewport 整体位移、顶底边界、反向接管和嵌套控件；禁止页面拉伸和卡片独立缩放。Dock / 系统栏 / IME 不跟随内容层变换。F3 原型完成并通过目标设备验收后，才进入 F4 / F5 页面迁移。
+**下一步：** 在目标设备打开 Debug APK 的 Scroll Lab，检查顶部 / 底部短拖与长拖、高速 fling、回弹中反向接管、横向 Chips / Slider / Switch / 输入框、IME 弹出收起、固定 Header / Footer、60Hz / 120Hz 帧感与 Dock / 系统栏是否保持独立。根据真机表现微调阻尼 / 弹簧，再决定是否封装为正式 `ZhixingScrollContainer`。不提前迁移页面。

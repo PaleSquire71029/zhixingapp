@@ -144,6 +144,14 @@ Compose Foundation 的 OverscrollEffect API 为自定义 overscroll 提供 scrol
 
 F3 独立原型必须同时提供单元测试、Compose UI 手势测试与 iQOO Neo5 活力版真机验收。完成后才封装成通用 ZhixingScrollContainer。
 
+### 5.6 F3 原型实现记录（2026-11-27）
+
+- 已提交 `ZhixingRigidOverscrollPhysics` / `ZhixingRigidOverscrollEffect` / `ZhixingPageScrollContainer`，基于当前 Compose Foundation `OverscrollEffect` API；Build #506（Run ID `45859680761`）完整 success。
+- 单个 effect 负责 scroll / fling 剩余量；真实 ScrollState 保持在边界内；单个外层 graphicsLayer 仅更新 `translationY`，最大 48dp；不改测量尺寸、无缩放 / 拉伸。
+- 反向手势优先释放现有 viewport 位移；没有滚动范围时禁用 overscroll，尺寸 / IME 变化导致内容不可滚动时清零旧偏移；内层横向 delta 不被消费。
+- Scroll Lab 由 Debug-only Activity 暴露，深链 `zhixing://scroll-lab`；不接入正式导航，Release 不包含。
+- 已有 8 项 JVM 物理 / 边界测试和 3 项 Compose 手势 / viewport 测试。当前 workflow 只编译 androidTest 源码，不执行模拟器 / 真机测试；iQOO Neo5 活力版 60Hz / 120Hz 与真实 IME / Dock 行为仍待验收。
+
 ## 6. 动画系统与性能规则
 
 - 每个视觉状态对象只允许一个主动画状态 owner；避免多个 LaunchedEffect 对同一位移值竞争。
