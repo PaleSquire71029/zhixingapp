@@ -1,11 +1,7 @@
 package ci.us.zhixing.app.navigation
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 
 /**
  * Owns root-tab and secondary-page navigation state for the Zhixing Flow shell.
@@ -48,23 +44,5 @@ internal class AppNavigationState internal constructor(
         if (!canNavigateBack) return false
         closeSecondary()
         return true
-    }
-}
-
-/** Creates the single navigation-state owner for one Zhixing Flow root. */
-@Composable
-internal fun rememberAppNavigationState(): AppNavigationState {
-    val rootRouteState = rememberSaveable(stateSaver = AppRootRoute.saver) {
-        mutableStateOf(AppRootRoute.CALCULATOR)
-    }
-    val secondaryRouteState = rememberSaveable(stateSaver = AppSecondaryRoute.saver) {
-        mutableStateOf<AppSecondaryRoute?>(null)
-    }
-
-    return remember(rootRouteState, secondaryRouteState) {
-        AppNavigationState(
-            rootRouteState = rootRouteState,
-            secondaryRouteState = secondaryRouteState,
-        )
     }
 }

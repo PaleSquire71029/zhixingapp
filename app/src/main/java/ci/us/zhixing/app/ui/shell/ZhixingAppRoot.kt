@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
@@ -48,7 +49,6 @@ import ci.us.zhixing.app.navigation.AppDestinations
 import ci.us.zhixing.app.navigation.AppNavigationState
 import ci.us.zhixing.app.navigation.AppRootRoute
 import ci.us.zhixing.app.navigation.AppSecondaryRoute
-import ci.us.zhixing.app.navigation.rememberAppNavigationState
 import ci.us.zhixing.app.ui.glass.BackdropHost
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialSettingsStore
@@ -71,8 +71,21 @@ import kotlinx.coroutines.launch
 internal fun ZhixingAppRoot(
     materialSettingsStore: GlassMaterialSettingsStore,
 ) {
-    val navigationState = rememberAppNavigationState()
+    // Keep both saveable calls at the root Shell level and in their original
+    // order so Compose's positional saveable-state slots remain stable.
+    val rootRouteState = rememberSaveable(stateSaver = AppRootRoute.saver) {
+        mutableStateOf(AppRootRoute.CALCULATOR)
+    }
+    val secondaryRouteState = rememberSaveable(stateSaver = AppSecondaryRoute.saver) {
+        mutableStateOf<AppSecondaryRoute?>(null)
+    }
     val saveableStateHolder = rememberSaveableStateHolder()
+    val navigationState = remember(rootRouteState, secondaryRouteState) {
+        AppNavigationState(
+            rootRouteState = rootRouteState,
+            secondaryRouteState = secondaryRouteState,
+        )
+    }
     // Do not draw a default-material frame before DataStore has restored the
     // user's actual optical values. That first-frame swap used to make every
     // backdrop surface visibly flash when the app cold-started.
