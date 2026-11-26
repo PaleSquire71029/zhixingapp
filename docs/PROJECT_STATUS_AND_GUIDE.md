@@ -1,6 +1,6 @@
 # 知行 Android App 项目操作指南与历史交接记录
 
-> **核对日期：2026-11-21（UTC+8）**  
+> **核对日期：2026-11-27（UTC+8）**  
 > **仓库：** PaleSquire71029/zhixingapp  
 > **默认分支：** main  
 > **当前 UI 开发分支：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
@@ -10,7 +10,7 @@
 
 ## 1. 先看结论
 
-本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；主壳、导航和材质已有实现基线。用户已决定先重建 UI 框架「知行·流序」，再迁移页面与数学功能。F0 静态代码审计、F1 九类 Design Tokens / Theme 契约、F2 核心组件库与独立 Design Gallery 均已完成，交付记录见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md)；F0 审计和决策分别记录在 [UI_FRAMEWORK_AUDIT.md](./UI_FRAMEWORK_AUDIT.md) 与 [UI_FRAMEWORK_DECISIONS.md](./UI_FRAMEWORK_DECISIONS.md)，逐页保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。用户已决定先重建整个 UI 框架，建立知行自有设计语言、统一动效、组件与整页滚动回弹，再迁移计算器和其他页面。执行入口见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，其后才执行 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。
+本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；当前按 Zhixing Flow F0–F4 分阶段重建 UI。F0 静态审计、F1 九类 Design Tokens / Theme 契约、F2 七类基础组件与 Design Gallery 已完成；F3 整页刚性回弹原型经用户确认设备体验无问题，记录为验收通过。F4.1 已将 Activity 与 Shell 根内容拆分（Build #509 success）；F4.2 已将一级 / 二级路由类型化并保持旧状态恢复格式（Build #511 success）。当前正进入 F4.3 AppNavigationState 与返回 / 恢复测试，业务页面尚未迁移。项目权威进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md)，主规划见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，行为保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。
 
 **本文件是开发与交接方法手册，不是进度账本。** 当前代码实现、构建 / Artifact、真机验收和下一步只在 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 记录；当前计算器任务顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 为准；既有 C0–C8 数学内核的算法契约和历史验收见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)。长期产品范围见 [ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md) 与各专项规划。
 
@@ -91,7 +91,7 @@
 
 ## 3. 已经做了什么
 
-**Zhixing Flow F0–F2 已完成，F3 整页刚性回弹原型已提交到 PR #92 分支；Build #506（Run ID `45859680761`）完整 success。** F1 建立九类设计令牌与主题契约；F2 新增七个基础组件、独立 Design Gallery、2 项 JVM 布局测试和 5 项 Compose UI 交互 / 语义测试。F3 新增单一 Foundation OverscrollEffect 页面容器、48dp 上限的刚性 viewport 位移、反向手势释放、短内容不回弹保护、独立 Scroll Lab 和 Debug-only 深链入口 `zhixing://scroll-lab`；新增 8 项 JVM 测试和 3 项 Compose 手势测试。CI 完整执行 JVM 单元测试、编译 Android 测试源码、组装 Debug APK 并上传 Artifact，但不会运行模拟器 instrumentation tests。PR #92 仍 open，main 未合并；没有修改 MainActivity / 正式导航、玻璃算法、材质设置、性能分级或 Gradle 依赖。目标设备 iQOO Neo5 活力版验收仍待完成。详细进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+**Zhixing Flow F0–F3 已完成，F4 App Shell / Navigation 重建进行中。** F3 的独立整页刚性回弹原型通过 Build #506；用户安装测试后反馈体验没有问题，目标设备验收按用户确认记录为通过。F4.1 将根 Compose 内容搬到 `ui/shell/ZhixingAppRoot.kt`，Activity 保留 Window / Insets / adjustResize / setContent（Build #509 success）。F4.2 新增 `AppRootRoute` / `AppSecondaryRoute`，并以 Saver 保留旧 Tab 索引、二级 route 字符串及 SaveableStateHolder key；新增 3 项 JVM 导航测试（Build #511 success）。当前 workflow 编译 androidTest 源码，不自动运行模拟器 instrumentation tests。PR #92 仍 open，main 尚未合并；没有替换 Dock / Backdrop、增加导航依赖或迁移业务页面。下一步 F4.3 独立 AppNavigationState 与返回 / 恢复测试。详细进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 **液态玻璃专项执行路线已于 2026-11-01 重置：** 以用户上传的 Backdrop Catalog APK 为视觉 / 交互基准，锁定上游 tag 1.0.6，直接移植官方 LiquidBottomTabs、DampedDragAnimation、InteractiveHighlight、LiquidButton、LiquidSlider、LiquidToggle 等源码；不升级 Backdrop 2.x，不复制整套 Demo App。详细步骤见 [LIQUID_GLASS_REDESIGN_PLAN.md 第 25 节](./LIQUID_GLASS_REDESIGN_PLAN.md)。
 

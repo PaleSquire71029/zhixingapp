@@ -13,7 +13,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-27）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。用户已决定不在现有 UI 上继续堆功能，而是先重建一套知行自有的 UI 框架。当前路线为：F0–F7 框架审计、设计语言、组件库、整页式回弹、App Shell 和页面迁移；完成后再执行计算器 UI-1–UI-10，并在界面稳定后补齐数学能力。详细方案见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 与 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。F0 已完成 main 165a0ca 的静态代码审计与技术决策；F1 已在 PR #92 分支完成九类 Design Tokens、Theme 扩展和契约测试；F2 已新增七个基础组件、独立 Design Gallery 与交互 / 无障碍测试。F1 / F2 均保持旧主题访问器与现有视觉值，不迁移页面、不改变玻璃实现。当前 PR #92 仍 open，main 尚未包含本轮 UI 框架代码。F3 原型代码已提交并通过 Build #506；目标设备截图、手感和 60Hz / 120Hz 行为仍未验证，必须在 F3 设备验收通过后才能进入 F4 / F5。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前进度（核对至 2026-11-27）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。用户已决定不在现有 UI 上继续堆功能，而是先重建一套知行自有的 UI 框架。当前路线为：F0–F7 框架审计、设计语言、组件库、整页式回弹、App Shell 和页面迁移；完成后再执行计算器 UI-1–UI-10，并在界面稳定后补齐数学能力。详细方案见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 与 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。F0 已完成 main 165a0ca 的静态代码审计与技术决策；F1 已在 PR #92 分支完成九类 Design Tokens、Theme 扩展和契约测试；F2 已新增七个基础组件、独立 Design Gallery 与交互 / 无障碍测试。F1 / F2 均保持旧主题访问器与现有视觉值，不迁移页面、不改变玻璃实现。当前 PR #92 仍 open，main 尚未包含本轮 UI 框架代码。F3 原型代码已通过 Build #506，用户安装测试后反馈体验没有问题，按用户确认记录为目标设备验收通过。F4.1 将根 UI 从 MainActivity 拆至 ui/shell，Build #509 完整 success；F4.2 新增类型化一级 / 二级 Destination，并以 Saver 兼容旧索引 / route 恢复，Build #511 完整 success。当前进入 F4.3 AppNavigationState 与返回 / 状态恢复分离，尚未迁移业务页面。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -27,19 +27,19 @@
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
 | 原生单位换算页面 | C8.8.2 交互完善已通过 CI；真机验收暂缓 | 完整等式复制、清除、输入中间态 / 长度边界、窄屏纵向选择、TalkBack 语义；Build #428 成功；未执行设备验收 |
-| UI 框架重建 | **F0–F2 完成；F3 原型已实现，设备验收待做** | F3 使用 Foundation OverscrollEffect + 单一 viewport graphicsLayer；8 项 JVM 测试、3 项 Compose 手势测试；Build #506 完整 success。未迁移页面 / 未改 MainActivity、正式导航或玻璃算法 |
+| UI 框架重建 | **F0–F3 完成；F4 App Shell 重建进行中** | F3 用户确认设备体验无问题；F4.1 Activity / Root UI 分离（Build #509）；F4.2 类型化路由与旧状态兼容测试（Build #511）；业务页面未迁移 |
 | 完整计算器主页面 | 未完成；等待新框架 | 框架迁移完成后实施 UI-1–UI-3；不把独立单位换算工具页算作完整计算主页 |
 | 专用数学输入 / QuestionDocument | 分阶段实施 | 先交付基础表达式编辑与应用内键盘；复杂题目文档、嵌套模板和符号搜索排在 UI-9 |
 | 函数图像 UI | 未完成；UI-7 规划中 | 首轮接入现有拟合 / 采样；Compose 曲线、坐标轴、视口和交互待实现 |
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #506 | [Artifact 15138440787](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45859680761/artifacts/15138440787)，31,319,661 bytes；F3 Scroll Lab Debug 构建，JVM 测试、Android 测试源码编译、Debug APK 组装和上传完整通过；PR #92 仍未合并 main |
+| 最新 Debug APK | Build #511 | [Artifact 15138253363](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45862127405/artifacts/15138253363)，31,318,815 bytes；F4.2 typed navigation 分支 Debug 构建，JVM 测试、Android 测试源码编译、Debug APK 组装与上传均通过；PR #92 仍未合并 main |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 ### 当前执行阶段（2026-11-27）
 
-**当前入口为 Zhixing Flow F3：整页刚性回弹原型验收。** F0 静态审计、F1 九类 Tokens / Theme 契约、F2 七个基础组件与 Design Gallery 均已完成。F3 已新增独立页面级 `ZhixingRigidOverscrollEffect`、纯 Kotlin `ZhixingRigidOverscrollPhysics`、`ZhixingPageScrollContainer` 和 `ZhixingScrollPrototypeScreen`；仅 Debug 构建含 `ZhixingScrollLabActivity`，可通过 `zhixing://scroll-lab` 打开，不接入正式导航。内容 ScrollState 始终保持合法范围，视觉只在一个外层 graphicsLayer 作最多 48dp 的 translationY，不缩放 / 拉伸；反向手势先释放 viewport offset，短内容不产生回弹。Build #506（Run ID `45859680761`）完整 success：Markdown 检查、资源检查、`:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与清理全部通过。新增 8 项 JVM 物理 / 边界测试和 3 项 Compose 手势 / viewport 测试；当前 workflow 只编译 androidTest 源码，没有运行模拟器 / 真机 instrumentation tests。F3 尚未完成 iQOO Neo5 活力版设备验收，尤其是底部边界、高速 fling、回弹中反向接管、IME 尺寸变化、横向嵌套控件和 60Hz / 120Hz 流畅度。MainActivity、正式导航、玻璃算法、材质设置和性能档位均未改；无 Gradle 依赖新增。F3 目标设备验收通过后才进入 F4 / F5。
+**当前入口为 Zhixing Flow F4：App Shell / Navigation 重建。** F0–F2 foundations 与基础组件已完成；F3 使用单一 Foundation OverscrollEffect 和一个外层 graphicsLayer 实现整页刚性位移，用户安装 Debug Scroll Lab 后反馈体验没有问题，按用户确认记录为目标设备验收通过。F4.1 已将原根 Compose 内容搬到 `ui/shell/ZhixingAppRoot.kt`，MainActivity 只处理系统窗口 / Insets / adjustResize / setContent；Build #509 完整 success。F4.2 新增 `AppRootRoute` / `AppSecondaryRoute`，把四个一级 Tab 与三个二级页面改成类型化 enum；自定义 Saver 保留旧的 Tab 整数索引、二级 route 字符串和现有 SaveableStateHolder key；新增 3 项路由兼容 JVM 测试；Build #511（Run ID `45862127405`）完整 success，JVM 单测、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和清理全部通过。Android workflow 只编译 androidTest 源码，不运行模拟器 instrumentation tests。当前不改 Dock 视觉、Backdrop / Glass 算法、材质 DataStore、四个入口顺序或业务页面；不新增导航依赖，不提前迁移页面。下一小步是独立 AppNavigationState 和返回 / 恢复状态测试，随后才封装 Dock overlay 与 page viewport。
 
 ### 初始工程检查历史快照（非当前进度）
 
@@ -2312,3 +2312,26 @@ F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最
 
 **下一步：** F3 整页回弹独立原型；先验证内容 viewport 整体位移与回弹、反向接管和嵌套控件协调，Dock / 系统栏 / IME 固定在内容变换层之外。F3 不提前迁移页面。
 
+
+
+### 28.3 F3：整页刚性回弹设备验收记录（2026-11-27）
+
+- F3 代码原型与自动化构建已由 Build #506 完整验收；Debug Scroll Lab 提供独立入口 `zhixing://scroll-lab`。
+- 用户安装测试后明确回复“继续，没问题”；据此将目标设备体验记录为用户确认通过。
+- 自动化边界保持明确：CI 编译了 3 项 Compose instrumentation 测试源码，但没有在模拟器执行这些测试；本条设备通过状态来自用户实际体验反馈，不将源码编译当成触控测试。
+
+### 28.4 F4.1：MainActivity 与 Shell 根内容拆分（2026-11-27）
+
+- 将原 `ZhixingApp` 根 Composable、现有页面展示与辅助 Surface 搬到 `ui/shell/ZhixingAppRoot.kt`；不改变内部导航状态、DataStore 恢复顺序、Backdrop Host、页面转场、Dock 和页面业务。
+- `MainActivity` 只保留 Window / Edge-to-edge / 系统栏图标对比度 / adjustResize 和 setContent，玻璃设置 Store 仍由 Activity 创建并注入。
+- Build #509（Run ID `45861464968`）完整 success：JVM 单测、Android 测试源码编译、Debug APK 组装与 Artifact 上传通过。
+
+### 28.5 F4.2：类型化根 / 二级路由（2026-11-27）
+
+- 新增 `AppRootRoute` 与 `AppSecondaryRoute`，路由值、Tab index、SaveableStateHolder key 集中定义；Shell 按 enum 分支，不再直接比较裸 route 字符串。
+- 一级根路由 Saver 继续以旧整数索引序列化；二级路由 Saver 继续以旧字符串序列化；根 / 二级页面的既有 saveable keys 保持不变，便于恢复已有保存状态。
+- 新增 3 项 JVM 测试，覆盖根路由顺序 / 索引、二级旧 route / state key 和非法索引回退。
+- Build #510 因 AnimatedContent 参数遮蔽外层可写状态而失败；重命名 lambda 参数为 `pageRoute` 后，Build #511（Run ID `45862127405`）完整 success。
+- Debug Artifact：15138253363（31,318,815 bytes）；Build #511 编译 Android 测试源码但不执行模拟器 / 真机 instrumentation tests。
+
+**下一步：** F4.3 将一级 Tab / 二级页状态封装为独立 AppNavigationState，测试 Tab 选择、二级页进入 / 返回、系统 Back 和进程重建后的状态恢复；仍不迁移业务页面。

@@ -53,6 +53,15 @@ F4 完成后，MainActivity 只做：
 
 AppState、路由、Dock、页面容器、状态恢复和页面转场移入独立文件。F4 前不提前拆 MainActivity。
 
+
+### 2.3 F4.1 / F4.2 App Shell 拆分记录（2026-11-27）
+
+- F4.1 已将根 UI 从 `MainActivity.kt` 搬到 `ui/shell/ZhixingAppRoot.kt`；Activity 只配置 Window / Edge-to-edge / 系统栏对比度 / adjustResize 并调用 setContent。Build #509（Run ID `45861464968`）完整 success。
+- F4.2 新增类型化 `AppRootRoute` / `AppSecondaryRoute`，一级 Tab 顺序与旧整数索引一致，二级 route 字符串和 SaveableStateHolder keys 保持不变；使用 Saver 接入 `rememberSaveable`，保留旧状态恢复格式。
+- 新增 3 项 JVM 测试，覆盖根路由索引 / 顺序、二级 route / state key 和非法索引回退。Build #511（Run ID `45862127405`）完整 success；Build #510 的 lambda 参数遮蔽编译问题已在后续提交修正。
+- 不引入 Navigation 3 或其他 Gradle 依赖；不改变四个入口顺序、Dock、Backdrop、材质设置、页面内容或数学 Domain。
+- 下一步 F4.3 独立 AppNavigationState，覆盖 Tab / 二级页 / Back / 进程恢复行为，再封装 Dock overlay 和 viewport。
+
 ## 3. 导航决策：暂不使用 Navigation 3
 
 当前只有 4 个 Tab 和 3 个单层二级页面，二级返回只需退出到对应根 Tab；没有深链、多层页面栈、多个独立返回栈或复杂结果传递。当前路由仅为字符串，确实需要在 F4 建立类型安全的 Destination / DetailRoute，但没有必要现在额外引入导航框架。
@@ -150,7 +159,7 @@ F3 独立原型必须同时提供单元测试、Compose UI 手势测试与 iQOO 
 - 单个 effect 负责 scroll / fling 剩余量；真实 ScrollState 保持在边界内；单个外层 graphicsLayer 仅更新 `translationY`，最大 48dp；不改测量尺寸、无缩放 / 拉伸。
 - 反向手势优先释放现有 viewport 位移；没有滚动范围时禁用 overscroll，尺寸 / IME 变化导致内容不可滚动时清零旧偏移；内层横向 delta 不被消费。
 - Scroll Lab 由 Debug-only Activity 暴露，深链 `zhixing://scroll-lab`；不接入正式导航，Release 不包含。
-- 已有 8 项 JVM 物理 / 边界测试和 3 项 Compose 手势 / viewport 测试。当前 workflow 只编译 androidTest 源码，不执行模拟器 / 真机测试；iQOO Neo5 活力版 60Hz / 120Hz 与真实 IME / Dock 行为仍待验收。
+- 已有 8 项 JVM 物理 / 边界测试和 3 项 Compose 手势 / viewport 测试。当前 workflow 只编译 androidTest 源码，不执行模拟器 / 真机测试；用户安装测试后反馈体验无问题，F3 目标设备验收按用户确认通过。
 
 ## 6. 动画系统与性能规则
 

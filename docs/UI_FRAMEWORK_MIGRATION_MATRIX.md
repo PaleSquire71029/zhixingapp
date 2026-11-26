@@ -1,8 +1,8 @@
 # Zhixing Flow 页面迁移与行为保留矩阵
 
 > 基线：main 165a0ca2ff77aeae0868d8dbd2087c09cd9e6260  
-> 更新：2026-11-21  
-> 原则：先建立框架，再逐页迁移；只迁 UI，不重写 domain。F1 / F2 foundations 与组件已落地，但现有页面仍未迁移；旧页面只有在替代页通过回归后才清理。
+> 更新：2026-11-27  
+> 原则：先建立框架，再逐页迁移；只迁 UI，不重写 domain。F0–F3 已完成，F4.1 / F4.2 已通过 CI；现有业务页面仍未迁移，旧页面只有在替代页通过回归后才清理。
 
 ## 1. 页面映射总表
 
@@ -87,7 +87,7 @@
 
 ## 4. App Shell 与系统行为保留
 
-F4 对照当前实现逐项回归：
+F4 当前进度：F4.1 已拆分 MainActivity / Root UI，F4.2 已完成类型化一级 / 二级 route 与旧 Saver 格式兼容；Build #509 / #511 完整 success。后续 F4.3 先封装 AppNavigationState，再逐项回归：
 
 - 四个一级入口和选中状态。
 - 一级 Tab 切换与 Dock 胶囊移动。
@@ -103,8 +103,8 @@ F4 对照当前实现逐项回归：
 
 1. F1 Foundations：所有后续页面可引用一致的 tokens；不动旧页。
 2. F2 Components（已完成）：七个基础 primitives / patterns 与独立 gallery 已建立；现有页面仍保持原样。
-3. F3 Overscroll：独立完成整页回弹原型和目标设备验收，再封装 ScrollContainer。
-4. F4 App Shell：拆分 MainActivity、typed routes、AppState、Dock overlay / page viewport。
+3. F3 Overscroll：独立回弹原型与目标设备体验已由用户确认通过；统一 ScrollContainer 已实现，后续页面接入时回归。
+4. F4 App Shell：F4.1 Activity / Shell root split、F4.2 typed routes 已完成；继续 AppState、Back / restore、Dock overlay / page viewport。
 5. F5 Existing screens：工具目录 → 我的 / 历史 / 材质设置 → 单位换算。
 6. F6 Core experience：计算工作区 → AI 工作区 → 方程 / 不等式 / 函数等工具页。
 7. F7 Stabilization：无障碍、窄屏、IME、60Hz / 120Hz、滚动、性能、状态恢复与旧代码清理。

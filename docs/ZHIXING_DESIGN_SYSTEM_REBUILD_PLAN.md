@@ -2,7 +2,7 @@
 
 > 版本：1.0  
 > 制定日期：2026-11-27  
-> 当前基线：PR #92 的 docs/ui-first-calculator-roadmap 分支；main 仍保持 165a0ca2 基线，F0–F3 原型尚未合并  
+> 当前基线：PR #92 的 docs/ui-first-calculator-roadmap 分支；main 仍保持 165a0ca2 基线，F0–F4.2 尚未合并  
 > 目标设备：iQOO Neo5 活力版（竖屏优先，兼顾 60Hz / 120Hz）  
 > 技术：Kotlin + Jetpack Compose + AndroidX  
 > 设计方向：**知行·流序（Zhixing Flow）**  
@@ -542,13 +542,13 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 
 ### 9.3 F3：整页回弹原型
 
-**实现状态（2026-11-27）：独立代码原型已提交并通过 Build #506；目标设备验收未完成。**
+**实现状态（2026-11-27）：独立代码原型通过 Build #506；用户安装测试后反馈体验无问题，按用户确认记录为设备验收通过。**
 
 - `ZhixingRigidOverscrollPhysics` 提供像素级阻尼、位移夹取、反向手势释放、fling 起始投影和无滚动范围判定。
 - `ZhixingRigidOverscrollEffect` 使用一个 Compose Foundation `OverscrollEffect` owner；`ZhixingPageScrollContainer` 保持真实 ScrollState 不越界，只在单个外层 graphicsLayer 设置 translationY，最大位移 48dp。
 - 松手 / fling 后使用现有 Motion Spring Token 回位；内容不够滚动时不制造回弹；横向 delta 不由页面效果吞掉。
 - `ZhixingScrollPrototypeScreen` 是独立长内容实验页；Debug-only `ZhixingScrollLabActivity` 通过 `zhixing://scroll-lab` 打开，不接入正式导航 / MainActivity，Release 不包含该入口。
-- 测试：8 项 JVM 物理 / 边界单测，3 项 Compose 手势 / viewport androidTest 源码。Build #506（Run ID `45859680761`）通过全部 JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传；CI 未启动模拟器执行 androidTest。
+- 测试：8 项 JVM 物理 / 边界单测，3 项 Compose 手势 / viewport androidTest 源码。Build #506（Run ID `45859680761`）通过全部 JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传；CI 未启动模拟器执行 androidTest。用户安装测试后反馈体验无问题，因此设备验收状态按用户确认关闭。
 - 使用独立演示页面，不在所有业务页面上直接实验。
 - 分别验证顶端、底端、短拖、长拖、高速 fling、反向拖动和嵌套控件。
 - 先确保内容整体位移与回弹正确，再调阻尼、最大位移和弹簧。
@@ -557,11 +557,15 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 
 ### 9.4 F4：App Shell / Nav 重建
 
-- MainActivity 缩减为系统窗口配置和 setContent。
-- 统一 AppState、目的地、子页面栈、预测性返回和状态恢复。
-- 底部玻璃 Dock 作为独立导航层，不进入页面滚动图层。
+**实现状态（2026-11-27）：F4.1 / F4.2 已完成代码实现并通过 CI；F4.3 进行中。**
+
+- **F4.1 MainActivity 职责拆分：** 根 Compose 内容搬至 `ui/shell/ZhixingAppRoot.kt`；Activity 只保留 Window / Edge-to-edge / 系统栏对比度 / adjustResize / setContent，玻璃设置 Store 仍由 Activity 创建并注入。Build #509（Run ID `45861464968`）完整 success。
+- **F4.2 类型化路由：** 新增 `AppRootRoute` / `AppSecondaryRoute`，以 enum 取代 Shell 内散落的一级 / 二级 route 字符串比较；Saver 继续使用旧一级 Tab 整数索引、二级 route 字符串，SaveableStateHolder keys 保持原样。新增 3 项 JVM 路由兼容测试。Build #511（Run ID `45862127405`）完整 success；Build #510 曾因 AnimatedContent 参数遮蔽状态变量而失败，修复为 `pageRoute` 后 Build #511 通过。
+- **F4.3 下一步：** 提取独立 AppNavigationState，覆盖一级 Tab 选择、二级页进入 / 返回、系统 Back 与进程重建恢复；保持旧状态 Saver 兼容。
+- 后续将底部玻璃 Dock 作为独立导航层，不进入页面滚动图层；拆分 Dock overlay / page viewport / transition owner。
 - 页面只向 Shell 提供内容和必要状态，不再持有全局导航实现。
 - 对照旧行为验证四个一级 Tab、历史、材质、单位换算及系统返回。
+- F4 只重构 App Shell / 导航边界，不迁移业务页面，不修改数学 Domain、Backdrop / Glass 算法、材质 DataStore 或四个入口的显示顺序。
 
 ### 9.5 F5–F6：逐页迁移
 
@@ -625,12 +629,12 @@ CI 通过不等于真机验收通过。玻璃光学效果、整页回弹手感�
 截至 2026-11-27：
 
 - F0 静态审计、F1 九类 Tokens / Theme 契约、F2 七个基础组件与 Design Gallery 已完成。
-- F3 独立代码原型已提交：`ZhixingRigidOverscrollPhysics`、`ZhixingRigidOverscrollEffect`、`ZhixingPageScrollContainer`、`ZhixingScrollPrototypeScreen`；Debug-only `ZhixingScrollLabActivity` 使用 `zhixing://scroll-lab` 深链打开。
+- F3 独立代码原型已提交：`ZhixingRigidOverscrollPhysics`、`ZhixingRigidOverscrollEffect`、`ZhixingPageScrollContainer`、`ZhixingScrollPrototypeScreen`；Debug-only `ZhixingScrollLabActivity` 使用 `zhixing://scroll-lab` 深链打开；用户测试后确认没有问题，设备验收状态按用户确认通过。
 - F3 当前实现使用一个 Foundation OverscrollEffect 和一个外层 graphicsLayer；真实 ScrollState 不越界，页面只作最多 48dp 的 Y 轴刚性平移，不缩放 / 拉伸；反向手势先释放位移；无滚动范围时不产生回弹。
 - 新增 8 项 JVM 物理 / 边界测试和 3 项 Compose 手势 / viewport 测试。Build #506（Run ID `45859680761`）完整 success；Debug Artifact [15138440787](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45859680761/artifacts/15138440787)，31,319,661 bytes。
 - 当前 CI 只编译 androidTest 源码，不运行模拟器 instrumentation tests；iQOO Neo5 活力版的顶底边界、快速 fling、反向接管、IME、嵌套控件、60Hz / 120Hz 实测仍待完成。
 - PR #92 仍 open、未合并；main 仍为 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。
 - Backdrop 1.0.6、Shapes 1.2.0、玻璃控件与 DataStore、材质设置、性能分级、单位换算、数学 Domain 和已验收 Dock 保持不变。
-- F3 不修改 MainActivity、正式导航、现有业务页面、玻璃算法或 Gradle 依赖；F3 完成设备验收后再进入 F4 / F5。
+- F3 不修改业务页面、正式导航、玻璃算法或 Gradle 依赖；用户确认 F3 设备体验无问题后进入 F4。F4.1 / F4.2 已完成；当前继续 F4.3，不提前迁移页面。
 
-**下一步：** 在目标设备打开 Debug APK 的 Scroll Lab，检查顶部 / 底部短拖与长拖、高速 fling、回弹中反向接管、横向 Chips / Slider / Switch / 输入框、IME 弹出收起、固定 Header / Footer、60Hz / 120Hz 帧感与 Dock / 系统栏是否保持独立。根据真机表现微调阻尼 / 弹簧，再决定是否封装为正式 `ZhixingScrollContainer`。不提前迁移页面。
+**下一步：** F4.3 提取 AppNavigationState，覆盖四个 Tab、二级页进入 / 返回、系统 Back 与进程重建恢复；保持现有 `AppRootRoute` / `AppSecondaryRoute` Saver 的旧状态兼容，再拆分 Dock overlay / page viewport。

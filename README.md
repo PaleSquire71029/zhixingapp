@@ -8,7 +8,7 @@
 > **当前 UI 开发：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **当前工程版本：** 0.1.2 / versionCode 3  
 > **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
-> **当前 UI 框架 CI：** [Build #506](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45859680761)（PR #92 F3 原型；JVM 单元测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过）  
+> **当前 UI 框架 CI：** [Build #511](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45862127405)（PR #92 F4.2；导航类型化、兼容测试、JVM 单测、Android 测试源码编译、Debug APK 组装与上传完整通过）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -36,14 +36,14 @@
 | 函数工具内核 | **C7.1–C7.6 已完成** | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
 | 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
-| Zhixing Flow UI 框架 | **F0–F2 完成；F3 原型已实现，待真机验收** | 九类 Tokens、7 个基础组件、Design Gallery、整页刚性回弹独立原型；Build #506 完整 success；PR #92 仍 open，尚未合并 |
+| Zhixing Flow UI 框架 | **F0–F3 已完成；F4 App Shell 重建进行中** | F3 整页回弹原型经用户确认设备体验无问题；F4.1 MainActivity 拆分、F4.2 类型化路由已通过 Build #509 / #511；PR #92 仍 open，尚未合并 |
 | 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：Zhixing Flow F3 整页刚性回弹原型验收。** F0–F2 已完成；F3 已新增 Compose Foundation `OverscrollEffect` 页面级实现：真实 `ScrollState` 保持边界内，整页内容仅通过一个外层 `graphicsLayer.translationY` 作有界刚性平移，不缩放、不拉伸；反向手势先释放当前位移，再将剩余手势交还内容滚动；不可滚动的短内容不产生回弹。原型包含独立 `ZhixingScrollPrototypeScreen`，仅 Debug 构建提供 `ZhixingScrollLabActivity`，可用 `zhixing://scroll-lab` 打开，不接入 MainActivity / 正式导航。Build #506（Run ID `45859680761`）完整 success，包含 JVM 测试、Android 测试源码编译、Debug APK 组装和 Artifact 上传。CI 不会运行模拟器 instrumentation tests；iQOO Neo5 活力版的 60Hz / 120Hz、长列表、fling、反向接管、IME 和真实 Dock / 系统栏协调仍待设备验收。完成设备验收前不进入 F4 / F5，不迁移业务页面。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。数学内核继续保持稳定基线。
+**当前工作重心：Zhixing Flow F4 App Shell / Navigation 重建。** F0–F2 foundations 与组件库、F3 整页刚性回弹原型均已完成；用户安装 F3 Debug APK 测试后反馈体验无问题，按用户确认记录为设备验收通过。F4.1 已将 Activity 缩减为系统窗口 / Insets / IME 配置与 `setContent`，原有根 UI 移至 `ui/shell/ZhixingAppRoot.kt`（Build #509 完整 success）；F4.2 新增 `AppRootRoute` / `AppSecondaryRoute` 和兼容旧索引 / route 的 Saver，补充导航单测（Build #511 完整 success）。当前仅重构 Shell / 导航状态，不迁移业务页面，不改四个入口、Dock 视觉、Backdrop / Liquid Glass 算法或数学 Domain。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。数学内核继续保持稳定基线。
 
 ---
 
@@ -64,7 +64,14 @@
 - 反向手势先释放已有位移，再把剩余 delta 交还内容；没有可滚动范围时不产生空白回弹；横向 delta 保留给内层横向控件。
 - 新增独立 `ZhixingScrollPrototypeScreen` 与 Debug-only `ZhixingScrollLabActivity`，使用 `zhixing://scroll-lab` 深链打开；Release 不包含该 Activity，未修改 MainActivity / 正式导航。
 - 新增 8 项 JVM 物理 / 边界测试和 3 项 Compose 手势 / viewport 测试。Build #506（Run ID `45859680761`）完整 success；Debug Artifact 15138440787（31,319,661 bytes，SHA-256 `b6d7f404bf30edcf9208a93a2a8c1a8836d224053f2e64fea9e5fbf1f28d3b13`）。
-- CI 编译了 3 项 Android instrumentation 测试源码，但没有启动模拟器执行它们。目标设备的顶 / 底边界、快速 fling、回弹中反向接管、IME、60Hz / 120Hz 和真实 Dock / 系统栏协调尚未验收；F3 仍处于原型阶段。
+- CI 编译了 3 项 Android instrumentation 测试源码，但没有启动模拟器执行它们。用户在目标设备安装测试后确认体验没有问题；未把自动化源码编译误记为模拟器测试执行。
+
+### 2026-11-27：Zhixing Flow F4.1 / F4.2 App Shell 与导航基础重构
+
+- F4.1 将原有根 Compose 内容从 `MainActivity.kt` 移到 `ui/shell/ZhixingAppRoot.kt`；Activity 只处理 Edge-to-edge、系统栏对比度、adjustResize 和 setContent。Build #509 完整 success。
+- F4.2 新增 `AppRootRoute` / `AppSecondaryRoute`，根 Tab 与二级页切换由 enum 表达；Saver 保留旧 Tab 整数索引、二级 route 字符串及 SaveableStateHolder key。
+- 新增 3 项路由 / 旧状态兼容 JVM 测试；Build #511（Run ID `45862127405`）完整 success，JVM 测试、Android 测试源码编译、Debug APK 组装和 Artifact 上传均通过。
+- 保留现有四入口顺序、Dock / Backdrop / 材质设置、页面内容、二级转场与返回行为；未引入 Navigation 3 或新增 Gradle 依赖，尚未迁移业务页面。
 
 ### 1. 2026-10-31：项目启动与 Android 原生基础
 
