@@ -54,8 +54,6 @@ import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialSettingsStore
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.ZhixingGlassSurface
-import ci.us.zhixing.app.ui.glass.ZhixingCatalogBottomBar
-import ci.us.zhixing.app.ui.glass.ZhixingLiquidBottomBarPlacement
 import ci.us.zhixing.app.ui.lab.GlassLabScreen
 import ci.us.zhixing.app.ui.history.HistoryScreen
 import ci.us.zhixing.app.ui.my.MyScreen
@@ -348,20 +346,13 @@ internal fun ZhixingAppRoot(
                     }
                         }
                     }
-                    Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-                        ZhixingLiquidBottomBarPlacement {
-                            ZhixingCatalogBottomBar(
-                                backdrop = backdrop,
-                                material = glassMaterial,
-                                destinations = destinations,
-                                selectedIndex = selectedIndex,
-                                onDestinationSelected = navigationState::selectRoot,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(68.dp),
-                            )
-                        }
-                    }
+                    ZhixingDockOverlay(
+                        backdrop = backdrop,
+                        material = glassMaterial,
+                        destinations = destinations,
+                        selectedIndex = selectedIndex,
+                        onDestinationSelected = navigationState::selectRoot,
+                    )
                     }
                 }
             }
