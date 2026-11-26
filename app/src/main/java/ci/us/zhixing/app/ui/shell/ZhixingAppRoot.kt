@@ -1,14 +1,5 @@
 package ci.us.zhixing.app.ui.shell
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.tween
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -121,20 +112,8 @@ internal fun ZhixingAppRoot(
         BackHandler(enabled = navigationState.canNavigateBack) {
             navigationState.closeSecondary()
         }
-        AnimatedContent(
+        ZhixingSecondaryPageTransition(
             targetState = navigationState.secondaryRoute,
-            transitionSpec = {
-                (
-                    fadeIn(tween(230)) +
-                        slideInHorizontally(tween(280)) { it / 9 } +
-                        scaleIn(initialScale = 0.985f, animationSpec = tween(280))
-                    ) togetherWith (
-                    fadeOut(tween(170)) +
-                        slideOutHorizontally(tween(220)) { -it / 14 } +
-                        scaleOut(targetScale = 0.99f, animationSpec = tween(220))
-                    )
-            },
-            label = "zhixingSecondaryPageTransition",
         ) { pageRoute ->
         when (pageRoute) {
             AppSecondaryRoute.MATERIAL -> saveableStateHolder.SaveableStateProvider(
