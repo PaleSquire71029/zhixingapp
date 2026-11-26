@@ -13,7 +13,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-27）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。用户已决定不在现有 UI 上继续堆功能，而是先重建一套知行自有的 UI 框架。当前路线为：F0–F7 框架审计、设计语言、组件库、整页式回弹、App Shell 和页面迁移；完成后再执行计算器 UI-1–UI-10，并在界面稳定后补齐数学能力。详细方案见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 与 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。F0 已完成 main 165a0ca 的静态代码审计与技术决策；F1 已在 PR #92 分支完成九类 Design Tokens、Theme 扩展和契约测试；F2 已新增七个基础组件、独立 Design Gallery 与交互 / 无障碍测试。F1 / F2 均保持旧主题访问器与现有视觉值，不迁移页面、不改变玻璃实现。当前 PR #92 仍 open，main 尚未包含本轮 UI 框架代码。F3 原型代码已通过 Build #506，用户安装测试后反馈体验没有问题，按用户确认记录为目标设备验收通过。F4.1 将根 UI 从 MainActivity 拆至 ui/shell，Build #509 完整 success；F4.2 新增类型化一级 / 二级 Destination，并以 Saver 兼容旧索引 / route 恢复，Build #511 完整 success。当前进入 F4.3 AppNavigationState 与返回 / 状态恢复分离，尚未迁移业务页面。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前进度（核对至 2026-11-27）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。用户已决定不在现有 UI 上继续堆功能，而是先重建一套知行自有的 UI 框架。当前路线为：F0–F7 框架审计、设计语言、组件库、整页式回弹、App Shell 和页面迁移；完成后再执行计算器 UI-1–UI-10，并在界面稳定后补齐数学能力。详细方案见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 与 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。F0 已完成 main 165a0ca 的静态代码审计与技术决策；F1 已在 PR #92 分支完成九类 Design Tokens、Theme 扩展和契约测试；F2 已新增七个基础组件、独立 Design Gallery 与交互 / 无障碍测试。F1 / F2 均保持旧主题访问器与现有视觉值，不迁移页面、不改变玻璃实现。当前 PR #92 仍 open，main 尚未包含本轮 UI 框架代码。F3 原型代码已通过 Build #506，用户安装测试后反馈体验没有问题，按用户确认记录为目标设备验收通过。F4.1 将根 UI 从 MainActivity 拆至 ui/shell，Build #509 完整 success；F4.2 新增类型化一级 / 二级 Destination 并以 Saver 兼容旧索引 / route（Build #511）；F4.3 抽出 AppNavigationState、保留 Shell 根层原有两个 rememberSaveable 槽位与 StateHolder 顺序，新增 3 项状态转移测试（Build #516）；F4.4a 提取固定 Dock overlay（Build #518）。当前进入 F4.4b 页面 viewport 与 Dock sibling 分层，尚未迁移业务页面。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -27,19 +27,19 @@
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
 | 原生单位换算页面 | C8.8.2 交互完善已通过 CI；真机验收暂缓 | 完整等式复制、清除、输入中间态 / 长度边界、窄屏纵向选择、TalkBack 语义；Build #428 成功；未执行设备验收 |
-| UI 框架重建 | **F0–F3 完成；F4 App Shell 重建进行中** | F3 用户确认设备体验无问题；F4.1 Activity / Root UI 分离（Build #509）；F4.2 类型化路由与旧状态兼容测试（Build #511）；业务页面未迁移 |
+| UI 框架重建 | **F0–F3 完成；F4 Shell / Navigation 进行中** | F4.1 Activity split（#509）、F4.2 typed routes（#511）、F4.3 AppNavigationState / 3 项状态测试（#516）、F4.4a Dock overlay（#518）均通过；业务页面未迁移 |
 | 完整计算器主页面 | 未完成；等待新框架 | 框架迁移完成后实施 UI-1–UI-3；不把独立单位换算工具页算作完整计算主页 |
 | 专用数学输入 / QuestionDocument | 分阶段实施 | 先交付基础表达式编辑与应用内键盘；复杂题目文档、嵌套模板和符号搜索排在 UI-9 |
 | 函数图像 UI | 未完成；UI-7 规划中 | 首轮接入现有拟合 / 采样；Compose 曲线、坐标轴、视口和交互待实现 |
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #511 | [Artifact 15138253363](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45862127405/artifacts/15138253363)，31,318,815 bytes；F4.2 typed navigation 分支 Debug 构建，JVM 测试、Android 测试源码编译、Debug APK 组装与上传均通过；PR #92 仍未合并 main |
+| 最新 Debug APK | Build #518 | [Artifact 15139212037](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45863814661/artifacts/15139212037)，31,321,224 bytes；F4.4a Dock overlay extraction，JVM 测试、Android 测试源码编译、Debug APK 组装和上传完整通过；PR #92 仍未合并 main |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 ### 当前执行阶段（2026-11-27）
 
-**当前入口为 Zhixing Flow F4：App Shell / Navigation 重建。** F0–F2 foundations 与基础组件已完成；F3 使用单一 Foundation OverscrollEffect 和一个外层 graphicsLayer 实现整页刚性位移，用户安装 Debug Scroll Lab 后反馈体验没有问题，按用户确认记录为目标设备验收通过。F4.1 已将原根 Compose 内容搬到 `ui/shell/ZhixingAppRoot.kt`，MainActivity 只处理系统窗口 / Insets / adjustResize / setContent；Build #509 完整 success。F4.2 新增 `AppRootRoute` / `AppSecondaryRoute`，把四个一级 Tab 与三个二级页面改成类型化 enum；自定义 Saver 保留旧的 Tab 整数索引、二级 route 字符串和现有 SaveableStateHolder key；新增 3 项路由兼容 JVM 测试；Build #511（Run ID `45862127405`）完整 success，JVM 单测、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传和清理全部通过。Android workflow 只编译 androidTest 源码，不运行模拟器 instrumentation tests。当前不改 Dock 视觉、Backdrop / Glass 算法、材质 DataStore、四个入口顺序或业务页面；不新增导航依赖，不提前迁移页面。下一小步是独立 AppNavigationState 和返回 / 恢复状态测试，随后才封装 Dock overlay 与 page viewport。
+**当前入口为 Zhixing Flow F4：App Shell / Navigation 重建。** F0–F2 foundations 与基础组件已完成；F3 使用单一 Foundation OverscrollEffect 和一个外层 graphicsLayer 实现整页刚性位移，用户安装 Debug Scroll Lab 后反馈体验没有问题，按用户确认记录为目标设备验收通过。F4.1 已将原根 Compose 内容搬到 `ui/shell/ZhixingAppRoot.kt`，MainActivity 只处理系统窗口 / Insets / adjustResize / setContent；Build #509 完整 success。F4.2 新增 `AppRootRoute` / `AppSecondaryRoute`，把四个一级 Tab 与三个二级页面改成类型化 enum；Saver 保留旧的 Tab 整数索引、二级 route 字符串和既有 SaveableStateHolder key；新增 3 项路由兼容 JVM 测试；Build #511（Run ID `45862127405`）完整 success。F4.3 新增 `AppNavigationState` 管理根 Tab / 二级页打开关闭 / Back，新增 3 项 JVM 状态转移测试；两条 `rememberSaveable` 调用仍位于 Shell 根 Composable 原位置与原顺序，`rememberSaveableStateHolder` 顺序不变，状态类只包装既有 MutableState；Build #516（Run ID `45863354210`）完整 success。F4.4a 把固定 Dock wrapper 提取到 `ZhixingDockOverlay.kt`，复用原 Dock、Backdrop、材质、四入口和 68dp 高度；Build #518（Run ID `45863814661`）完整 success。Android workflow 只编译 androidTest 源码，不运行模拟器 instrumentation tests。F4 仍只整理 Shell / Navigation / 固定层边界，不改 Dock 视觉、Backdrop / Glass 算法、材质 DataStore、四个入口顺序或业务页面，不新增导航依赖，不迁移业务页面。下一小步 F4.4b 将页面 viewport 与固定 Dock sibling 分层。
 
 ### 初始工程检查历史快照（非当前进度）
 
@@ -2335,3 +2335,20 @@ F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最
 - Debug Artifact：15138253363（31,318,815 bytes）；Build #511 编译 Android 测试源码但不执行模拟器 / 真机 instrumentation tests。
 
 **下一步：** F4.3 将一级 Tab / 二级页状态封装为独立 AppNavigationState，测试 Tab 选择、二级页进入 / 返回、系统 Back 和进程重建后的状态恢复；仍不迁移业务页面。
+
+
+### 28.6 F4.3：AppNavigationState 与旧保存槽位兼容（2026-11-27）
+
+- 新增 `AppNavigationState`，统一管理 `AppRootRoute` / `AppSecondaryRoute` 的读取和操作：一级 Tab 选择、二级页打开 / 关闭、Back 能力与 Back 结果。
+- 新增 3 项 JVM 状态转移测试：二级页打开后 Back 返回原根 Tab；选择根 Tab 时关闭二级页并更新 Dock index；没有二级页时 Back 无状态变化。
+- 两条 `rememberSaveable` 调用保留在 `ZhixingAppRoot` 根 Composable 的原位置 / 原顺序，`rememberSaveableStateHolder` 仍排在其后；`AppNavigationState` 只包装 MutableState，不增加新的 Saveable composable 层级。
+- Build #515 验证 AppNavigationState 与状态测试 success；保存槽位位置收紧后的最终版本由 Build #516（Run ID `45863354210`）完整 success。Debug Artifact 15138024765（31,319,453 bytes）。
+
+### 28.7 F4.4a：固定 Dock overlay 独立提取（2026-11-27）
+
+- 新增 `ui/shell/ZhixingDockOverlay.kt`，把根 Shell 内固定 Dock 的定位 wrapper 独立封装，调用处只提供 Backdrop、GlassMaterialState、AppDestinations、selected index 与选择回调。
+- 内部仍复用 `ZhixingLiquidBottomBarPlacement` 和 `ZhixingCatalogBottomBar`；68dp 高度、Backdrop 共享实例、材质、四入口顺序、Dock 胶囊与点击回调保持不变。
+- 不改 Dock 动画、Insets / IME 避让、Backdrop / Glass 实现或系统栏配置；仅改变代码职责归属。
+- Build #517 进行首次提取验证；Build #518（Run ID `45863814661`）最终版本完整 success。Debug Artifact 15139212037（31,321,224 bytes，SHA-256 `6ded753757237e5945dff083d10441672a30a3d38cb35474e7ea79bf90d6ee3a`）。
+
+**下一步：** F4.4b 将页面 viewport 从 Shell 根布局中封装为独立 sibling 内容层，与固定 Dock overlay 明确分离；先只移动代码归属，不改页面滚动、Insets、IME、底部留白或 Dock 动画。

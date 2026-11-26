@@ -8,7 +8,7 @@
 > **当前 UI 开发：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **当前工程版本：** 0.1.2 / versionCode 3  
 > **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
-> **当前 UI 框架 CI：** [Build #511](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45862127405)（PR #92 F4.2；导航类型化、兼容测试、JVM 单测、Android 测试源码编译、Debug APK 组装与上传完整通过）  
+> **当前 UI 框架 CI：** [Build #518](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45863814661)（PR #92 F4.4a；Dock overlay 独立提取，JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -36,14 +36,14 @@
 | 函数工具内核 | **C7.1–C7.6 已完成** | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
 | 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
-| Zhixing Flow UI 框架 | **F0–F3 已完成；F4 App Shell 重建进行中** | F3 整页回弹原型经用户确认设备体验无问题；F4.1 MainActivity 拆分、F4.2 类型化路由已通过 Build #509 / #511；PR #92 仍 open，尚未合并 |
+| Zhixing Flow UI 框架 | **F0–F3 已完成；F4 Shell 重建进行中** | F4.1 Activity / Root UI 分离（#509）、F4.2 类型化路由（#511）、F4.3 AppNavigationState（#516）、F4.4a Dock overlay 提取（#518）均通过 CI；PR #92 仍 open，未合并 |
 | 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：Zhixing Flow F4 App Shell / Navigation 重建。** F0–F2 foundations 与组件库、F3 整页刚性回弹原型均已完成；用户安装 F3 Debug APK 测试后反馈体验无问题，按用户确认记录为设备验收通过。F4.1 已将 Activity 缩减为系统窗口 / Insets / IME 配置与 `setContent`，原有根 UI 移至 `ui/shell/ZhixingAppRoot.kt`（Build #509 完整 success）；F4.2 新增 `AppRootRoute` / `AppSecondaryRoute` 和兼容旧索引 / route 的 Saver，补充导航单测（Build #511 完整 success）。当前仅重构 Shell / 导航状态，不迁移业务页面，不改四个入口、Dock 视觉、Backdrop / Liquid Glass 算法或数学 Domain。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。数学内核继续保持稳定基线。
+**当前工作重心：Zhixing Flow F4 App Shell / Navigation 重建。** F0–F2 foundations 与组件库、F3 整页刚性回弹原型均已完成；用户安装 F3 Debug APK 测试后反馈体验无问题，按用户确认记录为设备验收通过。F4.1 已将 Activity 缩减为系统窗口 / Insets / IME 配置与 `setContent`，原有根 UI 移至 `ui/shell/ZhixingAppRoot.kt`（Build #509）；F4.2 类型化路由保持旧索引 / route 与 SaveableStateHolder key（Build #511）；F4.3 抽出 `AppNavigationState`，保留两个旧 `rememberSaveable` 调用的根层位置和顺序，新增 3 项状态转移 JVM 测试（Build #516）；F4.4a 将固定 Dock 提取到 `ui/shell/ZhixingDockOverlay.kt`，继续使用原 Backdrop / glass / insets / 68dp 控件（Build #518）。所有上述 Build 均完整 success。当前仅重构 Shell / 导航 / 固定层归属，不迁移业务页面，不改四个入口、Dock 视觉、Backdrop / Liquid Glass 算法或数学 Domain。下一小步 F4.4b 将页面 viewport 与 Dock overlay 进一步分层。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。数学内核继续保持稳定基线。
 
 ---
 
@@ -72,6 +72,15 @@
 - F4.2 新增 `AppRootRoute` / `AppSecondaryRoute`，根 Tab 与二级页切换由 enum 表达；Saver 保留旧 Tab 整数索引、二级 route 字符串及 SaveableStateHolder key。
 - 新增 3 项路由 / 旧状态兼容 JVM 测试；Build #511（Run ID `45862127405`）完整 success，JVM 测试、Android 测试源码编译、Debug APK 组装和 Artifact 上传均通过。
 - 保留现有四入口顺序、Dock / Backdrop / 材质设置、页面内容、二级转场与返回行为；未引入 Navigation 3 或新增 Gradle 依赖，尚未迁移业务页面。
+
+### 2026-11-27：Zhixing Flow F4.3 / F4.4a 导航状态与固定 Dock 分层
+
+- F4.3 新增 `AppNavigationState`，统一管理四个根 Tab、二级页进入 / 关闭和 Back 行为；新增 3 项 JVM 状态转移测试，覆盖二级页返回、切换根 Tab 自动关闭二级页、无二级页时 Back 不改变状态。
+- 两个 `rememberSaveable` 状态调用留在 Shell 根 Composable 原位置与原顺序，`rememberSaveableStateHolder` 仍排在其后；状态对象只包装原有 MutableState，不在新的 Composable 层级内创建保存槽位，尽量保持旧恢复位置稳定。
+- Build #516（Run ID `45863354210`）完整 success；Debug Artifact 15138024765（31,319,453 bytes）。
+- F4.4a 新增 `ui/shell/ZhixingDockOverlay.kt`，将固定 Dock wrapper 从根 Shell 提取；继续复用 `ZhixingLiquidBottomBarPlacement` / `ZhixingCatalogBottomBar`，原 Backdrop / GlassMaterialState / destination list / selected index / selection callback / 68dp 高度不变。
+- Build #518（Run ID `45863814661`）完整 success；Debug Artifact 15139212037（31,321,224 bytes，SHA-256 `6ded753757237e5945dff083d10441672a30a3d38cb35474e7ea79bf90d6ee3a`）。
+- F4.4a 只调整 Dock 的代码归属，没有改变 Dock 视觉、动画、Insets / IME 避让、Backdrop 算法或正式路由行为；未迁移业务页面。
 
 ### 1. 2026-10-31：项目启动与 Android 原生基础
 

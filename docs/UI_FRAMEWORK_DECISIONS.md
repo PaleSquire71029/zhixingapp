@@ -62,6 +62,14 @@ AppState、路由、Dock、页面容器、状态恢复和页面转场移入独�
 - 不引入 Navigation 3 或其他 Gradle 依赖；不改变四个入口顺序、Dock、Backdrop、材质设置、页面内容或数学 Domain。
 - 下一步 F4.3 独立 AppNavigationState，覆盖 Tab / 二级页 / Back / 进程恢复行为，再封装 Dock overlay 和 viewport。
 
+### 2.4 F4.3 / F4.4a 状态与固定层实现记录（2026-11-27）
+
+- F4.3 新增 `AppNavigationState`，负责根 Tab 选择、二级页打开 / 关闭与 Back；三个状态转移 JVM 测试通过 Build #515 / #516。
+- 为避免改变 Compose 保存槽位，两个 `rememberSaveable` 调用保留在 `ZhixingAppRoot` 的根组合位置与原顺序，`rememberSaveableStateHolder` 仍在其后；状态对象只包装原有 MutableState，不在新的 Composable 层级建立 Saveable 槽位。最终 Build #516（Run ID `45863354210`）完整 success。
+- F4.4a 新增 `ZhixingDockOverlay.kt`，固定 Dock 的父级 BoxScope 定位独立于根 Shell；内部复用原 `ZhixingLiquidBottomBarPlacement` 和 `ZhixingCatalogBottomBar`，BackDrop / GlassMaterialState / 68dp / 四入口回调保持不变。
+- Build #518（Run ID `45863814661`）完整 success；Debug Artifact 15139212037（31,321,224 bytes）。
+- 不改 Dock 视觉 / 动画、Backdrop 算法、Insets / IME、页面滚动或业务页面。下一步 F4.4b 只提取页面 viewport sibling，不改变行为。
+
 ## 3. 导航决策：暂不使用 Navigation 3
 
 当前只有 4 个 Tab 和 3 个单层二级页面，二级返回只需退出到对应根 Tab；没有深链、多层页面栈、多个独立返回栈或复杂结果传递。当前路由仅为字符串，确实需要在 F4 建立类型安全的 Destination / DetailRoute，但没有必要现在额外引入导航框架。
