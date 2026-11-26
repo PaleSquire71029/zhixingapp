@@ -199,6 +199,7 @@ internal fun ZhixingAppRoot(
                     containerColor = Color.Transparent,
                 ) { innerPadding ->
                     Box(modifier = Modifier.fillMaxSize()) {
+                        ZhixingPageViewport(modifier = Modifier.fillMaxSize()) {
                     if (navigationState.rootRoute == AppRootRoute.MY) {
                         saveableStateHolder.SaveableStateProvider(AppRootRoute.MY.saveableStateKey) {
                             MyScreen(
@@ -346,6 +347,7 @@ internal fun ZhixingAppRoot(
                     }
                         }
                     }
+                        }
                     ZhixingDockOverlay(
                         backdrop = backdrop,
                         material = glassMaterial,
