@@ -2,7 +2,7 @@
 
 > 版本：1.0  
 > 制定日期：2026-11-27  
-> 当前基线：PR #92 的 docs/ui-first-calculator-roadmap 分支；main 仍保持 165a0ca2 基线，F0–F4.4a 尚未合并  
+> 当前基线：PR #92 的 docs/ui-first-calculator-roadmap 分支；main 仍保持 165a0ca2 基线，F0–F4.4b 尚未合并  
 > 目标设备：iQOO Neo5 活力版（竖屏优先，兼顾 60Hz / 120Hz）  
 > 技术：Kotlin + Jetpack Compose + AndroidX  
 > 设计方向：**知行·流序（Zhixing Flow）**  
@@ -557,17 +557,17 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 
 ### 9.4 F4：App Shell / Nav 重建
 
-**实现状态（2026-11-27）：F4.1–F4.4a 已完成代码实现并通过 CI；F4.4b 页面 viewport 分层进行中。**
+**实现状态（2026-11-27）：F4.1–F4.4b 已完成代码实现并通过 CI；F4.4c 页面转场 owner 分离进行中。**
 
 - **F4.1 MainActivity 职责拆分：** 根 Compose 内容搬至 `ui/shell/ZhixingAppRoot.kt`；Activity 只保留 Window / Edge-to-edge / 系统栏对比度 / adjustResize / setContent，玻璃设置 Store 仍由 Activity 创建并注入。Build #509（Run ID `45861464968`）完整 success。
 - **F4.2 类型化路由：** 新增 `AppRootRoute` / `AppSecondaryRoute`，以 enum 取代 Shell 内散落的一级 / 二级 route 字符串比较；Saver 继续使用旧一级 Tab 整数索引、二级 route 字符串，SaveableStateHolder keys 保持原样。新增 3 项 JVM 路由兼容测试。Build #511（Run ID `45862127405`）完整 success；Build #510 曾因 AnimatedContent 参数遮蔽状态变量而失败，修复为 `pageRoute` 后 Build #511 通过。
 - **F4.3 AppNavigationState：** 已新增 `AppNavigationState`，封装根 Tab 选择、二级页进入 / 关闭与 Back；3 项 JVM 状态转移测试通过。两个 `rememberSaveable` 调用保留在 Shell 根 Composable 原位置 / 原顺序，StateHolder 仍在它们之后；Build #516（Run ID `45863354210`）完整 success。
 - **F4.4a Dock overlay：** 已新增 `ui/shell/ZhixingDockOverlay.kt`；内部继续复用现有 `ZhixingLiquidBottomBarPlacement` / `ZhixingCatalogBottomBar`，保留 Backdrop / material / destination callbacks / 68dp 高度。Build #518（Run ID `45863814661`）完整 success，Artifact 15139212037。
-- **F4.4b 下一步：** 将页面 viewport 从 Shell 根布局中封装为独立 sibling 内容层，与固定 Dock overlay 明确分离；先只移动归属，不改滚动行为、Insets、IME、底部留白、Dock 动画。
+- **F4.4b Page viewport：** 已新增 layout-neutral 的 `ui/shell/ZhixingPageViewport.kt`，将根页面内容放入全尺寸 Box；页面 viewport 与固定 Dock overlay 成为外层 Shell Box 的兄弟节点。未引入 clip / scroll / padding / Insets / transform，原页面修饰符与 `Scaffold.innerPadding` 保持原样。Build #520（Run ID `45864663317`）完整 success，Artifact 15139507502。
+- **F4.4c 下一步：** 将现有 `AnimatedContent` 页面切换逻辑封装为独立 transition owner，保持时序 / easing / slide / fade / scale 与 BackHandler 行为不变。
 - 页面只向 Shell 提供内容和必要状态，不再持有全局导航实现。
 - 对照旧行为验证四个一级 Tab、历史、材质、单位换算及系统返回。
 - F4 只重构 App Shell / 导航边界，不迁移业务页面，不修改数学 Domain、Backdrop / Glass 算法、材质 DataStore 或四个入口的显示顺序。
-
 ### 9.5 F5–F6：逐页迁移
 
 建议顺序：
@@ -633,9 +633,9 @@ CI 通过不等于真机验收通过。玻璃光学效果、整页回弹手感�
 - F3 独立代码原型已提交：`ZhixingRigidOverscrollPhysics`、`ZhixingRigidOverscrollEffect`、`ZhixingPageScrollContainer`、`ZhixingScrollPrototypeScreen`；Debug-only `ZhixingScrollLabActivity` 使用 `zhixing://scroll-lab` 深链打开；用户测试后确认没有问题，设备验收状态按用户确认通过。
 - F3 当前实现使用一个 Foundation OverscrollEffect 和一个外层 graphicsLayer；真实 ScrollState 不越界，页面只作最多 48dp 的 Y 轴刚性平移，不缩放 / 拉伸；反向手势先释放位移；无滚动范围时不产生回弹。
 - 新增 8 项 JVM 物理 / 边界测试和 3 项 Compose 手势 / viewport 测试。Build #506（Run ID `45859680761`）完整 success；Debug Artifact [15138440787](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45859680761/artifacts/15138440787)，31,319,661 bytes。
-- 当前 CI 只编译 androidTest 源码，不运行模拟器 instrumentation tests；iQOO Neo5 活力版的顶底边界、快速 fling、反向接管、IME、嵌套控件、60Hz / 120Hz 实测仍待完成。
+- 当前 CI 只编译 androidTest 源码，不运行模拟器 instrumentation tests；用户安装测试后明确反馈 F3 整体体验没有问题，未记录逐项帧率 / 边界量化数据。
 - PR #92 仍 open、未合并；main 仍为 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。
 - Backdrop 1.0.6、Shapes 1.2.0、玻璃控件与 DataStore、材质设置、性能分级、单位换算、数学 Domain 和已验收 Dock 保持不变。
-- F3 不修改业务页面、正式导航、玻璃算法或 Gradle 依赖；用户确认 F3 设备体验无问题后进入 F4。F4.1–F4.4a 已完成并通过 CI；当前继续 F4.4b，不提前迁移页面。
+- F3 不修改业务页面、正式导航、玻璃算法或 Gradle 依赖；用户确认 F3 设备体验无问题后进入 F4。F4.1–F4.4b 已完成并通过 CI；当前继续 F4.4c，不提前迁移页面。
 
-**下一步：** F4.4b 将页面 viewport 从 Shell 根布局中提取为独立 sibling 内容层，与 `ZhixingDockOverlay` 明确分离。保持原有滚动容器、Insets、IME、底部留白与页面转场；仅移动职责边界，不迁移业务页面。
+**下一步：** F4.4c 将页面转场从根 Shell 中独立出来，保留现有转场时序、位移、淡入淡出、scale 和 BackHandler 行为；不迁移业务页面。

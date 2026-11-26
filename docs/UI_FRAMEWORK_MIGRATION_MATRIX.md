@@ -87,7 +87,7 @@
 
 ## 4. App Shell 与系统行为保留
 
-F4 当前进度：F4.1 Activity / Root UI split、F4.2 typed routes、F4.3 AppNavigationState（旧 Saveable 槽位顺序保留）、F4.4a Dock overlay 提取均已通过 CI（Build #509 / #511 / #516 / #518）。当前 F4.4b 将 page viewport 与固定 Dock sibling 分层，再逐项回归：
+F4 当前进度：F4.1 Activity / Root UI split、F4.2 typed routes、F4.3 AppNavigationState（旧 Saveable 槽位顺序保留）、F4.4a Dock overlay 提取、F4.4b page viewport / Dock sibling 分层均已通过 CI（Build #509 / #511 / #516 / #518 / #520）。当前 F4.4c 分离 transition owner，再逐项回归：
 
 - 四个一级入口和选中状态。
 - 一级 Tab 切换与 Dock 胶囊移动。
@@ -104,7 +104,7 @@ F4 当前进度：F4.1 Activity / Root UI split、F4.2 typed routes、F4.3 AppNa
 1. F1 Foundations：所有后续页面可引用一致的 tokens；不动旧页。
 2. F2 Components（已完成）：七个基础 primitives / patterns 与独立 gallery 已建立；现有页面仍保持原样。
 3. F3 Overscroll：独立回弹原型与目标设备体验已由用户确认通过；统一 ScrollContainer 已实现，后续页面接入时回归。
-4. F4 App Shell：F4.1 Activity / Shell root split、F4.2 typed routes、F4.3 AppNavigationState、F4.4a Dock overlay 已完成；继续 F4.4b page viewport sibling separation 和 transition owner。
+4. F4 App Shell：F4.1 Activity / Shell root split、F4.2 typed routes、F4.3 AppNavigationState、F4.4a Dock overlay、F4.4b page viewport sibling separation 已完成；继续 F4.4c transition owner。
 5. F5 Existing screens：工具目录 → 我的 / 历史 / 材质设置 → 单位换算。
 6. F6 Core experience：计算工作区 → AI 工作区 → 方程 / 不等式 / 函数等工具页。
 7. F7 Stabilization：无障碍、窄屏、IME、60Hz / 120Hz、滚动、性能、状态恢复与旧代码清理。

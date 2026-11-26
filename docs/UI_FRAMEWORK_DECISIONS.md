@@ -70,6 +70,14 @@ AppState、路由、Dock、页面容器、状态恢复和页面转场移入独�
 - Build #518（Run ID `45863814661`）完整 success；Debug Artifact 15139212037（31,321,224 bytes）。
 - 不改 Dock 视觉 / 动画、Backdrop 算法、Insets / IME、页面滚动或业务页面。下一步 F4.4b 只提取页面 viewport sibling，不改变行为。
 
+### 2.5 F4.4a / F4.4b 固定层与页面 viewport 分离记录（2026-11-27）
+
+- F4.4a `ZhixingDockOverlay` 将原固定 Dock wrapper 提取成 Shell 级 composable；继续复用 Backdrop / GlassMaterialState / `ZhixingLiquidBottomBarPlacement` / `ZhixingCatalogBottomBar`，四个 destination、选中回调、68dp 高度和原定位规则不变。Build #518（Run ID `45863814661`）完整 success。
+- F4.4b `ZhixingPageViewport` 作为全尺寸 Box 包裹原根页面分支；外层 Shell Box 内 page viewport 与 Dock overlay 成为两个兄弟节点。
+- 该 viewport 只提供布局边界，不添加 clip、scroll、padding、Insets 或 graphicsLayer，不改变旧页面的垂直滚动、Scaffold innerPadding、IME / 系统栏避让或 Backdrop 绘制顺序。
+- Build #520（Run ID `45864663317`）完整 success；Debug Artifact 15139507502（31,323,452 bytes）。
+- 下一步 F4.4c 提取 transition owner，保持原转场规格，不迁移业务页面。
+
 ## 3. 导航决策：暂不使用 Navigation 3
 
 当前只有 4 个 Tab 和 3 个单层二级页面，二级返回只需退出到对应根 Tab；没有深链、多层页面栈、多个独立返回栈或复杂结果传递。当前路由仅为字符串，确实需要在 F4 建立类型安全的 Destination / DetailRoute，但没有必要现在额外引入导航框架。
