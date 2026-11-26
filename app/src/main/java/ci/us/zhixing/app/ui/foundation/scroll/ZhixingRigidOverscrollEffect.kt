@@ -37,6 +37,7 @@ import kotlin.math.abs
 @OptIn(ExperimentalFoundationApi::class)
 internal class ZhixingRigidOverscrollEffect(
     private val maximumOffsetPx: Float,
+    private val canOverscroll: () -> Boolean,
 ) : OverscrollEffect {
     private val offsetState = mutableFloatStateOf(0f)
 
@@ -55,6 +56,13 @@ internal class ZhixingRigidOverscrollEffect(
         source: NestedScrollSource,
         performScroll: (Offset) -> Offset,
     ): Offset {
+        // Short content must not invent an edge bounce. This also clears any
+        // stale offset if the viewport becomes non-scrollable after a resize / IME change.
+        if (!canOverscroll()) {
+            offsetState.floatValue = 0f
+            return performScroll(delta)
+        }
+
         // Reverse input first releases the current viewport displacement.
         val releaseDelta = ZhixingRigidOverscrollPhysics.releaseConsumedDelta(
             currentOffsetPx = offsetState.floatValue,
@@ -87,6 +95,10 @@ internal class ZhixingRigidOverscrollEffect(
         // Foundation's contract requires the fling callback to be called once.
         val consumedVelocity = performFling(velocity)
         val remainingVelocity = velocity - consumedVelocity
+        if (!canOverscroll()) {
+            offsetState.floatValue = 0f
+            return
+        }
 
         if (!isInProgress && abs(remainingVelocity.y) > 1f) {
             offsetState.floatValue = ZhixingRigidOverscrollPhysics.flingStartingOffset(
@@ -131,7 +143,7 @@ internal fun ZhixingPageScrollContainer(
 ) {
     val maximumOffsetPx = with(LocalDensity.current) { 48.dp.toPx() }
     val overscrollEffect = remember(maximumOffsetPx) {
-        ZhixingRigidOverscrollEffect(maximumOffsetPx)
+        ZhixingRigidOverscrollEffect(maximumOffsetPx) { state.maxValue > 0 }
     }
 
     // The page effect is the only vertical overscroll owner inside this viewport.

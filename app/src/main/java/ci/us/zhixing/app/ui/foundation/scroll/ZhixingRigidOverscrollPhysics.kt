@@ -13,6 +13,8 @@ internal object ZhixingRigidOverscrollPhysics {
     const val baseResistance = 0.52f
     const val flingProjectionSeconds = 0.016f
 
+    fun hasScrollableContent(maxScrollPx: Int): Boolean = maxScrollPx > 0
+
     fun releaseConsumedDelta(
         currentOffsetPx: Float,
         incomingScrollDeltaPx: Float,

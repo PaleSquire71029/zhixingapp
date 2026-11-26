@@ -9,6 +9,13 @@ class ZhixingRigidOverscrollPhysicsTest {
     private val maximum = 144f
 
     @Test
+    fun contentWithoutScrollRangeDoesNotEnableOverscroll() {
+        assertEquals(false, ZhixingRigidOverscrollPhysics.hasScrollableContent(0))
+        assertEquals(false, ZhixingRigidOverscrollPhysics.hasScrollableContent(-1))
+        assertEquals(true, ZhixingRigidOverscrollPhysics.hasScrollableContent(1))
+    }
+
+    @Test
     fun topEdgeUnconsumedScrollMovesViewportDown() {
         val offset = ZhixingRigidOverscrollPhysics.resist(0f, -40f, maximum)
         assertTrue(offset > 0f)
