@@ -207,13 +207,13 @@ internal fun ZhixingScrollPrototypeScreen(
         ) {
             Text(
                 text = "固定操作层 · 不随视口平移",
-                style = ZhixingTheme.typography.caption,
+                style = ZhixingTheme.typography.brandCaption,
                 color = ZhixingTheme.colors.onSurfaceVariant,
             )
             Spacer(Modifier.weight(1f))
             Text(
                 text = "Y",
-                style = ZhixingTheme.typography.caption,
+                style = ZhixingTheme.typography.brandCaption,
                 color = ZhixingTheme.colors.primary,
             )
         }
