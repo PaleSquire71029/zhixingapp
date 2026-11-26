@@ -49,7 +49,6 @@ import ci.us.zhixing.app.navigation.AppNavigationState
 import ci.us.zhixing.app.navigation.AppRootRoute
 import ci.us.zhixing.app.navigation.AppSecondaryRoute
 import ci.us.zhixing.app.navigation.rememberAppNavigationState
-import ci.us.zhixing.app.navigation.AppSecondaryRoute
 import ci.us.zhixing.app.ui.glass.BackdropHost
 import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialSettingsStore
