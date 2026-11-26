@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -129,8 +128,8 @@ internal fun ZhixingAppRoot(
                     )
             },
             label = "zhixingSecondaryPageTransition",
-        ) { activeSubpage ->
-        when (activeSubpage) {
+        ) { pageRoute ->
+        when (pageRoute) {
             AppSecondaryRoute.MATERIAL -> saveableStateHolder.SaveableStateProvider(
                 AppSecondaryRoute.MATERIAL.saveableStateKey,
             ) {
@@ -194,7 +193,7 @@ internal fun ZhixingAppRoot(
                 ) { innerPadding ->
                     Box(modifier = Modifier.fillMaxSize()) {
                     if (selectedRootRoute == AppRootRoute.MY) {
-                        saveableStateHolder.SaveableStateProvider("root-my") {
+                        saveableStateHolder.SaveableStateProvider(AppRootRoute.MY.saveableStateKey) {
                             MyScreen(
                                 backdrop = backdrop,
                                 material = staticFeatureMaterial,
@@ -206,7 +205,7 @@ internal fun ZhixingAppRoot(
                             )
                         }
                     } else if (selectedRootRoute == AppRootRoute.TOOLS) {
-                        saveableStateHolder.SaveableStateProvider("root-tools") {
+                        saveableStateHolder.SaveableStateProvider(AppRootRoute.TOOLS.saveableStateKey) {
                             ToolsDirectoryScreen(
                                 backdrop = backdrop,
                                 material = staticFeatureMaterial,
