@@ -28,9 +28,9 @@ internal fun BoxScope.ZhixingDockOverlay(
     destinations: List<AppDestination>,
     selectedIndex: Int,
     onDestinationSelected: (Int) -> Unit,
-    modifier: Modifier = Modifier.align(Alignment.BottomCenter),
+    modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
+    Box(modifier = modifier.align(Alignment.BottomCenter)) {
         ZhixingLiquidBottomBarPlacement {
             ZhixingCatalogBottomBar(
                 backdrop = backdrop,
