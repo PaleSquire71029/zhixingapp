@@ -8,7 +8,7 @@
 > **当前 UI 开发：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **当前工程版本：** 0.1.2 / versionCode 3  
 > **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
-> **当前 UI 框架 CI：** [Build #536](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45990601046)（PR #92 F5.4 Material Settings 页面迁移，JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过；Artifact 15193905919）  
+> **当前 UI 框架 CI：** [Build #542](https://github.com/PaleSquire71029/zhixingapp/actions/runs/46007122726)（PR #92 当前源码头完整通过 JVM 测试、Android 测试源码编译、Debug APK 组装和 Artifact 上传；Artifact 15201023521）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -36,14 +36,14 @@
 | 函数工具内核 | **C7.1–C7.6 已完成** | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
 | 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
-| Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.5、F5.1–F5.4 已通过 CI** | 工具目录（#528）、「我的」（#530）、History（#533）、材质设置（#536）已迁移并接入统一刚性页面滚动；单位换算仍待迁移；PR #92 仍 open，未合并 |
+| Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.5、F5.1–F5.5 已通过 CI** | 工具目录（#528）、「我的」（#530）、History（#533）、材质设置（#536）、单位换算（#539）均已迁移并接入统一刚性页面滚动；PR #92 仍 open，未合并 |
 | 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：Zhixing Flow F5 Existing Screens 逐页迁移。** F5.1 工具目录（Build #528）、F5.2「我的」（Build #530）、F5.3 History（Build #533）和 F5.4 Material Settings（Build #536）已拆入 `ui/screens/...` 独立页面并接入 `ZhixingPageScrollContainer`。各页保留原有内容、状态 / 回调和 Backdrop / safeDrawing / Dock 层级；旧实现暂留作回退。F5.4 保留 9 组 `rememberSaveable` 状态和原性能档位 / 材质持久化行为。所有 Activity instrumentation 测试源码仅编译、未在模拟器执行，设备侧滚动 / 滑块体验仍待真机验收。PR #92 仍 open、未合并。下一步迁移 Unit Converter；不改数学 Domain。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+**当前工作重心：Zhixing Flow F6 Core Experience。** F5.1 工具目录（Build #528）、F5.2「我的」（Build #530）、F5.3 History（Build #533）、F5.4 Material Settings（Build #536）和 F5.5 Unit Converter（Build #539）均已迁入 `ui/screens/...` 并接入 `ZhixingPageScrollContainer`。F5.5 保留五组 `rememberSaveable` 输入 / 选择状态、Presenter / Formatter / Domain、复制 / 清除与系统键盘行为；旧页面文件仍保留作回退。Build #539 完整通过，当前 PR 源码头另由 Build #542 复验通过。Activity instrumentation 测试源码仅完成编译，CI 未启动模拟器执行；单位换算页面的真机视觉 / IME / 滚动体验仍待验收。PR #92 仍 open、未合并。下一步 F6.1 先完成计算主页基线与 Domain 能力映射，再进入 UI-1 计算主页骨架；不扩展数学题型、不改数学 Domain。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 与 [计算器 UI 优先路线](docs/CALCULATOR_UI_FIRST_ROADMAP.md)。
 
 ---
 
@@ -134,6 +134,19 @@
 - 原 9 组 `rememberSaveable` 状态、性能档位配置、滑块范围 / 开关条件、实时预览 / commit / reset 与 DataStore 回调不变。
 - 新增 1 项 Activity instrumentation 测试源码检查刚性滚动容器、恢复默认和“透明程度”控件。CI 只编译源码，没有启动模拟器执行，也没有真机滑块验收。
 - Build #535 首轮暴露遗漏的 PaddingValues 导入 / 测试文案问题；Build #536 初次又遇到外部 Maven SLF4J 元数据解析失败，重跑失败 job 后完整 success。Debug Artifact 15193905919（31,408,446 bytes，SHA-256 `afbfa90a5b011b303676fb39f48a99c058cda3de35aba29aab21b17398127516`）。
+
+### 2026-11-27：Zhixing Flow F5.5 Unit Converter 页面迁移
+
+- 将单位换算详情页切换到独立路径 `ui/screens/units/UnitConverterScreen.kt`，`ZhixingAppRoot` 使用新页面；旧 `ui/units/UnitConverterScreen.kt` 保留作回退，不删除 Presenter / Formatter / Domain。
+- 新页面以 `ZhixingPageScrollContainer` 承载整页刚性滚动，保留 safeDrawing / IME 避让、18dp 顶部 / 32dp 底部留白和横向页面间距。
+- 保留全部五组 `rememberSaveable` 状态：类别、原单位、目标单位、输入文本、复制状态；类别默认单位、单位选择 / 交换、即时结果、同类单位列表、错误与未完成输入、完整等式复制、清除和系统十进制键盘行为不变。
+- 继续复用 `UnitConversionPresenter` / `UnitValueFormatter` / `UnitConverter`，本步没有复制或重写任何换算公式与 Domain。
+- `ZhixingAppShellNavigationIntegrationTest` 已包含单位换算刚性滚动容器与页面内容检查。Build #539（Run ID `45992101487`）完整 success；Artifact 15193614286（31,454,668 bytes，SHA-256 `68e96e034ed98dc1d1ce0d84cf6563a9bcd40fa81435aa8d4c6f6e3fe3ce3416`）。当前 PR 头 Build #542（Run ID `46007122726`）亦完整 success，Artifact 15201023521（31,454,666 bytes，SHA-256 `1483f10855a56a042101c01b9a4a8a2e8e0a8ba8b8303ae4868e5d7e8642e187`）。CI 执行 JVM 测试、编译 androidTest 源码、构建和上传 Debug APK；没有启动模拟器执行 Activity instrumentation tests，也没有本步真机视觉 / 输入 / 滚动验收。
+
+### 2026-11-27：Zhixing Flow F6 Core Experience 启动准备
+
+- F0–F3、F4.1–F4.5、F5.1–F5.5 的代码与 CI 前置条件均已完成；PR #92 仍 open、尚未合并 main。
+- 下一步 F6.1（对应计算器 UI 路线 UI-0）先盘点真实 Calculator Shell / Parser / Evaluator / Solver / 错误模型 / 测试入口，产出真实文件路径和能力映射；不把旧占位首页当成需求，不扩展 C5.19 等数学题型。
 
 ### 1. 2026-10-31：项目启动与 Android 原生基础
 

@@ -13,7 +13,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-27）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。用户已决定不在现有 UI 上继续堆功能，而是先重建一套知行自有的 UI 框架。当前路线为：F0–F7 框架审计、设计语言、组件库、整页式回弹、App Shell 和页面迁移；完成后再执行计算器 UI-1–UI-10，并在界面稳定后补齐数学能力。详细方案见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 与 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。F0 已完成 main 165a0ca 的静态代码审计与技术决策；F1 已在 PR #92 分支完成九类 Design Tokens、Theme 扩展和契约测试；F2 已新增七个基础组件、独立 Design Gallery 与交互 / 无障碍测试。F1 / F2 均保持旧主题访问器与现有视觉值，不迁移页面、不改变玻璃实现。当前 PR #92 仍 open，main 尚未包含本轮 UI 框架代码。F3 原型代码已通过 Build #506，用户安装测试后反馈体验没有问题，按用户确认记录为目标设备验收通过。F4.1 将根 UI 从 MainActivity 拆至 ui/shell，Build #509 完整 success；F4.2 新增类型化一级 / 二级 Destination 并以 Saver 兼容旧索引 / route（Build #511）；F4.3 抽出 AppNavigationState、保留 Shell 根层原有两个 rememberSaveable 槽位与 StateHolder 顺序，新增 3 项状态转移测试（Build #516）；F4.4a 提取固定 Dock overlay（Build #518）；F4.4b 将页面内容包装进独立 `ZhixingPageViewport`，与 Dock overlay 保持 sibling 关系（Build #520）。当前进入 F4.4c 页面转场 owner 分离，尚未迁移业务页面。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前进度（核对至 2026-11-27）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均保留为已验收基线；本轮没有新增或改写数学 Domain。Zhixing Flow F0–F3、F4.1–F4.5 与 F5.1–F5.5 已完成代码实现和对应 CI。F3 整页刚性回弹设备体验按用户安装测试反馈记录为通过。F4.1–F4.5 完成 Activity / Root 分离、类型化路由、导航状态、Dock / PageViewport 分层、二级页转场和 Shell 回归；F4.5 的 5 项 JVM 测试由 CI 实际运行，5 项 Activity instrumentation 测试源码只编译、未在模拟器运行。F5.1–F5.5 已将工具目录、「我的」、History、Material Settings、Unit Converter 分别迁入 `ui/screens/...` 并接入 `ZhixingPageScrollContainer`；旧实现仍保留作回退。F5.5 保留五组输入 / 选择 / 复制 `rememberSaveable` 状态，沿用 Presenter / Formatter / Domain 与原输入、交换、复制、清除、键盘行为。Build #539（Run ID `45992101487`）验证 F5.5 完整通过；当前 PR 源码头 Build #542（Run ID `46007122726`）再次完整通过。两次 CI 均执行 JVM 单测、编译 androidTest 源码、组装和上传 Debug APK；没有在模拟器 / 真机执行 Activity instrumentation tests。PR #92 仍 open，main 仍为 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。下一阶段进入 F6 Core Experience，先做 UI-0 / F6.1 Calculator 基线盘点，再实施 UI-1 计算主页骨架。详细规划见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 与 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md)。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -27,20 +27,19 @@
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
 | 原生单位换算页面 | C8.8.2 交互完善已通过 CI；真机验收暂缓 | 完整等式复制、清除、输入中间态 / 长度边界、窄屏纵向选择、TalkBack 语义；Build #428 成功；未执行设备验收 |
-| UI 框架重建 | **F0–F3 完成；F4 Shell / Navigation 进行中** | F4.1 Activity split（#509）、F4.2 typed routes（#511）、F4.3 AppNavigationState（#516）、F4.4a Dock overlay（#518）、F4.4b PageViewport（#520）均通过 CI；业务页面未迁移 |
-| 完整计算器主页面 | 未完成；等待新框架 | 框架迁移完成后实施 UI-1–UI-3；不把独立单位换算工具页算作完整计算主页 |
+| UI 框架重建 | **F0–F3、F4.1–F4.5、F5.1–F5.5 均通过 CI** | App Shell / 导航回归通过（#525）；工具目录 / 我的 / History / Material Settings / Unit Converter 均已迁移（#528 / #530 / #533 / #536 / #539） |
+| 完整计算器主页面 | **F6 / UI-1 尚未开始** | F6.1 先完成实际代码路径、Parser / Evaluator / Solver 能力和错误模型盘点；之后实施 UI-1–UI-3 |
 | 专用数学输入 / QuestionDocument | 分阶段实施 | 先交付基础表达式编辑与应用内键盘；复杂题目文档、嵌套模板和符号搜索排在 UI-9 |
 | 函数图像 UI | 未完成；UI-7 规划中 | 首轮接入现有拟合 / 采样；Compose 曲线、坐标轴、视口和交互待实现 |
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #520 | [Artifact 15139507502](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45864663317/artifacts/15139507502)，31,323,452 bytes；F4.4b PageViewport / Dock sibling extraction，JVM 测试、Android 测试源码编译、Debug APK 组装和上传完整通过；PR #92 仍未合并 main |
+| 最新 Debug APK | Build #542 | [Artifact 15201023521](https://github.com/PaleSquire71029/zhixingapp/actions/runs/46007122726/artifacts/15201023521)，31,454,666 bytes；当前 PR 头完整通过资源 / Markdown 检查、JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传；未运行模拟器 instrumentation tests；PR #92 仍未合并 main |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
 
 ### 当前执行阶段（2026-11-27）
 
-**当前入口为 Zhixing Flow F4：App Shell / Navigation 重建。** F0–F3 均已完成；F3 整页刚性回弹原型经用户安装测试后确认体验无问题。F4.1 Activity / Root UI split（Build #509）、F4.2 typed routes（Build #511）、F4.3 AppNavigationState 与旧 Saveable 槽位顺序兼容（Build #516）、F4.4a 固定 Dock overlay 提取（Build #518）、F4.4b PageViewport / Dock sibling 分层（Build #520）均通过完整 CI。F4.4b 仅新增全尺寸、layout-neutral 的 `ZhixingPageViewport` Box；它与固定 `ZhixingDockOverlay` 是根 Shell 外层 Box 的兄弟节点。没有给 viewport 添加 clip / scroll / padding / Insets / graphicsLayer；旧页面滚动、`Scaffold.innerPadding`、系统栏 / IME 和 Dock 动画均保持不变。Android workflow 编译 androidTest 源码但不运行模拟器 instrumentation tests。当前仍只重构 Shell / Navigation / 固定层职责，不改四个入口、Dock 视觉、Backdrop / Glass 算法、材质 DataStore、数学 Domain，不新增导航依赖，不迁移业务页面。下一步 F4.4c 分离页面转场 owner。
-
+**当前入口为 Zhixing Flow F6：Core Experience。** Zhixing Flow F0–F3、F4.1–F4.5、F5.1–F5.5 均已完成代码实现与 CI 验证。F4.5 的 5 项 JVM 回归由 Build #525 实际运行通过；Activity instrumentation 测试源码只编译，未启动模拟器执行。F5.1 工具目录（Build #528）、F5.2「我的」（#530）、F5.3 History（#533）、F5.4 Material Settings（#536）、F5.5 Unit Converter（#539）均已迁入 `ui/screens/...`，接入 `ZhixingPageScrollContainer`。单位换算页面保留原有五组 `rememberSaveable` 输入 / 选择状态、Presenter / Formatter / Domain、复制 / 清除、单位切换 / 交换与系统键盘行为；旧页面文件暂留作回退。Build #539 验证 F5.5 代码，当前 PR 头 Build #542（Run ID `46007122726`）完整复验通过，Artifact 15201023521（31,454,666 bytes，SHA-256 `1483f10855a56a042101c01b9a4a8a2e8e0a8ba8b8303ae4868e5d7e8642e187`）。CI 只编译 Activity instrumentation 测试源码，不代表模拟器或真机运行。PR #92 仍 open、未合并，main 保持 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。本阶段不改数学 Domain、不引入新求解器。下一步 F6.1（对应 Calculator UI 路线 UI-0）盘点实际 Calculator / Parser / Evaluator / Solver / typed error / 测试路径，形成能力映射和 UI-1 最小范围；随后实施 UI-1 计算主页骨架与标准模式。
 
 ### 初始工程检查历史快照（非当前进度）
 
@@ -2413,4 +2412,13 @@ F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最
 - 首轮 Build #535 暴露 PaddingValues import / 测试文案错误，修复提交 `4ffd0e762229bf68393940c89cdc40890896baf5`；Build #536 首次因外部 SLF4J Maven 元数据问题在依赖解析阶段失败，重跑失败 job 后完整 success（Run ID `45990601046`）：JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传均通过。
 - Debug Artifact `zhixingapp-debug` ID `15193905919`，31,408,446 bytes，ZIP SHA-256 `afbfa90a5b011b303676fb39f48a99c058cda3de35aba29aab21b17398127516`。
 
-**下一步：** F5.5 将 Unit Converter 二级页面从 `ui/units/UnitConverterScreen.kt` 拆到 `ui/screens/units/UnitConverterScreen.kt`，接入 `ZhixingPageScrollContainer`；保留现有输入状态、类别 / 单位选择、交换、计算 Presenter、复制 / 清除与键盘行为，Presenter / Domain 不迁移、不重写。
+### 28.15 F5.5：Unit Converter 页面迁移（2026-11-27）
+
+- 将 `UnitConverterScreen` 的 Shell 引用切换到独立页面 `ui/screens/units/UnitConverterScreen.kt`；旧 `ui/units/UnitConverterScreen.kt` 暂留作回退。
+- 新页面通过 `ZhixingPageScrollContainer` 承载内容，使用 `unit-converter-page-scroll-container` testTag；保留 safeDrawing / IME 避让、原横向间距、18dp 顶部 / 32dp 底部留白，单位类别横向滚动仍使用独立 `rememberScrollState`。
+- 保留全部五组 `rememberSaveable` 状态：类别 ID、原单位 ID、目标单位 ID、输入文本、复制结果状态；类别默认单位、原 / 目标单位选择、交换、即时结果、同类单位列表、错误 / 未完成输入、完整等式复制、清除和系统十进制键盘行为均保持。
+- 页面继续调用既有 `UnitConversionPresenter`、`UnitValueFormatter` 和 `UnitConverter`；本步没有复制或重写算法、单位目录或 Domain。根路由、二级页转场、SaveableStateHolder key、BackdropHost 与 Dock sibling 结构不变。
+- `ZhixingAppShellNavigationIntegrationTest.unitConverterUsesRigidPageScrollingAndKeepsConversionSections` 覆盖滚动容器和核心内容。Build #539（Run ID `45992101487`）完整 success；Artifact 15193614286（31,454,668 bytes，SHA-256 `68e96e034ed98dc1d1ce0d84cf6563a9bcd40fa81435aa8d4c6f6e3fe3ce3416`）。当前 PR 头 Build #542（Run ID `46007122726`）完整 success；Artifact 15201023521（31,454,666 bytes，SHA-256 `1483f10855a56a042101c01b9a4a8a2e8e0a8ba8b8303ae4868e5d7e8642e187`）。
+- Build #539 / #542 执行 JVM 测试、编译 androidTest 源码、组装 Debug APK 并上传 Artifact；没有启动模拟器执行 Activity instrumentation tests，也没有本步真机视觉 / 输入 / IME / 整页滚动验收。
+
+**下一步：** F6.1 Calculator 基线盘点（对应 `CALCULATOR_UI_FIRST_ROADMAP.md` 的 UI-0）：核对真实主壳入口、现有 Parser / Evaluator / Solver / typed errors、测试入口和当前工具页面；形成真实文件路径清单、domain→UI 能力映射、页面状态 / 适配器契约草案，并给出 UI-1 标准计算主页骨架的最小文件范围。不扩展 C5.19 等数学题型，不复制 Domain 算法。
