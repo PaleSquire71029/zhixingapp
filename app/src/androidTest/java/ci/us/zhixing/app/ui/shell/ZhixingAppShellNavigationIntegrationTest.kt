@@ -94,6 +94,13 @@ class ZhixingAppShellNavigationIntegrationTest {
     }
 
     @Test
+    fun toolsDirectoryUsesTheRigidPageScrollContainer() {
+        composeRule.onNode(tab("工具")).performClick()
+        composeRule.onNodeWithTag("tools-page-scroll-container").assertIsDisplayed()
+        composeRule.onNodeWithText("单位换算").assertIsDisplayed()
+    }
+
+    @Test
     fun pageViewportAndDockAreDirectSiblingLayersInTheShellHost() {
         val host = composeRule.onNodeWithTag(
             "zhixing-shell-layer-host",
