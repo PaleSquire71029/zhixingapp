@@ -83,7 +83,15 @@ AppState、路由、Dock、页面容器、状态恢复和页面转场移入独�
 - 将 `ZhixingAppRoot` 内联的 `AnimatedContent` 移至 `ZhixingSecondaryPageTransition`，只负责转场容器，不拥有导航状态，也不处理系统 Back。
 - 转场使用原参数：fade-in 230ms / slide-in 280ms（width / 9）/ scale 0.985；fade-out 170ms / slide-out 220ms（-width / 14）/ scale 0.99；保留 `zhixingSecondaryPageTransition` label。
 - 新增 2 项 JVM 契约测试锁定时序、几何参数、scale 和 label。Build #522（Run ID `45866322423`）完整 success，Artifact 15140782538。
-- 根 Shell 仍持有 `BackHandler`，`AppNavigationState` 仍持有路由；F4.5 再集中验证根路由、二级返回、Saver 兼容和 Dock / viewport 层级。
+- 根 Shell 仍持有 `BackHandler`，`AppNavigationState` 仍持有路由；F4.5 已完成 JVM 状态 / Saver 回归和 Activity 集成测试源码编译，后续真机验证继续留在验收清单中。
+
+### 2.7 F4.5：Shell 导航与状态回归（2026-11-27）
+
+- 新增 5 项 JVM 测试，覆盖一级路由的整数 Saver 双向往返、二级路由的字符串 Saver 双向往返、四个根 Tab 切换与二级页清理、所有根 / 二级 route 组合的返回行为和非法索引回退。Build #525（Run ID `45986224060`）实际执行全部 JVM 测试并通过。
+- 新增 5 项 `MainActivity` instrumentation 测试源码，覆盖四个根入口、History / Unit Converter 的 Android Back、Activity recreate 后保存状态、Dock 与 PageViewport 是 Shell host 的直接子节点；Build #525 只编译这些测试，没有启动模拟器运行。
+- 为上述布局测试仅增加三个语义 testTag；Shell host、viewport 和 Dock 的布局边界 / 测量 / 绘制行为保持不变。
+- Build #525 完整 success，Debug Artifact 15191837513（31,324,808 bytes）；Build #524 曾因测试代码编译错误失败，修复后已由 #525 全量复验通过。
+- F4.5 CI 范围已满足进入 F5 的结构性前置条件；实际设备 Back 手势、Activity 重建和层级视觉仍需后续目标设备验收。
 
 ## 3. 导航决策：暂不使用 Navigation 3
 

@@ -2,7 +2,7 @@
 
 > 基线：main 165a0ca2ff77aeae0868d8dbd2087c09cd9e6260  
 > 更新：2026-11-27  
-> 原则：先建立框架，再逐页迁移；只迁 UI，不重写 domain。F0–F3 已完成，F4.1–F4.4c 已通过 CI；当前进入 F4.5 Shell 集成回归，现有业务页面仍未迁移，旧页面只有在替代页通过回归后才清理。
+> 原则：先建立框架，再逐页迁移；只迁 UI，不重写 domain。F0–F3、F4.1–F4.5 已通过 CI；当前进入 F5 逐页迁移，现有业务页面仍未迁移，旧页面只有在替代页通过回归后才清理。
 
 ## 1. 页面映射总表
 
@@ -87,7 +87,7 @@
 
 ## 4. App Shell 与系统行为保留
 
-F4 当前进度：F4.1 Activity / Root UI split、F4.2 typed routes、F4.3 AppNavigationState（旧 Saveable 槽位顺序保留）、F4.4a Dock overlay 提取、F4.4b page viewport / Dock sibling 分层、F4.4c secondary-page transition owner 均已通过 CI（Build #509 / #511 / #516 / #518 / #520 / #522）。当前进入 F4.5 集成回归：
+F4 当前进度：F4.1 Activity / Root UI split、F4.2 typed routes、F4.3 AppNavigationState（旧 Saveable 槽位顺序保留）、F4.4a Dock overlay、F4.4b page viewport / Dock sibling 分层、F4.4c secondary-page transition owner、F4.5 Shell 集成回归均已通过 CI（Build #509 / #511 / #516 / #518 / #520 / #522 / #525）。F4.5 新增 5 项并由 CI 实际运行通过的 JVM 测试，并编译 5 项 MainActivity instrumentation 测试源码；CI 没有启动模拟器执行 androidTest。当前结构性工作已完成，进入 F5 逐页迁移：
 
 - 四个一级入口和选中状态。
 - 一级 Tab 切换与 Dock 胶囊移动。
@@ -104,7 +104,7 @@ F4 当前进度：F4.1 Activity / Root UI split、F4.2 typed routes、F4.3 AppNa
 1. F1 Foundations：所有后续页面可引用一致的 tokens；不动旧页。
 2. F2 Components（已完成）：七个基础 primitives / patterns 与独立 gallery 已建立；现有页面仍保持原样。
 3. F3 Overscroll：独立回弹原型与目标设备体验已由用户确认通过；统一 ScrollContainer 已实现，后续页面接入时回归。
-4. F4 App Shell：F4.1 Activity / Shell root split、F4.2 typed routes、F4.3 AppNavigationState、F4.4a Dock overlay、F4.4b page viewport sibling separation、F4.4c transition owner 均已完成；继续 F4.5 Shell 集成回归，覆盖四个根入口、二级页、Back、状态恢复及 Dock / viewport 固定层关系。
+4. F4 App Shell：F4.1 Activity / Shell root split、F4.2 typed routes、F4.3 AppNavigationState、F4.4a Dock overlay、F4.4b page viewport sibling separation、F4.4c transition owner、F4.5 Shell 集成回归均已完成并通过 CI；5 项 JVM 回归由 CI 实际执行，5 项 Activity instrumentation 测试源码仅完成编译。下一步 F5 Existing screens：工具目录 → 我的 / 历史 / 材质设置 → 单位换算。
 5. F5 Existing screens：工具目录 → 我的 / 历史 / 材质设置 → 单位换算。
 6. F6 Core experience：计算工作区 → AI 工作区 → 方程 / 不等式 / 函数等工具页。
 7. F7 Stabilization：无障碍、窄屏、IME、60Hz / 120Hz、滚动、性能、状态恢复与旧代码清理。

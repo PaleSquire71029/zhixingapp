@@ -8,7 +8,7 @@
 > **当前 UI 开发：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **当前工程版本：** 0.1.2 / versionCode 3  
 > **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
-> **当前 UI 框架 CI：** [Build #522](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45866322423)（PR #92 F4.4c；二级页面转场 owner 提取，JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过；Artifact 15140782538）  
+> **当前 UI 框架 CI：** [Build #525](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45986224060)（PR #92 F4.5 Shell 导航回归，JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过；Artifact 15191837513）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -36,14 +36,14 @@
 | 函数工具内核 | **C7.1–C7.6 已完成** | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
 | 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
-| Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.4c 已完成；F4.5 回归中** | Activity split（#509）、typed routes（#511）、NavigationState（#516）、Dock overlay（#518）、PageViewport（#520）、页面转场 owner（#522）均通过 CI；PR #92 仍 open，未合并 |
+| Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.5 已完成 CI；进入 F5 逐页迁移** | Activity split（#509）、typed routes（#511）、NavigationState（#516）、Dock overlay（#518）、PageViewport（#520）、页面转场（#522）、Shell 回归（#525）通过 CI；PR #92 仍 open，未合并 |
 | 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：Zhixing Flow F4 App Shell / Navigation 回归。** F0–F3 与 F4.1–F4.4c 的框架实现均已完成。F4.4c 将原二级页面 `AnimatedContent` 转场封装进 `ZhixingSecondaryPageTransition`，保留原 fade / slide / scale 时序与几何参数、label、根层 BackHandler 和 `AppNavigationState`；Build #522（Run ID `45866322423`）完整 success。当前进入 F4.5 Shell 集成回归，集中核对四个根 Tab、二级页进入 / 返回、系统 Back、Saver 恢复契约及 Dock / PageViewport 固定层关系。PR #92 仍 open、未合并；不迁移业务页面、不改数学 Domain。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+**当前工作重心：Zhixing Flow F5 Existing Screens 逐页迁移。** F0–F3 与 F4.1–F4.5 Shell 框架均已完成 CI。F4.5 新增 5 项 JVM 回归测试，覆盖四个根 Tab 的旧整数 Saver 往返、二级 route 字符串 Saver 往返、根 Tab 选择时关闭二级页、全部二级页返回原根 Tab 和非法恢复索引回退；Build #525（Run ID `45986224060`）完整 success。另新增 5 项 `MainActivity` instrumentation 测试源码，覆盖四个 Tab、History / Unit Converter 系统 Back、Activity 重建恢复和 Dock / PageViewport 层级；当前 CI 只编译这些源码，不启动模拟器执行。PR #92 仍 open、未合并；尚未迁移业务页面、不改数学 Domain。下一步从工具目录、我的 / 历史 / 材质设置和单位换算开始逐页迁移。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 ---
 
@@ -97,6 +97,14 @@
 - `BackHandler` 仍在根 Shell，导航状态仍由 `AppNavigationState` 管理；没有调整页面内容、Dock / viewport 层级或业务行为。
 - 新增 2 项 JVM 转场契约测试。Build #522（Run ID `45866322423`）完整 success；Debug Artifact 15140782538（31,324,748 bytes，SHA-256 `39fe13e1666839332199f89237284fe046e4a0dfb35ad33ee182dfd7b26c600f`）。
 - CI 执行 JVM 单测、编译 androidTest 源码、组装 Debug APK 并上传 Artifact；未启动模拟器执行 instrumentation tests，也未进行本步真机转场验收。首次运行遇到 Maven SLF4J 元数据解析失败，重跑失败 job 后通过。
+
+### 2026-11-27：Zhixing Flow F4.5 Shell 导航与状态回归
+
+- 新增 `AppShellNavigationRegressionTest` 5 项 JVM 测试，覆盖四个根 Tab 的旧整数 Saver 往返、三个二级 route 的旧字符串 Saver 往返、根 Tab 变更时关闭二级页、每个根 Tab / 二级页组合的返回语义，以及非法根索引恢复回退。
+- 新增 `ZhixingAppShellNavigationIntegrationTest` 5 项 Activity instrumentation 测试源码，覆盖四入口切换、History / Unit Converter 的 Android Back、Activity recreate 后二级页与原根 Tab 恢复，以及 `ZhixingPageViewport` / `ZhixingDockOverlay` 为 Shell host 直接兄弟层。
+- 在 Shell host、PageViewport、Dock 外层 Box 加入仅供测试定位的 semantics `testTag`；没有添加尺寸 / padding / clip / scroll / graphicsLayer 或绘制逻辑。
+- Build #524 首轮发现 Saver receiver 和 TestRule import 错误；分别修复后 Build #525（Run ID `45986224060`）完整 success。Debug Artifact 15191837513（31,324,808 bytes，SHA-256 `24a523278b0fadf732435c57decf104714aac8926e6288d75a805a03741e3125`）。
+- Build #525 执行并通过全部 JVM 单测、编译 Android instrumentation 测试源码、组装 Debug APK 与上传 Artifact；未启动模拟器运行这 5 项 androidTest，也未完成 F4.5 真机回归。
 
 ### 1. 2026-10-31：项目启动与 Android 原生基础
 

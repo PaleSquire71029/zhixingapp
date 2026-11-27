@@ -2370,4 +2370,13 @@ F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最
 - Build #522（Run ID `45866322423`）完整 success：资源与 Markdown 检查、JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与清理通过。Artifact `zhixingapp-debug` ID `15140782538`，31,324,748 bytes，ZIP SHA-256 `39fe13e1666839332199f89237284fe046e4a0dfb35ad33ee182dfd7b26c600f`。首次 job 因外部 Maven SLF4J 元数据解析失败，重跑失败 job 后完整通过。
 - CI 没有启动模拟器执行 androidTest，也没有执行本步真机转场检查。
 
-**下一步：** F4.5 Shell 集成回归，补齐四个根入口、二级路由打开 / 返回、系统 Back、Saver 序列化 / 恢复兼容以及 Dock / PageViewport 固定层行为检查；通过后才进入 F5 逐页迁移。
+### 28.10 F4.5：App Shell 导航与保存状态回归（2026-11-27）
+
+- 新增 `AppShellNavigationRegressionTest` 的 5 项 JVM 测试，覆盖四个根目的地的整数 Saver 往返、三个二级目的地的字符串 Saver 往返、选择每个根 Tab 后关闭二级页、全部根 Tab / 二级页组合的 Back 返回，以及非法恢复索引回退。
+- 新增 `ZhixingAppShellNavigationIntegrationTest` 的 5 项 Activity instrumentation 测试源码，覆盖四个一级 Tab、History / Unit Converter 的系统 Back、Activity recreate 后二级路由与原根 Tab 恢复、PageViewport 与 Dock 是否为 Shell host 的直接兄弟层。
+- Shell host、PageViewport 和 Dock 外层 Box 增加三个 semantics testTag，仅供自动化层级测试定位，不改变任何尺寸、布局、绘制、滚动、Insets 或交互行为。
+- Build #524 暴露 Saver receiver / Compose TestRule import 的编译错误；修复提交 `f3a0d7a73c7567dcb87d30e68175e8308f52ba23` 后 Build #525（Run ID `45986224060`）完整 success。资源 / Markdown 检查、全量 JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与清理均通过。
+- Debug Artifact `zhixingapp-debug` ID `15191837513`，31,324,808 bytes，ZIP SHA-256 `24a523278b0fadf732435c57decf104714aac8926e6288d75a805a03741e3125`。
+- 明确验收边界：5 项 JVM 回归测试由 CI 实际运行并通过；5 项 Activity instrumentation 测试只完成 Kotlin 源码编译，CI 没有启动模拟器执行，F4.5 真机 Back / Activity 重建 / 层级观感仍待目标设备实测。
+
+**下一步：** F4 Shell 结构、导航状态与转场 owner 已具备 CI 验证；进入 F5 Existing Screens，按工具目录 → 我的 / 历史 / 材质设置 → 单位换算逐页迁移。每页需单独验证状态恢复、Dock / IME 避让、统一刚性滚动、玻璃层级和原业务行为，不重写数学 Domain。
