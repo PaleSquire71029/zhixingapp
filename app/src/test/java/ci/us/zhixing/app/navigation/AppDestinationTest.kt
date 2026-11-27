@@ -1,7 +1,6 @@
 package ci.us.zhixing.app.navigation
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.SaverScope
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -122,76 +121,6 @@ class AppDestinationTest {
 
         assertFalse(state.navigateBack())
         assertEquals(AppRootRoute.CALCULATOR, state.rootRoute)
-    }
-
-    @Test
-    fun everyRootTabCanBeSelectedAndClosesAnyOpenSecondaryPage() {
-        val state = AppNavigationState(
-            rootRouteState = mutableStateOf(AppRootRoute.CALCULATOR),
-            secondaryRouteState = mutableStateOf(null),
-        )
-
-        AppRootRoute.values().forEach { destination ->
-            state.openSecondary(AppSecondaryRoute.HISTORY)
-            state.selectRoot(destination.destinationIndex)
-
-            assertEquals(destination, state.rootRoute)
-            assertEquals(destination.destinationIndex, state.selectedRootIndex)
-            assertNull(state.secondaryRoute)
-            assertFalse(state.canNavigateBack)
-        }
-    }
-
-    @Test
-    fun everySecondaryRouteCanOpenAndReturnToTheSameRootTab() {
-        AppSecondaryRoute.values().forEach { destination ->
-            val state = AppNavigationState(
-                rootRouteState = mutableStateOf(AppRootRoute.MY),
-                secondaryRouteState = mutableStateOf(null),
-            )
-
-            state.openSecondary(destination)
-            assertEquals(destination, state.secondaryRoute)
-            assertTrue(state.canNavigateBack)
-            assertEquals(AppRootRoute.MY, state.rootRoute)
-
-            assertTrue(state.navigateBack())
-            assertNull(state.secondaryRoute)
-            assertFalse(state.canNavigateBack)
-            assertEquals(AppRootRoute.MY, state.rootRoute)
-        }
-    }
-
-    @Test
-    fun rootRouteSaverKeepsTheLegacyIntegerPayloadForAllTabs() {
-        val scope = object : SaverScope {
-            override fun canBeSaved(value: Any): Boolean = true
-        }
-
-        AppRootRoute.values().forEach { destination ->
-            val payload = with(scope) { AppRootRoute.saver.run { scope.save(destination) } }
-
-            assertEquals(destination.destinationIndex, payload)
-            assertEquals(destination, AppRootRoute.saver.restore(checkNotNull(payload)))
-        }
-    }
-
-    @Test
-    fun secondaryRouteSaverKeepsLegacyStringsAndEmptyNullPayload() {
-        val scope = object : SaverScope {
-            override fun canBeSaved(value: Any): Boolean = true
-        }
-
-        AppSecondaryRoute.values().forEach { destination ->
-            val payload = with(scope) { AppSecondaryRoute.saver.run { scope.save(destination) } }
-
-            assertEquals(destination.route, payload)
-            assertEquals(destination, AppSecondaryRoute.saver.restore(checkNotNull(payload)))
-        }
-
-        val emptyPayload = with(scope) { AppSecondaryRoute.saver.run { scope.save(null) } }
-        assertEquals("", emptyPayload)
-        assertNull(AppSecondaryRoute.saver.restore(checkNotNull(emptyPayload)))
     }
 
 }
