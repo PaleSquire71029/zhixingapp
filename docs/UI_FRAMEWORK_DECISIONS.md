@@ -122,6 +122,15 @@ AppState、路由、Dock、页面容器、状态恢复和页面转场移入独�
 - 保留 9 组 `rememberSaveable` 状态、性能档位参数、滑块 / 开关和实时预览 / commit / reset 回调，不改变 DataStore。
 - 新增 1 项 Activity instrumentation 测试源码；CI 仅编译、未运行模拟器。Build #536（Run ID `45990601046`）重跑后完整 success，Artifact 15193905919。
 
+### 2.12 F5.5：Unit Converter 页面迁移（2026-11-27）
+
+- 新增 `ui/screens/units/UnitConverterScreen.kt` 并让 Root Shell 指向新页面；旧 `ui/units/UnitConverterScreen.kt` 暂留作回退。
+- 将页面外层滚动替换为 `ZhixingPageScrollContainer`，保留 safeDrawing / IME、单位类别内部横向滚动和页面原留白，不把子控件横向滚动并入页面级 overscroll。
+- 五组 `rememberSaveable` 状态、Presenter / Formatter / Domain 调用、单位类别默认值、选择 / 交换、结果 / 同类列表、错误 / 不完整输入、复制 / 清除及系统十进制键盘行为保持。
+- Build #539（Run ID `45992101487`）完整 success，Artifact 15193614286；PR 当前头 Build #542（Run ID `46007122726`）亦完整 success，Artifact 15201023521。
+- 自动化边界：JVM 测试实际执行；Activity instrumentation 测试源码只编译，未在模拟器 / 真机执行。单位换算页真机验收仍待后续集中设备检查。
+- F5.5 通过后进入 F6.1 Calculator 基线盘点；UI 优先，不新增求解器题型，不重写 Domain。
+
 ## 3. 导航决策：暂不使用 Navigation 3
 
 当前只有 4 个 Tab 和 3 个单层二级页面，二级返回只需退出到对应根 Tab；没有深链、多层页面栈、多个独立返回栈或复杂结果传递。当前路由仅为字符串，确实需要在 F4 建立类型安全的 Destination / DetailRoute，但没有必要现在额外引入导航框架。

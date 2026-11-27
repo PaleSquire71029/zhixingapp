@@ -557,7 +557,7 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 
 ### 9.4 F4：App Shell / Nav 重建
 
-**实现状态（2026-11-27）：F4.1–F4.5 App Shell / Navigation 与 F5.1–F5.4 页面迁移均已通过 CI；当前继续 F5.5 Unit Converter。**
+**实现状态（2026-11-27）：F4.1–F4.5 App Shell / Navigation、F5.1–F5.5 Existing Screens 均已通过 CI；当前进入 F6.1 Calculator 基线盘点（UI-0）。**
 
 - **F4.1 MainActivity 职责拆分：** 根 Compose 内容搬至 `ui/shell/ZhixingAppRoot.kt`；Activity 只保留 Window / Edge-to-edge / 系统栏对比度 / adjustResize / setContent，玻璃设置 Store 仍由 Activity 创建并注入。Build #509（Run ID `45861464968`）完整 success。
 - **F4.2 类型化路由：** 新增 `AppRootRoute` / `AppSecondaryRoute`，以 enum 取代 Shell 内散落的一级 / 二级 route 字符串比较；Saver 继续使用旧一级 Tab 整数索引、二级 route 字符串，SaveableStateHolder keys 保持原样。新增 3 项 JVM 路由兼容测试。Build #511（Run ID `45862127405`）完整 success；Build #510 曾因 AnimatedContent 参数遮蔽状态变量而失败，修复为 `pageRoute` 后 Build #511 通过。
@@ -572,21 +572,22 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 - F4 只重构 App Shell / 导航边界，不迁移业务页面，不修改数学 Domain、Backdrop / Glass 算法、材质 DataStore 或四个入口的显示顺序。
 ### 9.5 F5–F6：逐页迁移
 
-F5.1–F5.4 已完成 CI 验证：
+F5.1–F5.5 已完成 CI 验证：
 
 - **F5.1 工具目录迁移：** 从 `ui/units/UnitConverterScreen.kt` 拆分至 `ui/screens/tools/ToolsScreen.kt`，独立页面职责；改用 `ZhixingPageScrollContainer` 实现统一整页刚性回弹，保留原标题 / 文案 / 单位换算玻璃卡片、回调、Scaffold innerPadding、Dock sibling 与留白参数。单位换算详情页 / Presenter / Domain 未改。新增 1 项 instrumentation 测试源码；Build #528（Run ID `45987533971`）完整 success，Artifact 15193010359（31,329,902 bytes，SHA-256 `daa94e5a38045a379c8cb1358c2e6dee7140076976ed1452f0216ed4f0c8200b`）。CI 未执行模拟器 instrumentation tests。
 - **F5.2「我的」页面迁移：** 新增 `ui/screens/my/MyScreen.kt` 并让 Shell 使用新实现，旧 `ui/my/MyScreen.kt` 暂留作回退；用 `ZhixingPageScrollContainer` 替换原页面 verticalScroll，保持 24dp 顶 / 底留白、最近使用空状态、历史 / 材质设置入口、版本信息、Glass 卡片与原路由回调。Build #530（Run ID `45988407684`）完整 success，Artifact 15193400267（31,350,528 bytes，SHA-256 `951f2cd5b0943e10d11699f77e7b01513e0c9380bffaab5c2812b6dd44dc52e5`）。新增 1 项 Activity instrumentation 测试源码；CI 仅编译，未启动模拟器执行。
 - **F5.3 History 页面迁移：** 旧 `ui/history/HistoryScreen.kt` 暂留回退；新增 `ui/screens/history/HistoryScreen.kt` 并切换 Shell，接入 `ZhixingPageScrollContainer`。保留独立 BackdropHost、safeDrawing Insets、原留白、返回按钮与真实空状态，不改历史存储（仍未实现）。新增 1 项 Activity instrumentation 测试源码；Build #532 因漏 import 失败，修复后 Build #533（Run ID `45989365859`）完整 success，Artifact 15192139647（31,359,450 bytes，SHA-256 `f2fdac2fe767f2a8db1f7cf72eb8ea0ab6055d9229fd2c4cfe4a3ce3e9bff720`）。CI 只编译 instrumentation 测试源码，未在模拟器执行。
 - **F5.4 Material Settings 页面迁移：** 新增 `ui/screens/settings/material/MaterialSettingsScreen.kt`，Shell 改用新页面；旧 Glass Lab 文件和性能档位模型保留。接入 `ZhixingPageScrollContainer`，保留 BackdropHost / safeDrawing / 原留白 / 返回 / 恢复默认；9 组 rememberSaveable 状态、档位 / 滑块 / 开关逻辑与实时预览 / commit / reset / DataStore 回调不变。新增 1 项 Activity instrumentation 测试源码，CI 仅编译。Build #535 首轮有 import / 测试文案错误，修复后 Build #536（Run ID `45990601046`）完整 success，Artifact 15193905919（31,408,446 bytes，SHA-256 `afbfa90a5b011b303676fb39f48a99c058cda3de35aba29aab21b17398127516`）。
+- **F5.5 Unit Converter 页面迁移：** 新增 `ui/screens/units/UnitConverterScreen.kt` 并切换 Shell；旧 `ui/units/UnitConverterScreen.kt` 保留作回退。页面改用 `ZhixingPageScrollContainer`，保留 safeDrawing / IME 避让、18dp 顶 / 32dp 底部留白和内部类别横向滚动。五组 `rememberSaveable` 状态、类别默认单位、单位选择 / 交换、输入 / 结果 / 同类单位列表、错误 / 不完整输入、复制 / 清除与十进制系统键盘保持。继续调用原 `UnitConversionPresenter` / `UnitValueFormatter` / `UnitConverter`，不改数学 Domain。Build #539（Run ID `45992101487`）完整 success，Artifact 15193614286（31,454,668 bytes，SHA-256 `68e96e034ed98dc1d1ce0d84cf6563a9bcd40fa81435aa8d4c6f6e3fe3ce3416`）；当前 PR 头 Build #542（Run ID `46007122726`）完整 success，Artifact 15201023521（31,454,666 bytes，SHA-256 `1483f10855a56a042101c01b9a4a8a2e8e0a8ba8b8303ae4868e5d7e8642e187`）。CI 只编译 androidTest 源码，未在模拟器执行 Activity instrumentation tests，也未做目标设备的输入 / IME / 滚动验收。
 
-建议顺序：
+F5 页面迁移已完成；F6 Core Experience 按以下顺序推进：
 
-1. 工具目录 / 我的 / 历史：先验证列表、统一滚动和返回状态。
-2. 单位换算：验证已有输入、单位选择、交换、复制、窄屏和 TalkBack 语义不回退。
-3. 计算主页：使用新组件库实现标准模式、输入区和主键盘。
-4. 科学模式与结果展示。
-5. 方程、不等式和函数页面。
-6. 知行 AI 页面与其他独立功能。
+1. **F6.1 Calculator 基线盘点（UI-0）：** 核对真实计算入口、Parser / Evaluator / Solver / 错误类型 / 测试路径，生成 domain → UI 能力映射和 UI-1 最小文件范围。
+2. **F6.2 计算主页骨架（UI-1）：** 让计算 Tab 成为可输入的标准模式计算器，优先交付编辑区、数字键盘、等号计算与基本状态。
+3. **F6.3 科学输入与表达式编辑（UI-2）：** 增加科学模式、光标 / 选区编辑和可靠输入状态。
+4. **F6.4 结果与错误呈现（UI-3）：** 接入成功、未完成、语法 / 定义域 / 不支持 / 数值错误及复制。
+5. **F6.5–F6.8：** 逐步接入方程、不等式、函数分析 / 图像等页面；只开放已有可用能力，不在 UI 阶段扩展大批新 Solver。
+6. AI 工作区作为独立页面继续推进，不塞入计算器常驻界面。
 
 迁移时旧页和新页短期并存，通过路由切换验收；一个页面完全通过后再删除旧实现，不同时重写所有页面。
 
@@ -645,6 +646,6 @@ CI 通过不等于真机验收通过。玻璃光学效果、整页回弹手感�
 - 当前 CI 只编译 androidTest 源码，不运行模拟器 instrumentation tests；用户安装测试后明确反馈 F3 整体体验没有问题，未记录逐项帧率 / 边界量化数据。
 - PR #92 仍 open、未合并；main 仍为 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。
 - Backdrop 1.0.6、Shapes 1.2.0、玻璃控件与 DataStore、材质设置、性能分级、单位换算、数学 Domain 和已验收 Dock 保持不变。
-- F3 不修改业务页面、正式导航、玻璃算法或 Gradle 依赖；用户确认 F3 设备体验无问题后进入 F4。F4.1–F4.5 已完成代码实现及 CI 验证；CI 的 Activity instrumentation 测试仅完成源码编译，不代表模拟器 / 真机运行。PR #92 仍 open，main 未合并。
+- F3 不修改业务页面、正式导航、玻璃算法或 Gradle 依赖；用户确认 F3 设备体验无问题后进入 F4。F4.1–F4.5、F5.1–F5.5 已完成代码实现与 CI 验证。F5.5 单位换算页面仍待目标设备检查键盘、窄屏、滚动、复制和 TalkBack；Activity instrumentation 测试源码只编译，不能替代模拟器 / 真机运行。PR #92 仍 open，main 未合并。
 
-**下一步：** F5.5 迁移 Unit Converter 二级页面至 `ui/screens/units/UnitConverterScreen.kt`；只替换页面归属和外层滚动容器，保留所有输入 / 类别选择 / 单位选择 / 交换 / 结果 / 复制 / 清除行为，以及现有 Presenter / Domain 和 IME 行为。
+**下一步：** F6.1 Calculator 基线盘点（UI-0）：核查真实计算入口、已存在数学 Domain API / typed errors / tests、页面状态与组件复用点，产出 domain → UI 能力映射和 UI-1 最小改动范围；完成后再实施计算主页。
