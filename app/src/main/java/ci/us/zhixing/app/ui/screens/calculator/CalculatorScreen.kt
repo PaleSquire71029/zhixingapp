@@ -64,6 +64,7 @@ private data class CalculatorKeySpec(
     val label: String,
     val action: CalculatorEditorAction? = null,
     val variant: ZhixingButtonVariant = ZhixingButtonVariant.SECONDARY,
+    val isEquals: Boolean = false,
 )
 
 private val calculatorKeyRows = listOf(
@@ -95,7 +96,7 @@ private val calculatorKeyRows = listOf(
         CalculatorKeySpec("digit-0", "0", CalculatorEditorAction.InsertText("0")),
         CalculatorKeySpec("decimal", ".", CalculatorEditorAction.InsertText(".")),
         CalculatorKeySpec("power", "^", CalculatorEditorAction.InsertText("^"), ZhixingButtonVariant.TERTIARY),
-        CalculatorKeySpec("backspace", "⌫", CalculatorEditorAction.Backspace, ZhixingButtonVariant.TERTIARY),
+        CalculatorKeySpec("equals", "=", variant = ZhixingButtonVariant.PRIMARY, isEquals = true),
     ),
 )
 
@@ -199,11 +200,25 @@ internal fun CalculatorScreen(
                     modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Text(
-                        text = "表达式",
-                        style = ZhixingTheme.type.sectionLabel,
-                        color = ZhixingTheme.colors.onSurfaceVariant,
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "表达式",
+                            style = ZhixingTheme.type.sectionLabel,
+                            color = ZhixingTheme.colors.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        ZhixingButton(
+                            label = "⌫",
+                            onClick = { dispatch(CalculatorEditorAction.Backspace) },
+                            variant = ZhixingButtonVariant.TERTIARY,
+                            modifier = Modifier
+                                .heightIn(min = 40.dp)
+                                .testTag("calculator-key-backspace"),
+                        )
+                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -275,8 +290,11 @@ internal fun CalculatorScreen(
                             ZhixingButton(
                                 label = key.label,
                                 onClick = {
-                                    val action = key.action
-                                    if (action != null) dispatch(action)
+                                    if (key.isEquals) {
+                                        showSubmittedResult = editorState.text.isNotBlank()
+                                    } else {
+                                        key.action?.let(::dispatch)
+                                    }
                                 },
                                 variant = key.variant,
                                 modifier = Modifier
@@ -287,15 +305,6 @@ internal fun CalculatorScreen(
                         }
                     }
                 }
-                ZhixingButton(
-                    label = "=",
-                    onClick = { showSubmittedResult = editorState.text.isNotBlank() },
-                    variant = ZhixingButtonVariant.PRIMARY,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .testTag("calculator-key-equals"),
-                )
             }
             Spacer(modifier = Modifier.height(2.dp))
         }
