@@ -35,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import ci.us.zhixing.app.navigation.AppDestinations
 import ci.us.zhixing.app.navigation.AppNavigationState
@@ -177,8 +178,10 @@ internal fun ZhixingAppRoot(
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Color.Transparent,
                 ) { innerPadding ->
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        ZhixingPageViewport(modifier = Modifier.fillMaxSize()) {
+                    Box(modifier = Modifier.fillMaxSize().testTag("zhixing-shell-layer-host")) {
+                        ZhixingPageViewport(
+                            modifier = Modifier.fillMaxSize().testTag("zhixing-page-viewport"),
+                        ) {
                     if (navigationState.rootRoute == AppRootRoute.MY) {
                         saveableStateHolder.SaveableStateProvider(AppRootRoute.MY.saveableStateKey) {
                             MyScreen(
@@ -333,6 +336,7 @@ internal fun ZhixingAppRoot(
                         destinations = destinations,
                         selectedIndex = selectedIndex,
                         onDestinationSelected = navigationState::selectRoot,
+                        modifier = Modifier.testTag("zhixing-dock-overlay"),
                     )
                     }
                 }
