@@ -7,6 +7,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsOff
@@ -46,6 +47,42 @@ class ZhixingCatalogBottomBarMainActivityIntegrationTest {
 
         composeRule.onNode(tab("工具")).assertIsSelected()
         composeRule.onNodeWithText("把复杂问题拆开处理").assertIsDisplayed()
+    }
+
+    @Test
+    fun allFourRootTabsRemainSelectableAndShowTheirExpectedPageContent() {
+        composeRule.onNode(tab("计算")).assertIsSelected()
+
+        composeRule.onNode(tab("知行 AI")).performClick()
+        composeRule.onNode(tab("知行 AI")).assertIsSelected()
+        composeRule.onNodeWithText("让计算与理解连在一起").assertIsDisplayed()
+
+        composeRule.onNode(tab("工具")).performClick()
+        composeRule.onNode(tab("工具")).assertIsSelected()
+        composeRule.onNodeWithText("把复杂问题拆开处理").assertIsDisplayed()
+
+        composeRule.onNode(tab("我的")).performClick()
+        composeRule.onNode(tab("我的")).assertIsSelected()
+        composeRule.onNodeWithText("本地空间 · 无需登录").assertIsDisplayed()
+
+        composeRule.onNode(tab("计算")).performClick()
+        composeRule.onNode(tab("计算")).assertIsSelected()
+        composeRule.onNode(tab("我的")).assertIsNotSelected()
+    }
+
+    @Test
+    fun systemBackClosesSecondaryPageWithoutChangingTheRootTab() {
+        composeRule.onNode(tab("我的")).performClick()
+        composeRule.onNode(tab("我的")).assertIsSelected()
+        composeRule.onNodeWithText("材质设置").performClick()
+        composeRule.onNodeWithText("实时液态玻璃").assertIsDisplayed()
+
+        composeRule.activity.onBackPressedDispatcher.onBackPressed()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(tab("我的")).assertIsSelected()
+        composeRule.onNodeWithText("本地空间 · 无需登录").assertIsDisplayed()
+        composeRule.onNodeWithText("材质设置").assertIsDisplayed()
     }
 
     @Test
