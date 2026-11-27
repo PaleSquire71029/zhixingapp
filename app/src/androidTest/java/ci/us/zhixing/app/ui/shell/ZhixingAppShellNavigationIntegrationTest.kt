@@ -124,7 +124,7 @@ class ZhixingAppShellNavigationIntegrationTest {
         composeRule.onNodeWithText("材质设置").performClick()
         composeRule.onNodeWithTag("material-settings-page-scroll-container").assertIsDisplayed()
         composeRule.onNodeWithText("恢复默认").assertIsDisplayed()
-        composeRule.onNodeWithText("透明度").assertIsDisplayed()
+        composeRule.onNodeWithText("透明程度").assertIsDisplayed()
     }
 
     @Test
