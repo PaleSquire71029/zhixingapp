@@ -129,3 +129,12 @@ UI-1 新增测试建议：
 ## 8. 下一步
 
 F6.1 / UI-0 基线审计完成。当前进入 F6.2 / UI-1：先提交纯 Kotlin 编辑状态和 Presenter 测试，再实现 `CalculatorScreen` 与标准应用内键盘。
+
+## 9. 审计后的实现进度（2026-11-27）
+
+本节记录审计完成后的后续变化；第 1–8 节的“当前不存在 CalculatorScreen”均描述审计代码基线 `b4dac02bbea9f2190898911138e3da27bbdba5e6`，不是最新代码状态。
+
+- F6.2a 已新增 `ui/calculator/CalculatorEditorState.kt`、`CalculatorPresenter.kt` 及两组 JVM 测试。状态 reducer 覆盖插入 / 替换、选区、退格 / 前删、AC、括号和 UTF-16 surrogate pair 删除；Presenter 继续唯一调用 `MathArithmeticCalculator.calculate(source)`。Build #546（Run ID `46009853613`）通过。
+- F6.2b 已新增 `ui/screens/calculator/CalculatorScreen.kt` 并挂载到 `AppRootRoute.CALCULATOR`；保留根 Shell 的路由 / Saveable key / Backdrop / PageViewport / Dock 归属。首版有五行标准应用内键盘、表达式 / 选区保存、结果预览 / 提交与失败反馈。
+- Build #549（Run ID `46011425977`）是五行键盘最终布局版本的完整验证：JVM 测试、androidTest 源码编译、Debug APK 组装和 Artifact 上传通过；Artifact 15203873016（31,483,195 bytes）。
+- 新增 3 项 Activity instrumentation 测试源码覆盖键盘求值、AC / 退格和不完整表达式错误，但当前 CI 只编译这些测试源码，没有运行模拟器。选区拖动、长表达式、TalkBack、360dp 窄屏和真机视觉仍待验收。

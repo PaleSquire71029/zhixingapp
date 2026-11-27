@@ -8,7 +8,7 @@
 > **当前 UI 开发：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **当前工程版本：** 0.1.2 / versionCode 3  
 > **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
-> **当前 UI 框架 CI：** [Build #542](https://github.com/PaleSquire71029/zhixingapp/actions/runs/46007122726)（PR #92 当前源码头完整通过 JVM 测试、Android 测试源码编译、Debug APK 组装和 Artifact 上传；Artifact 15201023521）  
+> **当前 UI 框架 CI：** [Build #549](https://github.com/PaleSquire71029/zhixingapp/actions/runs/46011425977)（PR #92 F6.2 / UI-1 标准计算器首版页面、五行键盘和 JVM 状态 / Presenter 测试完整通过；Artifact 15203873016）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -37,13 +37,13 @@
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
 | 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
 | Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.5、F5.1–F5.5 已通过 CI** | 工具目录（#528）、「我的」（#530）、History（#533）、材质设置（#536）、单位换算（#539）均已迁移并接入统一刚性页面滚动；PR #92 仍 open，未合并 |
-| 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
+| 计算器原生页面 / 专用输入 | **F6.2 / UI-1 首版已接入，继续完善** | CalculatorScreen、五行标准键盘、表达式状态 / Presenter 已通过 Build #549；选区 / 光标、窄屏、无障碍和真机验收仍待完善 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：Zhixing Flow F6.2 / UI-1 计算主页骨架。** F6.1 已完成真实代码基线盘点，审计记录见 [计算器 UI 基线审计](docs/CALCULATOR_UI_BASELINE_AUDIT.md)。现有 `MathArithmeticCalculator.calculate(source)` 可直接作为标准模式本地求值入口；已有 Parser / Evaluator / typed failure / JVM golden tests 可以复用。计算 Tab 当前仍是占位展示，尚无 CalculatorScreen、输入编辑器或应用内键盘。UI-1 将只交付标准模式输入、应用内数字键盘、等号计算、结果 / 错误展示与输入状态恢复；不把尚未有字符串适配入口的方程 / 不等式 Solver 接入标准计算页，不新增数学题型。F5 页面真机验收仍待独立进行；Activity instrumentation 测试源码仅编译，CI 未启动模拟器执行。PR #92 仍 open、未合并。
+**当前工作重心：Zhixing Flow F6.2 / UI-1 标准计算器首版完善。** F6.1 基线审计已完成，见 [计算器 UI 基线审计](docs/CALCULATOR_UI_BASELINE_AUDIT.md)。现已新增纯 Kotlin `CalculatorEditorState` / reducer 和 `CalculatorPresenter`，标准求值仍只调用 `MathArithmeticCalculator.calculate(source)`；并新增 `ui/screens/calculator/CalculatorScreen.kt`，接入计算 Tab。页面包含表达式编辑区、五行标准键盘（AC / 括号 / 百分号 / 四则 / 幂 / 小数 / 等号）、表达式栏退格、实时预览与提交结果 / 错误；状态通过 `rememberSaveable` 保存。Build #546 验证编辑状态 / Presenter 单测；Build #549 验证当前 CalculatorScreen、JVM 测试、androidTest 源码编译、Debug APK 和 Artifact 上传。Activity 集成测试源码没有在模拟器执行，页面光标 / 选区、窄屏、连续触控与真实视觉仍待设备验收。方程 / 不等式 Solver 暂不接入首屏；没有新增数学 Domain 或 C5.19。PR #92 仍 open、未合并。
 
 ---
 
@@ -146,7 +146,8 @@
 ### 2026-11-27：Zhixing Flow F6 Core Experience 启动准备
 
 - F0–F3、F4.1–F4.5、F5.1–F5.5 的代码与 CI 前置条件均已完成；PR #92 仍 open、尚未合并 main。
-- 下一步 F6.1（对应计算器 UI 路线 UI-0）先盘点真实 Calculator Shell / Parser / Evaluator / Solver / 错误模型 / 测试入口，产出真实文件路径和能力映射；不把旧占位首页当成需求，不扩展 C5.19 等数学题型。
+- F6.1 / UI-0 已完成只读代码审计，输出 `docs/CALCULATOR_UI_BASELINE_AUDIT.md`。
+- F6.2 / UI-1 已接入第一版 CalculatorScreen 和标准键盘；接下来完善光标 / 选区编辑、预览 / 错误体验与窄屏 / 无障碍验收。
 
 ### 1. 2026-10-31：项目启动与 Android 原生基础
 
@@ -257,7 +258,7 @@
 当前执行顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](docs/CALCULATOR_UI_FIRST_ROADMAP.md) 为准：**先做界面和现有能力接入，后做数学扩展。**
 
 1. **UI-0：** 盘点真实页面路由、Compose 组件、domain 接口与测试入口。
-2. **UI-1–UI-3：** 完成计算主页、标准 / 科学输入、结果展示、错误分类和复制。
+2. **UI-1–UI-3（F6.2–F6.4）：** 完成计算主页、标准 / 科学输入、结果展示、错误分类和复制。
 3. **UI-4–UI-7：** 完成工具目录、方程 / 不等式 / 函数页面，并接入当前已有 solver、函数拟合和采样能力。
 4. **UI-8–UI-10：** 完成本地历史、增强题目编辑器、无障碍 / 性能和目标设备界面验收。
 5. **M-0 以后：** 界面阶段稳定后，再统一接入注册表并补齐通用函数、方程、不等式及高中其他题型。
