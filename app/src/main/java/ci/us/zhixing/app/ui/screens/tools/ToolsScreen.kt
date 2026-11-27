@@ -50,8 +50,9 @@ internal fun ToolsScreen(
     ZhixingPageScrollContainer(
         modifier = modifier.testTag("tools-page-scroll-container"),
         contentPadding = PaddingValues(
-            horizontal = ZhixingTheme.spacing.pageHorizontal,
+            start = ZhixingTheme.spacing.pageHorizontal,
             top = 30.dp,
+            end = ZhixingTheme.spacing.pageHorizontal,
             bottom = 112.dp,
         ),
     ) {
