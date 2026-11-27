@@ -16,7 +16,7 @@ class AppShellNavigationRegressionTest {
     @Test
     fun everyRootRouteRoundTripsThroughTheLegacyIntegerSaver() {
         AppRootRoute.values().forEach { route ->
-            val savedIndex = with(saverScope) { AppRootRoute.saver.save(route) }
+            val savedIndex = with(AppRootRoute.saver) { with(saverScope) { save(route) } }
 
             assertEquals(route.destinationIndex, savedIndex)
             assertEquals(route, AppRootRoute.saver.restore(checkNotNull(savedIndex)))
@@ -26,13 +26,13 @@ class AppShellNavigationRegressionTest {
     @Test
     fun everySecondaryRouteRoundTripsThroughItsLegacyStringSaver() {
         AppSecondaryRoute.values().forEach { route ->
-            val savedRoute = with(saverScope) { AppSecondaryRoute.saver.save(route) }
+            val savedRoute = with(AppSecondaryRoute.saver) { with(saverScope) { save(route) } }
 
             assertEquals(route.route, savedRoute)
             assertEquals(route, AppSecondaryRoute.saver.restore(checkNotNull(savedRoute)))
         }
 
-        val savedNull = with(saverScope) { AppSecondaryRoute.saver.save(null) }
+        val savedNull = with(AppSecondaryRoute.saver) { with(saverScope) { save(null) } }
         assertEquals("", savedNull)
         assertNull(AppSecondaryRoute.saver.restore(checkNotNull(savedNull)))
     }
