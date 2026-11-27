@@ -169,7 +169,7 @@ class AppDestinationTest {
         }
 
         AppRootRoute.values().forEach { destination ->
-            val payload = with(scope) { AppRootRoute.saver.save(destination) }
+            val payload = with(scope) { AppRootRoute.saver.run { scope.save(destination) } }
 
             assertEquals(destination.destinationIndex, payload)
             assertEquals(destination, AppRootRoute.saver.restore(checkNotNull(payload)))
@@ -183,13 +183,13 @@ class AppDestinationTest {
         }
 
         AppSecondaryRoute.values().forEach { destination ->
-            val payload = with(scope) { AppSecondaryRoute.saver.save(destination) }
+            val payload = with(scope) { AppSecondaryRoute.saver.run { scope.save(destination) } }
 
             assertEquals(destination.route, payload)
             assertEquals(destination, AppSecondaryRoute.saver.restore(checkNotNull(payload)))
         }
 
-        val emptyPayload = with(scope) { AppSecondaryRoute.saver.save(null) }
+        val emptyPayload = with(scope) { AppSecondaryRoute.saver.run { scope.save(null) } }
         assertEquals("", emptyPayload)
         assertNull(AppSecondaryRoute.saver.restore(checkNotNull(emptyPayload)))
     }
