@@ -2396,4 +2396,12 @@ F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最
 - 新增 1 项 Activity instrumentation 测试源码，检查新页面刚性滚动容器以及最近使用 / 历史 / 材质内容。Build #530（Run ID `45988407684`）完整 success：资源 / Markdown 检查、全量 JVM 单测、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及清理均通过；但没有启动模拟器执行 Activity instrumentation tests。
 - Debug Artifact `zhixingapp-debug` ID `15193400267`，31,350,528 bytes，ZIP SHA-256 `951f2cd5b0943e10d11699f77e7b01513e0c9380bffaab5c2812b6dd44dc52e5`。
 
-**下一步：** F5.3 将 History 二级页面从 `ui/history/HistoryScreen.kt` 拆到 `ui/screens/history/HistoryScreen.kt` 并接入 `ZhixingPageScrollContainer`；保留真实空状态、独立 Backdrop 与返回回调。然后迁移 Material Settings、Unit Converter；旧文件待每个替代页验收后再清理。
+### 28.13 F5.3：History 页面迁移（2026-11-27）
+
+- 保留旧 `ui/history/HistoryScreen.kt` 文件作为回退；新增 `ui/screens/history/HistoryScreen.kt`，Shell 改为引用新页面。
+- 将原页面 `verticalScroll(rememberScrollState())` 替换为 F3 `ZhixingPageScrollContainer`，添加 `history-page-scroll-container` testTag；保留独立 `BackdropHost`、`WindowInsets.safeDrawing`、20dp 横向 / 10dp 顶部 / 24dp 底部留白、返回按钮、标题与说明、空状态玻璃卡片。
+- 本阶段没有历史存储，继续明确显示“还没有计算记录”；没有伪造本地历史，也不混入 AI 对话。
+- 新增 1 项 Activity instrumentation 测试源码，覆盖刚性滚动容器与原空状态。Build #532 因拆分时遗漏 `GlassMaterialState` import 而失败；修复提交 `b732e4a2ddcfbdfd77848ac63aeab8855c7d9fda` 补回 import 后 Build #533（Run ID `45989365859`）完整 success：全量 JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传均通过；CI 未启动模拟器执行 instrumentation tests。
+- Debug Artifact `zhixingapp-debug` ID `15192139647`，31,359,450 bytes，ZIP SHA-256 `f2fdac2fe767f2a8db1f7cf72eb8ea0ab6055d9229fd2c4cfe4a3ce3e9bff720`。
+
+**下一步：** F5.4 将 Glass Lab 从 `ui/lab/GlassLabScreen.kt` 迁移到 `ui/screens/settings/material/MaterialSettingsScreen.kt`；改用 `ZhixingPageScrollContainer`，但保持每个 slider / toggle 的 rememberSaveable 状态、范围、分级配置、实时预览 / commit / reset 回调和 Backdrop 不变。完成后迁移 Unit Converter。

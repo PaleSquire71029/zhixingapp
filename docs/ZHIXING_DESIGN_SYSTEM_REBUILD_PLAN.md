@@ -557,7 +557,7 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 
 ### 9.4 F4：App Shell / Nav 重建
 
-**实现状态（2026-11-27）：F4.1–F4.5 App Shell / Navigation 与 F5.1–F5.2 页面迁移均已通过 CI；当前继续 F5.3 History 页面。**
+**实现状态（2026-11-27）：F4.1–F4.5 App Shell / Navigation 与 F5.1–F5.3 页面迁移均已通过 CI；当前继续 F5.4 Material Settings。**
 
 - **F4.1 MainActivity 职责拆分：** 根 Compose 内容搬至 `ui/shell/ZhixingAppRoot.kt`；Activity 只保留 Window / Edge-to-edge / 系统栏对比度 / adjustResize / setContent，玻璃设置 Store 仍由 Activity 创建并注入。Build #509（Run ID `45861464968`）完整 success。
 - **F4.2 类型化路由：** 新增 `AppRootRoute` / `AppSecondaryRoute`，以 enum 取代 Shell 内散落的一级 / 二级 route 字符串比较；Saver 继续使用旧一级 Tab 整数索引、二级 route 字符串，SaveableStateHolder keys 保持原样。新增 3 项 JVM 路由兼容测试。Build #511（Run ID `45862127405`）完整 success；Build #510 曾因 AnimatedContent 参数遮蔽状态变量而失败，修复为 `pageRoute` 后 Build #511 通过。
@@ -572,10 +572,11 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 - F4 只重构 App Shell / 导航边界，不迁移业务页面，不修改数学 Domain、Backdrop / Glass 算法、材质 DataStore 或四个入口的显示顺序。
 ### 9.5 F5–F6：逐页迁移
 
-F5.1 与 F5.2 已完成 CI 验证：
+F5.1–F5.3 已完成 CI 验证：
 
 - **F5.1 工具目录迁移：** 从 `ui/units/UnitConverterScreen.kt` 拆分至 `ui/screens/tools/ToolsScreen.kt`，独立页面职责；改用 `ZhixingPageScrollContainer` 实现统一整页刚性回弹，保留原标题 / 文案 / 单位换算玻璃卡片、回调、Scaffold innerPadding、Dock sibling 与留白参数。单位换算详情页 / Presenter / Domain 未改。新增 1 项 instrumentation 测试源码；Build #528（Run ID `45987533971`）完整 success，Artifact 15193010359（31,329,902 bytes，SHA-256 `daa94e5a38045a379c8cb1358c2e6dee7140076976ed1452f0216ed4f0c8200b`）。CI 未执行模拟器 instrumentation tests。
 - **F5.2「我的」页面迁移：** 新增 `ui/screens/my/MyScreen.kt` 并让 Shell 使用新实现，旧 `ui/my/MyScreen.kt` 暂留作回退；用 `ZhixingPageScrollContainer` 替换原页面 verticalScroll，保持 24dp 顶 / 底留白、最近使用空状态、历史 / 材质设置入口、版本信息、Glass 卡片与原路由回调。Build #530（Run ID `45988407684`）完整 success，Artifact 15193400267（31,350,528 bytes，SHA-256 `951f2cd5b0943e10d11699f77e7b01513e0c9380bffaab5c2812b6dd44dc52e5`）。新增 1 项 Activity instrumentation 测试源码；CI 仅编译，未启动模拟器执行。
+- **F5.3 History 页面迁移：** 旧 `ui/history/HistoryScreen.kt` 暂留回退；新增 `ui/screens/history/HistoryScreen.kt` 并切换 Shell，接入 `ZhixingPageScrollContainer`。保留独立 BackdropHost、safeDrawing Insets、原留白、返回按钮与真实空状态，不改历史存储（仍未实现）。新增 1 项 Activity instrumentation 测试源码；Build #532 因漏 import 失败，修复后 Build #533（Run ID `45989365859`）完整 success，Artifact 15192139647（31,359,450 bytes，SHA-256 `f2fdac2fe767f2a8db1f7cf72eb8ea0ab6055d9229fd2c4cfe4a3ce3e9bff720`）。CI 只编译 instrumentation 测试源码，未在模拟器执行。
 
 建议顺序：
 
@@ -645,4 +646,4 @@ CI 通过不等于真机验收通过。玻璃光学效果、整页回弹手感�
 - Backdrop 1.0.6、Shapes 1.2.0、玻璃控件与 DataStore、材质设置、性能分级、单位换算、数学 Domain 和已验收 Dock 保持不变。
 - F3 不修改业务页面、正式导航、玻璃算法或 Gradle 依赖；用户确认 F3 设备体验无问题后进入 F4。F4.1–F4.5 已完成代码实现及 CI 验证；CI 的 Activity instrumentation 测试仅完成源码编译，不代表模拟器 / 真机运行。PR #92 仍 open，main 未合并。
 
-**下一步：** F5.3 迁移 History 二级页面至 `ui/screens/history/HistoryScreen.kt` 并接入 `ZhixingPageScrollContainer`，保留真实空状态、独立 Backdrop 与原返回回调；随后迁移 Material Settings 和 Unit Converter。
+**下一步：** F5.4 迁移 Glass Lab 至 `ui/screens/settings/material/MaterialSettingsScreen.kt`；保持所有滑块 / 开关、`rememberSaveable` 状态、数值范围、性能档位、实时预览 / commit / reset 和 Backdrop 不变，仅替换滚动容器。完成后迁移 Unit Converter。

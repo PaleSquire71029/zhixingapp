@@ -108,6 +108,13 @@ AppState、路由、Dock、页面容器、状态恢复和页面转场移入独�
 - 根 Tab Saver / SaveableStateProvider key、Dock / viewport 层级、DataStore 材质状态均不变。Build #530（Run ID `45988407684`）完整 success，Artifact 15193400267。
 - 新增 1 项 Activity instrumentation 测试源码；CI 仅编译，未启动模拟器执行。
 
+### 2.10 F5.3：History 页面迁移（2026-11-27）
+
+- 新增 `ui/screens/history/HistoryScreen.kt` 并切换 Shell，旧 `ui/history/HistoryScreen.kt` 保留作回退。
+- 使用 `ZhixingPageScrollContainer` 取代原 `verticalScroll`；安全区 `WindowInsets.safeDrawing` 仍处于页面滚动容器外层，独立 `BackdropHost`、留白、Back 按钮和真实空状态保持。
+- 不引入历史持久化，不伪造记录。新增 1 项 Activity instrumentation 测试源码，CI 只编译不运行。
+- Build #532 漏掉 `GlassMaterialState` import 导致编译失败；修复后 Build #533（Run ID `45989365859`）完整 success，Artifact 15192139647。
+
 ## 3. 导航决策：暂不使用 Navigation 3
 
 当前只有 4 个 Tab 和 3 个单层二级页面，二级返回只需退出到对应根 Tab；没有深链、多层页面栈、多个独立返回栈或复杂结果传递。当前路由仅为字符串，确实需要在 F4 建立类型安全的 Destination / DetailRoute，但没有必要现在额外引入导航框架。
