@@ -78,6 +78,13 @@ AppState、路由、Dock、页面容器、状态恢复和页面转场移入独�
 - Build #520（Run ID `45864663317`）完整 success；Debug Artifact 15139507502（31,323,452 bytes）。
 - 下一步 F4.4c 提取 transition owner，保持原转场规格，不迁移业务页面。
 
+### 2.6 F4.4c：二级页面转场 owner（2026-11-27）
+
+- 将 `ZhixingAppRoot` 内联的 `AnimatedContent` 移至 `ZhixingSecondaryPageTransition`，只负责转场容器，不拥有导航状态，也不处理系统 Back。
+- 转场使用原参数：fade-in 230ms / slide-in 280ms（width / 9）/ scale 0.985；fade-out 170ms / slide-out 220ms（-width / 14）/ scale 0.99；保留 `zhixingSecondaryPageTransition` label。
+- 新增 2 项 JVM 契约测试锁定时序、几何参数、scale 和 label。Build #522（Run ID `45866322423`）完整 success，Artifact 15140782538。
+- 根 Shell 仍持有 `BackHandler`，`AppNavigationState` 仍持有路由；F4.5 再集中验证根路由、二级返回、Saver 兼容和 Dock / viewport 层级。
+
 ## 3. 导航决策：暂不使用 Navigation 3
 
 当前只有 4 个 Tab 和 3 个单层二级页面，二级返回只需退出到对应根 Tab；没有深链、多层页面栈、多个独立返回栈或复杂结果传递。当前路由仅为字符串，确实需要在 F4 建立类型安全的 Destination / DetailRoute，但没有必要现在额外引入导航框架。

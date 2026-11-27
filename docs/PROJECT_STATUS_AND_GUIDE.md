@@ -10,7 +10,7 @@
 
 ## 1. 先看结论
 
-本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；当前按 Zhixing Flow F0–F4 分阶段重建 UI。F0–F3 已完成，F3 整页刚性回弹原型经用户确认设备体验无问题，记录为验收通过。F4.1 Activity / Shell root split（Build #509）、F4.2 typed routes（Build #511）、F4.3 AppNavigationState 与旧 Saveable 槽位兼容（Build #516）、F4.4a 固定 Dock overlay 提取（Build #518）、F4.4b PageViewport / Dock sibling 分层（Build #520）均已通过 CI。当前正进入 F4.4c 页面转场 owner 分离；业务页面尚未迁移。项目权威进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md)，主规划见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，行为保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。
+本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；当前按 Zhixing Flow F0–F4 分阶段重建 UI。F0–F3 已完成，F3 整页刚性回弹原型经用户确认设备体验无问题，记录为验收通过。F4.1 Activity / Shell root split（Build #509）、F4.2 typed routes（Build #511）、F4.3 AppNavigationState 与旧 Saveable 槽位兼容（Build #516）、F4.4a 固定 Dock overlay 提取（Build #518）、F4.4b PageViewport / Dock sibling 分层（Build #520）、F4.4c 页面转场 owner 提取（Build #522）均已通过 CI。当前进入 F4.5 Shell 集成回归；业务页面尚未迁移。项目权威进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md)，主规划见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，行为保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。
 
 **本文件是开发与交接方法手册，不是进度账本。** 当前代码实现、构建 / Artifact、真机验收和下一步只在 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 记录；当前计算器任务顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 为准；既有 C0–C8 数学内核的算法契约和历史验收见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)。长期产品范围见 [ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md) 与各专项规划。
 
@@ -91,7 +91,7 @@
 
 ## 3. 已经做了什么
 
-**Zhixing Flow F0–F3 已完成，F4 App Shell / Navigation 重建进行中。** F3 整页回弹经用户确认体验无问题。F4.1 将根 Compose 内容搬到 `ui/shell/ZhixingAppRoot.kt`（Build #509）；F4.2 类型化路由保留旧 index / route / saveable keys（Build #511）；F4.3 抽出 `AppNavigationState` 并保留 Shell 根层 Saveable 调用位置与顺序（Build #516）；F4.4a 将固定 Dock wrapper 提取为 `ZhixingDockOverlay.kt`（Build #518）；F4.4b 新增全尺寸 `ZhixingPageViewport`，与固定 Dock overlay 成为 sibling，旧滚动 / innerPadding / Insets / IME 逻辑不变（Build #520）。CI 编译 androidTest 源码但不自动运行模拟器 instrumentation tests。PR #92 仍 open，main 尚未合并；没有替换 Dock / Backdrop 算法、增加导航依赖或迁移业务页面。下一步 F4.4c 分离页面转场 owner。详细进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+**Zhixing Flow F0–F3 已完成，F4.1–F4.4c Shell 结构实现均已通过 CI。** F4.1 将根 Compose 内容搬到 `ui/shell/ZhixingAppRoot.kt`（Build #509）；F4.2 类型化路由保留旧 index / route / saveable keys（Build #511）；F4.3 抽出 `AppNavigationState` 并保留 Shell 根层 Saveable 调用位置与顺序（Build #516）；F4.4a 将固定 Dock wrapper 提取为 `ZhixingDockOverlay.kt`（Build #518）；F4.4b 新增全尺寸 `ZhixingPageViewport`，与固定 Dock overlay 成为 sibling，旧滚动 / innerPadding / Insets / IME 逻辑不变（Build #520）；F4.4c 将二级页面动画统一交给 `ZhixingSecondaryPageTransition`，保留原 230 / 280 / 170 / 220ms、slide 与 scale 契约（Build #522）。CI 编译 androidTest 源码但不自动运行模拟器 instrumentation tests。PR #92 仍 open，main 尚未合并；没有替换 Dock / Backdrop 算法、增加导航依赖或迁移业务页面。下一步 F4.5 集中回归 Shell 导航与保存状态。详细进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 **液态玻璃专项执行路线已于 2026-11-01 重置：** 以用户上传的 Backdrop Catalog APK 为视觉 / 交互基准，锁定上游 tag 1.0.6，直接移植官方 LiquidBottomTabs、DampedDragAnimation、InteractiveHighlight、LiquidButton、LiquidSlider、LiquidToggle 等源码；不升级 Backdrop 2.x，不复制整套 Demo App。详细步骤见 [LIQUID_GLASS_REDESIGN_PLAN.md 第 25 节](./LIQUID_GLASS_REDESIGN_PLAN.md)。
 

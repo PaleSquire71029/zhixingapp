@@ -8,7 +8,7 @@
 > **当前 UI 开发：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **当前工程版本：** 0.1.2 / versionCode 3  
 > **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
-> **当前 UI 框架 CI：** [Build #520](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45864663317)（PR #92 F4.4b；PageViewport / Dock sibling 分层，JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过）  
+> **当前 UI 框架 CI：** [Build #522](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45866322423)（PR #92 F4.4c；二级页面转场 owner 提取，JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过；Artifact 15140782538）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -36,14 +36,14 @@
 | 函数工具内核 | **C7.1–C7.6 已完成** | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
 | 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
-| Zhixing Flow UI 框架 | **F0–F3 已完成；F4 Shell 重建进行中** | F4.1 Activity split（#509）、F4.2 typed routes（#511）、F4.3 AppNavigationState（#516）、F4.4a Dock overlay（#518）、F4.4b PageViewport（#520）均通过 CI；PR #92 仍 open，未合并 |
+| Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.4c 已完成；F4.5 回归中** | Activity split（#509）、typed routes（#511）、NavigationState（#516）、Dock overlay（#518）、PageViewport（#520）、页面转场 owner（#522）均通过 CI；PR #92 仍 open，未合并 |
 | 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：Zhixing Flow F4 App Shell / Navigation 重建。** F0–F2 foundations 与组件库、F3 整页刚性回弹原型均已完成；F3 设备体验由用户安装测试后确认无问题。F4.1 Activity / Root UI 分离（Build #509）、F4.2 类型化路由与旧状态兼容（Build #511）、F4.3 AppNavigationState / 3 项状态转移测试与原 Saveable 槽位位置保留（Build #516）、F4.4a 固定 Dock overlay 提取（Build #518）、F4.4b 页面 viewport 与 Dock sibling 分层（Build #520）均已通过完整 Android CI。F4.4b 只添加全尺寸 `ZhixingPageViewport` Box 作为页面层，Dock overlay 与其保持兄弟关系；不改变旧页面滚动、Scaffold innerPadding、Insets、IME、Dock 动画或 Backdrop。当前仍只重构 Shell，不迁移业务页面、不改四个入口和数学 Domain。下一步 F4.4c 独立整理页面转场 owner。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+**当前工作重心：Zhixing Flow F4 App Shell / Navigation 回归。** F0–F3 与 F4.1–F4.4c 的框架实现均已完成。F4.4c 将原二级页面 `AnimatedContent` 转场封装进 `ZhixingSecondaryPageTransition`，保留原 fade / slide / scale 时序与几何参数、label、根层 BackHandler 和 `AppNavigationState`；Build #522（Run ID `45866322423`）完整 success。当前进入 F4.5 Shell 集成回归，集中核对四个根 Tab、二级页进入 / 返回、系统 Back、Saver 恢复契约及 Dock / PageViewport 固定层关系。PR #92 仍 open、未合并；不迁移业务页面、不改数学 Domain。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 ---
 
@@ -89,6 +89,14 @@
 - viewport 不添加 clip、scroll、padding、Insets 或 graphics transform；原页面 `verticalScroll`、`Scaffold.innerPadding`、系统栏 / IME 与 Dock 的 68dp / Backdrop / 选择回调保持不变。
 - Build #520（Run ID `45864663317`）完整 success；Debug Artifact 15139507502（31,323,452 bytes，SHA-256 `d30cc66c929e8523efc38bf41082ccaf3de344641da14cce0c7779d5f174cb9f`）。
 - 当前只完成结构分层，不代表页面已统一接入 F3 scroll container，也没有迁移旧业务页面。
+
+### 2026-11-27：Zhixing Flow F4.4c 二级页面转场 owner 提取
+
+- 新增 `ui/shell/ZhixingSecondaryPageTransition.kt`，将原有 `AnimatedContent` 以及 fade / slide / scale 转场封装为单一 owner；`ZhixingAppRoot` 只传入当前二级路由和页面内容。
+- 保持原转场参数：淡入 230ms、横向进入 280ms（容器宽度 / 9）、初始 scale 0.985；淡出 170ms、横向退出 220ms（反向宽度 / 14）、目标 scale 0.99；label 保持 `zhixingSecondaryPageTransition`。
+- `BackHandler` 仍在根 Shell，导航状态仍由 `AppNavigationState` 管理；没有调整页面内容、Dock / viewport 层级或业务行为。
+- 新增 2 项 JVM 转场契约测试。Build #522（Run ID `45866322423`）完整 success；Debug Artifact 15140782538（31,324,748 bytes，SHA-256 `39fe13e1666839332199f89237284fe046e4a0dfb35ad33ee182dfd7b26c600f`）。
+- CI 执行 JVM 单测、编译 androidTest 源码、组装 Debug APK 并上传 Artifact；未启动模拟器执行 instrumentation tests，也未进行本步真机转场验收。首次运行遇到 Maven SLF4J 元数据解析失败，重跑失败 job 后通过。
 
 ### 1. 2026-10-31：项目启动与 Android 原生基础
 

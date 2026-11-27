@@ -557,14 +557,14 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 
 ### 9.4 F4：App Shell / Nav 重建
 
-**实现状态（2026-11-27）：F4.1–F4.4b 已完成代码实现并通过 CI；F4.4c 页面转场 owner 分离进行中。**
+**实现状态（2026-11-27）：F4.1–F4.4c 已完成代码实现并通过 CI；当前进入 F4.5 Shell 集成回归。**
 
 - **F4.1 MainActivity 职责拆分：** 根 Compose 内容搬至 `ui/shell/ZhixingAppRoot.kt`；Activity 只保留 Window / Edge-to-edge / 系统栏对比度 / adjustResize / setContent，玻璃设置 Store 仍由 Activity 创建并注入。Build #509（Run ID `45861464968`）完整 success。
 - **F4.2 类型化路由：** 新增 `AppRootRoute` / `AppSecondaryRoute`，以 enum 取代 Shell 内散落的一级 / 二级 route 字符串比较；Saver 继续使用旧一级 Tab 整数索引、二级 route 字符串，SaveableStateHolder keys 保持原样。新增 3 项 JVM 路由兼容测试。Build #511（Run ID `45862127405`）完整 success；Build #510 曾因 AnimatedContent 参数遮蔽状态变量而失败，修复为 `pageRoute` 后 Build #511 通过。
 - **F4.3 AppNavigationState：** 已新增 `AppNavigationState`，封装根 Tab 选择、二级页进入 / 关闭与 Back；3 项 JVM 状态转移测试通过。两个 `rememberSaveable` 调用保留在 Shell 根 Composable 原位置 / 原顺序，StateHolder 仍在它们之后；Build #516（Run ID `45863354210`）完整 success。
 - **F4.4a Dock overlay：** 已新增 `ui/shell/ZhixingDockOverlay.kt`；内部继续复用现有 `ZhixingLiquidBottomBarPlacement` / `ZhixingCatalogBottomBar`，保留 Backdrop / material / destination callbacks / 68dp 高度。Build #518（Run ID `45863814661`）完整 success，Artifact 15139212037。
 - **F4.4b Page viewport：** 已新增 layout-neutral 的 `ui/shell/ZhixingPageViewport.kt`，将根页面内容放入全尺寸 Box；页面 viewport 与固定 Dock overlay 成为外层 Shell Box 的兄弟节点。未引入 clip / scroll / padding / Insets / transform，原页面修饰符与 `Scaffold.innerPadding` 保持原样。Build #520（Run ID `45864663317`）完整 success，Artifact 15139507502。
-- **F4.4c 下一步：** 将现有 `AnimatedContent` 页面切换逻辑封装为独立 transition owner，保持时序 / easing / slide / fade / scale 与 BackHandler 行为不变。
+- **F4.4c 二级页面转场 owner：** 已新增 `ui/shell/ZhixingSecondaryPageTransition.kt`，根 Shell 只传入目标路由与内容 lambda。保持 fade-in 230ms / slide-in 280ms（宽度 / 9）/ initialScale 0.985，fade-out 170ms / slide-out 220ms（反向宽度 / 14）/ targetScale 0.99 及原 label；BackHandler 和导航状态 owner 均未移动。新增 2 项 JVM 契约测试。Build #522（Run ID `45866322423`）完整 success；Artifact 15140782538（31,324,748 bytes，SHA-256 `39fe13e1666839332199f89237284fe046e4a0dfb35ad33ee182dfd7b26c600f）。CI 编译 androidTest 源码但未启动模拟器执行仪器测试。
 - 页面只向 Shell 提供内容和必要状态，不再持有全局导航实现。
 - 对照旧行为验证四个一级 Tab、历史、材质、单位换算及系统返回。
 - F4 只重构 App Shell / 导航边界，不迁移业务页面，不修改数学 Domain、Backdrop / Glass 算法、材质 DataStore 或四个入口的显示顺序。
@@ -636,6 +636,6 @@ CI 通过不等于真机验收通过。玻璃光学效果、整页回弹手感�
 - 当前 CI 只编译 androidTest 源码，不运行模拟器 instrumentation tests；用户安装测试后明确反馈 F3 整体体验没有问题，未记录逐项帧率 / 边界量化数据。
 - PR #92 仍 open、未合并；main 仍为 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。
 - Backdrop 1.0.6、Shapes 1.2.0、玻璃控件与 DataStore、材质设置、性能分级、单位换算、数学 Domain 和已验收 Dock 保持不变。
-- F3 不修改业务页面、正式导航、玻璃算法或 Gradle 依赖；用户确认 F3 设备体验无问题后进入 F4。F4.1–F4.4b 已完成并通过 CI；当前继续 F4.4c，不提前迁移页面。
+- F3 不修改业务页面、正式导航、玻璃算法或 Gradle 依赖；用户确认 F3 设备体验无问题后进入 F4。F4.1–F4.4c 已完成并通过 CI；F4.5 进行 Shell 集成回归，不提前迁移页面。
 
-**下一步：** F4.4c 将页面转场从根 Shell 中独立出来，保留现有转场时序、位移、淡入淡出、scale 和 BackHandler 行为；不迁移业务页面。
+**下一步：** F4.5 覆盖四个根 Tab、二级页面、系统 Back、状态保存 / 恢复与固定 Dock / PageViewport 层级；验收后才进入 F5。

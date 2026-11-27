@@ -2353,3 +2353,21 @@ F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最
 - Build #517 进行首次提取验证；Build #518（Run ID `45863814661`）最终版本完整 success。Debug Artifact 15139212037（31,321,224 bytes，SHA-256 `6ded753757237e5945dff083d10441672a30a3d38cb35474e7ea79bf90d6ee3a`）。
 
 **下一步：** F4.4b 将页面 viewport 从 Shell 根布局中封装为独立 sibling 内容层，与固定 Dock overlay 明确分离；先只移动代码归属，不改页面滚动、Insets、IME、底部留白或 Dock 动画。
+
+### 28.8 F4.4b：页面 viewport 与固定 Dock sibling 分层（2026-11-27）
+
+- 新增 `ui/shell/ZhixingPageViewport.kt`，使用 layout-neutral、fillMaxSize 的 Box 承载现有一级页面分支。
+- 根 Shell 外层 Box 内，`ZhixingPageViewport` 与 `ZhixingDockOverlay` 是兄弟节点；Dock 不进入可滚动页面内容的 viewport。
+- 不增加 clip、scroll、padding、Insets 或 graphicsLayer；保留旧页面 `verticalScroll`、`Scaffold.innerPadding`、系统栏 / IME、Backdrop 和 Dock 动画。
+- Build #520（Run ID `45864663317`）完整 success；Debug Artifact 15139507502（31,323,452 bytes，SHA-256 `d30cc66c929e8523efc38bf41082ccaf3de344641da14cce0c7779d5f174cb9f`）。随后文档提交由 Build #521 完整验证。
+
+### 28.9 F4.4c：二级页面转场 owner 提取（2026-11-27）
+
+- 新增 `ui/shell/ZhixingSecondaryPageTransition.kt`，集中管理二级页面 `AnimatedContent`；根 Shell 只传入目标 `AppSecondaryRoute?` 与页面内容 lambda。
+- 保持既有转场契约：fade-in 230ms、slide-in 280ms（宽度 / 9）、initialScale 0.985；fade-out 170ms、slide-out 220ms（反向宽度 / 14）、targetScale 0.99，label `zhixingSecondaryPageTransition` 不变。
+- `BackHandler` 仍由 `ZhixingAppRoot` 持有，导航状态仍由 `AppNavigationState` 持有；不改变二级页面返回语义、SaveableStateHolder keys、Dock、viewport 或业务页面。
+- 新增 2 项 JVM 契约测试，分别锁定时间参数与几何 / scale / label。
+- Build #522（Run ID `45866322423`）完整 success：资源与 Markdown 检查、JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与清理通过。Artifact `zhixingapp-debug` ID `15140782538`，31,324,748 bytes，ZIP SHA-256 `39fe13e1666839332199f89237284fe046e4a0dfb35ad33ee182dfd7b26c600f`。首次 job 因外部 Maven SLF4J 元数据解析失败，重跑失败 job 后完整通过。
+- CI 没有启动模拟器执行 androidTest，也没有执行本步真机转场检查。
+
+**下一步：** F4.5 Shell 集成回归，补齐四个根入口、二级路由打开 / 返回、系统 Back、Saver 序列化 / 恢复兼容以及 Dock / PageViewport 固定层行为检查；通过后才进入 F5 逐页迁移。
