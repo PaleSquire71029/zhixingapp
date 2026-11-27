@@ -164,8 +164,9 @@ internal fun CalculatorScreen(
     ZhixingPageScrollContainer(
         modifier = modifier.testTag("calculator-page-scroll-container"),
         contentPadding = PaddingValues(
-            horizontal = ZhixingTheme.spacing.pageHorizontal,
+            start = ZhixingTheme.spacing.pageHorizontal,
             top = 20.dp,
+            end = ZhixingTheme.spacing.pageHorizontal,
             bottom = 112.dp,
         ),
     ) {
