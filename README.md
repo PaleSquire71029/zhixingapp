@@ -8,7 +8,7 @@
 > **当前 UI 开发：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **当前工程版本：** 0.1.2 / versionCode 3  
 > **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
-> **当前 UI 框架 CI：** [Build #533](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45989365859)（PR #92 F5.3 History 页面迁移，JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过；Artifact 15192139647）  
+> **当前 UI 框架 CI：** [Build #536](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45990601046)（PR #92 F5.4 Material Settings 页面迁移，JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过；Artifact 15193905919）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -36,14 +36,14 @@
 | 函数工具内核 | **C7.1–C7.6 已完成** | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
 | 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
-| Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.5、F5.1–F5.3 已通过 CI** | 工具目录（#528）、「我的」（#530）、History（#533）已迁移并接入统一刚性页面滚动；材质设置 / 单位换算仍待迁移；PR #92 仍 open，未合并 |
+| Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.5、F5.1–F5.4 已通过 CI** | 工具目录（#528）、「我的」（#530）、History（#533）、材质设置（#536）已迁移并接入统一刚性页面滚动；单位换算仍待迁移；PR #92 仍 open，未合并 |
 | 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：Zhixing Flow F5 Existing Screens 逐页迁移。** F5.1 工具目录（Build #528）、F5.2「我的」（Build #530）和 F5.3 History（Build #533）已拆入 `ui/screens/...` 独立页面并接入 `ZhixingPageScrollContainer`。三页保留原有内容 / 回调、Backdrop / safeDrawing / Dock 层级；旧文件暂留作回退，未完成总体验收前不删除。F5.3 Build #532 因拆分时漏掉 `GlassMaterialState` import 失败，修复后 #533 完整 success。新增 Activity instrumentation 测试源码仅编译、未在模拟器执行；设备侧刚性滚动仍待真机验收。PR #92 仍 open、未合并。下一步迁移 Material Settings，再迁移 Unit Converter；不改数学 Domain。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+**当前工作重心：Zhixing Flow F5 Existing Screens 逐页迁移。** F5.1 工具目录（Build #528）、F5.2「我的」（Build #530）、F5.3 History（Build #533）和 F5.4 Material Settings（Build #536）已拆入 `ui/screens/...` 独立页面并接入 `ZhixingPageScrollContainer`。各页保留原有内容、状态 / 回调和 Backdrop / safeDrawing / Dock 层级；旧实现暂留作回退。F5.4 保留 9 组 `rememberSaveable` 状态和原性能档位 / 材质持久化行为。所有 Activity instrumentation 测试源码仅编译、未在模拟器执行，设备侧滚动 / 滑块体验仍待真机验收。PR #92 仍 open、未合并。下一步迁移 Unit Converter；不改数学 Domain。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 ---
 
@@ -126,6 +126,14 @@
 - 使用 `ZhixingPageScrollContainer` 替换旧 `verticalScroll`，保留独立 BackdropHost、`WindowInsets.safeDrawing`、20dp 横向 / 10dp 顶部 / 24dp 底部留白、返回按钮、介绍文案和空状态玻璃卡片。
 - 未新增历史存储或虚构记录，继续明确显示“还没有计算记录”，也不混入 AI 对话。
 - 新增 1 项 Activity instrumentation 测试源码检查滚动容器与真实空状态。Build #532 因漏掉 `GlassMaterialState` import 失败；修复后 Build #533（Run ID `45989365859`）完整 success。Debug Artifact 15192139647（31,359,450 bytes，SHA-256 `f2fdac2fe767f2a8db1f7cf72eb8ea0ab6055d9229fd2c4cfe4a3ce3e9bff720`）。CI 只编译 instrumentation 源码，未启动模拟器执行。
+
+### 2026-11-27：Zhixing Flow F5.4 Material Settings 页面迁移
+
+- 新增 `ui/screens/settings/material/MaterialSettingsScreen.kt`，Shell 切换至新页面；旧 `ui/lab/GlassLabScreen.kt` 保留作回退，性能档位模型仍复用原 `ui/lab/GlassPerformanceTier.kt`。
+- 使用 `ZhixingPageScrollContainer` 替换原 `verticalScroll`，保留 BackdropHost、safeDrawing Insets 在滚动容器外层、原 20dp 横向 / 10dp 顶部 / 20dp 底部留白、返回和恢复默认操作。
+- 原 9 组 `rememberSaveable` 状态、性能档位配置、滑块范围 / 开关条件、实时预览 / commit / reset 与 DataStore 回调不变。
+- 新增 1 项 Activity instrumentation 测试源码检查刚性滚动容器、恢复默认和“透明程度”控件。CI 只编译源码，没有启动模拟器执行，也没有真机滑块验收。
+- Build #535 首轮暴露遗漏的 PaddingValues 导入 / 测试文案问题；Build #536 初次又遇到外部 Maven SLF4J 元数据解析失败，重跑失败 job 后完整 success。Debug Artifact 15193905919（31,408,446 bytes，SHA-256 `afbfa90a5b011b303676fb39f48a99c058cda3de35aba29aab21b17398127516`）。
 
 ### 1. 2026-10-31：项目启动与 Android 原生基础
 

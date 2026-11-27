@@ -10,7 +10,7 @@
 
 ## 1. 先看结论
 
-本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；Zhixing Flow F0–F3、F4.1–F4.5 已完成 CI。F4.5 的 5 项 JVM 回归实际运行通过，Activity instrumentation 测试源码只编译、未启动模拟器。F5.1 工具目录、F5.2「我的」页面和 F5.3 History 均已迁入 `ui/screens/...` 并接入 `ZhixingPageScrollContainer`，Build #528 / #530 / #533 完整通过；三页 Activity instrumentation 测试源码只编译、未在模拟器执行。当前继续 F5.4 材质设置页面迁移。项目权威进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md)，主规划见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，行为保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。
+本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；Zhixing Flow F0–F3、F4.1–F4.5 已完成 CI。F4.5 的 5 项 JVM 回归实际运行通过，Activity instrumentation 测试源码只编译、未启动模拟器。F5.1 工具目录、F5.2「我的」、F5.3 History 和 F5.4 Material Settings 均已拆入 `ui/screens/...` 并接入 `ZhixingPageScrollContainer`，Build #528 / #530 / #533 / #536 通过；每页 Activity instrumentation 测试源码只编译、未在模拟器执行。F5.4 保留全部 9 组 rememberSaveable 状态、性能档位与材质持久化回调。当前继续 F5.5 Unit Converter 迁移。项目权威进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md)，主规划见 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)，行为保留范围见 [UI_FRAMEWORK_MIGRATION_MATRIX.md](./UI_FRAMEWORK_MIGRATION_MATRIX.md)。
 
 **本文件是开发与交接方法手册，不是进度账本。** 当前代码实现、构建 / Artifact、真机验收和下一步只在 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 记录；当前计算器任务顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 为准；既有 C0–C8 数学内核的算法契约和历史验收见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)。长期产品范围见 [ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md) 与各专项规划。
 
@@ -91,7 +91,7 @@
 
 ## 3. 已经做了什么
 
-**Zhixing Flow F0–F3 与 F4.1–F4.5 Shell 实现均已通过 CI。** F4.5 的 5 项 JVM 回归实际运行通过，Activity instrumentation 测试源码只编译、未启动模拟器。F5.1 工具目录、F5.2「我的」、F5.3 History 已拆入 `ui/screens/...` 并接入刚性滚动，Build #528 / #530 / #533 通过；每页 Activity instrumentation 测试源码只编译、未执行模拟器测试，旧页面文件暂留回退。PR #92 仍 open，main 尚未合并。当前进入 F5.4 Material Settings 迁移，之后处理 Unit Converter；不改数学 Domain。详细进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+**Zhixing Flow F0–F3 与 F4.1–F4.5 Shell 实现均已通过 CI。** F4.5 的 5 项 JVM 回归实际运行通过，Activity instrumentation 测试源码只编译、未启动模拟器。F5.1 工具目录、F5.2「我的」、F5.3 History、F5.4 Material Settings 已迁入 `ui/screens/...` 并接入刚性滚动，Build #528 / #530 / #533 / #536 完整通过；F5.4 保留 9 组 `rememberSaveable` 状态。每页 Activity instrumentation 测试源码只编译，未执行模拟器测试，旧页面文件暂留回退。PR #92 仍 open，main 尚未合并。当前进入 F5.5 Unit Converter 迁移；不改数学 Domain。详细进度见 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 与 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 **液态玻璃专项执行路线已于 2026-11-01 重置：** 以用户上传的 Backdrop Catalog APK 为视觉 / 交互基准，锁定上游 tag 1.0.6，直接移植官方 LiquidBottomTabs、DampedDragAnimation、InteractiveHighlight、LiquidButton、LiquidSlider、LiquidToggle 等源码；不升级 Backdrop 2.x，不复制整套 Demo App。详细步骤见 [LIQUID_GLASS_REDESIGN_PLAN.md 第 25 节](./LIQUID_GLASS_REDESIGN_PLAN.md)。
 

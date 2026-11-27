@@ -2,7 +2,7 @@
 
 > 基线：main 165a0ca2ff77aeae0868d8dbd2087c09cd9e6260  
 > 更新：2026-11-27  
-> 原则：先建立框架，再逐页迁移；只迁 UI，不重写 domain。F0–F3、F4.1–F4.5、F5.1–F5.3 已通过 CI；工具目录、「我的」和 History 均接入 `ZhixingPageScrollContainer`。Activity instrumentation 仅编译、未在模拟器执行；旧页面只有在替代页通过回归后才清理。
+> 原则：先建立框架，再逐页迁移；只迁 UI，不重写 domain。F0–F3、F4.1–F4.5、F5.1–F5.4 已通过 CI；工具目录、「我的」、History 与 Material Settings 均接入 `ZhixingPageScrollContainer`。Activity instrumentation 仅编译、未在模拟器执行；旧页面只有在替代页通过回归后才清理。
 
 ## 1. 页面映射总表
 
@@ -13,7 +13,7 @@
 | 工具 Tab | 已迁移为独立 `ToolsScreen`；目前仍只开放单位换算真实入口 | `ui/screens/tools/ToolsScreen.kt`，使用 `ZhixingPageScrollContainer` | F5.1 已通过 CI（Build #528） |
 | 我的 Tab | 已迁移至新页面；最近使用空状态 + 历史 / 材质入口 + 版本信息保持；旧文件暂留回退 | `ui/screens/my/MyScreen.kt`，使用 `ZhixingPageScrollContainer` | F5.2 已通过 CI（Build #530） |
 | 历史二级页 | 已迁移至独立页面，仍展示真实空状态；无本地历史存储；旧文件暂留回退 | `ui/screens/history/HistoryScreen.kt`，使用 `ZhixingPageScrollContainer` 并保留独立 Backdrop / safeDrawing | F5.3 已通过 CI（Build #533） |
-| 材质设置二级页 | Glass Lab，可调材质参数并持久化 | ui/screens/settings/material/MaterialSettingsScreen | F5 |
+| 材质设置二级页 | 已迁移至独立页面，9 组 rememberSaveable 控件状态 / 性能档位 / 材质保存回调保持；旧文件暂留回退 | `ui/screens/settings/material/MaterialSettingsScreen.kt`，使用 `ZhixingPageScrollContainer` | F5.4 已通过 CI（Build #536） |
 | 单位换算二级页 | 已实现输入、选择、交换、结果、复制 / 清除 | ui/screens/units/UnitConverterScreen | F5 |
 | 浮动玻璃 Dock | 已有独立实现和用户验收记录 | ui/shell/navigation/ZhixingDock facade；底层继续复用现有 glass 文件 | F4（先适配，不重写） |
 | Backdrop / glass host | 共享背景采样、surface、按钮、滑块、开关 | ui/glass adapter + ui/foundation/material token | F1–F5 渐进封装 |
@@ -105,7 +105,7 @@ F4 当前进度：F4.1 Activity / Root UI split、F4.2 typed routes、F4.3 AppNa
 2. F2 Components（已完成）：七个基础 primitives / patterns 与独立 gallery 已建立；现有页面仍保持原样。
 3. F3 Overscroll：独立回弹原型与目标设备体验已由用户确认通过；统一 ScrollContainer 已实现，后续页面接入时回归。
 4. F4 App Shell：F4.1 Activity / Shell root split、F4.2 typed routes、F4.3 AppNavigationState、F4.4a Dock overlay、F4.4b page viewport sibling separation、F4.4c transition owner、F4.5 Shell 集成回归均已完成并通过 CI；5 项 JVM 回归由 CI 实际执行，5 项 Activity instrumentation 测试源码仅完成编译。下一步 F5 Existing screens：工具目录（F5.1 已完成）→ 我的 / 历史 / 材质设置（F5.2 起）→ 单位换算。
-5. F5 Existing screens：工具目录（F5.1）、「我的」（F5.2）、History（F5.3）已通过 CI；继续 Material Settings（F5.4）→ Unit Converter。
+5. F5 Existing screens：工具目录（F5.1）、「我的」（F5.2）、History（F5.3）、Material Settings（F5.4）已通过 CI；继续 Unit Converter（F5.5）。
 6. F6 Core experience：计算工作区 → AI 工作区 → 方程 / 不等式 / 函数等工具页。
 7. F7 Stabilization：无障碍、窄屏、IME、60Hz / 120Hz、滚动、性能、状态恢复与旧代码清理。
 

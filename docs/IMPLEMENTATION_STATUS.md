@@ -2404,4 +2404,13 @@ F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最
 - 新增 1 项 Activity instrumentation 测试源码，覆盖刚性滚动容器与原空状态。Build #532 因拆分时遗漏 `GlassMaterialState` import 而失败；修复提交 `b732e4a2ddcfbdfd77848ac63aeab8855c7d9fda` 补回 import 后 Build #533（Run ID `45989365859`）完整 success：全量 JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传均通过；CI 未启动模拟器执行 instrumentation tests。
 - Debug Artifact `zhixingapp-debug` ID `15192139647`，31,359,450 bytes，ZIP SHA-256 `f2fdac2fe767f2a8db1f7cf72eb8ea0ab6055d9229fd2c4cfe4a3ce3e9bff720`。
 
-**下一步：** F5.4 将 Glass Lab 从 `ui/lab/GlassLabScreen.kt` 迁移到 `ui/screens/settings/material/MaterialSettingsScreen.kt`；改用 `ZhixingPageScrollContainer`，但保持每个 slider / toggle 的 rememberSaveable 状态、范围、分级配置、实时预览 / commit / reset 回调和 Backdrop 不变。完成后迁移 Unit Converter。
+### 28.14 F5.4：Material Settings 页面迁移（2026-11-27）
+
+- 新增 `ui/screens/settings/material/MaterialSettingsScreen.kt` 并切换 Shell；旧 `ui/lab/GlassLabScreen.kt` 保留作回退。性能档位数据模型和配置解析仍复用 `ui/lab/GlassPerformanceTier.kt`。
+- 将页面滚动替换为 `ZhixingPageScrollContainer`，保留独立 BackdropHost、`WindowInsets.safeDrawing` 在滚动容器外层、原 20dp 横向 / 10dp 顶部 / 20dp 底部留白、返回按钮和恢复默认操作。
+- 保留全部 9 组 `rememberSaveable` 状态（性能档位、模糊半径、折射开关 / 强度、色散、边缘高光、环境反射、触摸反馈、透明程度）；没有调整范围、档位值、开关可用条件、`onMaterialChange` / `onMaterialCommit` / `onMaterialReset` 和 DataStore 持久化语义。
+- 新增 1 项 Activity instrumentation 测试源码，检查刚性滚动容器、恢复默认与“透明程度”控件；CI 只编译源码，不启动模拟器执行，因此不视为滑块 / 开关真机验收。
+- 首轮 Build #535 暴露 PaddingValues import / 测试文案错误，修复提交 `4ffd0e762229bf68393940c89cdc40890896baf5`；Build #536 首次因外部 SLF4J Maven 元数据问题在依赖解析阶段失败，重跑失败 job 后完整 success（Run ID `45990601046`）：JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传均通过。
+- Debug Artifact `zhixingapp-debug` ID `15193905919`，31,408,446 bytes，ZIP SHA-256 `afbfa90a5b011b303676fb39f48a99c058cda3de35aba29aab21b17398127516`。
+
+**下一步：** F5.5 将 Unit Converter 二级页面从 `ui/units/UnitConverterScreen.kt` 拆到 `ui/screens/units/UnitConverterScreen.kt`，接入 `ZhixingPageScrollContainer`；保留现有输入状态、类别 / 单位选择、交换、计算 Presenter、复制 / 清除与键盘行为，Presenter / Domain 不迁移、不重写。

@@ -115,6 +115,13 @@ AppState、路由、Dock、页面容器、状态恢复和页面转场移入独�
 - 不引入历史持久化，不伪造记录。新增 1 项 Activity instrumentation 测试源码，CI 只编译不运行。
 - Build #532 漏掉 `GlassMaterialState` import 导致编译失败；修复后 Build #533（Run ID `45989365859`）完整 success，Artifact 15192139647。
 
+### 2.11 F5.4：Material Settings 页面迁移（2026-11-27）
+
+- 新增 `ui/screens/settings/material/MaterialSettingsScreen.kt` 并切换 Shell；旧 `ui/lab/GlassLabScreen.kt` 保留作回退，`GlassPerformanceTier` / `resolveGlassPerformanceConfig` 仍复用旧位置。
+- 由 `ZhixingPageScrollContainer` 替换原 verticalScroll，保留 BackdropHost、safeDrawing Insets 在滚动容器外层、原内外留白 / 返回 / 恢复默认。
+- 保留 9 组 `rememberSaveable` 状态、性能档位参数、滑块 / 开关和实时预览 / commit / reset 回调，不改变 DataStore。
+- 新增 1 项 Activity instrumentation 测试源码；CI 仅编译、未运行模拟器。Build #536（Run ID `45990601046`）重跑后完整 success，Artifact 15193905919。
+
 ## 3. 导航决策：暂不使用 Navigation 3
 
 当前只有 4 个 Tab 和 3 个单层二级页面，二级返回只需退出到对应根 Tab；没有深链、多层页面栈、多个独立返回栈或复杂结果传递。当前路由仅为字符串，确实需要在 F4 建立类型安全的 Destination / DetailRoute，但没有必要现在额外引入导航框架。
