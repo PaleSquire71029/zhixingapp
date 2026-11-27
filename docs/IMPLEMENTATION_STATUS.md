@@ -39,7 +39,7 @@
 
 ### 当前执行阶段（2026-11-27）
 
-**当前入口为 Zhixing Flow F6：Core Experience。** Zhixing Flow F0–F3、F4.1–F4.5、F5.1–F5.5 均已完成代码实现与 CI 验证。F4.5 的 5 项 JVM 回归由 Build #525 实际运行通过；Activity instrumentation 测试源码只编译，未启动模拟器执行。F5.1 工具目录（Build #528）、F5.2「我的」（#530）、F5.3 History（#533）、F5.4 Material Settings（#536）、F5.5 Unit Converter（#539）均已迁入 `ui/screens/...`，接入 `ZhixingPageScrollContainer`。单位换算页面保留原有五组 `rememberSaveable` 输入 / 选择状态、Presenter / Formatter / Domain、复制 / 清除、单位切换 / 交换与系统键盘行为；旧页面文件暂留作回退。Build #539 验证 F5.5 代码，当前 PR 头 Build #542（Run ID `46007122726`）完整复验通过，Artifact 15201023521（31,454,666 bytes，SHA-256 `1483f10855a56a042101c01b9a4a8a2e8e0a8ba8b8303ae4868e5d7e8642e187`）。CI 只编译 Activity instrumentation 测试源码，不代表模拟器或真机运行。PR #92 仍 open、未合并，main 保持 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。本阶段不改数学 Domain、不引入新求解器。下一步 F6.1（对应 Calculator UI 路线 UI-0）盘点实际 Calculator / Parser / Evaluator / Solver / typed error / 测试路径，形成能力映射和 UI-1 最小范围；随后实施 UI-1 计算主页骨架与标准模式。
+**当前入口为 Zhixing Flow F6.2 / Calculator UI-1。** F0–F3、F4.1–F4.5、F5.1–F5.5 均已完成代码实现与 CI 验证。F5.5 单位换算页面保留五组状态、既有 Presenter / Formatter / Domain 和输入 / 交换 / 复制 / 清除 / IME 行为；F5.5 Build #539 和当前 PR 头 Build #542 均成功。F6.1 基线盘点已完成，审计记录见 [CALCULATOR_UI_BASELINE_AUDIT.md](./CALCULATOR_UI_BASELINE_AUDIT.md)：标准算术直接复用 `MathArithmeticCalculator.calculate(source)`；Tokenizer / Parser / Evaluator 的语法范围、typed errors、Solver / 函数内核、测试入口和 UI 复用组件均已映射。当前计算 Tab 没有 CalculatorScreen / 编辑器 / 应用内键盘；方程 / 不等式 solver 输入为已构造 Domain 模型，暂无完整文本解析适配器。下一步 UI-1 只做标准模式端到端输入与本地计算，需新增纯 Kotlin 编辑状态 / Presenter 测试和 CalculatorScreen，不改算法，不接入未有字符串适配的 solver，不新增 C5.19。
 
 ### 初始工程检查历史快照（非当前进度）
 
@@ -2421,4 +2421,17 @@ F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最
 - `ZhixingAppShellNavigationIntegrationTest.unitConverterUsesRigidPageScrollingAndKeepsConversionSections` 覆盖滚动容器和核心内容。Build #539（Run ID `45992101487`）完整 success；Artifact 15193614286（31,454,668 bytes，SHA-256 `68e96e034ed98dc1d1ce0d84cf6563a9bcd40fa81435aa8d4c6f6e3fe3ce3416`）。当前 PR 头 Build #542（Run ID `46007122726`）完整 success；Artifact 15201023521（31,454,666 bytes，SHA-256 `1483f10855a56a042101c01b9a4a8a2e8e0a8ba8b8303ae4868e5d7e8642e187`）。
 - Build #539 / #542 执行 JVM 测试、编译 androidTest 源码、组装 Debug APK 并上传 Artifact；没有启动模拟器执行 Activity instrumentation tests，也没有本步真机视觉 / 输入 / IME / 整页滚动验收。
 
-**下一步：** F6.1 Calculator 基线盘点（对应 `CALCULATOR_UI_FIRST_ROADMAP.md` 的 UI-0）：核对真实主壳入口、现有 Parser / Evaluator / Solver / typed errors、测试入口和当前工具页面；形成真实文件路径清单、domain→UI 能力映射、页面状态 / 适配器契约草案，并给出 UI-1 标准计算主页骨架的最小文件范围。不扩展 C5.19 等数学题型，不复制 Domain 算法。
+### 28.16 F6.1：Calculator UI 基线盘点（2026-11-27）
+
+- 完成真实入口核查：`MainActivity` 只持有 Window / setContent；`ZhixingAppRoot` 通过 `AppRootRoute.CALCULATOR` 选中首个根 Tab，但当前根页面仍落入通用介绍型占位布局。主源码中不存在 `CalculatorScreen`、Calculator 编辑器、应用内键盘或 Calculator ViewModel。
+- 确认标准算术的一站式入口：`MathArithmeticCalculator.calculate(source)` 串联 `MathTokenizer`、`MathExpressionParser`、`MathExpressionEvaluator`，返回 `MathCalculationResult.Success(Double)` 或 `Failure(stage, message, offset, lexeme)`。纯 Kotlin，不依赖 Android / Compose；UI 不应重复调用三个底层环节。
+- Tokenizer 支持数字、x、`+ - * / ^ ( ) %`，并归一化 `× / ÷ / 全角括号 / 全角 x / ² / ³` 等；Parser 支持显式 / 隐式乘法、括号、正负号、百分号和最多 64 的无符号整数指数链。当前 grammar 不含函数名、等号或不等号 token。
+- AST 保留 `MathSourceSpan`；Parser 有 EMPTY / INCOMPLETE / 括号不匹配 / token / exponent 等错误类型；Evaluator 具备 VARIABLE_NOT_ALLOWED / DIVISION_BY_ZERO / NON_FINITE_RESULT。注意顶层 `MathCalculationError` 当前只保留 stage / message / offset / lexeme，会折叠底层错误 code；UI-1 先忠实呈现现有结果，若需更细分类，另立最小的错误 code 透传步骤，不根据中文 message 反向猜类型。
+- 方程 / 不等式 Domain 由 `Polynomial`、`RationalFunction` 等模型和各 Solver 组成：如 `PolynomialEquationSolver.solve(PolynomialEquation)`、`PolynomialInequalitySolver.solve(PolynomialInequality)`、`RationalEquationSolver.solve(RationalEquation)`。它们不接收原始字符串；当前 `MathExpressionParser` 只解析单个算术表达式，不识别 `=` / 比较符，也没有已审计到的统一 AST → 方程 / 不等式 Domain adapter。因此本阶段不在标准模式里声称支持求方程 / 不等式。
+- 函数内核已有点集校验、一次 / 二次 / 三次 / 反比例拟合、`FunctionEvaluator` 和 `FunctionGraphSampler`；这些属于后续 F6 分项，不加入 UI-1。
+- 已有 JVM 测试：`MathTokenizerTest`、`MathExpressionParserTest`、`MathExpressionEvaluatorTest`、`CalculatorGoldenCasesTest`，以及 polynomial / rational / solver / function 各类专用测试；Golden Cases 分为 tokenizer / arithmetic / equations / inequalities。UI 暂无 Calculator Screen 测试。
+- UI 复用点：`ZhixingTheme` 已暴露九类 Token；`ZhixingButton`、`ZhixingInput`、`ZhixingSurface`、`ZhixingResultPanel`、`ZhixingSegmentedControl` 可以作为控件基础；`UnitConversionPresentation.kt` 提供纯 Kotlin Presenter / Presentation State 的现有范式。根 Shell 应继续拥有路由、Backdrop 和固定 Dock，计算页仍用 `AppRootRoute.CALCULATOR.saveableStateKey`；不在计算页里再建导航 / Dock。
+- UI-1 最小改动建议：新增 `ui/screens/calculator/CalculatorScreen.kt`；新增纯 Kotlin `ui/calculator/CalculatorEditorState.kt` / reducer 与 `CalculatorPresenter.kt`（名称可在实现前最终确定）；在 `ZhixingAppRoot` 对 CALCULATOR 明确分支挂载页面；新增编辑状态 / 按键 reducer / Presenter JVM 测试，以及 Calculator Screen instrumentation 测试源码。首版只开放 Parser 确实支持的标准算术键，应用内键盘默认工作，不自动弹出系统 IME；系统键盘入口、科学函数和更复杂的符号模板另行验收。
+- F6.1 为只读审计和接口规划，没有修改 Domain / Screen 代码；当前 PR #92 仍 open，main 不变。
+
+**下一步：** F6.2 / UI-1 计算主页骨架与标准模式：先新增纯 Kotlin 编辑状态 / Presenter 和 JVM 测试，再接入 CalculatorScreen；覆盖输入、选区 / 光标、退格 / 清除、常用运算符、括号、百分号、等号、预览 / 最终结果与错误状态。只调用 `MathArithmeticCalculator.calculate(source)`；不引入方程 / 不等式入口，不新增依赖，不改 solver / Domain 算法。

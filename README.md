@@ -43,7 +43,7 @@
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：Zhixing Flow F6 Core Experience。** F5.1 工具目录（Build #528）、F5.2「我的」（Build #530）、F5.3 History（Build #533）、F5.4 Material Settings（Build #536）和 F5.5 Unit Converter（Build #539）均已迁入 `ui/screens/...` 并接入 `ZhixingPageScrollContainer`。F5.5 保留五组 `rememberSaveable` 输入 / 选择状态、Presenter / Formatter / Domain、复制 / 清除与系统键盘行为；旧页面文件仍保留作回退。Build #539 完整通过，当前 PR 源码头另由 Build #542 复验通过。Activity instrumentation 测试源码仅完成编译，CI 未启动模拟器执行；单位换算页面的真机视觉 / IME / 滚动体验仍待验收。PR #92 仍 open、未合并。下一步 F6.1 先完成计算主页基线与 Domain 能力映射，再进入 UI-1 计算主页骨架；不扩展数学题型、不改数学 Domain。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 与 [计算器 UI 优先路线](docs/CALCULATOR_UI_FIRST_ROADMAP.md)。
+**当前工作重心：Zhixing Flow F6.2 / UI-1 计算主页骨架。** F6.1 已完成真实代码基线盘点，审计记录见 [计算器 UI 基线审计](docs/CALCULATOR_UI_BASELINE_AUDIT.md)。现有 `MathArithmeticCalculator.calculate(source)` 可直接作为标准模式本地求值入口；已有 Parser / Evaluator / typed failure / JVM golden tests 可以复用。计算 Tab 当前仍是占位展示，尚无 CalculatorScreen、输入编辑器或应用内键盘。UI-1 将只交付标准模式输入、应用内数字键盘、等号计算、结果 / 错误展示与输入状态恢复；不把尚未有字符串适配入口的方程 / 不等式 Solver 接入标准计算页，不新增数学题型。F5 页面真机验收仍待独立进行；Activity instrumentation 测试源码仅编译，CI 未启动模拟器执行。PR #92 仍 open、未合并。
 
 ---
 
@@ -288,6 +288,7 @@
 ## 开发前必读
 
 1. [项目现状、操作指南与后续开发手册](docs/PROJECT_STATUS_AND_GUIDE.md)
+2. [计算器 UI 基线审计与 F6.1 交接](docs/CALCULATOR_UI_BASELINE_AUDIT.md)
 2. [实施状态与下一步清单](docs/IMPLEMENTATION_STATUS.md)
 3. [Android App 总体规划与迁移蓝图](docs/ANDROID_APP_MASTER_PLAN.md)
 4. [液态玻璃参考 APK 直接移植计划](docs/LIQUID_GLASS_REDESIGN_PLAN.md)

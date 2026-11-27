@@ -131,6 +131,14 @@ AppState、路由、Dock、页面容器、状态恢复和页面转场移入独�
 - 自动化边界：JVM 测试实际执行；Activity instrumentation 测试源码只编译，未在模拟器 / 真机执行。单位换算页真机验收仍待后续集中设备检查。
 - F5.5 通过后进入 F6.1 Calculator 基线盘点；UI 优先，不新增求解器题型，不重写 Domain。
 
+### 2.13 F6.1：Calculator 基线审计与 UI-1 边界（2026-11-27）
+
+- 真实 Calculator route 为 `AppRootRoute.CALCULATOR(0, calculator, root-calculator)`；`ZhixingAppRoot` 仍用介绍型通用分支显示其占位内容，仓库尚无 CalculatorScreen / 编辑器 / 应用内键盘。
+- 标准四则计算优先调用 `MathArithmeticCalculator.calculate(source)`，由其串联 tokenizer / parser / evaluator；返回 stage / message / offset / lexeme。不要在 UI 重写解析或计算。
+- 当前 Token / Parser grammar 不含函数名、等号和比较符；方程 / 不等式 Solver 接收已构造的 Polynomial / RationalFunction 模型。没有发现通用原始字符串 → equation / inequality Domain adapter；首屏只做标准模式。
+- 现有 `ZhixingInput` / `ZhixingButton` / `ZhixingResultPanel` / `ZhixingSurface` / `ZhixingSegmentedControl` 与 `ZhixingTheme` 可复用；但数学编辑器需要独立处理光标 / 选区和应用内键盘，不将普通文本输入控件直接等同完整公式编辑器。
+- F6.1 只读审计，完整路径 / API / 测试清单见 `docs/CALCULATOR_UI_BASELINE_AUDIT.md`；F6.2 UI-1 先写纯 Kotlin editor state / presenter 与 JVM tests，再接 Screen，不新增算法依赖。
+
 ## 3. 导航决策：暂不使用 Navigation 3
 
 当前只有 4 个 Tab 和 3 个单层二级页面，二级返回只需退出到对应根 Tab；没有深链、多层页面栈、多个独立返回栈或复杂结果传递。当前路由仅为字符串，确实需要在 F4 建立类型安全的 Destination / DetailRoute，但没有必要现在额外引入导航框架。

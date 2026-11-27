@@ -8,7 +8,7 @@
 
 | 当前页面 / 入口 | 当前真实状态 | 目标落点（建议） | 迁移阶段 |
 |---|---|---|---|
-| 计算 Tab | MainActivity 内的介绍型占位布局 | ui/screens/calculator/CalculatorScreen | F6 |
+| 计算 Tab | `ZhixingAppRoot` 内通用介绍型占位分支；无编辑器 / 键盘 / 结果区 | `ui/screens/calculator/CalculatorScreen.kt`；调用纯 Kotlin `CalculatorPresenter` / `MathArithmeticCalculator` | F6.2 / UI-1 |
 | 知行 AI Tab | MainActivity 内的介绍型占位布局 | ui/screens/ai/AiScreen | F6 |
 | 工具 Tab | 已迁移为独立 `ToolsScreen`；目前仍只开放单位换算真实入口 | `ui/screens/tools/ToolsScreen.kt`，使用 `ZhixingPageScrollContainer` | F5.1 已通过 CI（Build #528） |
 | 我的 Tab | 已迁移至新页面；最近使用空状态 + 历史 / 材质入口 + 版本信息保持；旧文件暂留回退 | `ui/screens/my/MyScreen.kt`，使用 `ZhixingPageScrollContainer` | F5.2 已通过 CI（Build #530） |
@@ -106,7 +106,7 @@ F4 当前进度：F4.1 Activity / Root UI split、F4.2 typed routes、F4.3 AppNa
 3. F3 Overscroll：独立回弹原型与目标设备体验已由用户确认通过；统一 ScrollContainer 已实现，后续页面接入时回归。
 4. F4 App Shell：F4.1 Activity / Shell root split、F4.2 typed routes、F4.3 AppNavigationState、F4.4a Dock overlay、F4.4b page viewport sibling separation、F4.4c transition owner、F4.5 Shell 集成回归均已完成并通过 CI；5 项 JVM 回归由 CI 实际执行，5 项 Activity instrumentation 测试源码仅完成编译。下一步 F5 Existing screens：工具目录（F5.1 已完成）→ 我的 / 历史 / 材质设置（F5.2 起）→ 单位换算。
 5. F5 Existing screens：工具目录（F5.1）、「我的」（F5.2）、History（F5.3）、Material Settings（F5.4）、Unit Converter（F5.5）均已通过 CI；Activity instrumentation 测试源码仅编译，设备验收仍需独立完成。
-6. F6 Core experience：先做 F6.1 Calculator 基线盘点（UI-0），再做 UI-1 计算主页骨架、UI-2 科学输入 / 编辑、UI-3 结果 / 错误呈现；随后逐项接入 AI、方程、不等式和函数工作区。
+6. F6 Core experience：F6.1 / UI-0 Calculator 基线盘点已完成（审计报告 `CALCULATOR_UI_BASELINE_AUDIT.md`）；当前进行 F6.2 / UI-1 计算主页骨架，随后 UI-2 科学输入 / 编辑、UI-3 结果 / 错误呈现，再逐项接入 AI、方程、不等式和函数工作区。
 7. F7 Stabilization：无障碍、窄屏、IME、60Hz / 120Hz、滚动、性能、状态恢复与旧代码清理。
 
 ## 6. 页面迁移完成定义

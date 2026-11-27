@@ -8,7 +8,7 @@
 
 本文定义 UI 框架稳定后的计算器页面与功能迁移顺序。**前置条件是先完成 [ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md](./ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md) 的 F0–F7。** 当前阶段任务优先级和真实完成状态以 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 为准；已有数学算法契约和历史实现细节仍由 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md) 维护。
 
-> **当前状态（2026-11-27）：** Zhixing Flow F0–F3、F4.1–F4.5 与 F5.1–F5.5 均已完成代码实现和 CI 验证；F3 整页刚性回弹目标设备体验由用户确认无问题。F5.5 Unit Converter 已接入 `ZhixingPageScrollContainer`，但 Activity instrumentation 测试仅编译，单位换算的 IME / 窄屏 / 滚动与视觉验收仍待真机。当前进入 F6.1（本路线 UI-0）计算主页基线盘点；数学 Domain 保持稳定，不新增 C5.19 等题型。
+> **当前状态（2026-11-27）：** Zhixing Flow F0–F3、F4.1–F4.5 与 F5.1–F5.5 均已完成代码实现和 CI 验证；F3 整页刚性回弹目标设备体验由用户确认无问题。F5.5 Unit Converter 已接入 `ZhixingPageScrollContainer`，但设备侧 IME / 窄屏 / 滚动和视觉验收仍待真机。F6.1 / UI-0 Calculator 基线盘点已完成，结论见 `docs/CALCULATOR_UI_BASELINE_AUDIT.md`；当前进入 F6.2 / UI-1 计算主页骨架与标准模式。数学 Domain 保持稳定，不新增 C5.19 等题型。
 
 ---
 
@@ -746,4 +746,4 @@ UI 只负责呈现；状态的判定来源是 domain / adapter 的明确结果�
 
 ### 当前下一步
 
-下一步从 **UI-0：代码与页面基线盘点（F6.1）** 开始，输出真实代码路径、页面路由、Parser / Evaluator / Solver / typed error 和测试入口的映射，以及 UI-1 的最小改动范围；随后进入 **UI-1：计算主页骨架与标准模式（F6.2）**。在 UI-10 完成前，不主动开启 C5.19 等数学扩展任务。
+F6.1 / **UI-0：代码与页面基线盘点** 已完成，审计报告为 `docs/CALCULATOR_UI_BASELINE_AUDIT.md`。当前进入 **UI-1：计算主页骨架与标准模式（F6.2）**：先实现可测试的编辑状态 / reducer 与 Presenter，再接入页面和应用内键盘。在 UI-10 完成前，不主动开启 C5.19 等数学扩展任务。

@@ -557,7 +557,7 @@ F1 已在 PR #92 的规划分支完成实现；当前分支 head `74160abbeaa800
 
 ### 9.4 F4：App Shell / Nav 重建
 
-**实现状态（2026-11-27）：F4.1–F4.5 App Shell / Navigation、F5.1–F5.5 Existing Screens 均已通过 CI；当前进入 F6.1 Calculator 基线盘点（UI-0）。**
+**实现状态（2026-11-27）：F4.1–F4.5 App Shell / Navigation、F5.1–F5.5 Existing Screens 均已通过 CI；F6.1 Calculator 基线盘点（UI-0）已完成，当前进入 F6.2 / UI-1。**
 
 - **F4.1 MainActivity 职责拆分：** 根 Compose 内容搬至 `ui/shell/ZhixingAppRoot.kt`；Activity 只保留 Window / Edge-to-edge / 系统栏对比度 / adjustResize / setContent，玻璃设置 Store 仍由 Activity 创建并注入。Build #509（Run ID `45861464968`）完整 success。
 - **F4.2 类型化路由：** 新增 `AppRootRoute` / `AppSecondaryRoute`，以 enum 取代 Shell 内散落的一级 / 二级 route 字符串比较；Saver 继续使用旧一级 Tab 整数索引、二级 route 字符串，SaveableStateHolder keys 保持原样。新增 3 项 JVM 路由兼容测试。Build #511（Run ID `45862127405`）完整 success；Build #510 曾因 AnimatedContent 参数遮蔽状态变量而失败，修复为 `pageRoute` 后 Build #511 通过。
@@ -582,8 +582,8 @@ F5.1–F5.5 已完成 CI 验证：
 
 F5 页面迁移已完成；F6 Core Experience 按以下顺序推进：
 
-1. **F6.1 Calculator 基线盘点（UI-0）：** 核对真实计算入口、Parser / Evaluator / Solver / 错误类型 / 测试路径，生成 domain → UI 能力映射和 UI-1 最小文件范围。
-2. **F6.2 计算主页骨架（UI-1）：** 让计算 Tab 成为可输入的标准模式计算器，优先交付编辑区、数字键盘、等号计算与基本状态。
+1. **F6.1 Calculator 基线盘点（UI-0，已完成）：** 审计实际路由 / 页面 / Parser / Evaluator / typed errors / Solver / function / tests / components；审计报告见 `CALCULATOR_UI_BASELINE_AUDIT.md`。
+2. **F6.2 计算主页骨架（UI-1，当前步骤）：** 让计算 Tab 成为可输入的标准模式计算器，优先交付编辑区、应用内数字键盘、等号计算与基本状态。
 3. **F6.3 科学输入与表达式编辑（UI-2）：** 增加科学模式、光标 / 选区编辑和可靠输入状态。
 4. **F6.4 结果与错误呈现（UI-3）：** 接入成功、未完成、语法 / 定义域 / 不支持 / 数值错误及复制。
 5. **F6.5–F6.8：** 逐步接入方程、不等式、函数分析 / 图像等页面；只开放已有可用能力，不在 UI 阶段扩展大批新 Solver。
@@ -648,4 +648,4 @@ CI 通过不等于真机验收通过。玻璃光学效果、整页回弹手感�
 - Backdrop 1.0.6、Shapes 1.2.0、玻璃控件与 DataStore、材质设置、性能分级、单位换算、数学 Domain 和已验收 Dock 保持不变。
 - F3 不修改业务页面、正式导航、玻璃算法或 Gradle 依赖；用户确认 F3 设备体验无问题后进入 F4。F4.1–F4.5、F5.1–F5.5 已完成代码实现与 CI 验证。F5.5 单位换算页面仍待目标设备检查键盘、窄屏、滚动、复制和 TalkBack；Activity instrumentation 测试源码只编译，不能替代模拟器 / 真机运行。PR #92 仍 open，main 未合并。
 
-**下一步：** F6.1 Calculator 基线盘点（UI-0）：核查真实计算入口、已存在数学 Domain API / typed errors / tests、页面状态与组件复用点，产出 domain → UI 能力映射和 UI-1 最小改动范围；完成后再实施计算主页。
+**下一步：** F6.2 / UI-1 计算主页骨架与标准模式。先建立可测的输入编辑状态与本地 Presenter，再接入原生 CalculatorScreen 和应用内键盘；只调用 `MathArithmeticCalculator.calculate(source)`，不复制 Parser / Evaluator，不暴露尚无字符串适配的方程 / 不等式入口。
