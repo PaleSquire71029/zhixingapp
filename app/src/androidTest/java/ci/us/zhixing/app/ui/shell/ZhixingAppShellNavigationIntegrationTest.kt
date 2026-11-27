@@ -101,6 +101,15 @@ class ZhixingAppShellNavigationIntegrationTest {
     }
 
     @Test
+    fun myPageUsesRigidPageScrollContainerAndKeepsActions() {
+        composeRule.onNode(tab("我的")).performClick()
+        composeRule.onNodeWithTag("my-page-scroll-container").assertIsDisplayed()
+        composeRule.onNodeWithText("最近使用").assertIsDisplayed()
+        composeRule.onNodeWithText("历史记录").assertIsDisplayed()
+        composeRule.onNodeWithText("材质设置").assertIsDisplayed()
+    }
+
+    @Test
     fun pageViewportAndDockAreDirectSiblingLayersInTheShellHost() {
         val host = composeRule.onNodeWithTag(
             "zhixing-shell-layer-host",
