@@ -4,16 +4,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 
 /**
- * 知行统一主题入口。
- *
- * 颜色、文字、间距与形状从这里统一访问；Material 3 的默认 typography / shapes
- * 保持原样，避免改变尚未显式指定样式的组件外观。
+ * Zhixing Flow theme entry point.
+ * Existing colors / type / spacing / shapes accessors remain source compatible.
+ * Material 3 default Typography and Shapes are intentionally unchanged in F1.
  */
 internal object ZhixingTheme {
     val colors = ZhixingLightColors
+    val palette = ZhixingColorTokens
     val type = ZhixingType
+    val typography = ZhixingTypographyTokens
     val spacing = ZhixingSpacing
+    val spacingTokens = ZhixingSpacingTokens
     val shapes = ZhixingShapes
+    val elevation = ZhixingElevationTokens
+    val material = ZhixingMaterialTokens
+    val motion = ZhixingMotionTokens
+    val interaction = ZhixingInteractionTokens
+    val layout = ZhixingLayoutTokens
 
     @Composable
     operator fun invoke(content: @Composable () -> Unit) {

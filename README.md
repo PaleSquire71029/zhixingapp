@@ -2,11 +2,13 @@
 
 知行计算器 + 知行 AI 的全新 Android 原生应用。项目采用 Kotlin + Jetpack Compose，从原生工程和主壳开始重建，逐步迁移原计算器的数学、方程、函数、单位与化学能力；不将旧网页整体装入 WebView。
 
-> **进度核对日期：2026-11-18**  
+> **进度核对日期：2026-11-27**  
 > **仓库：** [PaleSquire71029/zhixingapp](https://github.com/PaleSquire71029/zhixingapp)  
-> **分支：** `main`  
+> **默认分支：** `main`  
+> **当前 UI 开发：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **当前工程版本：** 0.1.2 / versionCode 3  
-> **最近完整 CI：** [Android Build #466](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44182197389)（C5.17 最终 PR 文档快照，完整测试与构建通过）  
+> **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
+> **当前 UI 框架 CI：** [Build #549](https://github.com/PaleSquire71029/zhixingapp/actions/runs/46011425977)（PR #92 F6.2 / UI-1 标准计算器首版页面、五行键盘和 JVM 状态 / Presenter 测试完整通过；Artifact 15203873016）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -34,17 +36,118 @@
 | 函数工具内核 | **C7.1–C7.6 已完成** | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
 | 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
-| 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
+| Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.5、F5.1–F5.5 已通过 CI** | 工具目录（#528）、「我的」（#530）、History（#533）、材质设置（#536）、单位换算（#539）均已迁移并接入统一刚性页面滚动；PR #92 仍 open，未合并 |
+| 计算器原生页面 / 专用输入 | **F6.2 / UI-1 首版已接入，继续完善** | CalculatorScreen、五行标准键盘、表达式状态 / Presenter 已通过 Build #549；选区 / 光标、窄屏、无障碍和真机验收仍待完善 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：计算器功能。** C5.1–C5.18 已覆盖多项式 / 分式 / 根式 / 绝对值方程、受限指数 / 对数、二元一次方程组、正弦 / 余弦 / 正切周期方程、周期区间筛选、辅助角组合三角方程、不同线性角正弦等式，以及 `sin(ax+b)=cos(cx+d)`。C5.15 复用 BigDecimal / BigInteger 安全筛选周期解族；C5.16 使用 `hypot` / `atan2` 化为正弦方程；C5.17 将正弦等式分解为两个零点分支；C5.18 将正弦—余弦等式转为 C5.17 的正弦等式，检测 `π/2` 相位平移精度并回代原式。C5.18 的 15 个新增 JUnit 测试与完整 CI 通过 Build #473（Run ID `44337799622`），PR #90 已合并到 main（`62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`）。C6.1–C6.2 的多项式 / 分式不等式、C7.1–C7.6 的四类函数拟合 / 定义域 / 求值 / 安全采样以及 C8.1–C8.7 的单位转换内核均已有 CI 通过记录。C8.8.1–C8.8.2 已接入独立单位换算工具页并完善输入 / 复制 / 无障碍交互，但按用户要求暂缓该页真机验收。主壳与 PR #88 相关交互的目标设备验收已由用户确认；PR #88 在 GitHub 仍为 open。完整计算器主页面、专用数学输入 / QuestionDocument、函数图像 Compose UI、化学配平 / 反应预测原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前工作重心：Zhixing Flow F6.2 / UI-1 标准计算器首版完善。** F6.1 基线审计已完成，见 [计算器 UI 基线审计](docs/CALCULATOR_UI_BASELINE_AUDIT.md)。现已新增纯 Kotlin `CalculatorEditorState` / reducer 和 `CalculatorPresenter`，标准求值仍只调用 `MathArithmeticCalculator.calculate(source)`；并新增 `ui/screens/calculator/CalculatorScreen.kt`，接入计算 Tab。页面包含表达式编辑区、五行标准键盘（AC / 括号 / 百分号 / 四则 / 幂 / 小数 / 等号）、表达式栏退格、实时预览与提交结果 / 错误；状态通过 `rememberSaveable` 保存。Build #546 验证编辑状态 / Presenter 单测；Build #549 验证当前 CalculatorScreen、JVM 测试、androidTest 源码编译、Debug APK 和 Artifact 上传。Activity 集成测试源码没有在模拟器执行，页面光标 / 选区、窄屏、连续触控与真实视觉仍待设备验收。方程 / 不等式 Solver 暂不接入首屏；没有新增数学 Domain 或 C5.19。PR #92 仍 open、未合并。
 
 ---
 
 ## 项目进展时间线
+
+### 2026-11-21：Zhixing Flow F2 核心组件库与 Design Gallery
+
+- 新增 `ui/components` 基础组件：`ZhixingSurface`、`ZhixingButton`、`ZhixingInput`、`ZhixingListRow`、`ZhixingSegmentedControl`、`ZhixingSheet`、`ZhixingResultPanel`。
+- 新增独立 `DesignGalleryScreen`，提供 390dp 窄屏 / 720dp 宽屏预览；600dp 为单列 / 双列切换阈值。
+- 组件覆盖按压、选中、禁用、错误、加载、焦点状态，并提供 Button / RadioButton / Heading / TextField 错误等语义。
+- 新增 2 项 JVM 布局阈值测试与 5 项 Compose UI 交互 / 语义测试。Build #499（Run ID `44826734182`） 完整 success；Artifact 14673652163。
+- CI 只编译 androidTest 源码，没有运行模拟器 / 真机 instrumentation tests。Gallery 未接入导航，现有业务页面、MainActivity、玻璃算法和 Gradle 依赖均未修改。
+
+### 2026-11-27：Zhixing Flow F3 整页刚性回弹独立原型
+
+- 新增 `ZhixingRigidOverscrollPhysics` 与 `ZhixingRigidOverscrollEffect`，使用现有 Compose Foundation `OverscrollEffect`，由单一页面级 owner 处理 scroll / fling 的未消费量。
+- 内容 `ScrollState` 不越界；页面 viewport 只通过一个外层 `graphicsLayer.translationY` 做最多 48dp 的刚性平移，不改变测量尺寸、不缩放、不拉伸。拖动阻尼随位移增大而衰减，释放后使用现有 Zhixing Flow Spring Token 回位。
+- 反向手势先释放已有位移，再把剩余 delta 交还内容；没有可滚动范围时不产生空白回弹；横向 delta 保留给内层横向控件。
+- 新增独立 `ZhixingScrollPrototypeScreen` 与 Debug-only `ZhixingScrollLabActivity`，使用 `zhixing://scroll-lab` 深链打开；Release 不包含该 Activity，未修改 MainActivity / 正式导航。
+- 新增 8 项 JVM 物理 / 边界测试和 3 项 Compose 手势 / viewport 测试。Build #506（Run ID `45859680761`）完整 success；Debug Artifact 15138440787（31,319,661 bytes，SHA-256 `b6d7f404bf30edcf9208a93a2a8c1a8836d224053f2e64fea9e5fbf1f28d3b13`）。
+- CI 编译了 3 项 Android instrumentation 测试源码，但没有启动模拟器执行它们。用户在目标设备安装测试后确认体验没有问题；未把自动化源码编译误记为模拟器测试执行。
+
+### 2026-11-27：Zhixing Flow F4.1 / F4.2 App Shell 与导航基础重构
+
+- F4.1 将原有根 Compose 内容从 `MainActivity.kt` 移到 `ui/shell/ZhixingAppRoot.kt`；Activity 只处理 Edge-to-edge、系统栏对比度、adjustResize 和 setContent。Build #509 完整 success。
+- F4.2 新增 `AppRootRoute` / `AppSecondaryRoute`，根 Tab 与二级页切换由 enum 表达；Saver 保留旧 Tab 整数索引、二级 route 字符串及 SaveableStateHolder key。
+- 新增 3 项路由 / 旧状态兼容 JVM 测试；Build #511（Run ID `45862127405`）完整 success，JVM 测试、Android 测试源码编译、Debug APK 组装和 Artifact 上传均通过。
+- 保留现有四入口顺序、Dock / Backdrop / 材质设置、页面内容、二级转场与返回行为；未引入 Navigation 3 或新增 Gradle 依赖，尚未迁移业务页面。
+
+### 2026-11-27：Zhixing Flow F4.3 / F4.4a 导航状态与固定 Dock 分层
+
+- F4.3 新增 `AppNavigationState`，统一管理四个根 Tab、二级页进入 / 关闭和 Back 行为；新增 3 项 JVM 状态转移测试，覆盖二级页返回、切换根 Tab 自动关闭二级页、无二级页时 Back 不改变状态。
+- 两个 `rememberSaveable` 状态调用留在 Shell 根 Composable 原位置与原顺序，`rememberSaveableStateHolder` 仍排在其后；状态对象只包装原有 MutableState，不在新的 Composable 层级内创建保存槽位，尽量保持旧恢复位置稳定。
+- Build #516（Run ID `45863354210`）完整 success；Debug Artifact 15138024765（31,319,453 bytes）。
+- F4.4a 新增 `ui/shell/ZhixingDockOverlay.kt`，将固定 Dock wrapper 从根 Shell 提取；继续复用 `ZhixingLiquidBottomBarPlacement` / `ZhixingCatalogBottomBar`，原 Backdrop / GlassMaterialState / destination list / selected index / selection callback / 68dp 高度不变。
+- Build #518（Run ID `45863814661`）完整 success；Debug Artifact 15139212037（31,321,224 bytes，SHA-256 `6ded753757237e5945dff083d10441672a30a3d38cb35474e7ea79bf90d6ee3a`）。
+- F4.4a 只调整 Dock 的代码归属，没有改变 Dock 视觉、动画、Insets / IME 避让、Backdrop 算法或正式路由行为；未迁移业务页面。
+
+### 2026-11-27：Zhixing Flow F4.4b 页面 viewport 与 Dock overlay 分层
+
+- 新增 `ui/shell/ZhixingPageViewport.kt`，使用 layout-neutral 的全尺寸 Box 承载现有根页面分支。
+- 根 Shell 外层 Box 现在包含两个兄弟层：`ZhixingPageViewport` 页面内容层与 `ZhixingDockOverlay` 固定导航层；Dock 不进入页面内容 viewport。
+- viewport 不添加 clip、scroll、padding、Insets 或 graphics transform；原页面 `verticalScroll`、`Scaffold.innerPadding`、系统栏 / IME 与 Dock 的 68dp / Backdrop / 选择回调保持不变。
+- Build #520（Run ID `45864663317`）完整 success；Debug Artifact 15139507502（31,323,452 bytes，SHA-256 `d30cc66c929e8523efc38bf41082ccaf3de344641da14cce0c7779d5f174cb9f`）。
+- 当前只完成结构分层，不代表页面已统一接入 F3 scroll container，也没有迁移旧业务页面。
+
+### 2026-11-27：Zhixing Flow F4.4c 二级页面转场 owner 提取
+
+- 新增 `ui/shell/ZhixingSecondaryPageTransition.kt`，将原有 `AnimatedContent` 以及 fade / slide / scale 转场封装为单一 owner；`ZhixingAppRoot` 只传入当前二级路由和页面内容。
+- 保持原转场参数：淡入 230ms、横向进入 280ms（容器宽度 / 9）、初始 scale 0.985；淡出 170ms、横向退出 220ms（反向宽度 / 14）、目标 scale 0.99；label 保持 `zhixingSecondaryPageTransition`。
+- `BackHandler` 仍在根 Shell，导航状态仍由 `AppNavigationState` 管理；没有调整页面内容、Dock / viewport 层级或业务行为。
+- 新增 2 项 JVM 转场契约测试。Build #522（Run ID `45866322423`）完整 success；Debug Artifact 15140782538（31,324,748 bytes，SHA-256 `39fe13e1666839332199f89237284fe046e4a0dfb35ad33ee182dfd7b26c600f`）。
+- CI 执行 JVM 单测、编译 androidTest 源码、组装 Debug APK 并上传 Artifact；未启动模拟器执行 instrumentation tests，也未进行本步真机转场验收。首次运行遇到 Maven SLF4J 元数据解析失败，重跑失败 job 后通过。
+
+### 2026-11-27：Zhixing Flow F4.5 Shell 导航与状态回归
+
+- 新增 `AppShellNavigationRegressionTest` 5 项 JVM 测试，覆盖四个根 Tab 的旧整数 Saver 往返、三个二级 route 的旧字符串 Saver 往返、根 Tab 变更时关闭二级页、每个根 Tab / 二级页组合的返回语义，以及非法根索引恢复回退。
+- 新增 `ZhixingAppShellNavigationIntegrationTest` 5 项 Activity instrumentation 测试源码，覆盖四入口切换、History / Unit Converter 的 Android Back、Activity recreate 后二级页与原根 Tab 恢复，以及 `ZhixingPageViewport` / `ZhixingDockOverlay` 为 Shell host 直接兄弟层。
+- 在 Shell host、PageViewport、Dock 外层 Box 加入仅供测试定位的 semantics `testTag`；没有添加尺寸 / padding / clip / scroll / graphicsLayer 或绘制逻辑。
+- Build #524 首轮发现 Saver receiver 和 TestRule import 错误；分别修复后 Build #525（Run ID `45986224060`）完整 success。Debug Artifact 15191837513（31,324,808 bytes，SHA-256 `24a523278b0fadf732435c57decf104714aac8926e6288d75a805a03741e3125`）。
+- Build #525 执行并通过全部 JVM 单测、编译 Android instrumentation 测试源码、组装 Debug APK 与上传 Artifact；未启动模拟器运行这 5 项 androidTest，也未完成 F4.5 真机回归。
+
+### 2026-11-27：Zhixing Flow F5.1 工具目录迁移
+
+- 将原本与单位换算页面同处 `ui/units/UnitConverterScreen.kt` 的 `ToolsDirectoryScreen` 拆为独立 `ui/screens/tools/ToolsScreen.kt`；在 `ZhixingAppRoot` 中更新调用，不改工具目录的现有标题、说明、玻璃卡片与单位换算回调。
+- 工具目录由原 `verticalScroll(rememberScrollState())` 切换到 `ZhixingPageScrollContainer`，使用 F3 的整页刚性视口位移效果；保留原 30dp 顶部 / 112dp 底部留白、左右页面间距、Scaffold innerPadding 和 Dock 固定 sibling。
+- UnitConverterScreen、UnitConversionPresenter、UnitConverter Domain 均未修改；本步不迁移单位换算详情页。
+- 新增 1 项 Activity instrumentation 测试源码验证工具目录挂载刚性滚动容器。Build #527 曾因 PaddingValues 命名参数组合错误而失败，修正为显式 start / top / end / bottom 后 Build #528（Run ID `45987533971`）完整 success。Debug Artifact 15193010359（31,329,902 bytes，SHA-256 `daa94e5a38045a379c8cb1358c2e6dee7140076976ed1452f0216ed4f0c8200b`）。CI 编译 instrumentation 测试源码但没有启动模拟器执行。
+
+### 2026-11-27：Zhixing Flow F5.2「我的」页面迁移
+
+- 保留旧 `ui/my/MyScreen.kt`，新增独立 `ui/screens/my/MyScreen.kt`，根 Shell 改为引用新页面；旧文件暂不删除，待迁移总体验收后再清理。
+- 将页面内原 `verticalScroll(rememberScrollState())` 替换为 `ZhixingPageScrollContainer`，保留原 24dp 顶 / 底留白、页面左右间距、品牌 Logo、最近使用空状态、历史记录与材质设置入口、版本信息、玻璃卡片及回调。
+- 根路由、SaveableStateProvider key、Dock / PageViewport 层级与材质状态来源未改。
+- 新增 1 项 Activity instrumentation 测试源码检查「我的」页的刚性滚动容器与历史 / 材质入口。Build #530（Run ID `45988407684`）完整 success；Artifact 15193400267（31,350,528 bytes，SHA-256 `951f2cd5b0943e10d11699f77e7b01513e0c9380bffaab5c2812b6dd44dc52e5`）。CI 仅编译 instrumentation 测试源码，未启动模拟器执行。
+
+### 2026-11-27：Zhixing Flow F5.3 History 页面迁移
+
+- 保留旧 `ui/history/HistoryScreen.kt`，新增独立 `ui/screens/history/HistoryScreen.kt`，根 Shell 切换为新实现。
+- 使用 `ZhixingPageScrollContainer` 替换旧 `verticalScroll`，保留独立 BackdropHost、`WindowInsets.safeDrawing`、20dp 横向 / 10dp 顶部 / 24dp 底部留白、返回按钮、介绍文案和空状态玻璃卡片。
+- 未新增历史存储或虚构记录，继续明确显示“还没有计算记录”，也不混入 AI 对话。
+- 新增 1 项 Activity instrumentation 测试源码检查滚动容器与真实空状态。Build #532 因漏掉 `GlassMaterialState` import 失败；修复后 Build #533（Run ID `45989365859`）完整 success。Debug Artifact 15192139647（31,359,450 bytes，SHA-256 `f2fdac2fe767f2a8db1f7cf72eb8ea0ab6055d9229fd2c4cfe4a3ce3e9bff720`）。CI 只编译 instrumentation 源码，未启动模拟器执行。
+
+### 2026-11-27：Zhixing Flow F5.4 Material Settings 页面迁移
+
+- 新增 `ui/screens/settings/material/MaterialSettingsScreen.kt`，Shell 切换至新页面；旧 `ui/lab/GlassLabScreen.kt` 保留作回退，性能档位模型仍复用原 `ui/lab/GlassPerformanceTier.kt`。
+- 使用 `ZhixingPageScrollContainer` 替换原 `verticalScroll`，保留 BackdropHost、safeDrawing Insets 在滚动容器外层、原 20dp 横向 / 10dp 顶部 / 20dp 底部留白、返回和恢复默认操作。
+- 原 9 组 `rememberSaveable` 状态、性能档位配置、滑块范围 / 开关条件、实时预览 / commit / reset 与 DataStore 回调不变。
+- 新增 1 项 Activity instrumentation 测试源码检查刚性滚动容器、恢复默认和“透明程度”控件。CI 只编译源码，没有启动模拟器执行，也没有真机滑块验收。
+- Build #535 首轮暴露遗漏的 PaddingValues 导入 / 测试文案问题；Build #536 初次又遇到外部 Maven SLF4J 元数据解析失败，重跑失败 job 后完整 success。Debug Artifact 15193905919（31,408,446 bytes，SHA-256 `afbfa90a5b011b303676fb39f48a99c058cda3de35aba29aab21b17398127516`）。
+
+### 2026-11-27：Zhixing Flow F5.5 Unit Converter 页面迁移
+
+- 将单位换算详情页切换到独立路径 `ui/screens/units/UnitConverterScreen.kt`，`ZhixingAppRoot` 使用新页面；旧 `ui/units/UnitConverterScreen.kt` 保留作回退，不删除 Presenter / Formatter / Domain。
+- 新页面以 `ZhixingPageScrollContainer` 承载整页刚性滚动，保留 safeDrawing / IME 避让、18dp 顶部 / 32dp 底部留白和横向页面间距。
+- 保留全部五组 `rememberSaveable` 状态：类别、原单位、目标单位、输入文本、复制状态；类别默认单位、单位选择 / 交换、即时结果、同类单位列表、错误与未完成输入、完整等式复制、清除和系统十进制键盘行为不变。
+- 继续复用 `UnitConversionPresenter` / `UnitValueFormatter` / `UnitConverter`，本步没有复制或重写任何换算公式与 Domain。
+- `ZhixingAppShellNavigationIntegrationTest` 已包含单位换算刚性滚动容器与页面内容检查。Build #539（Run ID `45992101487`）完整 success；Artifact 15193614286（31,454,668 bytes，SHA-256 `68e96e034ed98dc1d1ce0d84cf6563a9bcd40fa81435aa8d4c6f6e3fe3ce3416`）。当前 PR 头 Build #542（Run ID `46007122726`）亦完整 success，Artifact 15201023521（31,454,666 bytes，SHA-256 `1483f10855a56a042101c01b9a4a8a2e8e0a8ba8b8303ae4868e5d7e8642e187`）。CI 执行 JVM 测试、编译 androidTest 源码、构建和上传 Debug APK；没有启动模拟器执行 Activity instrumentation tests，也没有本步真机视觉 / 输入 / 滚动验收。
+
+### 2026-11-27：Zhixing Flow F6 Core Experience 启动准备
+
+- F0–F3、F4.1–F4.5、F5.1–F5.5 的代码与 CI 前置条件均已完成；PR #92 仍 open、尚未合并 main。
+- F6.1 / UI-0 已完成只读代码审计，输出 `docs/CALCULATOR_UI_BASELINE_AUDIT.md`。
+- F6.2 / UI-1 已接入第一版 CalculatorScreen 和标准键盘；接下来完善光标 / 选区编辑、预览 / 错误体验与窄屏 / 无障碍验收。
 
 ### 1. 2026-10-31：项目启动与 Android 原生基础
 
@@ -152,21 +255,20 @@
 
 ## 当前计算器工作重点
 
-下一阶段以用户可直接使用的计算器功能为中心，优先把已验收的数学内核接入 Android 原生页面。
+当前执行顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](docs/CALCULATOR_UI_FIRST_ROADMAP.md) 为准：**先做界面和现有能力接入，后做数学扩展。**
 
-1. **继续扩展三角方程：** C5.1–C5.18 已完成并通过 CI；下一候选 C5.19 为 `cos(ax+b)=cos(cx+d)`，先核对恒等分支、退化常数、周期解族去重和大相位精度边界，再决定最小实现范围。
-2. **单位换算页面设备验收：** 按用户要求暂缓，不作为当前代码推进的前置条件；页面继续只消费 `UnitConverter`，不复制算法。
-3. **原生输入链路：** 把已有 Tokenizer / Parser 与 Android 计算页接起来，设计适合手机操作的数学表达式输入方式和专用键盘，避免依赖系统键盘完成复杂数学输入。
-4. **函数页面：** 将 C7 的点集、拟合、定义域和采样能力接入原生函数页面，再实现坐标轴、曲线绘制、缩放和点位交互。
-5. **补齐计算器其他核心工具：** 继续迁移化学方程式解析 / 配平与反应预测，保持精确算法和可验证结果。
-6. **逐步形成完整计算体验：** 先让已经完成的 domain 内核进入真实页面，再扩展 AI 辅助解题等能力。
+1. **UI-0：** 盘点真实页面路由、Compose 组件、domain 接口与测试入口。
+2. **UI-1–UI-3（F6.2–F6.4）：** 完成计算主页、标准 / 科学输入、结果展示、错误分类和复制。
+3. **UI-4–UI-7：** 完成工具目录、方程 / 不等式 / 函数页面，并接入当前已有 solver、函数拟合和采样能力。
+4. **UI-8–UI-10：** 完成本地历史、增强题目编辑器、无障碍 / 性能和目标设备界面验收。
+5. **M-0 以后：** 界面阶段稳定后，再统一接入注册表并补齐通用函数、方程、不等式及高中其他题型。
 
-当前仍需完成的重点不是重新开发已经通过测试的单位比例表，而是扩大数学能力、完善输入体验，并把已完成的计算内核接到原生界面。
+**明确暂缓：** C5.19 及更多零散方程变体；不为维持 C5.x 编号连续而扩展题型。单位换算页面的设备验收继续按用户此前要求暂缓，不阻塞计算主页开发。
 
 ## 已知未完成事项
 
 - 计算 Tab 尚未完成完整原生计算器页面接入；C0–C8.7 的算法 / 数据层完成，C8.8.1–C8.8.2 完成独立单位换算工具，不等于完整计算器 UI 已完成。
-- 自定义数学输入法、复杂题目结构化输入和完整结果过程展示仍需实现。
+- 专用数学输入 / QuestionDocument、完整结果过程展示与函数图像 Compose UI 仍需按 UI 优先路线逐步接入。
 - 函数图表 Compose UI 尚未完成；目前完成的是拟合、定义域、求值和安全采样 domain。
 - 化学配平、反应预测尚未完成 Android 原生迁移。
 - 知行 AI Android 客户端、原生账号与云端历史尚未完成。
@@ -187,6 +289,7 @@
 ## 开发前必读
 
 1. [项目现状、操作指南与后续开发手册](docs/PROJECT_STATUS_AND_GUIDE.md)
+2. [计算器 UI 基线审计与 F6.1 交接](docs/CALCULATOR_UI_BASELINE_AUDIT.md)
 2. [实施状态与下一步清单](docs/IMPLEMENTATION_STATUS.md)
 3. [Android App 总体规划与迁移蓝图](docs/ANDROID_APP_MASTER_PLAN.md)
 4. [液态玻璃参考 APK 直接移植计划](docs/LIQUID_GLASS_REDESIGN_PLAN.md)

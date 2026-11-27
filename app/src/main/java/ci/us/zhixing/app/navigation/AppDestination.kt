@@ -9,6 +9,55 @@ internal enum class AppNavigationIcon {
     MATERIAL,
 }
 
+
+/**
+ * Stable, typed root destinations. Indexes deliberately match the existing
+ * four-tab order because rememberSaveable previously persisted this integer.
+ */
+internal enum class AppRootRoute(
+    val destinationIndex: Int,
+    val route: String,
+    val saveableStateKey: String,
+) {
+    CALCULATOR(0, "calculator", "root-calculator"),
+    AI(1, "ai", "root-ai"),
+    TOOLS(2, "tools", "root-tools"),
+    MY(3, "my", "root-my");
+
+    companion object {
+        fun fromIndex(index: Int): AppRootRoute =
+            values().firstOrNull { it.destinationIndex == index } ?: CALCULATOR
+
+        val saver = androidx.compose.runtime.saveable.Saver<AppRootRoute, Int>(
+            save = { it.destinationIndex },
+            restore = { fromIndex(it) },
+        )
+    }
+}
+
+/**
+ * Typed secondary routes. The existing string route and SaveableStateHolder
+ * key are retained so restored navigation state remains compatible.
+ */
+internal enum class AppSecondaryRoute(
+    val route: String,
+    val saveableStateKey: String,
+) {
+    MATERIAL("material", "my-material"),
+    HISTORY("history", "my-history"),
+    UNIT_CONVERTER("unit-converter", "unit-converter");
+
+    companion object {
+        fun fromRoute(route: String?): AppSecondaryRoute? =
+            values().firstOrNull { it.route == route }
+
+        val saver = androidx.compose.runtime.saveable.Saver<AppSecondaryRoute?, String>(
+            save = { it?.route.orEmpty() },
+            restore = { fromRoute(it.takeIf(String::isNotEmpty)) },
+        )
+    }
+}
+
 internal data class AppDestination(
     val route: String,
     val label: String,

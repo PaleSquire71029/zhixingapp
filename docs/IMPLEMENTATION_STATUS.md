@@ -1,8 +1,9 @@
 # 知行 Android App 实施状态
 
-> 最后更新：2026-11-18  
+> 最后更新：2026-11-27  
 > 当前仓库：PaleSquire71029/zhixingapp  
-> 当前分支：main  
+> 默认分支：main  
+> 当前 UI 开发分支：docs/ui-first-calculator-roadmap（PR #92，尚未合并）  
 > 项目接手指南：[docs/PROJECT_STATUS_AND_GUIDE.md](./PROJECT_STATUS_AND_GUIDE.md)  
 > 总规划：[docs/ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md)
 
@@ -12,7 +13,7 @@
 
 ## 1. 当前项目状态
 
-**当前进度（核对至 2026-11-18）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均有完整 CI 通过记录。C5.18 新增纯 Kotlin `SineCosineEqualityEquation` / typed result / solver，支持 `sin(ax+b)=cos(cx+d)`，通过恒等变换复用 C5.17 的 `SineEqualityEquationSolver`，新增 15 个 JUnit 测试。PR #90 已 squash 合并到 main，合并提交 `62b5ad2942b107891eb703b465bf4b8a4f9e4b6c`；Build #473（Run ID `44337799622`）完整 success：Markdown 本地链接、Android 资源、全部 JVM 单元测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与 Gradle / JDK / Checkout 清理均通过；最新 Debug Artifact `14441438575`，31,215,377 bytes，SHA-256 `3b0bc239429338fcef06af7abcdc32f23cf2338ada72cd665d20cb0a78e55955`。首轮 Build #472（Run ID `44337385602`）发现一个浮点相位 fixture 不能精确证明常数恒等；已修正夹具并新增精度拒绝回归测试，Build #473 全量通过。CI 仅编译 Android 测试源码，没有执行模拟器 / 真机 instrumentation tests。C8.8.1–C8.8.2 已将单位换算接入原生「工具」页并完善九类切换、输入、单位选择与交换、即时结果、同类单位一览、完整等式复制、清除输入、未完成数字中间态、64 字符长度边界、窄屏纵向布局与 TalkBack 语义；所有换算统一调用 `UnitConverter`。单位换算页真机验收按用户要求暂缓。主壳 / PR #88 相关交互已有用户确认的目标设备验收记录，但 PR #88 在 GitHub 仍显示 open，不应误写成已合并。完整计算器主页面与专用数学输入、函数图像 Compose UI、化学原生迁移、知行 AI Android 客户端、账号 / 云历史和 Release AAB / 签名流程仍未完成。
+**当前进度（核对至 2026-11-27）：** 数学内核 C0.1–C4.3、C5.1–C5.18、C6.1–C6.2、C7.1–C7.6 和 C8.1–C8.7 均保留为已验收基线；F6.2 没有修改它们。Zhixing Flow F0–F3、F4.1–F4.5、F5.1–F5.5 均已完成代码实现与 CI。F4.5 的 5 项 JVM 测试由 CI 实际运行，5 项 Activity instrumentation 测试源码只编译、未在模拟器运行。F5.1–F5.5 页面已迁入独立 screen 并接入统一滚动；F5.5 单位换算保留五组状态与原 Presenter / Formatter / Domain。F6.1 / UI-0 已完成真实计算器基线审计。F6.2a 新增纯 Kotlin 编辑状态 / reducer、Presenter 和 JVM 测试（Build #546 success）；F6.2b 新增标准 `CalculatorScreen` 并挂载计算 Tab，使用只读可选区表达式编辑框、五行应用内标准键盘、结果实时预览 / 确认 / 错误反馈和 Saveable 编辑状态。Build #547 曾因 `PaddingValues` 参数形式失败，修正后 #548 通过；第五行键盘布局调整后的当前版本由 Build #549（Run ID `46011425977`）完整通过。Build #549 实际执行全部 JVM 测试、编译 instrumentation 源码、组装 Debug APK 并上传 Artifact；没有启动模拟器 / 真机执行 Activity instrumentation tests。PR #92 仍 open，main 仍为 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
@@ -26,14 +27,19 @@
 | 函数 Domain | C7.1–C7.6 已完成 | 坐标点校验、一次 / 二次 / 三次 / 反比例拟合、统一定义域 / 求值 / 安全采样 |
 | 单位换算 Domain | C8.1–C8.7 已完成 | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口与旧版兼容性回归 |
 | 原生单位换算页面 | C8.8.2 交互完善已通过 CI；真机验收暂缓 | 完整等式复制、清除、输入中间态 / 长度边界、窄屏纵向选择、TalkBack 语义；Build #428 成功；未执行设备验收 |
-| 完整计算器主页面 | 未完成 | C12 尚未实施；不把独立单位换算工具页算作 C12 |
-| 专用数学输入 / QuestionDocument | 规划已恢复，未完成实现 | 题目文档模型、模板编辑、撤销 / 重做、专用键盘和符号搜索尚待实现 |
-| 函数图像 UI | 未完成 | Domain 求值 / 采样已完成；Compose 曲线、坐标轴、视口和交互未接入 |
+| UI 框架重建 | **F0–F3、F4.1–F4.5、F5.1–F5.5 均通过 CI** | App Shell / 导航回归通过（#525）；工具目录 / 我的 / History / Material Settings / Unit Converter 均已迁移（#528 / #530 / #533 / #536 / #539） |
+| 完整计算器主页面 | **F6.2 / UI-1 首版已接入，继续完善** | CalculatorScreen + 标准键盘 + 本地 Presenter 已通过 Build #549；光标 / 选区、错误细分、复制、窄屏与设备验收待后续切片 |
+| 专用数学输入 / QuestionDocument | 分阶段实施 | 先交付基础表达式编辑与应用内键盘；复杂题目文档、嵌套模板和符号搜索排在 UI-9 |
+| 函数图像 UI | 未完成；UI-7 规划中 | 首轮接入现有拟合 / 采样；Compose 曲线、坐标轴、视口和交互待实现 |
 | 化学配平 / 反应预测 | 未迁移 | 需要原生 Kotlin 算法、守恒与条件回归 |
 | 知行 AI Android 客户端 | 未开始 | Worker 移动端安全通道、网络 / SSE、上下文面板尚未接入 |
 | 账号与云历史 | 未开始 | Android 认证、本地持久化和云端历史尚未接入 |
-| 最新 Debug APK | Build #473 | [Artifact 14441438575](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622/artifacts/14441438575)，31,215,377 bytes；包含 C5.18 线性角正弦—余弦等式，PR #90 已合并 main，完整 Actions workflow success |
+| 最新 Debug APK | Build #549 | [Artifact 15203873016](https://github.com/PaleSquire71029/zhixingapp/actions/runs/46011425977/artifacts/15203873016)，31,483,195 bytes；当前 CalculatorScreen 版本通过 Markdown / 资源检查、JVM 测试、Android 测试源码编译、Debug APK 组装与上传；instrumentation 未在模拟器运行；PR #92 仍未合并 main |
 | Release AAB | 未开始 | 正式签名与发布构建尚未配置 |
+
+### 当前执行阶段（2026-11-27）
+
+**当前入口为 Zhixing Flow F6.2 / Calculator UI-1 完善。** F0–F3、F4.1–F4.5、F5.1–F5.5 已通过 CI；F6.1 基线审计完成，详细 API / grammar / solver adapter / tests 见 [CALCULATOR_UI_BASELINE_AUDIT.md](./CALCULATOR_UI_BASELINE_AUDIT.md)。F6.2a 已新增 `CalculatorEditorState` / reducer 与 `CalculatorPresenter`；Build #546 成功，新增 10 项编辑状态测试和 6 项 Presenter 测试由 JVM CI 实际运行。F6.2b 已新增 `ui/screens/calculator/CalculatorScreen.kt` 并在 `ZhixingAppRoot` 中明确挂到 CALCULATOR route；`rememberSaveable` 保存表达式 / 选区，表达式栏允许光标 / 选区交互而默认不弹系统 IME；首版五行键盘支持数字、小数、加减乘除、幂、括号、百分号、AC、退格、等号；结果实时预览，按等号确认，失败不显示成 0。Build #547 首轮因 PaddingValues 参数错误失败，修正后 #548 success；键盘第五行收敛后的当前版本由 Build #549（Run ID `46011425977`）完整 success，Artifact 15203873016（31,483,195 bytes，SHA-256 `abf32232c6564b6fae8989560ac694d821867a7170c38b52d3e67cb0cf5e5078`）。Build #549 执行 JVM 测试、编译新增 Activity instrumentation 测试源码、组装并上传 Debug APK；没有启动模拟器或真机执行 UI 测试。当前继续 UI-1 的选区 / 光标、编辑边界、窄屏、无障碍和设备验收准备；不新增数学题型、不修改 C0–C8 Domain、不接入暂无字符串适配器的方程 / 不等式 Solver。
 
 ### 初始工程检查历史快照（非当前进度）
 
@@ -2262,3 +2268,180 @@ C8.4 为 `UnitDefinitionCatalog` 增加数据存储 10 项和角度 6 项，当�
 - 本步未运行模拟器 / 真机 instrumentation tests；只编译 Android 测试源码。不涉及 Parser、Compose、专用键盘、函数绘图、AI 或计算器 UI。
 
 **边界与后续：** C5.18 仅支持正弦与余弦两侧均为一次线性角的等式；不支持乘积型、多项三角项或任意复合三角表达式。下一候选 C5.19 为 `cos(ax+b)=cos(cx+d)`，仍需独立核对恒等分支、常数退化、周期族去重及大相位精度后再确定实施范围。
+
+
+### 28.1 F1：Zhixing Flow Foundations（2026-11-19）
+
+F1 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；最终 head `74160abbeaa8002a96ded0d6eff7932e2f6400ff` 的 Build #488（Run ID `44404842628`）完整 success；main 仍保持原基线，等待 PR 合并。
+
+**本步实现：**
+
+- 将 Color / Typography / Spacing / Shape / Elevation / Material / Motion / Interaction / Layout 九类设计令牌集中到 `ui/theme`。
+- `ZhixingTheme` 新增 palette、typography、spacingTokens、elevation、material、motion、interaction、layout；旧 colors / type / spacing / shapes 保持可用。
+- 保留原始浅色配色、系统默认字体回退、全部既有文字尺寸、13 项间距、首页 28dp / 18dp 形状、玻璃 12–32dp 半径与按压 / 转场 / 弹簧参数。
+- 将玻璃半径、形状和动效的旧访问器改为兼容 facade，统一委托到新的 Shape / Motion Token；未改 Backdrop 1.0.6、Shapes 1.2.0、GlassMaterialState、DataStore 或 PREMIUM / STANDARD / LITE / OFF / CUSTOM 性能档位。
+- Color 暴露现有品牌 / 表面 / 文字 / 描边值、选中容器色，以及 Material 3 当前默认的 error / tertiary 语义角色；没有凭空新增 success / warning 色值。
+- Elevation 收集当前 4dp / 6dp / 10dp 阴影；Material 定义 Canvas / Soft Surface / Flow Glass / Overlay 角色和阅读优先策略；Interaction 覆盖 IDLE / PRESSED / SELECTED / DISABLED / FOCUSED / LOADING / ERROR 七种状态、48dp 触控目标、2dp 焦点描边、0.12 pressed / selected alpha 和 0.38 disabled alpha；Motion 收录 120 / 180 / 220 / 280ms 时序及现有 spring；Layout 记录现有 68dp Dock 和固定层边界。
+- 新增 `DesignTokenContractTest`，覆盖颜色、Typography、Spacing、Shape、Elevation、Material、Motion、Interaction、Layout、Theme 入口及旧访问器兼容。
+- 未修改 MainActivity、页面、导航、Gradle 依赖、玻璃渲染器或业务代码；未执行真机视觉 / 性能验收。
+
+**CI：** Build #488（Run ID `44404842628`）完整 success；`:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin` 和 `:app:assembleDebug` 均通过，Debug Artifact `14472694324`（31,223,507 bytes）。CI 编译了 androidTest 源码，但没有执行设备 instrumentation / 模拟器或真机验收。
+
+**下一步：** F3 整页回弹独立原型；先验证整体位移 / 回弹与手势协调，不迁移业务页面。
+
+### 28.2 F2：Zhixing Flow Components & Design Gallery（2026-11-21）
+
+F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最终提交 `14a51148d1b407a17329b3500b536d3beeedb674`，Build #499（Run ID `44826734182`）完整 success。
+
+**本步实现：**
+
+- 新增 `ui/components` 基础组件：`ZhixingSurface`（普通浅色 Surface，不创建 Backdrop）、`ZhixingButton`、`ZhixingInput`、`ZhixingListRow`、`ZhixingSegmentedControl`、`ZhixingSheet`（仅内容容器，显隐由上层负责）、`ZhixingResultPanel`。
+- Button / ListRow 使用既有 Motion Tokens 提供按压缩放与状态色过渡；Button 增加 2dp 焦点描边和“已聚焦 / 加载中 / 已选中”状态语义。
+- SegmentedControl 使用 selectableGroup / RadioButton 语义；ListRow 暴露选中态与按钮角色；Input 统一 label / supporting / error / disabled / focused 反馈；Sheet 标题提供 heading 语义；ResultPanel 提供结果 / 错误状态描述。
+- 新增独立 `DesignGalleryScreen`，提供 390dp 手机与 720dp 宽屏 Preview；宽度小于 600dp 单列，达到 600dp 切换双列。Gallery 未注册到 MainActivity 或导航。
+- 新增 `DesignGalleryLayoutTest` 2 项 JVM 测试，覆盖 599dp / 600dp 布局断点；新增 `ZhixingComponentsTest` 5 项 Compose UI 测试，覆盖点击 / 禁用 / 加载、选中状态、焦点语义、输入错误与结果错误。当前 CI 编译 androidTest 源码，但不启动模拟器执行这些仪器测试。
+
+**兼容与范围：**
+
+- 不修改现有业务页面、MainActivity、导航、App Shell、资源、Gradle 依赖或数学 Domain。
+- 不改 Backdrop 1.0.6、Shapes 1.2.0、GlassMaterialState、DataStore、玻璃算法与性能分级；新 `ZhixingSurface` 明确不执行玻璃采样 / 模糊 / 折射。
+- 不改变 F1 设计令牌、现有字体和既有视觉数值；组件直接消费已存在的 Token。
+- PR #92 保持 open，main 仍为 `165a0ca2ff77aeae0868d8dbd2087c09cd9e6260`；未合并。
+
+**CI：** Build #499 完整 success；`:app:testDebugUnitTest`、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传均通过。Debug Artifact `14673652163`，31,277,617 bytes。未执行模拟器 / 真机 instrumentation tests，也未做目标设备视觉 / 触控验收。
+
+**下一步：** F3 整页回弹独立原型；先验证内容 viewport 整体位移与回弹、反向接管和嵌套控件协调，Dock / 系统栏 / IME 固定在内容变换层之外。F3 不提前迁移页面。
+
+
+
+### 28.3 F3：整页刚性回弹设备验收记录（2026-11-27）
+
+- F3 代码原型与自动化构建已由 Build #506 完整验收；Debug Scroll Lab 提供独立入口 `zhixing://scroll-lab`。
+- 用户安装测试后明确回复“继续，没问题”；据此将目标设备体验记录为用户确认通过。
+- 自动化边界保持明确：CI 编译了 3 项 Compose instrumentation 测试源码，但没有在模拟器执行这些测试；本条设备通过状态来自用户实际体验反馈，不将源码编译当成触控测试。
+
+### 28.4 F4.1：MainActivity 与 Shell 根内容拆分（2026-11-27）
+
+- 将原 `ZhixingApp` 根 Composable、现有页面展示与辅助 Surface 搬到 `ui/shell/ZhixingAppRoot.kt`；不改变内部导航状态、DataStore 恢复顺序、Backdrop Host、页面转场、Dock 和页面业务。
+- `MainActivity` 只保留 Window / Edge-to-edge / 系统栏图标对比度 / adjustResize 和 setContent，玻璃设置 Store 仍由 Activity 创建并注入。
+- Build #509（Run ID `45861464968`）完整 success：JVM 单测、Android 测试源码编译、Debug APK 组装与 Artifact 上传通过。
+
+### 28.5 F4.2：类型化根 / 二级路由（2026-11-27）
+
+- 新增 `AppRootRoute` 与 `AppSecondaryRoute`，路由值、Tab index、SaveableStateHolder key 集中定义；Shell 按 enum 分支，不再直接比较裸 route 字符串。
+- 一级根路由 Saver 继续以旧整数索引序列化；二级路由 Saver 继续以旧字符串序列化；根 / 二级页面的既有 saveable keys 保持不变，便于恢复已有保存状态。
+- 新增 3 项 JVM 测试，覆盖根路由顺序 / 索引、二级旧 route / state key 和非法索引回退。
+- Build #510 因 AnimatedContent 参数遮蔽外层可写状态而失败；重命名 lambda 参数为 `pageRoute` 后，Build #511（Run ID `45862127405`）完整 success。
+- Debug Artifact：15138253363（31,318,815 bytes）；Build #511 编译 Android 测试源码但不执行模拟器 / 真机 instrumentation tests。
+
+**下一步：** F4.3 将一级 Tab / 二级页状态封装为独立 AppNavigationState，测试 Tab 选择、二级页进入 / 返回、系统 Back 和进程重建后的状态恢复；仍不迁移业务页面。
+
+
+### 28.6 F4.3：AppNavigationState 与旧保存槽位兼容（2026-11-27）
+
+- 新增 `AppNavigationState`，统一管理 `AppRootRoute` / `AppSecondaryRoute` 的读取和操作：一级 Tab 选择、二级页打开 / 关闭、Back 能力与 Back 结果。
+- 新增 3 项 JVM 状态转移测试：二级页打开后 Back 返回原根 Tab；选择根 Tab 时关闭二级页并更新 Dock index；没有二级页时 Back 无状态变化。
+- 两条 `rememberSaveable` 调用保留在 `ZhixingAppRoot` 根 Composable 的原位置 / 原顺序，`rememberSaveableStateHolder` 仍排在其后；`AppNavigationState` 只包装 MutableState，不增加新的 Saveable composable 层级。
+- Build #515 验证 AppNavigationState 与状态测试 success；保存槽位位置收紧后的最终版本由 Build #516（Run ID `45863354210`）完整 success。Debug Artifact 15138024765（31,319,453 bytes）。
+
+### 28.7 F4.4a：固定 Dock overlay 独立提取（2026-11-27）
+
+- 新增 `ui/shell/ZhixingDockOverlay.kt`，把根 Shell 内固定 Dock 的定位 wrapper 独立封装，调用处只提供 Backdrop、GlassMaterialState、AppDestinations、selected index 与选择回调。
+- 内部仍复用 `ZhixingLiquidBottomBarPlacement` 和 `ZhixingCatalogBottomBar`；68dp 高度、Backdrop 共享实例、材质、四入口顺序、Dock 胶囊与点击回调保持不变。
+- 不改 Dock 动画、Insets / IME 避让、Backdrop / Glass 实现或系统栏配置；仅改变代码职责归属。
+- Build #517 进行首次提取验证；Build #518（Run ID `45863814661`）最终版本完整 success。Debug Artifact 15139212037（31,321,224 bytes，SHA-256 `6ded753757237e5945dff083d10441672a30a3d38cb35474e7ea79bf90d6ee3a`）。
+
+**下一步：** F4.4b 将页面 viewport 从 Shell 根布局中封装为独立 sibling 内容层，与固定 Dock overlay 明确分离；先只移动代码归属，不改页面滚动、Insets、IME、底部留白或 Dock 动画。
+
+### 28.8 F4.4b：页面 viewport 与固定 Dock sibling 分层（2026-11-27）
+
+- 新增 `ui/shell/ZhixingPageViewport.kt`，使用 layout-neutral、fillMaxSize 的 Box 承载现有一级页面分支。
+- 根 Shell 外层 Box 内，`ZhixingPageViewport` 与 `ZhixingDockOverlay` 是兄弟节点；Dock 不进入可滚动页面内容的 viewport。
+- 不增加 clip、scroll、padding、Insets 或 graphicsLayer；保留旧页面 `verticalScroll`、`Scaffold.innerPadding`、系统栏 / IME、Backdrop 和 Dock 动画。
+- Build #520（Run ID `45864663317`）完整 success；Debug Artifact 15139507502（31,323,452 bytes，SHA-256 `d30cc66c929e8523efc38bf41082ccaf3de344641da14cce0c7779d5f174cb9f`）。随后文档提交由 Build #521 完整验证。
+
+### 28.9 F4.4c：二级页面转场 owner 提取（2026-11-27）
+
+- 新增 `ui/shell/ZhixingSecondaryPageTransition.kt`，集中管理二级页面 `AnimatedContent`；根 Shell 只传入目标 `AppSecondaryRoute?` 与页面内容 lambda。
+- 保持既有转场契约：fade-in 230ms、slide-in 280ms（宽度 / 9）、initialScale 0.985；fade-out 170ms、slide-out 220ms（反向宽度 / 14）、targetScale 0.99，label `zhixingSecondaryPageTransition` 不变。
+- `BackHandler` 仍由 `ZhixingAppRoot` 持有，导航状态仍由 `AppNavigationState` 持有；不改变二级页面返回语义、SaveableStateHolder keys、Dock、viewport 或业务页面。
+- 新增 2 项 JVM 契约测试，分别锁定时间参数与几何 / scale / label。
+- Build #522（Run ID `45866322423`）完整 success：资源与 Markdown 检查、JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与清理通过。Artifact `zhixingapp-debug` ID `15140782538`，31,324,748 bytes，ZIP SHA-256 `39fe13e1666839332199f89237284fe046e4a0dfb35ad33ee182dfd7b26c600f`。首次 job 因外部 Maven SLF4J 元数据解析失败，重跑失败 job 后完整通过。
+- CI 没有启动模拟器执行 androidTest，也没有执行本步真机转场检查。
+
+### 28.10 F4.5：App Shell 导航与保存状态回归（2026-11-27）
+
+- 新增 `AppShellNavigationRegressionTest` 的 5 项 JVM 测试，覆盖四个根目的地的整数 Saver 往返、三个二级目的地的字符串 Saver 往返、选择每个根 Tab 后关闭二级页、全部根 Tab / 二级页组合的 Back 返回，以及非法恢复索引回退。
+- 新增 `ZhixingAppShellNavigationIntegrationTest` 的 5 项 Activity instrumentation 测试源码，覆盖四个一级 Tab、History / Unit Converter 的系统 Back、Activity recreate 后二级路由与原根 Tab 恢复、PageViewport 与 Dock 是否为 Shell host 的直接兄弟层。
+- Shell host、PageViewport 和 Dock 外层 Box 增加三个 semantics testTag，仅供自动化层级测试定位，不改变任何尺寸、布局、绘制、滚动、Insets 或交互行为。
+- Build #524 暴露 Saver receiver / Compose TestRule import 的编译错误；修复提交 `f3a0d7a73c7567dcb87d30e68175e8308f52ba23` 后 Build #525（Run ID `45986224060`）完整 success。资源 / Markdown 检查、全量 JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与清理均通过。
+- Debug Artifact `zhixingapp-debug` ID `15191837513`，31,324,808 bytes，ZIP SHA-256 `24a523278b0fadf732435c57decf104714aac8926e6288d75a805a03741e3125`。
+- 明确验收边界：5 项 JVM 回归测试由 CI 实际运行并通过；5 项 Activity instrumentation 测试只完成 Kotlin 源码编译，CI 没有启动模拟器执行，F4.5 真机 Back / Activity 重建 / 层级观感仍待目标设备实测。
+
+### 28.11 F5.1：工具目录迁移（2026-11-27）
+
+- 将 `ToolsDirectoryScreen` 从 `ui/units/UnitConverterScreen.kt` 拆分为 `ui/screens/tools/ToolsScreen.kt`，根 Shell 改用新 Composable。单位换算详情页及其 Presenter / Domain 没有修改。
+- 将工具目录的旧 `verticalScroll(rememberScrollState())` 替换为 F3 `ZhixingPageScrollContainer`，使工具目录采用统一的整页刚性回弹；`Scaffold.innerPadding`、页面左右间距、30dp 顶留白、112dp 底留白和固定 Dock sibling 关系保持不变。
+- 现有工具目录内容与交互保持：实用工具分组、单位换算玻璃卡片、点击后打开原二级页面。
+- 新增 1 项 Activity instrumentation 测试源码，检查工具目录使用 `tools-page-scroll-container`；CI 只编译该源码，不启动模拟器执行。
+- Build #527 因 `PaddingValues` 不支持 `horizontal + top + bottom` 组合而编译失败；修复为 `start / top / end / bottom` 后 Build #528（Run ID `45987533971`）完整 success。资源 / Markdown 检查、全量 JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与清理均通过。
+- Debug Artifact `zhixingapp-debug` ID `15193010359`，31,329,902 bytes，ZIP SHA-256 `daa94e5a38045a379c8cb1358c2e6dee7140076976ed1452f0216ed4f0c8200b`。
+
+### 28.12 F5.2：「我的」页面迁移（2026-11-27）
+
+- 保留旧 `ui/my/MyScreen.kt` 文件，新增独立页面 `ui/screens/my/MyScreen.kt`，`ZhixingAppRoot` 已切换引用新实现；旧实现暂不删除，留待总体验收后清理。
+- 将原页面 `verticalScroll(rememberScrollState())` 替换为 F3 `ZhixingPageScrollContainer`，使用 `my-page-scroll-container` testTag；保留 24dp 顶 / 底留白、页面横向间距、Logo、最近使用空状态、历史 / 材质入口、版本信息、玻璃卡片和导航回调。
+- 路由 owner、`AppRootRoute.MY.saveableStateKey`、SaveableStateProvider、Dock / PageViewport 同级层和材质 DataStore 回调均保持不变。
+- 新增 1 项 Activity instrumentation 测试源码，检查新页面刚性滚动容器以及最近使用 / 历史 / 材质内容。Build #530（Run ID `45988407684`）完整 success：资源 / Markdown 检查、全量 JVM 单测、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及清理均通过；但没有启动模拟器执行 Activity instrumentation tests。
+- Debug Artifact `zhixingapp-debug` ID `15193400267`，31,350,528 bytes，ZIP SHA-256 `951f2cd5b0943e10d11699f77e7b01513e0c9380bffaab5c2812b6dd44dc52e5`。
+
+### 28.13 F5.3：History 页面迁移（2026-11-27）
+
+- 保留旧 `ui/history/HistoryScreen.kt` 文件作为回退；新增 `ui/screens/history/HistoryScreen.kt`，Shell 改为引用新页面。
+- 将原页面 `verticalScroll(rememberScrollState())` 替换为 F3 `ZhixingPageScrollContainer`，添加 `history-page-scroll-container` testTag；保留独立 `BackdropHost`、`WindowInsets.safeDrawing`、20dp 横向 / 10dp 顶部 / 24dp 底部留白、返回按钮、标题与说明、空状态玻璃卡片。
+- 本阶段没有历史存储，继续明确显示“还没有计算记录”；没有伪造本地历史，也不混入 AI 对话。
+- 新增 1 项 Activity instrumentation 测试源码，覆盖刚性滚动容器与原空状态。Build #532 因拆分时遗漏 `GlassMaterialState` import 而失败；修复提交 `b732e4a2ddcfbdfd77848ac63aeab8855c7d9fda` 补回 import 后 Build #533（Run ID `45989365859`）完整 success：全量 JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传均通过；CI 未启动模拟器执行 instrumentation tests。
+- Debug Artifact `zhixingapp-debug` ID `15192139647`，31,359,450 bytes，ZIP SHA-256 `f2fdac2fe767f2a8db1f7cf72eb8ea0ab6055d9229fd2c4cfe4a3ce3e9bff720`。
+
+### 28.14 F5.4：Material Settings 页面迁移（2026-11-27）
+
+- 新增 `ui/screens/settings/material/MaterialSettingsScreen.kt` 并切换 Shell；旧 `ui/lab/GlassLabScreen.kt` 保留作回退。性能档位数据模型和配置解析仍复用 `ui/lab/GlassPerformanceTier.kt`。
+- 将页面滚动替换为 `ZhixingPageScrollContainer`，保留独立 BackdropHost、`WindowInsets.safeDrawing` 在滚动容器外层、原 20dp 横向 / 10dp 顶部 / 20dp 底部留白、返回按钮和恢复默认操作。
+- 保留全部 9 组 `rememberSaveable` 状态（性能档位、模糊半径、折射开关 / 强度、色散、边缘高光、环境反射、触摸反馈、透明程度）；没有调整范围、档位值、开关可用条件、`onMaterialChange` / `onMaterialCommit` / `onMaterialReset` 和 DataStore 持久化语义。
+- 新增 1 项 Activity instrumentation 测试源码，检查刚性滚动容器、恢复默认与“透明程度”控件；CI 只编译源码，不启动模拟器执行，因此不视为滑块 / 开关真机验收。
+- 首轮 Build #535 暴露 PaddingValues import / 测试文案错误，修复提交 `4ffd0e762229bf68393940c89cdc40890896baf5`；Build #536 首次因外部 SLF4J Maven 元数据问题在依赖解析阶段失败，重跑失败 job 后完整 success（Run ID `45990601046`）：JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传均通过。
+- Debug Artifact `zhixingapp-debug` ID `15193905919`，31,408,446 bytes，ZIP SHA-256 `afbfa90a5b011b303676fb39f48a99c058cda3de35aba29aab21b17398127516`。
+
+### 28.15 F5.5：Unit Converter 页面迁移（2026-11-27）
+
+- 将 `UnitConverterScreen` 的 Shell 引用切换到独立页面 `ui/screens/units/UnitConverterScreen.kt`；旧 `ui/units/UnitConverterScreen.kt` 暂留作回退。
+- 新页面通过 `ZhixingPageScrollContainer` 承载内容，使用 `unit-converter-page-scroll-container` testTag；保留 safeDrawing / IME 避让、原横向间距、18dp 顶部 / 32dp 底部留白，单位类别横向滚动仍使用独立 `rememberScrollState`。
+- 保留全部五组 `rememberSaveable` 状态：类别 ID、原单位 ID、目标单位 ID、输入文本、复制结果状态；类别默认单位、原 / 目标单位选择、交换、即时结果、同类单位列表、错误 / 未完成输入、完整等式复制、清除和系统十进制键盘行为均保持。
+- 页面继续调用既有 `UnitConversionPresenter`、`UnitValueFormatter` 和 `UnitConverter`；本步没有复制或重写算法、单位目录或 Domain。根路由、二级页转场、SaveableStateHolder key、BackdropHost 与 Dock sibling 结构不变。
+- `ZhixingAppShellNavigationIntegrationTest.unitConverterUsesRigidPageScrollingAndKeepsConversionSections` 覆盖滚动容器和核心内容。Build #539（Run ID `45992101487`）完整 success；Artifact 15193614286（31,454,668 bytes，SHA-256 `68e96e034ed98dc1d1ce0d84cf6563a9bcd40fa81435aa8d4c6f6e3fe3ce3416`）。当前 PR 头 Build #542（Run ID `46007122726`）完整 success；Artifact 15201023521（31,454,666 bytes，SHA-256 `1483f10855a56a042101c01b9a4a8a2e8e0a8ba8b8303ae4868e5d7e8642e187`）。
+- Build #539 / #542 执行 JVM 测试、编译 androidTest 源码、组装 Debug APK 并上传 Artifact；没有启动模拟器执行 Activity instrumentation tests，也没有本步真机视觉 / 输入 / IME / 整页滚动验收。
+
+### 28.16 F6.1：Calculator UI 基线盘点（2026-11-27）
+
+- 完成真实入口核查：`MainActivity` 只持有 Window / setContent；`ZhixingAppRoot` 通过 `AppRootRoute.CALCULATOR` 选中首个根 Tab，但当前根页面仍落入通用介绍型占位布局。主源码中不存在 `CalculatorScreen`、Calculator 编辑器、应用内键盘或 Calculator ViewModel。
+- 确认标准算术的一站式入口：`MathArithmeticCalculator.calculate(source)` 串联 `MathTokenizer`、`MathExpressionParser`、`MathExpressionEvaluator`，返回 `MathCalculationResult.Success(Double)` 或 `Failure(stage, message, offset, lexeme)`。纯 Kotlin，不依赖 Android / Compose；UI 不应重复调用三个底层环节。
+- Tokenizer 支持数字、x、`+ - * / ^ ( ) %`，并归一化 `× / ÷ / 全角括号 / 全角 x / ² / ³` 等；Parser 支持显式 / 隐式乘法、括号、正负号、百分号和最多 64 的无符号整数指数链。当前 grammar 不含函数名、等号或不等号 token。
+- AST 保留 `MathSourceSpan`；Parser 有 EMPTY / INCOMPLETE / 括号不匹配 / token / exponent 等错误类型；Evaluator 具备 VARIABLE_NOT_ALLOWED / DIVISION_BY_ZERO / NON_FINITE_RESULT。注意顶层 `MathCalculationError` 当前只保留 stage / message / offset / lexeme，会折叠底层错误 code；UI-1 先忠实呈现现有结果，若需更细分类，另立最小的错误 code 透传步骤，不根据中文 message 反向猜类型。
+- 方程 / 不等式 Domain 由 `Polynomial`、`RationalFunction` 等模型和各 Solver 组成：如 `PolynomialEquationSolver.solve(PolynomialEquation)`、`PolynomialInequalitySolver.solve(PolynomialInequality)`、`RationalEquationSolver.solve(RationalEquation)`。它们不接收原始字符串；当前 `MathExpressionParser` 只解析单个算术表达式，不识别 `=` / 比较符，也没有已审计到的统一 AST → 方程 / 不等式 Domain adapter。因此本阶段不在标准模式里声称支持求方程 / 不等式。
+- 函数内核已有点集校验、一次 / 二次 / 三次 / 反比例拟合、`FunctionEvaluator` 和 `FunctionGraphSampler`；这些属于后续 F6 分项，不加入 UI-1。
+- 已有 JVM 测试：`MathTokenizerTest`、`MathExpressionParserTest`、`MathExpressionEvaluatorTest`、`CalculatorGoldenCasesTest`，以及 polynomial / rational / solver / function 各类专用测试；Golden Cases 分为 tokenizer / arithmetic / equations / inequalities。UI 暂无 Calculator Screen 测试。
+- UI 复用点：`ZhixingTheme` 已暴露九类 Token；`ZhixingButton`、`ZhixingInput`、`ZhixingSurface`、`ZhixingResultPanel`、`ZhixingSegmentedControl` 可以作为控件基础；`UnitConversionPresentation.kt` 提供纯 Kotlin Presenter / Presentation State 的现有范式。根 Shell 应继续拥有路由、Backdrop 和固定 Dock，计算页仍用 `AppRootRoute.CALCULATOR.saveableStateKey`；不在计算页里再建导航 / Dock。
+- UI-1 最小改动建议：新增 `ui/screens/calculator/CalculatorScreen.kt`；新增纯 Kotlin `ui/calculator/CalculatorEditorState.kt` / reducer 与 `CalculatorPresenter.kt`（名称可在实现前最终确定）；在 `ZhixingAppRoot` 对 CALCULATOR 明确分支挂载页面；新增编辑状态 / 按键 reducer / Presenter JVM 测试，以及 Calculator Screen instrumentation 测试源码。首版只开放 Parser 确实支持的标准算术键，应用内键盘默认工作，不自动弹出系统 IME；系统键盘入口、科学函数和更复杂的符号模板另行验收。
+- F6.1 为只读审计和接口规划，没有修改 Domain / Screen 代码；当前 PR #92 仍 open，main 不变。
+
+### 28.17 F6.2 / UI-1：标准计算器首版接入（2026-11-27）
+
+- F6.2a 新增纯 Kotlin `ui/calculator/CalculatorEditorState.kt`：表达式文本与 UTF-16 选区偏移、纯 reducer `InsertText / SetSelection / Backspace / DeleteForward / Clear / InsertParentheses`；支持反向选区替换、成对括号及 Unicode surrogate pair 安全删除。新增 10 项 `CalculatorEditorStateTest`。
+- F6.2a 新增纯 Kotlin `CalculatorPresenter`：空输入作为 Empty；成功返回原始 Double 与非舍入格式化文本；失败保留 `MathCalculationError`，不根据本地化消息猜原因。唯一求值入口是既有 `MathArithmeticCalculator.calculate(source)`。新增 6 项 `CalculatorPresenterTest`，覆盖基本运算、空输入、未完成表达式、除零、变量和数值格式化。Build #546（Run ID `46009853613`）完整 success，Debug Artifact 15204430335。
+- F6.2b 新增 `ui/screens/calculator/CalculatorScreen.kt`，在 `ZhixingAppRoot` 显式挂载 CALCULATOR root route，保留 `root-calculator` SaveableStateProvider key、Backdrop / PageViewport / Dock sibling 与根导航归属。
+- 页面使用 `rememberSaveable` 恢复表达式及选区；表达式区通过只读 `BasicTextField` 保留光标 / 选区交互，默认不弹出系统软键盘。首版五行应用内键盘：AC、成对括号、百分号、四则运算、数字、小数点、幂、等号；退格在表达式栏。结果有实时预览与等号确认，空 / 未完成 / 失败状态不会被伪装成数值 0。
+- 新增 3 项 Activity instrumentation 测试源码：标准键盘计算、退格 / AC、未完成表达式错误展示。CI 只编译这些源码，不启动模拟器执行点击测试。
+- Build #547 曾因 `PaddingValues` 命名参数错误而失败；修正后 Build #548 完整 success。第五行键盘布局调整的当前代码由 Build #549（Run ID `46011425977`）完整 success：JVM 单测、androidTest 源码编译、Debug APK 组装及 Artifact 上传全部通过。Artifact `zhixingapp-debug` ID `15203873016`，31,483,195 bytes，SHA-256 `abf32232c6564b6fae8989560ac694d821867a7170c38b52d3e67cb0cf5e5078`。
+- 当前没有运行模拟器 / 真机 instrumentation 测试；表达式选择、光标定位、连续点按、360dp 窄屏、TalkBack 与 Dock 遮挡仍需设备验收。UI 首版不接入科学函数、方程 / 不等式 Solver、AI 或函数图像，不改数学 Domain。
+
+**下一步：** 继续 F6.2 / UI-1：完善光标 / 选区的插入与替换、退格 / 前删边界、长表达式浏览、系统键盘显式切换入口（不默认弹出）；补充无障碍语义 / 屏幕尺寸适配。确认标准模式交互稳定后再进入 F6.3 / UI-2 科学输入与表达式编辑。

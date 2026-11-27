@@ -1,17 +1,18 @@
 # 知行 Android App 项目操作指南与历史交接记录
 
-> **核对日期：2026-11-17（UTC）**  
+> **核对日期：2026-11-27（UTC+8）**  
 > **仓库：** PaleSquire71029/zhixingapp  
-> **分支：** main  
+> **默认分支：** main  
+> **当前 UI 开发分支：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **文档目的：** 让新对话、开发者或未来的维护者不依赖聊天记录，也能准确知道项目做到哪里、哪些只是代码落地、如何构建 APK，以及下一步应该怎么做。
 
 ---
 
 ## 1. 先看结论
 
-本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；主壳、导航、材质、数学内核和工具页面按独立阶段实施。
+本项目采用 Android 原生 Kotlin + Jetpack Compose，普通本地计算不强制登录；Zhixing Flow F0–F3、F4.1–F4.5 与 F5.1–F5.5 均有 CI 通过记录。F5 页面已迁入 `ui/screens/...`；单位换算仍保留原 Presenter / Formatter / Domain 和五组 `rememberSaveable` 状态，设备验收另行进行。F6.1 已完成计算器真实代码基线盘点，标准计算入口、Parser grammar、typed result、Solver / function 模型、JVM 测试和可复用 UI 组件见 [CALCULATOR_UI_BASELINE_AUDIT.md](./CALCULATOR_UI_BASELINE_AUDIT.md)。当前下一步 F6.2 / UI-1 标准计算主页骨架；不会复制算法或在首版暴露未连接字符串适配器的方程 / 不等式 Solver。PR #92 仍 open，main 尚未合并。
 
-**本文件是开发与交接方法手册，不是进度账本。** 当前代码实现、构建 / Artifact、真机验收和下一步只在 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 记录；C0–C12 数学阶段的范围、约束和依赖只在 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md) 维护。长期产品范围见 [ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md) 与各专项规划。
+**本文件是开发与交接方法手册，不是进度账本。** 当前代码实现、构建 / Artifact、真机验收和下一步只在 [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) 记录；当前计算器任务顺序以 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 为准；既有 C0–C8 数学内核的算法契约和历史验收见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)。长期产品范围见 [ANDROID_APP_MASTER_PLAN.md](./ANDROID_APP_MASTER_PLAN.md) 与各专项规划。
 
 必须区分三种状态：
 
@@ -67,7 +68,12 @@
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/SpacingTokens.kt` | 首页常用间距 | 统一管理既有 dp 间距，不改数值 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/ShapeTokens.kt` | 首页圆角形状 | 统一管理 28.dp / 18.dp 两种圆角 |
 | `app/src/main/java/ci/us/zhixing/app/ui/theme/TypeTokens.kt` | 首页文字样式角色 | 统一管理字号、行高、字重和字距；不绑定额外字体文件 |
-| `app/src/main/java/ci/us/zhixing/app/ui/theme/ZhixingTheme.kt` | 知行统一主题入口 | 暴露 colors / type / spacing / shapes，并应用浅色 Material 3 主题 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/ZhixingTheme.kt` | 知行统一主题入口 | 保留 colors / type / spacing / shapes，并新增九类 Tokens 的访问入口 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/ElevationTokens.kt` | 层级与阴影 Tokens | 集中当前 4dp / 6dp / 10dp 阴影规格 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/MaterialTokens.kt` | Canvas / Soft Surface / Flow Glass / Overlay 角色 | 只定义材质策略，不替代 Backdrop 渲染 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/MotionTokens.kt` | 共享动画时序 / 弹簧 / 位移 Tokens | 旧 ZhixingGlassMotion 继续兼容 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/InteractionTokens.kt` | 触控与选中状态 Tokens | 48dp 最小触控目标、选中底色透明度 |
+| `app/src/main/java/ci/us/zhixing/app/ui/theme/LayoutTokens.kt` | 页面与固定层布局契约 | 记录页面间距、68dp Dock 与未来单一 viewport 边界 |
 | `app/src/main/java/ci/us/zhixing/app/ui/lab/GlassLabScreen.kt` | Glass Lab 局部背景快照实验 | GraphicsLayer 捕获受控背景 Composable；局部裁切、模糊与手动刷新，不采集窗口内容 |
 | `app/src/main/java/ci/us/zhixing/app/ui/lab/BackdropCrop.kt` | 背景快照源区域计算 | 纯函数计算居中面板裁切区域，非法尺寸返回 null |
 | `app/src/test/java/ci/us/zhixing/app/ui/lab/GlassBackdropCropTest.kt` | 背景快照裁切单元测试 | 正常、极小和无效输入覆盖；当前待执行 |
@@ -75,11 +81,17 @@
 | `app/src/test/java/ci/us/zhixing/app/navigation/AppDestinationTest.kt` | 导航数据契约的 JVM 单元测试 | 未来逐步增加状态和导航测试 |
 | `app/src/main/res/drawable-nodpi/zhixing_logo.webp` | 用户提供的蓝紫渐变图标 | 不随意裁切、重绘或改变比例 |
 | `app/src/main/res/drawable-nodpi/zhixing_logo.webp` 与 launcher mipmap XML | 品牌图片与自适应桌面图标资源 | 检查不同启动器遮罩效果 |
+| `app/src/main/java/ci/us/zhixing/app/ui/components/` | Zhixing Flow F2 基础组件库 | 只组合 F1 tokens；普通 Surface 不调用玻璃算法；页面迁移后再复用 |
+| `app/src/main/java/ci/us/zhixing/app/ui/components/DesignGalleryScreen.kt` | 独立组件展示页，390dp / 720dp Preview，600dp 断点 | 不接入 MainActivity / 导航；仅用于设计与状态验收 |
+| `app/src/test/java/ci/us/zhixing/app/ui/components/DesignGalleryLayoutTest.kt` | Gallery 单列 / 双列断点 JVM 测试 | 由 `:app:testDebugUnitTest` 执行 |
+| `app/src/androidTest/java/ci/us/zhixing/app/ui/components/ZhixingComponentsTest.kt` | Compose 组件点击、选中、禁用、加载、焦点和错误语义测试 | 当前 CI 只编译 androidTest 源码，不运行模拟器 |
 | `.github/workflows/android-build.yml` | 自动测试、打包和上传 Debug APK | 每次主分支 push 会触发 |
 
 品牌图标具体资源文件名以仓库实际文件为准；不要把旧网页的书本图标或其他项目图标替换进来。
 
 ## 3. 已经做了什么
+
+**Zhixing Flow F0–F3、F4.1–F4.5 Shell 与 F5.1–F5.5 页面迁移均已通过 CI。** F4.5 的 5 项 JVM 回归实际运行通过；Activity instrumentation 源码只编译、未在模拟器执行。F5.1–F5.5 的迁移记录和 Artifact 见权威账本。F6.1 已完成只读基线审计：当前计算入口仍是占位页，但标准算术可直接复用 `MathArithmeticCalculator.calculate(source)`；更详细的 parser 能力 / 限制、equation solver 模型输入、测试和 UI 复用清单见 [CALCULATOR_UI_BASELINE_AUDIT.md](./CALCULATOR_UI_BASELINE_AUDIT.md)。下一步 F6.2 / UI-1 计算主页骨架与标准模式。PR #92 仍 open、main 尚未合并。
 
 **液态玻璃专项执行路线已于 2026-11-01 重置：** 以用户上传的 Backdrop Catalog APK 为视觉 / 交互基准，锁定上游 tag 1.0.6，直接移植官方 LiquidBottomTabs、DampedDragAnimation、InteractiveHighlight、LiquidButton、LiquidSlider、LiquidToggle 等源码；不升级 Backdrop 2.x，不复制整套 Demo App。详细步骤见 [LIQUID_GLASS_REDESIGN_PLAN.md 第 25 节](./LIQUID_GLASS_REDESIGN_PLAN.md)。
 
@@ -167,6 +179,8 @@
 下面这些能力目前**没有完成原生迁移**，不能在测试 APK 中期待它们已经能用。
 
 ### 4.1 计算器核心
+
+**当前开发顺序：** 先按 [CALCULATOR_UI_FIRST_ROADMAP.md](./CALCULATOR_UI_FIRST_ROADMAP.md) 开发主计算页、应用内键盘、结果 / 错误展示、工具页面和现有内核接入；C5.19 等新数学题型暂缓。下方 C0–C8 内容用于说明已有 / 尚未迁移的算法边界，不应被理解成需要先完成全部算法才开始 UI。
 
 **历史阶段记录（2026-11-06）：** C0.1 黄金样例、C1 Tokenizer 已通过 CI；当时 C2 AST / Parser 的右结合幂链测试断言已于 `782dd334` 修正。该阶段后续已由 Build #350、#363 等记录更新，不应将这一旧段落视为当前接续状态。详见 [CALCULATOR_CORE_MIGRATION_PLAN.md](./CALCULATOR_CORE_MIGRATION_PLAN.md)。
 
