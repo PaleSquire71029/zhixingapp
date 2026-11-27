@@ -47,7 +47,7 @@ import ci.us.zhixing.app.ui.glass.GlassMaterialSettingsStore
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.ZhixingGlassSurface
 import ci.us.zhixing.app.ui.lab.GlassLabScreen
-import ci.us.zhixing.app.ui.history.HistoryScreen
+import ci.us.zhixing.app.ui.screens.history.HistoryScreen
 import ci.us.zhixing.app.ui.screens.my.MyScreen
 import ci.us.zhixing.app.ui.screens.tools.ToolsScreen
 import ci.us.zhixing.app.ui.units.UnitConverterScreen

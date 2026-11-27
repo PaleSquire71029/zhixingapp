@@ -110,6 +110,15 @@ class ZhixingAppShellNavigationIntegrationTest {
     }
 
     @Test
+    fun historyPageUsesRigidPageScrollContainerAndKeepsEmptyState() {
+        composeRule.onNode(tab("我的")).performClick()
+        composeRule.onNodeWithText("历史记录").performClick()
+        composeRule.onNodeWithTag("history-page-scroll-container").assertIsDisplayed()
+        composeRule.onNodeWithText("还没有计算记录").assertIsDisplayed()
+        composeRule.onNodeWithText("这里只展示本地计算记录，不会混入 AI 对话。").assertIsDisplayed()
+    }
+
+    @Test
     fun pageViewportAndDockAreDirectSiblingLayersInTheShellHost() {
         val host = composeRule.onNodeWithTag(
             "zhixing-shell-layer-host",
