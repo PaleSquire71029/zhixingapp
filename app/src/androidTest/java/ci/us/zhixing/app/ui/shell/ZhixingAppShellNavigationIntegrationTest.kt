@@ -48,6 +48,47 @@ class ZhixingAppShellNavigationIntegrationTest {
     }
 
     @Test
+    fun calculatorStandardKeypadCalculatesAndDisplaysTheResult() {
+        composeRule.onNode(tab("计算")).performClick()
+        composeRule.onNodeWithTag("calculator-page-scroll-container").assertIsDisplayed()
+
+        composeRule.onNodeWithTag("calculator-key-digit-7").performClick()
+        composeRule.onNodeWithTag("calculator-key-multiply").performClick()
+        composeRule.onNodeWithTag("calculator-key-digit-8").performClick()
+        composeRule.onNodeWithTag("calculator-key-equals").performClick()
+
+        composeRule.onNodeWithText("计算结果").assertIsDisplayed()
+        composeRule.onNodeWithTag("calculator-result-panel").assertIsDisplayed()
+        composeRule.onNodeWithText("56").assertIsDisplayed()
+    }
+
+    @Test
+    fun calculatorClearAndBackspaceKeepTheExpressionAndResultInSync() {
+        composeRule.onNode(tab("计算")).performClick()
+
+        composeRule.onNodeWithTag("calculator-key-digit-1").performClick()
+        composeRule.onNodeWithTag("calculator-key-digit-2").performClick()
+        composeRule.onNodeWithTag("calculator-key-backspace").performClick()
+        composeRule.onNodeWithTag("calculator-key-digit-3").performClick()
+        composeRule.onNodeWithTag("calculator-key-equals").performClick()
+        composeRule.onNodeWithText("13").assertIsDisplayed()
+
+        composeRule.onNodeWithTag("calculator-key-ac").performClick()
+        composeRule.onNodeWithText("输入表达式后，结果会显示在这里").assertIsDisplayed()
+    }
+
+    @Test
+    fun calculatorShowsParserErrorInsteadOfTreatingIncompleteInputAsZero() {
+        composeRule.onNode(tab("计算")).performClick()
+        composeRule.onNodeWithTag("calculator-key-digit-2").performClick()
+        composeRule.onNodeWithTag("calculator-key-add").performClick()
+        composeRule.onNodeWithTag("calculator-key-equals").performClick()
+
+        composeRule.onNodeWithText("暂时无法计算").assertIsDisplayed()
+        composeRule.onNodeWithText("表达式不完整").assertIsDisplayed()
+    }
+
+    @Test
     fun androidBackClosesHistoryAndReturnsToTheMyRootTab() {
         composeRule.onNode(tab("我的")).performClick()
         composeRule.onNodeWithText("历史记录").performClick()

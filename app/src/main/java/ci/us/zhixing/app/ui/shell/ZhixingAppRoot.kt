@@ -48,6 +48,7 @@ import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.ZhixingGlassSurface
 import ci.us.zhixing.app.ui.screens.settings.material.MaterialSettingsScreen
 import ci.us.zhixing.app.ui.screens.history.HistoryScreen
+import ci.us.zhixing.app.ui.screens.calculator.CalculatorScreen
 import ci.us.zhixing.app.ui.screens.my.MyScreen
 import ci.us.zhixing.app.ui.screens.tools.ToolsScreen
 import ci.us.zhixing.app.ui.screens.units.UnitConverterScreen
@@ -209,6 +210,16 @@ internal fun ZhixingAppRoot(
                                 onOpenUnitConverter = {
                                     navigationState.openSecondary(AppSecondaryRoute.UNIT_CONVERTER)
                                 },
+                            )
+                        }
+                    } else if (navigationState.rootRoute == AppRootRoute.CALCULATOR) {
+                        saveableStateHolder.SaveableStateProvider(AppRootRoute.CALCULATOR.saveableStateKey) {
+                            CalculatorScreen(
+                                backdrop = backdrop,
+                                material = contentGlassMaterial,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding),
                             )
                         }
                     } else {
