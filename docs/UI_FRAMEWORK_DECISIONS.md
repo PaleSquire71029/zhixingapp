@@ -93,6 +93,14 @@ AppState、路由、Dock、页面容器、状态恢复和页面转场移入独�
 - Build #525 完整 success，Debug Artifact 15191837513（31,324,808 bytes）；Build #524 曾因测试代码编译错误失败，修复后已由 #525 全量复验通过。
 - F4.5 CI 范围已满足进入 F5 的结构性前置条件；实际设备 Back 手势、Activity 重建和层级视觉仍需后续目标设备验收。
 
+### 2.8 F5.1：工具目录首个页面迁移（2026-11-27）
+
+- 从单位换算源文件中拆出工具目录 Composable 至 `ui/screens/tools/ToolsScreen.kt`，让页面职责与单位换算 domain / presenter 分离。
+- 工具目录由自身 `verticalScroll` 改为 `ZhixingPageScrollContainer`；继续使用原 Scaffold innerPadding、横向页面留白、顶部 / 底部内容留白、玻璃卡片和单位换算回调。
+- 单位换算二级页、Presenter 与 Domain 未修改。工具目录当前只有单位换算一个真实入口，不提前展示未实现工具。
+- Build #528（Run ID `45987533971`）完整 success，Debug Artifact 15193010359；Build #527 的 PaddingValues 编译错误修复后全量复验通过。
+- 新增的 Activity instrumentation 测试只编译、未由 CI 启动模拟器执行。
+
 ## 3. 导航决策：暂不使用 Navigation 3
 
 当前只有 4 个 Tab 和 3 个单层二级页面，二级返回只需退出到对应根 Tab；没有深链、多层页面栈、多个独立返回栈或复杂结果传递。当前路由仅为字符串，确实需要在 F4 建立类型安全的 Destination / DetailRoute，但没有必要现在额外引入导航框架。

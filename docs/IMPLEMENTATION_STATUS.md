@@ -2379,4 +2379,13 @@ F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最
 - Debug Artifact `zhixingapp-debug` ID `15191837513`，31,324,808 bytes，ZIP SHA-256 `24a523278b0fadf732435c57decf104714aac8926e6288d75a805a03741e3125`。
 - 明确验收边界：5 项 JVM 回归测试由 CI 实际运行并通过；5 项 Activity instrumentation 测试只完成 Kotlin 源码编译，CI 没有启动模拟器执行，F4.5 真机 Back / Activity 重建 / 层级观感仍待目标设备实测。
 
-**下一步：** F4 Shell 结构、导航状态与转场 owner 已具备 CI 验证；进入 F5 Existing Screens，按工具目录 → 我的 / 历史 / 材质设置 → 单位换算逐页迁移。每页需单独验证状态恢复、Dock / IME 避让、统一刚性滚动、玻璃层级和原业务行为，不重写数学 Domain。
+### 28.11 F5.1：工具目录迁移（2026-11-27）
+
+- 将 `ToolsDirectoryScreen` 从 `ui/units/UnitConverterScreen.kt` 拆分为 `ui/screens/tools/ToolsScreen.kt`，根 Shell 改用新 Composable。单位换算详情页及其 Presenter / Domain 没有修改。
+- 将工具目录的旧 `verticalScroll(rememberScrollState())` 替换为 F3 `ZhixingPageScrollContainer`，使工具目录采用统一的整页刚性回弹；`Scaffold.innerPadding`、页面左右间距、30dp 顶留白、112dp 底留白和固定 Dock sibling 关系保持不变。
+- 现有工具目录内容与交互保持：实用工具分组、单位换算玻璃卡片、点击后打开原二级页面。
+- 新增 1 项 Activity instrumentation 测试源码，检查工具目录使用 `tools-page-scroll-container`；CI 只编译该源码，不启动模拟器执行。
+- Build #527 因 `PaddingValues` 不支持 `horizontal + top + bottom` 组合而编译失败；修复为 `start / top / end / bottom` 后 Build #528（Run ID `45987533971`）完整 success。资源 / Markdown 检查、全量 JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与清理均通过。
+- Debug Artifact `zhixingapp-debug` ID `15193010359`，31,329,902 bytes，ZIP SHA-256 `daa94e5a38045a379c8cb1358c2e6dee7140076976ed1452f0216ed4f0c8200b`。
+
+**下一步：** F5.2 迁移「我的」根页面到独立 `ui/screens/my/MyScreen.kt`，采用统一整页刚性滚动，保持最近使用空状态、历史 / 材质入口、版本信息和导航回调不变。随后再拆分 History / Material Settings，最后迁移 Unit Converter 二级页面；每步都单独构建与验证。
