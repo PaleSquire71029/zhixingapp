@@ -128,6 +128,16 @@ class ZhixingAppShellNavigationIntegrationTest {
     }
 
     @Test
+    fun unitConverterUsesRigidPageScrollingAndKeepsConversionSections() {
+        composeRule.onNode(tab("工具")).performClick()
+        composeRule.onNodeWithText("单位换算").performClick()
+        composeRule.onNodeWithTag("unit-converter-page-scroll-container").assertIsDisplayed()
+        composeRule.onNodeWithText("换算类别").assertIsDisplayed()
+        composeRule.onNodeWithText("输入数值").assertIsDisplayed()
+        composeRule.onNodeWithText("换算结果").assertIsDisplayed()
+    }
+
+    @Test
     fun pageViewportAndDockAreDirectSiblingLayersInTheShellHost() {
         val host = composeRule.onNodeWithTag(
             "zhixing-shell-layer-host",
