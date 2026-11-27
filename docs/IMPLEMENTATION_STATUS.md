@@ -2388,4 +2388,12 @@ F2 已在 PR #92 的 `docs/ui-first-calculator-roadmap` 分支完成；代码最
 - Build #527 因 `PaddingValues` 不支持 `horizontal + top + bottom` 组合而编译失败；修复为 `start / top / end / bottom` 后 Build #528（Run ID `45987533971`）完整 success。资源 / Markdown 检查、全量 JVM 测试、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传与清理均通过。
 - Debug Artifact `zhixingapp-debug` ID `15193010359`，31,329,902 bytes，ZIP SHA-256 `daa94e5a38045a379c8cb1358c2e6dee7140076976ed1452f0216ed4f0c8200b`。
 
-**下一步：** F5.2 迁移「我的」根页面到独立 `ui/screens/my/MyScreen.kt`，采用统一整页刚性滚动，保持最近使用空状态、历史 / 材质入口、版本信息和导航回调不变。随后再拆分 History / Material Settings，最后迁移 Unit Converter 二级页面；每步都单独构建与验证。
+### 28.12 F5.2：「我的」页面迁移（2026-11-27）
+
+- 保留旧 `ui/my/MyScreen.kt` 文件，新增独立页面 `ui/screens/my/MyScreen.kt`，`ZhixingAppRoot` 已切换引用新实现；旧实现暂不删除，留待总体验收后清理。
+- 将原页面 `verticalScroll(rememberScrollState())` 替换为 F3 `ZhixingPageScrollContainer`，使用 `my-page-scroll-container` testTag；保留 24dp 顶 / 底留白、页面横向间距、Logo、最近使用空状态、历史 / 材质入口、版本信息、玻璃卡片和导航回调。
+- 路由 owner、`AppRootRoute.MY.saveableStateKey`、SaveableStateProvider、Dock / PageViewport 同级层和材质 DataStore 回调均保持不变。
+- 新增 1 项 Activity instrumentation 测试源码，检查新页面刚性滚动容器以及最近使用 / 历史 / 材质内容。Build #530（Run ID `45988407684`）完整 success：资源 / Markdown 检查、全量 JVM 单测、`:app:compileDebugAndroidTestKotlin`、`:app:assembleDebug`、Artifact 上传及清理均通过；但没有启动模拟器执行 Activity instrumentation tests。
+- Debug Artifact `zhixingapp-debug` ID `15193400267`，31,350,528 bytes，ZIP SHA-256 `951f2cd5b0943e10d11699f77e7b01513e0c9380bffaab5c2812b6dd44dc52e5`。
+
+**下一步：** F5.3 将 History 二级页面从 `ui/history/HistoryScreen.kt` 拆到 `ui/screens/history/HistoryScreen.kt` 并接入 `ZhixingPageScrollContainer`；保留真实空状态、独立 Backdrop 与返回回调。然后迁移 Material Settings、Unit Converter；旧文件待每个替代页验收后再清理。

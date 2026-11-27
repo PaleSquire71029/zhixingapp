@@ -101,6 +101,13 @@ AppState、路由、Dock、页面容器、状态恢复和页面转场移入独�
 - Build #528（Run ID `45987533971`）完整 success，Debug Artifact 15193010359；Build #527 的 PaddingValues 编译错误修复后全量复验通过。
 - 新增的 Activity instrumentation 测试只编译、未由 CI 启动模拟器执行。
 
+### 2.9 F5.2：「我的」页面迁移（2026-11-27）
+
+- 新增 `ui/screens/my/MyScreen.kt` 并切换 Shell 引用；旧 `ui/my/MyScreen.kt` 保留，不在替代实现验收前删除。
+- 将旧页面自有 `verticalScroll` 替换为 `ZhixingPageScrollContainer`；保留原 `Scaffold.innerPadding` 输入、24dp 顶 / 底留白、页面横向间距、最近使用空状态、历史 / 材质设置入口、版本信息、玻璃卡片及回调。
+- 根 Tab Saver / SaveableStateProvider key、Dock / viewport 层级、DataStore 材质状态均不变。Build #530（Run ID `45988407684`）完整 success，Artifact 15193400267。
+- 新增 1 项 Activity instrumentation 测试源码；CI 仅编译，未启动模拟器执行。
+
 ## 3. 导航决策：暂不使用 Navigation 3
 
 当前只有 4 个 Tab 和 3 个单层二级页面，二级返回只需退出到对应根 Tab；没有深链、多层页面栈、多个独立返回栈或复杂结果传递。当前路由仅为字符串，确实需要在 F4 建立类型安全的 Destination / DetailRoute，但没有必要现在额外引入导航框架。

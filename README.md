@@ -8,7 +8,7 @@
 > **当前 UI 开发：** `docs/ui-first-calculator-roadmap`（PR #92，尚未合并）  
 > **当前工程版本：** 0.1.2 / versionCode 3  
 > **最近完整算法与 APK CI：** [Android Build #473](https://github.com/PaleSquire71029/zhixingapp/actions/runs/44337799622)（C5.18 最终 PR，完整 JVM 测试、Android 测试源码编译和 Debug APK 组装通过）  
-> **当前 UI 框架 CI：** [Build #528](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45987533971)（PR #92 F5.1 工具目录迁移，JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过；Artifact 15193010359）  
+> **当前 UI 框架 CI：** [Build #530](https://github.com/PaleSquire71029/zhixingapp/actions/runs/45988407684)（PR #92 F5.2「我的」页面迁移，JVM 测试、Android 测试源码编译、Debug APK 组装与 Artifact 上传完整通过；Artifact 15193400267）  
 > **文档权威规则：** [文档体系修复计划](docs/DOCUMENTATION_REPAIR_PLAN.md)；当前进度以 `docs/IMPLEMENTATION_STATUS.md` 为准。
 
 ---
@@ -36,14 +36,14 @@
 | 函数工具内核 | **C7.1–C7.6 已完成** | 点集校验、一次 / 二次 / 三次 / 反比例拟合、定义域、求值和安全采样 |
 | 单位换算内核 | **C8.1–C8.7 已完成** | 九类目录、76 个线性单位、3 个温度仿射单位、统一入口及旧版回归验收 |
 | 原生单位换算页面 | **C8.8.2 交互完善已通过 CI** | 复制完整等式、清除输入、未完成数字状态、64 字符限制、窄屏纵向布局和 TalkBack 语义；真机验收按用户要求暂缓 |
-| Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.5 已完成；F5.1 工具目录已迁移** | Shell 回归（#525）、工具目录接入刚性页面滚动（#528）通过 CI；我的 / 历史 / 材质设置 / 单位换算仍待迁移；PR #92 仍 open，未合并 |
+| Zhixing Flow UI 框架 | **F0–F3、F4.1–F4.5、F5.1–F5.2 已通过 CI** | 工具目录（#528）、「我的」页（#530）已迁移并接入刚性页面滚动；历史 / 材质设置 / 单位换算仍待迁移；PR #92 仍 open，未合并 |
 | 计算器原生页面 / 专用输入 | **待接入** | 计算内核已建立，仍需完成可用的原生输入、结果展示和页面交互 |
 | 函数图像 UI | **待接入** | 函数拟合、定义域和采样数据层已完成，Compose 图表页面尚未完成 |
 | 化学配平与反应预测 | **待迁移** | 旧项目已有算法参考，Android 原生迁移尚未完成 |
 | 知行 AI Android 客户端 | **待接入** | 已有接入方案，Android 客户端尚未完成 |
 | 原生账号、云历史 | **待接入** | 尚未完成 Android 端认证、持久化与云端历史接入 |
 
-**当前工作重心：Zhixing Flow F5 Existing Screens 逐页迁移。** F4 Shell 已完成；F5.1 已将工具目录从 `ui/units/UnitConverterScreen.kt` 拆至 `ui/screens/tools/ToolsScreen.kt`，并接入 F3 `ZhixingPageScrollContainer`，Build #528（Run ID `45987533971`）完整 success。页面原有内容、玻璃卡片、单位换算入口回调、Scaffold innerPadding 与 Dock 兄弟层不变；单位换算页面 / Presenter / Domain 未改动。新增 1 项工具目录刚性滚动的 Activity instrumentation 测试源码，但 CI 只编译、不执行该测试。PR #92 仍 open、未合并；F5 下一步迁移「我的」页，再处理历史、材质设置与单位换算。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
+**当前工作重心：Zhixing Flow F5 Existing Screens 逐页迁移。** F5.1 将工具目录迁入 `ui/screens/tools/ToolsScreen.kt` 并接入 `ZhixingPageScrollContainer`，Build #528 通过；F5.2 将「我的」页迁入 `ui/screens/my/MyScreen.kt` 并接入同一刚性滚动容器，Build #530（Run ID `45988407684`）通过。两页均保留原有内容 / 回调和 Dock、Scaffold 层级；旧「我的」页文件暂留作回退，尚未清理。新增的 Activity instrumentation 测试源码仅编译、没有在模拟器执行；本步不代表真机滚动验收。PR #92 仍 open、未合并。下一步迁移 History，再迁移 Material Settings 和 Unit Converter；不改数学 Domain。详细规划见 [界面框架重建计划](docs/ZHIXING_DESIGN_SYSTEM_REBUILD_PLAN.md)。
 
 ---
 
@@ -112,6 +112,13 @@
 - 工具目录由原 `verticalScroll(rememberScrollState())` 切换到 `ZhixingPageScrollContainer`，使用 F3 的整页刚性视口位移效果；保留原 30dp 顶部 / 112dp 底部留白、左右页面间距、Scaffold innerPadding 和 Dock 固定 sibling。
 - UnitConverterScreen、UnitConversionPresenter、UnitConverter Domain 均未修改；本步不迁移单位换算详情页。
 - 新增 1 项 Activity instrumentation 测试源码验证工具目录挂载刚性滚动容器。Build #527 曾因 PaddingValues 命名参数组合错误而失败，修正为显式 start / top / end / bottom 后 Build #528（Run ID `45987533971`）完整 success。Debug Artifact 15193010359（31,329,902 bytes，SHA-256 `daa94e5a38045a379c8cb1358c2e6dee7140076976ed1452f0216ed4f0c8200b`）。CI 编译 instrumentation 测试源码但没有启动模拟器执行。
+
+### 2026-11-27：Zhixing Flow F5.2「我的」页面迁移
+
+- 保留旧 `ui/my/MyScreen.kt`，新增独立 `ui/screens/my/MyScreen.kt`，根 Shell 改为引用新页面；旧文件暂不删除，待迁移总体验收后再清理。
+- 将页面内原 `verticalScroll(rememberScrollState())` 替换为 `ZhixingPageScrollContainer`，保留原 24dp 顶 / 底留白、页面左右间距、品牌 Logo、最近使用空状态、历史记录与材质设置入口、版本信息、玻璃卡片及回调。
+- 根路由、SaveableStateProvider key、Dock / PageViewport 层级与材质状态来源未改。
+- 新增 1 项 Activity instrumentation 测试源码检查「我的」页的刚性滚动容器与历史 / 材质入口。Build #530（Run ID `45988407684`）完整 success；Artifact 15193400267（31,350,528 bytes，SHA-256 `951f2cd5b0943e10d11699f77e7b01513e0c9380bffaab5c2812b6dd44dc52e5`）。CI 仅编译 instrumentation 测试源码，未启动模拟器执行。
 
 ### 1. 2026-10-31：项目启动与 Android 原生基础
 
