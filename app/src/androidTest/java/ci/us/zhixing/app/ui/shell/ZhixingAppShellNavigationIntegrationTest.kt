@@ -119,6 +119,15 @@ class ZhixingAppShellNavigationIntegrationTest {
     }
 
     @Test
+    fun materialSettingsUsesRigidScrollingAndKeepsOpticalControls() {
+        composeRule.onNode(tab("我的")).performClick()
+        composeRule.onNodeWithText("材质设置").performClick()
+        composeRule.onNodeWithTag("material-settings-page-scroll-container").assertIsDisplayed()
+        composeRule.onNodeWithText("恢复默认").assertIsDisplayed()
+        composeRule.onNodeWithText("透明度").assertIsDisplayed()
+    }
+
+    @Test
     fun pageViewportAndDockAreDirectSiblingLayersInTheShellHost() {
         val host = composeRule.onNodeWithTag(
             "zhixing-shell-layer-host",

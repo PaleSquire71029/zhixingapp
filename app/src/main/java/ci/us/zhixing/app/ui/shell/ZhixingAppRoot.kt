@@ -46,7 +46,7 @@ import ci.us.zhixing.app.ui.glass.DEFAULT_HOME_GLASS_MATERIAL
 import ci.us.zhixing.app.ui.glass.GlassMaterialSettingsStore
 import ci.us.zhixing.app.ui.glass.GlassMaterialState
 import ci.us.zhixing.app.ui.glass.ZhixingGlassSurface
-import ci.us.zhixing.app.ui.lab.GlassLabScreen
+import ci.us.zhixing.app.ui.screens.settings.material.MaterialSettingsScreen
 import ci.us.zhixing.app.ui.screens.history.HistoryScreen
 import ci.us.zhixing.app.ui.screens.my.MyScreen
 import ci.us.zhixing.app.ui.screens.tools.ToolsScreen
@@ -120,7 +120,7 @@ internal fun ZhixingAppRoot(
             AppSecondaryRoute.MATERIAL -> saveableStateHolder.SaveableStateProvider(
                 AppSecondaryRoute.MATERIAL.saveableStateKey,
             ) {
-                GlassLabScreen(
+                MaterialSettingsScreen(
                     onBack = { navigationState.closeSecondary() },
                     initialMaterial = glassMaterial,
                     onMaterialChange = { material ->
